@@ -168,7 +168,6 @@ export const en: Translations = {
 	},
 	footer: {
 		tagline: 'Live bites, made on the spot.',
-		basedIn: 'From Hilversum, the Netherlands',
 		instagram: 'Instagram',
 		facebook: 'Facebook',
 		tiktok: 'TikTok',

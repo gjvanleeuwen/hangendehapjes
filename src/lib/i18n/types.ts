@@ -87,7 +87,6 @@ export type Translations = {
 	};
 	footer: {
 		tagline: string;
-		basedIn: string;
 		instagram: string;
 		facebook: string;
 		tiktok: string;

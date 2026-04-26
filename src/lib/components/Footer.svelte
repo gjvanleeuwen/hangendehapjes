@@ -14,7 +14,6 @@
 		<div>
 			<p class="font-wordmark text-lg font-bold uppercase tracking-[0.08em] text-primary">Hangende Hapjes</p>
 			<p class="text-sm text-muted-foreground">{t.footer.tagline}</p>
-			<p class="text-sm text-muted-foreground">{t.footer.basedIn}</p>
 		</div>
 		<div class="flex flex-col gap-2 text-sm md:items-end">
 			<a

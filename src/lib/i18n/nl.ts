@@ -155,7 +155,7 @@ export const nl: Translations = {
 			message: 'Bericht'
 		},
 		placeholders: {
-			message: 'Vertel ons over je feest — sfeer, locatie, eventuele wensen…'
+			message: 'Vertel ons over je feest, sfeer, locatie, eventuele wensen en meer.'
 		},
 		optional: 'optioneel',
 		submit: 'Verstuur',
@@ -167,8 +167,7 @@ export const nl: Translations = {
 			'Er ging iets mis. Probeer het zo nog eens, of mail ons direct op info@hangendehapjes.nl.'
 	},
 	footer: {
-		tagline: 'Live hapjes, ter plekke gemaakt.',
-		basedIn: 'Vanuit Hilversum, Nederland',
+		tagline: 'Live hapjes, heerlijk entertainend eten.',
 		instagram: 'Instagram',
 		facebook: 'Facebook',
 		tiktok: 'TikTok',
