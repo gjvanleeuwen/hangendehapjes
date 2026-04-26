@@ -31,9 +31,9 @@ export const nl: Translations = {
 	about: {
 		heading: 'Aan wie hangen de hapjes?',
 		body: [
-			'Dat zijn Charlotte en Gijs. Net 1 jaar getrouwd maar al bijna 15 jaar samen en er is één ding waar wij echt blij van worden: eten verzorgen voor anderen. De ervaring van talloze feestjes en diners thuis nemen we nu mee naar ons eerste catering concept.',
-			'Maar als er één ding is waar we niet eensgezind over zijn, is het wel etenskeuze. Charlotte is een echte bakker en fan van zoet en klassiek, Gijs houdt juist van alles nieuw, anders en hartig koken.',
-			'Gelukkig heb jij daar alleen maar profijt van! Twee super leuke concepten, hartig én zoet, voor op jouw bruiloft of evenement.'
+			'Dat zijn Charlotte en Gijs. Bijna één jaar getrouwd en al 12 jaar samen, is er één ding waar wij echt blij van worden: eten verzorgen voor anderen. De ervaring van talloze feestjes en diners thuis nemen wij nu mee naar ons eerste catering concept.',
+			'Maar als er één ding is waar we niet eensgezind over zijn, is het wel etenskeuze. Charlotte is een echte bakker en zoutekauw maar ook een fan van "hearty" en "classic" eten. Daarentegen houdt Gijs juist van alles nieuw en anders en is hartig koken meer zijn passie.',
+			'Gelukkig hebben jullie daar alleen maar profijt van! Twee super leuke concepten, hartig en zoet, voor op jouw Bruiloft, borrel of ander evenement.'
 		]
 	},
 	products: {

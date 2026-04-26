@@ -8,6 +8,8 @@
 		OG_IMAGE_HEIGHT,
 		OG_IMAGE_PATH,
 		OG_IMAGE_WIDTH,
+		PRODUCT_MIN_PORTIONS,
+		PRODUCT_PRICES_EUR_FROM,
 		ROUTES,
 		SITE_NAME,
 		SITE_URL,
@@ -25,23 +27,69 @@
 	const ogLocale = $derived(locale === 'nl' ? 'nl_NL' : 'en_US');
 	const ogLocaleAlt = $derived(locale === 'nl' ? 'en_US' : 'nl_NL');
 
+	const businessId = SITE_URL + '/#localbusiness';
+
 	const jsonLd = $derived({
 		'@context': 'https://schema.org',
-		'@type': 'LocalBusiness',
-		name: SITE_NAME,
-		description: t.meta.description,
-		url: canonical,
-		image: ogImage,
-		email: CONTACT_EMAIL,
-		address: {
-			'@type': 'PostalAddress',
-			addressLocality: 'Hilversum',
-			addressCountry: 'NL'
-		},
-		areaServed: { '@type': 'Country', name: 'Netherlands' },
-		sameAs: [INSTAGRAM_URL, FACEBOOK_URL, TIKTOK_URL],
-		priceRange: '€€',
-		inLanguage: locale === 'nl' ? 'nl-NL' : 'en-US'
+		'@graph': [
+			{
+				'@type': 'LocalBusiness',
+				'@id': businessId,
+				name: SITE_NAME,
+				description: t.meta.description,
+				url: canonical,
+				image: ogImage,
+				email: CONTACT_EMAIL,
+				address: {
+					'@type': 'PostalAddress',
+					addressLocality: 'Hilversum',
+					addressCountry: 'NL'
+				},
+				areaServed: { '@type': 'Country', name: 'Netherlands' },
+				sameAs: [INSTAGRAM_URL, FACEBOOK_URL, TIKTOK_URL],
+				priceRange: '€€',
+				inLanguage: locale === 'nl' ? 'nl-NL' : 'en-US'
+			},
+			...t.products.items.map((product) => ({
+				'@type': 'Service',
+				'@id': `${SITE_URL}/#service-${product.id}`,
+				name: product.name,
+				description: product.pitch,
+				serviceType: 'Catering',
+				provider: { '@id': businessId },
+				areaServed: { '@type': 'Country', name: 'Netherlands' },
+				image: SITE_URL + product.image,
+				offers: {
+					'@type': 'Offer',
+					priceCurrency: 'EUR',
+					price: PRODUCT_PRICES_EUR_FROM[product.id],
+					availability: 'https://schema.org/InStock',
+					priceSpecification: {
+						'@type': 'UnitPriceSpecification',
+						price: PRODUCT_PRICES_EUR_FROM[product.id],
+						priceCurrency: 'EUR',
+						referenceQuantity: {
+							'@type': 'QuantitativeValue',
+							value: PRODUCT_MIN_PORTIONS,
+							unitText: 'portions'
+						}
+					}
+				}
+			})),
+			{
+				'@type': 'FAQPage',
+				'@id': `${SITE_URL}/#faq-${locale}`,
+				inLanguage: locale === 'nl' ? 'nl-NL' : 'en-US',
+				mainEntity: t.faq.items.map((item) => ({
+					'@type': 'Question',
+					name: item.question,
+					acceptedAnswer: {
+						'@type': 'Answer',
+						text: item.answer
+					}
+				}))
+			}
+		]
 	});
 
 	const jsonLdHtml = $derived(jsonLdScript(jsonLd));

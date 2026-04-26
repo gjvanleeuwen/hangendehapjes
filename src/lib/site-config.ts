@@ -9,6 +9,13 @@ export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;
 export const ALT_DOMAINS = ['detoetjesvrouw.nl', 'deborrelbaas.nl'] as const;
 
+export const PRODUCT_PRICES_EUR_FROM = {
+	toetjes: 425,
+	borrel: 450
+} as const;
+
+export const PRODUCT_MIN_PORTIONS = 50;
+
 export const ROUTES = {
 	nl: '/',
 	en: '/en'
