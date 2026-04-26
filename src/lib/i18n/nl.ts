@@ -102,7 +102,7 @@ export const nl: Translations = {
 			},
 			{
 				id: 'combine',
-				question: 'Kan ik beide concepten boeken, en wie komt er serverem?',
+				question: 'Kan ik beide concepten boeken, en wie komt er serveren?',
 				answer:
 					'Zeker, je kan beide concepten los of samen op één feest boeken. Sommige hosts kiezen voor De BorrelBaas tijdens de borrel/receptie en De ToetjesVrouw als dessert. Zowel Gijs als Charlotte maken heerlijke tiramisu en burrata-bowls, wie er komt is afhankelijk van de beschikbaarheid en is niet verbonden met de conceptkeuze.'
 			},
