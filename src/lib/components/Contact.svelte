@@ -23,6 +23,8 @@
 	let website = $state('');
 	let submitting = $state(false);
 
+	const today = new Date().toISOString().slice(0, 10);
+
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		if (submitting) return;
@@ -50,7 +52,15 @@
 				})
 			});
 
-			if (!res.ok) throw new Error('send_failed');
+			if (!res.ok) {
+				const data = (await res.json().catch(() => null)) as { error?: string } | null;
+				if (res.status === 429 || data?.error === 'rate_limited') {
+					toast.error(t.contact.errorRateTitle, { description: t.contact.errorRateBody });
+				} else {
+					toast.error(t.contact.errorTitle, { description: t.contact.errorBody });
+				}
+				return;
+			}
 
 			toast.success(t.contact.successTitle, { description: t.contact.successBody });
 			name = '';
@@ -81,7 +91,14 @@
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<div class="space-y-2">
 					<Label for="name">{t.contact.labels.name}</Label>
-					<Input id="name" name="name" required bind:value={name} autocomplete="name" />
+					<Input
+						id="name"
+						name="name"
+						required
+						maxlength={100}
+						bind:value={name}
+						autocomplete="name"
+					/>
 				</div>
 				<div class="space-y-2">
 					<Label for="email">{t.contact.labels.email}</Label>
@@ -90,6 +107,7 @@
 						name="email"
 						type="email"
 						required
+						maxlength={254}
 						bind:value={email}
 						autocomplete="email"
 					/>
@@ -99,28 +117,48 @@
 						{t.contact.labels.phone}
 						<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
 					</Label>
-					<Input id="phone" name="phone" type="tel" bind:value={phone} autocomplete="tel" />
+					<Input
+						id="phone"
+						name="phone"
+						type="tel"
+						maxlength={30}
+						bind:value={phone}
+						autocomplete="tel"
+					/>
 				</div>
 				<div class="space-y-2">
 					<Label for="eventDate">
 						{t.contact.labels.eventDate}
 						<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
 					</Label>
-					<Input id="eventDate" name="eventDate" type="date" bind:value={eventDate} />
+					<Input
+						id="eventDate"
+						name="eventDate"
+						type="date"
+						min={today}
+						bind:value={eventDate}
+					/>
 				</div>
 				<div class="space-y-2">
 					<Label for="location">
 						{t.contact.labels.location}
 						<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
 					</Label>
-					<Input id="location" name="location" bind:value={location} />
+					<Input id="location" name="location" maxlength={200} bind:value={location} />
 				</div>
 				<div class="space-y-2">
 					<Label for="guests">
 						{t.contact.labels.guests}
 						<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
 					</Label>
-					<Input id="guests" name="guests" type="number" min="1" bind:value={guests} />
+					<Input
+						id="guests"
+						name="guests"
+						type="number"
+						min="1"
+						max="99999"
+						bind:value={guests}
+					/>
 				</div>
 			</div>
 
@@ -145,6 +183,7 @@
 					name="message"
 					rows={5}
 					required
+					maxlength={5000}
 					placeholder={t.contact.placeholders.message}
 					bind:value={message}
 				/>

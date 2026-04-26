@@ -164,7 +164,9 @@ export const nl: Translations = {
 		successBody: 'We reageren meestal binnen 1–2 dagen.',
 		errorTitle: 'Versturen mislukt',
 		errorBody:
-			'Er ging iets mis. Probeer het zo nog eens, of mail ons direct op info@hangendehapjes.nl.'
+			'Er ging iets mis. Probeer het zo nog eens, of mail ons direct op info@hangendehapjes.nl.',
+		errorRateTitle: 'Eventjes wachten',
+		errorRateBody: 'Je hebt net iets verstuurd. Probeer het over een minuut nog eens.'
 	},
 	footer: {
 		tagline: 'Live hapjes, heerlijk entertainend eten.',

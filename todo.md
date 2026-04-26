@@ -89,6 +89,7 @@ Goal: get cited by ChatGPT, Perplexity, Gemini, Claude when people ask "live cat
 
 ## Worth knowing, not urgent
 
+- [ ] **Embed live social proof on the homepage**: latest Instagram post (or a small grid) and a Google Reviews block once GBP has a few reviews. Instagram has no clean official embed for SvelteKit — either oEmbed iframe per post (simple, ~okay perf) or fetch via Instagram Basic Display API and render natively (more work, better LCP). Google reviews: use the Places API `place_details` → render server-side; avoid third-party widgets that ship a tracker. Wire `aggregateRating` into the `Service` JSON-LD at the same time.
 - [ ] JSON-LD `LocalBusiness` is missing `telephone`, `streetAddress`, and `postalCode` (all flagged as non-critical by Rich Results Test). Add as a bundle if/when you want a richer Google Knowledge Panel — adding only `telephone` won't unlock it on its own. Fine to keep just city while the business is new, and don't put a home address in there if you'd rather not. Edit in [src/lib/components/SEO.svelte](src/lib/components/SEO.svelte).
 - [ ] Sitemap omits `<lastmod>` — fine for two URLs, would matter at scale.
 - [x] No `Service` schema for the two products. Worth adding when you have reviews/quotes to attach. — added entry-tier `Service` nodes (with `Offer` + `UnitPriceSpecification` per 50-portion reference quantity) into a `@graph` alongside `LocalBusiness` in [src/lib/components/SEO.svelte](src/lib/components/SEO.svelte). Add `aggregateRating` later once reviews exist.

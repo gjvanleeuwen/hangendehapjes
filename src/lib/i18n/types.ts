@@ -84,6 +84,8 @@ export type Translations = {
 		successBody: string;
 		errorTitle: string;
 		errorBody: string;
+		errorRateTitle: string;
+		errorRateBody: string;
 	};
 	footer: {
 		tagline: string;

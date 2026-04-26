@@ -226,6 +226,18 @@ const cases: Case[] = [
 		expectIssueOn: 'name'
 	},
 	{
+		name: 'guests as number passes (HTML5 type=number ships as JSON number)',
+		input: { name: 'G', email: 'g@x.com', message: 'hi', guests: 100 },
+		shouldPass: true,
+		check: (o) => ((o as { guests: string }).guests === '100' ? null : 'guests not coerced to string')
+	},
+	{
+		name: 'guests as string still passes',
+		input: { name: 'G', email: 'g@x.com', message: 'hi', guests: '100' },
+		shouldPass: true,
+		check: (o) => ((o as { guests: string }).guests === '100' ? null : 'guests not preserved')
+	},
+	{
 		name: 'interests not an array fails',
 		input: { name: 'G', email: 'g@x.com', message: 'hi', interests: 'tiramisu' },
 		shouldPass: false,

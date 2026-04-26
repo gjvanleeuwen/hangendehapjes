@@ -43,8 +43,8 @@ export const PayloadSchema = v.object({
 	),
 	guests: v.optional(
 		v.pipe(
-			v.string(),
-			v.transform((s) => s.replace(CRLF, ' ').trim()),
+			v.union([v.string(), v.number()]),
+			v.transform((s) => String(s).replace(CRLF, ' ').trim()),
 			v.maxLength(10, 'guests too long')
 		),
 		''

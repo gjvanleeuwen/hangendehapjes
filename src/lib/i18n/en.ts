@@ -164,7 +164,9 @@ export const en: Translations = {
 		successBody: 'We usually reply within 1–2 days.',
 		errorTitle: 'Sending failed',
 		errorBody:
-			'Something went wrong. Try again in a bit, or email us directly at info@hangendehapjes.nl.'
+			'Something went wrong. Try again in a bit, or email us directly at info@hangendehapjes.nl.',
+		errorRateTitle: 'Just a moment',
+		errorRateBody: 'You just submitted something. Try again in a minute.'
 	},
 	footer: {
 		tagline: 'Live bites, made on the spot.',
