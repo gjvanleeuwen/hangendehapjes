@@ -31,9 +31,9 @@ export const en: Translations = {
 	about: {
 		heading: 'Who do the bites hang from?',
 		body: [
-			'That’s Charlotte and Gijs. Just 1 year married, almost 15 years together, and if there’s one thing that genuinely makes us happy, it’s putting on food for other people.',
-			'After countless parties and dinners at home, we’re channelling that experience into our first catering concept. With a tray full of homemade bites, we walk between your guests. We have a chat, offer a smile and something tasty on a small plate.',
-			'We don’t actually see eye to eye on food: Charlotte is more sweet and classic, Gijs more savoury and new. That only works in your favour, two concepts that complement each other nicely.'
+			'That’s Charlotte and Gijs. Almost one year married and 12 years together, and if there’s one thing that genuinely makes us happy, it’s putting on food for other people. We’re bringing the experience of countless parties and dinners at home into our first catering concept.',
+			'But if there’s one thing we don’t see eye to eye on, it’s food. Charlotte is a real baker and savoury-tooth, but also a fan of "hearty" and "classic" food. Gijs on the other hand loves everything new and different, and savoury cooking is more his passion.',
+			'Lucky for you, that only works in your favour! Two really fun concepts, savoury and sweet, for your wedding, drinks reception or any other event.'
 		]
 	},
 	products: {
@@ -59,7 +59,7 @@ export const en: Translations = {
 			{
 				id: 'borrel',
 				name: 'De Borrel Baas',
-				pitch: 'Burrata bowl with toppings and dips of your choice for extra variety.',
+				pitch: 'Burrata bowl with your choice of toppings and dips.',
 				priceFrom: 'From €450',
 				priceNote: '50 portions',
 				bullets: [
@@ -102,15 +102,15 @@ export const en: Translations = {
 			},
 			{
 				id: 'combine',
-				question: 'Can I book both concepts — and who comes?',
+				question: 'Can I book both concepts, and who comes to serve?',
 				answer:
-					'Sure, separately or together at the same party. Some hosts pick De Borrel Baas during drinks and De Toetjes Vrouw at the dessert moment. Your guests can also say whether they’d rather see Charlotte or Gijs — including cross-overs, because Gijs makes great tiramisu and Charlotte makes great burrata bowls.'
+					'Sure, you can book both concepts separately or together at the same party. Some hosts pick De Borrel Baas during the drinks/reception and De Toetjes Vrouw for dessert. Both Gijs and Charlotte make delicious tiramisu and burrata bowls — who comes depends on availability and isn’t tied to which concept you pick.'
 			},
 			{
 				id: 'portion',
 				question: 'How big is a portion?',
 				answer:
-					'A portion is about the same size as 3 or 4 standard bites (crostini, bar snacks etc.). Guests get a tidy little dish that’s well-filled with something tasty. We go for quality and you see it in how we present the bites and how they taste.'
+					'A portion is about the same size as 2 or 3 standard bites (crostini, bar snacks etc.). Guests get a tidy little dish that’s well-filled with something tasty. We go for quality and you see it in how we present the bites and how they taste.'
 			},
 			{
 				id: 'pace',
@@ -155,7 +155,7 @@ export const en: Translations = {
 			message: 'Message'
 		},
 		placeholders: {
-			message: 'Tell us about your party — vibe, venue, any wishes…'
+			message: 'Tell us about your party, the vibe, venue, any wishes and more.'
 		},
 		optional: 'optional',
 		submit: 'Send',
@@ -169,7 +169,7 @@ export const en: Translations = {
 		errorRateBody: 'You just submitted something. Try again in a minute.'
 	},
 	footer: {
-		tagline: 'Live bites, made on the spot.',
+		tagline: 'Live bites, deliciously entertaining food.',
 		instagram: 'Instagram',
 		facebook: 'Facebook',
 		tiktok: 'TikTok',
