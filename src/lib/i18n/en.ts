@@ -39,8 +39,6 @@ export const en: Translations = {
 	products: {
 		heading: 'Will you pick sweet or savoury?',
 		intro: 'One for the drinks, one for dessert. Bookable separately or together at the same party.',
-		moreInfo: 'More info',
-		lessInfo: 'Less info',
 		items: [
 			{
 				id: 'toetjes',
@@ -172,6 +170,8 @@ export const en: Translations = {
 		tagline: 'Live bites, made on the spot.',
 		basedIn: 'From Hilversum, the Netherlands',
 		instagram: 'Instagram',
+		facebook: 'Facebook',
+		tiktok: 'TikTok',
 		emailLabel: 'Email'
 	}
 };

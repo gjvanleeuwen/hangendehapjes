@@ -8,12 +8,16 @@ export const handle: Handle = async ({ event, resolve }) => {
 	});
 };
 
+const SILENT_STATUSES = new Set([404, 405]);
+
 export const handleError: HandleServerError = ({ error, event, status, message }) => {
-	void notifyError(error, {
-		source: 'unhandled server error',
-		url: event.url.pathname + event.url.search,
-		method: event.request.method,
-		status
-	});
+	if (!SILENT_STATUSES.has(status)) {
+		void notifyError(error, {
+			source: 'unhandled server error',
+			url: event.url.pathname + event.url.search,
+			method: event.request.method,
+			status
+		});
+	}
 	return { message };
 };

@@ -3,13 +3,15 @@
 	import type { Locale, Translations } from '$lib/i18n/types';
 	import {
 		CONTACT_EMAIL,
+		FACEBOOK_URL,
 		INSTAGRAM_URL,
 		OG_IMAGE_HEIGHT,
 		OG_IMAGE_PATH,
 		OG_IMAGE_WIDTH,
 		ROUTES,
 		SITE_NAME,
-		SITE_URL
+		SITE_URL,
+		TIKTOK_URL
 	} from '$lib/site-config';
 	import { jsonLdScript } from '$lib/seo';
 
@@ -37,7 +39,7 @@
 			addressCountry: 'NL'
 		},
 		areaServed: { '@type': 'Country', name: 'Netherlands' },
-		sameAs: [INSTAGRAM_URL],
+		sameAs: [INSTAGRAM_URL, FACEBOOK_URL, TIKTOK_URL],
 		priceRange: '€€',
 		inLanguage: locale === 'nl' ? 'nl-NL' : 'en-US'
 	});

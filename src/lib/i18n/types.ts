@@ -40,8 +40,6 @@ export type Translations = {
 	products: {
 		heading: string;
 		intro: string;
-		moreInfo: string;
-		lessInfo: string;
 		items: Product[];
 	};
 	faq: {
@@ -91,6 +89,8 @@ export type Translations = {
 		tagline: string;
 		basedIn: string;
 		instagram: string;
+		facebook: string;
+		tiktok: string;
 		emailLabel: string;
 	};
 };

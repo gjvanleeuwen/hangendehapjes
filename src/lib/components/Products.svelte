@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Translations } from '$lib/i18n/types';
 	import * as Card from '$lib/components/ui/card/index.js';
-	import * as Accordion from '$lib/components/ui/accordion/index.js';
+	import { Separator } from '$lib/components/ui/separator/index.js';
 	import SectionHeading from './SectionHeading.svelte';
 
 	type Props = { t: Translations };
@@ -37,25 +37,17 @@
 							<p class="font-heading text-xl">{product.priceFrom}</p>
 							<p class="text-sm text-muted-foreground">{product.priceNote}</p>
 						</div>
-						<Accordion.Root type="single" class="mt-6">
-							<Accordion.Item value="more" class="border-b-0">
-								<Accordion.Trigger
-									class="rounded-md border border-border bg-background px-4 py-3 hover:bg-muted/60 hover:no-underline data-[state=open]:bg-muted/60"
-								>
-									{t.products.moreInfo}
-								</Accordion.Trigger>
-								<Accordion.Content>
-									<ul class="space-y-2 px-4 pt-4 text-sm leading-relaxed text-muted-foreground">
-										{#each product.bullets as bullet (bullet)}
-											<li class="flex gap-3">
-												<span class="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground/60"></span>
-												<span>{bullet}</span>
-											</li>
-										{/each}
-									</ul>
-								</Accordion.Content>
-							</Accordion.Item>
-						</Accordion.Root>
+						<Separator class="my-6" />
+						<ul class="space-y-2 text-sm leading-relaxed text-muted-foreground">
+							{#each product.bullets as bullet (bullet)}
+								<li class="flex gap-3">
+									<span
+										class="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground/60"
+									></span>
+									<span>{bullet}</span>
+								</li>
+							{/each}
+						</ul>
 					</Card.Content>
 				</Card.Root>
 			{/each}

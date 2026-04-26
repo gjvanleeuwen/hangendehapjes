@@ -39,8 +39,6 @@ export const nl: Translations = {
 	products: {
 		heading: 'Kies jij voor zoet of zout?',
 		intro: 'Eén voor de borrel, één voor het toetje. Los te boeken of samen op één feest.',
-		moreInfo: 'Meer info',
-		lessInfo: 'Minder info',
 		items: [
 			{
 				id: 'toetjes',
@@ -104,15 +102,15 @@ export const nl: Translations = {
 			},
 			{
 				id: 'combine',
-				question: 'Kan ik beide concepten boeken — en wie komt er?',
+				question: 'Kan ik beide concepten boeken, en wie komt er serverem?',
 				answer:
-					'Zeker, los of samen op één feest. Sommige hosts kiezen De Borrel Baas tijdens de borrel en De Toetjes Vrouw bij het toetje-moment. Je gasten mogen ook aangeven of ze liever Charlotte of Gijs zien — ook kruislings, want Gijs maakt prima tiramisu en Charlotte prima burrata-bowls.'
+					'Zeker, je kan beide concepten los of samen op één feest boeken. Sommige hosts kiezen voor De BorrelBaas tijdens de borrel/receptie en De ToetjesVrouw als dessert. Zowel Gijs als Charlotte maken heerlijke tiramisu en burrata-bowls, wie er komt is afhankelijk van de beschikbaarheid en is niet verbonden met de conceptkeuze.'
 			},
 			{
 				id: 'portion',
 				question: 'Hoe groot is een portie?',
 				answer:
-					'Een portie is ongeveer even groot als 3 of 4 standaard hapjes (crostinis, bittergarnituur etc.). Gasten krijgen een net bakje dat goed gevuld is met lekkers. Wij gaan voor kwaliteit en dat zie je terug in hoe wij de hapjes presenteren en de smaak daarvan.'
+					'Een portie is ongeveer even groot als 2 á 3 standaard hapjes (crostinis, bittergarnituur etc.). Gasten krijgen een net bakje dat goed gevuld is met lekkers. Wij gaan voor kwaliteit en dat zie je terug in hoe wij de hapjes presenteren en de smaak daarvan.'
 			},
 			{
 				id: 'pace',
@@ -172,6 +170,8 @@ export const nl: Translations = {
 		tagline: 'Live hapjes, ter plekke gemaakt.',
 		basedIn: 'Vanuit Hilversum, Nederland',
 		instagram: 'Instagram',
+		facebook: 'Facebook',
+		tiktok: 'TikTok',
 		emailLabel: 'E-mail'
 	}
 };
