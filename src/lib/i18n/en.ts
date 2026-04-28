@@ -6,9 +6,9 @@ const BORREL_IMAGE = '/images/01.jpeg';
 
 export const en: Translations = {
 	meta: {
-		title: 'Hangende Hapjes — live bites for your wedding or event',
+		title: 'Hangende Hapjes | Live catering for your wedding or event',
 		description:
-			'Live tiramisu and burrata bowls, made on the spot for your guests. For weddings, receptions and parties. From Hilversum.'
+			'Fresh tiramisu and burrata bowls, made on the spot for your guests. Bites & drinks catering for weddings, receptions and corporate events. From €425.'
 	},
 	nav: {
 		about: 'About',
@@ -33,12 +33,13 @@ export const en: Translations = {
 		body: [
 			'That’s Charlotte and Gijs. Almost one year married and 12 years together, and if there’s one thing that genuinely makes us happy, it’s putting on food for other people. We’re bringing the experience of countless parties and dinners at home into our first catering concept.',
 			'But if there’s one thing we don’t see eye to eye on, it’s food. Charlotte is a real baker and savoury-tooth, but also a fan of "hearty" and "classic" food. Gijs on the other hand loves everything new and different, and savoury cooking is more his passion.',
-			'Lucky for you, that only works in your favour! Two really fun concepts, savoury and sweet, for your wedding, drinks reception or any other event.'
+			'Lucky for you, that only works in your favour! Two really fun concepts, savoury and sweet, for your wedding, drinks, reception, walking dinner or corporate event.'
 		]
 	},
 	products: {
 		heading: 'Will you pick sweet or savoury?',
-		intro: 'One for the drinks, one for dessert. Bookable separately or together at the same party.',
+		intro:
+			'One for the drinks, one for dessert — or maybe both, as a midnight snack or walking dinner?',
 		items: [
 			{
 				id: 'toetjes',
@@ -88,6 +89,12 @@ export const en: Translations = {
 		],
 		srHeading: 'Frequently asked questions',
 		items: [
+			{
+				id: 'occasions',
+				question: 'What kind of events do you serve?',
+				answer:
+					'Weddings, receptions, drinks parties and corporate events. Our bites work just as well as a walking dinner, a “grazing” moment during drinks, or a midnight snack late in the night. Drop us a line and we’ll think along.'
+			},
 			{
 				id: 'booking',
 				question: 'How does booking work?',

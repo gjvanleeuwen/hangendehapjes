@@ -6,9 +6,9 @@ const BORREL_IMAGE = '/images/01.jpeg';
 
 export const nl: Translations = {
 	meta: {
-		title: 'Hangende Hapjes — live hapjes voor jouw bruiloft of evenement',
+		title: 'Hangende Hapjes | Live catering voor jouw bruiloft of evenement',
 		description:
-			'Live tiramisu en burrata-bowls, ter plekke gemaakt voor jouw gasten. Voor bruiloften, recepties en feesten. Vanuit Hilversum.'
+			'Verse tiramisu en burrata-bowls, ter plekke gemaakt voor jouw gasten. Hapjes en borrel catering voor bruiloften, recepties en zakelijke events. Vanaf €425.'
 	},
 	nav: {
 		about: 'Over ons',
@@ -33,12 +33,13 @@ export const nl: Translations = {
 		body: [
 			'Dat zijn Charlotte en Gijs. Bijna één jaar getrouwd en al 12 jaar samen, is er één ding waar wij echt blij van worden: eten verzorgen voor anderen. De ervaring van talloze feestjes en diners thuis nemen wij nu mee naar ons eerste catering concept.',
 			'Maar als er één ding is waar we niet eensgezind over zijn, is het wel etenskeuze. Charlotte is een echte bakker en zoutekauw maar ook een fan van "hearty" en "classic" eten. Daarentegen houdt Gijs juist van alles nieuw en anders en is hartig koken meer zijn passie.',
-			'Gelukkig hebben jullie daar alleen maar profijt van! Twee super leuke concepten, hartig en zoet, voor op jouw Bruiloft, borrel of ander evenement.'
+			'Gelukkig hebben jullie daar alleen maar profijt van! Twee super leuke concepten, hartig en zoet, voor jouw bruiloft, borrel, receptie, walking dinner of zakelijk event.'
 		]
 	},
 	products: {
 		heading: 'Kies jij voor zoet of zout?',
-		intro: 'Eén voor de borrel, één voor het toetje. Los te boeken of samen op één feest.',
+		intro:
+			'Eén voor de borrel, één voor het dessert, of misschien wel beide als midnight snack of walking dinner?',
 		items: [
 			{
 				id: 'toetjes',
@@ -88,6 +89,12 @@ export const nl: Translations = {
 		],
 		srHeading: 'Veelgestelde vragen',
 		items: [
+			{
+				id: 'occasions',
+				question: 'Op wat voor evenementen serveren jullie?',
+				answer:
+					'Bruiloften, recepties, borrels en zakelijke events. Onze hapjes werken net zo goed als (lopend) walking dinner, "grazing" moment bij de borrel of als midnight snack na een lange avond. Mail ons gerust, dan denken we mee.'
+			},
 			{
 				id: 'booking',
 				question: 'Hoe werkt boeken?',

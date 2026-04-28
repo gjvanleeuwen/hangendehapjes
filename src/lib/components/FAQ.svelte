@@ -8,8 +8,6 @@
 
 <section id="faq" class="bg-background py-20 md:py-28">
 	<div class="mx-auto max-w-6xl px-6">
-		<h2 class="sr-only">{t.faq.srHeading}</h2>
-
 		<div class="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-16">
 			<div class="space-y-10">
 				<p class="text-(--brand-magenta) text-sm font-semibold uppercase tracking-wider">
@@ -25,6 +23,9 @@
 			</div>
 
 			<div>
+				<h2 class="mb-6 font-heading text-2xl tracking-tight md:text-3xl">
+					{t.faq.srHeading}
+				</h2>
 				<Accordion.Root type="single" class="space-y-2">
 					{#each t.faq.items as item (item.id)}
 						<Accordion.Item

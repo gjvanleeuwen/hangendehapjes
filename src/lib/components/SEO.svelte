@@ -2,6 +2,7 @@
 	import { page } from '$app/state';
 	import type { Locale, Translations } from '$lib/i18n/types';
 	import {
+		BUILD_DATE,
 		CONTACT_EMAIL,
 		FACEBOOK_URL,
 		INSTAGRAM_URL,
@@ -40,15 +41,45 @@
 				url: canonical,
 				image: ogImage,
 				email: CONTACT_EMAIL,
+				telephone: '+31 6 36111564',
 				address: {
 					'@type': 'PostalAddress',
+					streetAddress: 'Hilvertsweg 128',
+					postalCode: '1214 JK',
 					addressLocality: 'Hilversum',
 					addressCountry: 'NL'
 				},
-				areaServed: { '@type': 'Country', name: 'Netherlands' },
+				geo: {
+					'@type': 'GeoCoordinates',
+					latitude: 52.2292,
+					longitude: 5.1669
+				},
+				areaServed: [
+					{ '@type': 'Country', name: 'Netherlands' },
+					{ '@type': 'Country', name: 'Belgium' }
+				],
+				founder: [{ '@id': SITE_URL + '/#charlotte' }, { '@id': SITE_URL + '/#gijs' }],
 				sameAs: [INSTAGRAM_URL, FACEBOOK_URL, TIKTOK_URL],
 				priceRange: '€€',
 				inLanguage: locale === 'nl' ? 'nl-NL' : 'en-US'
+			},
+			{
+				'@type': 'Person',
+				'@id': SITE_URL + '/#charlotte',
+				name: 'Charlotte',
+				jobTitle: 'De Toetjes Vrouw',
+				worksFor: { '@id': businessId },
+				image: SITE_URL + '/images/07.jpeg',
+				sameAs: ['https://www.instagram.com/charlottefaas_/']
+			},
+			{
+				'@type': 'Person',
+				'@id': SITE_URL + '/#gijs',
+				name: 'Gijs van Leeuwen',
+				jobTitle: 'De Borrel Baas',
+				worksFor: { '@id': businessId },
+				image: SITE_URL + '/images/01.jpeg',
+				sameAs: ['https://www.instagram.com/gijs_vanleeuwen/']
 			},
 			...t.products.items.map((product) => ({
 				'@type': 'Service',
@@ -57,7 +88,10 @@
 				description: product.pitch,
 				serviceType: 'Catering',
 				provider: { '@id': businessId },
-				areaServed: { '@type': 'Country', name: 'Netherlands' },
+				areaServed: [
+					{ '@type': 'Country', name: 'Netherlands' },
+					{ '@type': 'Country', name: 'Belgium' }
+				],
 				image: SITE_URL + product.image,
 				offers: {
 					'@type': 'Offer',
@@ -80,6 +114,7 @@
 				'@type': 'FAQPage',
 				'@id': `${SITE_URL}/#faq-${locale}`,
 				inLanguage: locale === 'nl' ? 'nl-NL' : 'en-US',
+				dateModified: BUILD_DATE,
 				mainEntity: t.faq.items.map((item) => ({
 					'@type': 'Question',
 					name: item.question,

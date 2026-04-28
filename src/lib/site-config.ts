@@ -20,3 +20,5 @@ export const ROUTES = {
 	nl: '/',
 	en: '/en'
 } as const;
+
+export const BUILD_DATE: string = __BUILD_DATE__;
