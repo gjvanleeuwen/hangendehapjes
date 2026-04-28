@@ -10,11 +10,30 @@
 </script>
 
 <footer class="border-t border-border bg-background">
-	<div class="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-12 md:flex-row md:items-center md:justify-between">
+	<div class="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-12 md:flex-row md:items-start md:justify-between">
 		<div>
 			<p class="font-wordmark text-lg font-bold uppercase tracking-[0.08em] text-primary">Hangende Hapjes</p>
 			<p class="text-sm text-muted-foreground">{t.footer.tagline}</p>
 		</div>
+		{#if t.footer.readingHeading && t.footer.readingLinks && t.footer.readingLinks.length > 0}
+			<div class="flex flex-col gap-2 text-sm">
+				<p class="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
+					{t.footer.readingHeading}
+				</p>
+				<ul class="space-y-1">
+					{#each t.footer.readingLinks as link (link.href)}
+						<li>
+							<a
+								class="text-muted-foreground transition-colors hover:text-foreground"
+								href={link.href}
+							>
+								{link.label}
+							</a>
+						</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
 		<div class="flex flex-col gap-2 text-sm md:items-end">
 			<a
 				class="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"

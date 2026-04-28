@@ -4,41 +4,10 @@ The SEO infra (canonical, hreflang, OG, Twitter card, JSON-LD `LocalBusiness`, s
 
 ## Today
 
-### Sanity checks in a real browser
-
-- [ ] `https://hangendehapjes.nl` loads over HTTPS, renders, no console errors
-- [ ] `/en` works
-- [ ] Submit the contact form once with a real address — verify the admin email and the confirmation email both land
-- [ ] View source on `/` — confirm `<title>`, canonical, hreflang, OG tags, JSON-LD all present
-- [x] `https://hangendehapjes.nl/sitemap.xml` returns the XML
-- [x] `https://hangendehapjes.nl/robots.txt` returns and references the sitemap
-
-### Submit to search engines
-
-- [x] **Google Search Console** (search.google.com/search-console): add property → verify via DNS TXT → submit `sitemap.xml`. Single most impactful step.
-- [x] **Bing Webmaster Tools** (bing.com/webmasters): import from GSC, ~2 min.
-
-### Validate structured / social data
-
-- [x] Google Rich Results Test — paste the URL, confirm `LocalBusiness` JSON-LD parses without warnings
-- [~] ~~Facebook Sharing Debugger~~ / ~~LinkedIn Post Inspector~~ — skipped, OG previews on FB/LinkedIn aren't a channel we care about
-
-### Update inbound links
-
-- [x] Instagram bio: link to `https://hangendehapjes.nl`
-- [ ] Facebook page bio: add link to `https://hangendehapjes.nl`
-- [ ] TikTok bio: add link to `https://hangendehapjes.nl`
-- [ ] Any wedding-planner directories / personal sites that already mention the business
-
 ### DNS / hosting sanity
 
 - [x] Pick one canonical domain (`https://hangendehapjes.nl` is hardcoded in [src/lib/site-config.ts](src/lib/site-config.ts)) and 301-redirect `www.` to apex via Dokploy/Traefik (done as 308; `http://www` is a two-hop redirect — left as-is, negligible impact)
 - [ ] Decide what to do with the alt domains in [site-config.ts](src/lib/site-config.ts) (`detoetjesvrouw.nl`, `deborrelbaas.nl`): 301 to the main site, or park
-
-## Within a week or two
-
-- [x] **Google Business Profile** for "Hangende Hapjes" in Hilversum — biggest lever for local discovery ("catering Hilversum", "burrata bar Gooi"). Free, ~15 min, ~1 week to verify by postcard/phone.
-- [x] **Plausible or simple analytics** (optional). Plausible is privacy-friendly so no cookie banner needed under GDPR. GA4 works but is heavier and triggers cookie-consent obligations. — done with Umami (self-hosted, same GDPR-friendly profile).
 - [ ] **Lighthouse audit** — Chrome DevTools → Lighthouse → mobile + perf/SEO/accessibility. Hero image is large (`hero.jpeg`); if LCP is slow, generate a smaller variant.
 
 ## Search Console follow-ups
@@ -112,6 +81,7 @@ GEO is mostly cadence work. Calendar reminders or scheduled background agents.
 - [ ] **Every 60 days: refresh homepage** — update at least one element (price detail, stat, photo, copy tweak); `dateModified` bumps automatically via `__BUILD_DATE__` in [vite.config.ts](vite.config.ts) on each deploy. Perplexity weights freshness heavily.
 - [ ] **Quarterly: first-party data blog post** — real numbers from your bookings (portions served, popular topping combos, Q-on-Q growth, average guest count). Original first-party data is the single strongest GEO signal — becomes the only citable source for niche queries.
 
+
 ## Content plan (added 2026-04-28)
 
 Full ranked content calendar — target queries, intent, difficulty, per-post briefs, source SERP probes — lives in [docs/seo-content-plan.md](docs/seo-content-plan.md). Re-run `/toprank:keyword-research` quarterly to refresh.
@@ -127,6 +97,7 @@ After these three, the next batch (S4 live cooking, S5 wat kost catering, S6 /ca
 ## Product roadmap
 
 - [ ] **Wedding cake / bruidstaart options** — extend De Toetjes Vrouw with a bruidstaart aanbod. Charlotte's baking background already supports this. Decide: separate product or sub-offer of De Toetjes Vrouw? Pricing tiers, sizes, flavours. Once decided, add a `Service` node to JSON-LD, a section on the homepage, copy in `nl.ts` / `en.ts`, photos. Likely also opens up content angles (`/blog/bruidstaart-of-tiramisu`, `bruidstaart` keyword cluster) — log those in [docs/seo-content-plan.md](docs/seo-content-plan.md) when scoping.
+
 
 ## Worth knowing, not urgent
 

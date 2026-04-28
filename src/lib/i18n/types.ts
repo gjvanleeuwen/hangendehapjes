@@ -93,5 +93,7 @@ export type Translations = {
 		facebook: string;
 		tiktok: string;
 		emailLabel: string;
+		readingHeading?: string;
+		readingLinks?: { label: string; href: string }[];
 	};
 };

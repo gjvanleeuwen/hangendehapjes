@@ -102,6 +102,12 @@ export const en: Translations = {
 					'Fill in the contact form with your date, location and number of guests. We’ll get back to you within 1–2 days with a tailored proposal. Sound good? Then the booking is set.'
 			},
 			{
+				id: 'leadtime',
+				question: 'How far in advance should I book?',
+				answer:
+					'We can often turn things around quickly, sometimes even same-day. To be safe, we recommend booking at least 2 to 3 months ahead. Send us your date and we’ll check straight away if it fits.'
+			},
+			{
 				id: 'travel',
 				question: 'Do you charge travel costs?',
 				answer:
@@ -118,6 +124,12 @@ export const en: Translations = {
 				question: 'How big is a portion?',
 				answer:
 					'A portion is about the same size as 2 or 3 standard bites (crostini, bar snacks etc.). Guests get a tidy little dish that’s well-filled with something tasty. We go for quality and you see it in how we present the bites and how they taste.'
+			},
+			{
+				id: 'diet',
+				question: 'Do you cater for allergies or dietary preferences?',
+				answer:
+					'Yes, we’re happy to think along. The tiramisu uses mascarpone, egg and ladyfingers (not lactose- or gluten-free), but can be made alcohol-free and caffeine-free. The burrata bowl is vegetarian and can also be made gluten-free. Let us know in your request and we’ll see what works.'
 			},
 			{
 				id: 'pace',

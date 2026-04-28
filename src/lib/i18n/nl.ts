@@ -102,6 +102,12 @@ export const nl: Translations = {
 					'Vul het contactformulier in met je datum, locatie en aantal gasten. We komen binnen 1–2 dagen bij je terug met een voorstel op maat. Akkoord? Dan staat de boeking.'
 			},
 			{
+				id: 'leadtime',
+				question: 'Hoe ver van tevoren moet ik boeken?',
+				answer:
+					'Wij kunnen snel schakelen, soms zelfs op de dag zelf. Voor zekerheid raden we aan om minstens 2 á 3 maanden van tevoren te boeken. Stuur ons je datum, dan checken we meteen of het past.'
+			},
+			{
 				id: 'travel',
 				question: 'Vragen jullie ook reiskosten?',
 				answer:
@@ -118,6 +124,12 @@ export const nl: Translations = {
 				question: 'Hoe groot is een portie?',
 				answer:
 					'Een portie is ongeveer even groot als 2 á 3 standaard hapjes (crostinis, bittergarnituur etc.). Gasten krijgen een net bakje dat goed gevuld is met lekkers. Wij gaan voor kwaliteit en dat zie je terug in hoe wij de hapjes presenteren en de smaak daarvan.'
+			},
+			{
+				id: 'diet',
+				question: 'Hebben jullie opties voor allergieën of dieetwensen?',
+				answer:
+					'Ja, we denken graag mee. De tiramisu heeft mascarpone, ei en lange vingers als basis (niet lactose- of glutenvrij), maar kan wel alcoholvrij en cafeïnevrij gemaakt worden. De burrata-bowl is vegetarisch en kan ook glutenvrij. Geef je wensen door in de aanvraag, dan kijken we wat past.'
 			},
 			{
 				id: 'pace',
@@ -180,6 +192,13 @@ export const nl: Translations = {
 		instagram: 'Instagram',
 		facebook: 'Facebook',
 		tiktok: 'TikTok',
-		emailLabel: 'E-mail'
+		emailLabel: 'E-mail',
+		readingHeading: 'Goed om te weten',
+		readingLinks: [
+			{
+				label: 'Meer informatie',
+				href: '/blog/hoeveel-hapjes-per-persoon'
+			}
+		]
 	}
 };
