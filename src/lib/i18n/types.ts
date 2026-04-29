@@ -55,7 +55,6 @@ export type Translations = {
 	photos: {
 		heading: string;
 		intro: string;
-		handle: string;
 		cta: string;
 	};
 	contact: {

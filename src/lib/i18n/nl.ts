@@ -153,7 +153,6 @@ export const nl: Translations = {
 	photos: {
 		heading: 'In actie',
 		intro: 'De laatste sfeerbeelden van onze evenementen staan op Instagram.',
-		handle: '@hangendehapjes',
 		cta: 'Bekijk Instagram'
 	},
 	contact: {

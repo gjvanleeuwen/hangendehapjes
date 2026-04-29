@@ -153,7 +153,6 @@ export const en: Translations = {
 	photos: {
 		heading: 'In action',
 		intro: 'The latest moments from our events are on Instagram.',
-		handle: '@hangendehapjes',
 		cta: 'View Instagram'
 	},
 	contact: {
