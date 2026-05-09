@@ -12,27 +12,40 @@ The SEO infra (canonical, hreflang, OG, Twitter card, JSON-LD `LocalBusiness`, s
 
 ## Search Console follow-ups
 
-GSC + Bing were submitted on 2026-04-26. Two natural check-ins:
+GSC + Bing were submitted on 2026-04-26. Indexing has fully landed: both `/` and `/en` are indexed on Google + Bing, sitemap is processed, no manual actions, branded "hangende hapjes" search ranks #1, and the blog post is already pulling 116 impressions. Also picked up by **ChatGPT** — first referral visit logged in Umami on 2026-05-09, so the GEO setup is producing citations earlier than expected.
 
-### Around 2026-04-30 (3–5 days post-submit)
+<details>
+<summary>Indexing checks (all completed — collapsed)</summary>
 
-- [ ] **GSC → Sitemaps**: status should be "Success" with ≥ 2 URLs discovered. If "Couldn't fetch" or stuck Pending, debug (sitemap URL typo, robots.txt blocking).
-- [ ] **GSC → URL Inspection**: run on `https://hangendehapjes.nl/` and `https://hangendehapjes.nl/en`. If either says "URL is not on Google", click **Request Indexing** to nudge it forward.
-- [ ] Glance at GSC **Manual actions** and **Security issues** — both should be empty.
-- [ ] **Bing Webmaster Tools → Sitemaps**: status should be "Processed".
-- [ ] **Bing → URL Submission**: manually submit `/` and `/en` (10/day quota; Bing weights this signal more than Google does).
+#### Around 2026-04-30 (3–5 days post-submit)
 
-### Around 2026-05-09 (10–14 days post-submit)
+- [x] **GSC → Sitemaps**: status "Success" with ≥ 2 URLs discovered.
+- [x] **GSC → URL Inspection**: `https://hangendehapjes.nl/` and `https://hangendehapjes.nl/en` both on Google.
+- [x] GSC **Manual actions** and **Security issues** — both empty.
+- [x] **Bing Webmaster Tools → Sitemaps**: "Processed".
+- [x] **Bing → URL Submission**: `/` and `/en` submitted.
 
-- [ ] **GSC → Pages**: both `/` and `/en` should be in "Indexed". If they're sitting in "Discovered – not indexed" or "Crawled – not indexed" past ~3 weeks, dig in.
-- [ ] Search "hangende hapjes" in incognito on Google. Should be ranking #1 for the branded query by now. If not, that's the first concrete signal something's off.
-- [ ] **GSC → Performance**: impressions/clicks will be tiny — that's fine, brand-new site. Just confirm there's *some* data, meaning the site has actually been served in results.
+#### Around 2026-05-09 (10–14 days post-submit)
+
+- [x] **GSC → Pages**: both `/` and `/en` in "Indexed".
+- [x] Branded "hangende hapjes" search in incognito → ranking #1.
+- [x] **GSC → Performance**: data is flowing (163 impressions across 5 pages in the first ~2 weeks).
+
+</details>
+
+### Findings from 2026-05-09 check-in
+
+- **GSC anonymises low-volume queries.** The Queries report only shows queries that cross a privacy threshold; everything below is hidden but still counts in the Pages totals. That's why on 2026-05-09 the Pages report showed 163 total impressions but only 2 queries appeared in the Queries report. Not a bug — expect Queries to lag Pages by weeks until specific terms cross the threshold.
+- [ ] **Improve `/blog/hoeveel-hapjes-per-persoon` CTR.** 116 impressions / 0.86% CTR after ~2 weeks = ranking somewhere on lower page 1 or top of page 2 but not getting clicked. Run URL Inspection in GSC to confirm position, then rewrite the title tag and meta description to better match search intent (lead with a concrete number/quantifier, e.g. "Hoeveel hapjes per persoon? Echte cijfers van een caterer"). Edit the post's `title` / `metaDescription` in [src/lib/i18n/nl.ts](src/lib/i18n/nl.ts).
+- [ ] **Re-check GSC Queries report around 2026-06-06** (≈ 4 weeks after the post launched). Filter Performance → Pages = `/blog/hoeveel-hapjes-per-persoon` and read which queries it's ranking for now that volume has built. Use those long-tail terms to inform briefs for S4+ in [docs/seo-content-plan.md](docs/seo-content-plan.md).
+- **NL-first is empirically confirmed.** `/en` got 4 impressions vs 31 on the NL homepage and 116 on the NL blog post. **Don't mirror new posts to EN until the NL version is ranking.** The blog seeds list already says this; data now backs it — bake it into the content cadence and resist the urge to dual-write.
 
 ## AI / LLM visibility
 
 Goal: get cited by ChatGPT, Perplexity, Gemini, Claude when people ask "live catering Hilversum / Gooi" or "originele caterings bruiloft NL". They recommend what they've *read about elsewhere* — so this is mostly off-site work.
 
 - [x] List on **theperfectwedding.nl** (highest-authority NL wedding directory, often cited by LLMs). Free, ~15 min.
+- [~] ~~ThePerfectWedding sponsored-article offer (€480 for "1000 guaranteed views" in a new article, evaluated 2026-05-09)~~ — **passing for now.** Direct ROI math is roughly break-even (1000 views → ~30 site sessions → ~1 lead → ~0.3 booking → ~€500–800 revenue, before time cost). The 3500 views on their existing "speciale hapjes" piece is almost certainly all-time, not monthly, so the post-launch tail is small. Real value would be the backlink + AI-citation surface, but: (a) we already have a free directory listing on the same domain so the marginal AI lift is small, and (b) sponsored articles are usually `rel="sponsored"` / `nofollow`, which Google discounts. **Revisit only if** they confirm the link is `dofollow` *and* show 12-month organic-search traffic for a comparable sponsored (not editorial) post — at that point €300 would be interesting, €480 still steep. Better uses of the same €480 right now: pro photography (compounds across all channels and fixes the hero LCP), Google Ads (~150 clicks, measurable), or banking it for when more press hits accumulate and TPW's *editorial* team picks up the founder story for free.
 - [~] ~~List on at least one of **bruiloft.nl**, **trouwen.nl**, **eventbranche.nl**~~ — skipped, the sites are spammy / barely reachable and not worth the cycles.
 - [ ] Pitch one NL wedding/event blog for a feature ("originele caterings", "live food trends"). The founding story (couple, complementary characters, ~15 years together) is genuinely pitchable. One blog mention = disproportionate AI signal.
 - [ ] **Build location pages under `/catering/[slug]`** (higher priority than the blog — Google location-biases catering queries hard, and competitors like `hapjesaanhuis.nl` rank entirely off this pattern). Scope: a small set of *substantive* pages (~300–500 words each, real copy, no city-name-swap templating — Google penalises that as doorway pages). Slugs to start:

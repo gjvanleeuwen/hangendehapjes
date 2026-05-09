@@ -2,6 +2,7 @@
 	import type { Translations } from '$lib/i18n/types';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import SectionHeading from './SectionHeading.svelte';
 
 	type Props = { t: Translations };
@@ -37,14 +38,31 @@
 							<p class="font-heading text-xl">{product.priceFrom}</p>
 							<p class="text-sm text-muted-foreground">{product.priceNote}</p>
 						</div>
+						<p class="mt-1 text-[11px] text-muted-foreground/60">{product.portionNote}</p>
 						<Separator class="my-6" />
 						<ul class="space-y-2 text-sm leading-relaxed text-muted-foreground">
-							{#each product.bullets as bullet (bullet)}
+							{#each product.bullets as bullet, i (i)}
 								<li class="flex gap-3">
 									<span
 										class="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground/60"
 									></span>
-									<span>{bullet}</span>
+									{#if typeof bullet === 'string'}
+										<span>{bullet}</span>
+									{:else}
+										<details class="group flex-1">
+											<summary
+												class="flex cursor-pointer list-none items-center gap-1 [&::-webkit-details-marker]:hidden"
+											>
+												<span>{bullet.label}</span>
+												<ChevronRight
+													class="size-3 opacity-60 transition-transform group-open:rotate-90"
+												/>
+											</summary>
+											<p class="mt-1.5 pl-0 text-xs text-muted-foreground/80">
+												{bullet.options.join(' · ')}
+											</p>
+										</details>
+									{/if}
 								</li>
 							{/each}
 						</ul>
@@ -52,5 +70,7 @@
 				</Card.Root>
 			{/each}
 		</div>
+
+		<p class="mt-8 text-center text-xs text-muted-foreground">{t.products.priceFooter}</p>
 	</div>
 </section>

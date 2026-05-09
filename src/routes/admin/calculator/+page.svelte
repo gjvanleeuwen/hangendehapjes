@@ -41,7 +41,7 @@
 			extraPeople,
 			oneWayKm,
 			config: $state.snapshot(config),
-			from: 50,
+			from: 45,
 			to: 300,
 			step: 5
 		})
@@ -59,7 +59,7 @@
 	const yMax = $derived(
 		validPoints.length > 0 ? Math.max(...validPoints.map((p) => p.total)) * 1.1 : 1
 	);
-	const xMin = 50;
+	const xMin = 45;
 	const xMax = 300;
 
 	function xToPx(x: number) {
@@ -415,7 +415,7 @@
 					{/each}
 
 					<!-- X axis ticks -->
-					{#each [50, 100, 150, 200, 250, 300] as x}
+					{#each [45, 100, 150, 200, 250, 300] as x}
 						<text x={xToPx(x)} y={chartH - 10} text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">
 							{x}
 						</text>

@@ -10,11 +10,11 @@ export const OG_IMAGE_HEIGHT = 630;
 export const ALT_DOMAINS = ['detoetjesvrouw.nl', 'deborrelbaas.nl'] as const;
 
 export const PRODUCT_PRICES_EUR_FROM = {
-	toetjes: 425,
-	borrel: 450
+	toetjes: 395,
+	borrel: 420
 } as const;
 
-export const PRODUCT_MIN_PORTIONS = 50;
+export const PRODUCT_MIN_PORTIONS = 45;
 
 export const ROUTES = {
 	nl: '/',

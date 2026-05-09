@@ -8,13 +8,14 @@ export const en: Translations = {
 	meta: {
 		title: 'Hangende Hapjes | Live catering for your wedding or event',
 		description:
-			'Fresh tiramisu and burrata bowls, made on the spot for your guests. Bites & drinks catering for weddings, receptions and corporate events. From €425.'
+			'Fresh tiramisu and burrata bowls, made on the spot for your guests. Bites & drinks catering for weddings, receptions and corporate events. From €395.'
 	},
 	nav: {
 		about: 'About',
 		products: 'Concepts',
 		photos: 'Photos',
 		contact: 'Contact',
+		homeHref: '/en',
 		switchLabel: 'NL',
 		switchHref: '/',
 		otherLabel: 'Nederlands'
@@ -32,7 +33,7 @@ export const en: Translations = {
 		heading: 'Who do the bites hang from?',
 		body: [
 			'That’s Charlotte and Gijs. Almost one year married and 12 years together, and if there’s one thing that genuinely makes us happy, it’s putting on food for other people. We’re bringing the experience of countless parties and dinners at home into our first catering concept.',
-			'But if there’s one thing we don’t see eye to eye on, it’s food. Charlotte is a real baker and savoury-tooth, but also a fan of "hearty" and "classic" food. Gijs on the other hand loves everything new and different, and savoury cooking is more his passion.',
+			'But if there’s one thing we don’t see eye to eye on, it’s food. Charlotte has a real sweet tooth and loves baking, but is also a fan of "hearty" and "classic" food. Gijs on the other hand loves everything new and different, and savoury cooking is more his passion.',
 			'Lucky for you, that only works in your favour! Two really fun concepts, savoury and sweet, for your wedding, drinks, reception, walking dinner or corporate event.'
 		]
 	},
@@ -45,14 +46,15 @@ export const en: Translations = {
 				id: 'toetjes',
 				name: 'De Toetjes Vrouw',
 				pitch: 'Fresh tiramisu that we build up like a tower while serving.',
-				priceFrom: 'From €425',
-				priceNote: '50 portions',
+				priceFrom: 'From €395',
+				priceNote: 'for 45 guests',
+				portionNote: '1 portion per guest, about 2 to 3 standard bites in size.',
 				bullets: [
 					'Two ladyfingers, drenched with espresso and liqueur',
 					'Classic mascarpone cream with pasteurised eggs',
 					'And of course a nice layer of cocoa',
 					'Homemade by Charlotte',
-					'From €425 for 50 portions · €650 for 100 · €1,125 for 200'
+					'From €395 for 45 guests · €650 for 100 · €1,125 for 200'
 				],
 				image: TOETJES_IMAGE,
 				imageAlt: 'Charlotte making live tiramisu for a guest'
@@ -61,19 +63,36 @@ export const en: Translations = {
 				id: 'borrel',
 				name: 'De Borrel Baas',
 				pitch: 'Burrata bowl with your choice of toppings and dips.',
-				priceFrom: 'From €450',
-				priceNote: '50 portions',
+				priceFrom: 'From €420',
+				priceNote: 'for 45 guests',
+				portionNote: '1 portion per guest, about 2 to 3 standard bites in size.',
 				bullets: [
 					'Stracciatella — the creamy inside of a burrata',
 					'Scrocchi toasts to dip with',
-					'Two toppings of your choice (parma ham, tomatoes etc.)',
-					'A sauce like pesto or balsamic vinaigrette',
-					'From €450 for 50 portions · €700 for 100 · €1,225 for 200'
+					{
+						label: '2 toppings of your choice',
+						options: [
+							'crispy prosciutto',
+							'tomato salsa',
+							'pine nuts',
+							'figs',
+							'grilled peach',
+							'spicy nduja',
+							'pistachios',
+							'parmigiano flakes'
+						]
+					},
+					{
+						label: '1 sauce of your choice',
+						options: ['olive oil', 'balsamic', 'truffle oil', 'pesto', 'spicy honey']
+					},
+					'From €420 for 45 guests · €700 for 100 · €1,225 for 200'
 				],
 				image: BORREL_IMAGE,
 				imageAlt: 'Gijs making a live burrata bowl for a guest'
 			}
-		]
+		],
+		priceFooter: 'Prices exclude VAT · Travel costs free up to 50 km from Hilversum.'
 	},
 	faq: {
 		eyebrow: 'Why Hangende Hapjes',
@@ -117,7 +136,7 @@ export const en: Translations = {
 				id: 'combine',
 				question: 'Can I book both concepts, and who comes to serve?',
 				answer:
-					'Sure, you can book both concepts separately or together at the same party. Some hosts pick De Borrel Baas during the drinks/reception and De Toetjes Vrouw for dessert. Both Gijs and Charlotte make delicious tiramisu and burrata bowls — who comes depends on availability and isn’t tied to which concept you pick.'
+					'Sure, you can book both concepts separately or together at the same party. Some hosts pick De Borrel Baas during the drinks/reception and De Toetjes Vrouw for dessert. For the combination we charge around €80 extra for the additional prep across two menus. Both Gijs and Charlotte make delicious tiramisu and burrata bowls — who comes depends on availability and isn’t tied to which concept you pick.'
 			},
 			{
 				id: 'portion',

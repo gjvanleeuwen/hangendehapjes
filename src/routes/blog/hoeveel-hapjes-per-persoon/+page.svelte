@@ -10,6 +10,8 @@
 		SITE_URL
 	} from '$lib/site-config';
 	import { nl } from '$lib/i18n/nl';
+	import { BLOG_FAQS_NL, buildFaqJsonLd, type BlogFaq } from '$lib/blog/faqs';
+	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
 
 	const headline = 'Hoeveel hapjes moet je serveren per persoon voor een receptie of bruiloft?';
 	const title = 'Hoeveel hapjes moet je serveren per persoon? | Hangende Hapjes';
@@ -39,46 +41,24 @@
 		publisher: { '@id': SITE_URL + '/#localbusiness' }
 	};
 
-	const faqJsonLd = {
-		'@context': 'https://schema.org',
-		'@type': 'FAQPage',
-		'@id': canonical + '#faq',
-		inLanguage: 'nl-NL',
-		mainEntity: [
-			{
-				'@type': 'Question',
-				name: 'Hebben jullie opties voor allergieën of dieetwensen?',
-				acceptedAnswer: {
-					'@type': 'Answer',
-					text: 'Ja, we denken graag mee. De tiramisu heeft mascarpone, ei en lange vingers als basis en is dus standaard niet lactosevrij of glutenvrij. De tiramisu kan ook alcoholvrij en cafeïnevrij gemaakt worden. De burrata-bowl is in basis vegetarisch en kan ook glutenvrij gemaakt worden. Geef in je aanvraag door welke allergieën of voorkeuren er spelen, dan kijken we welke aanpassingen passen. Voor strenge allergieën zijn we eerlijk dat we ter plekke werken, dus volledige kruisbesmettingsvrije productie kunnen we niet garanderen.'
-				}
-			},
-			{
-				'@type': 'Question',
-				name: 'Hoe ver van tevoren moet ik Hangende Hapjes boeken?',
-				acceptedAnswer: {
-					'@type': 'Answer',
-					text: 'Wij zijn nog tot kort voor het evenement te boeken en kunnen snel schakelen. Stuur ons gerust een verzoek via het contactformulier of bel ons op het telefoonnummer op de contactpagina. Ook al kunnen wij soms dezelfde dag nog jouw evenement van hapjes voorzien, wij raden aan om zeker 2 á 3 maanden van tevoren te boeken, zodat we de beschikbaarheid kunnen afstemmen.'
-				}
-			},
-			{
-				'@type': 'Question',
-				name: 'Hoeveel hapjes per persoon op een verjaardag of zakelijke borrel?',
-				acceptedAnswer: {
-					'@type': 'Answer',
-					text: 'De vuistregel van 5–7 hapjes per persoon werkt ook voor verjaardagen, zakelijke borrels en jubilea, mits de borrel een paar uur duurt. Bij een korte zakelijke receptie van 1 á 2 uur kom je vaak weg met 3 á 4 hapjes per persoon. Vervangen de hapjes op een verjaardag het diner? Reken dan op 10–15 stuks per persoon. Onze 1 á 2 porties per gast passen overal: borrel, dessert of midnight snack.'
-				}
-			},
-			{
-				'@type': 'Question',
-				name: 'Wat als er meer of minder gasten komen dan ik nu verwacht?',
-				acceptedAnswer: {
-					'@type': 'Answer',
-					text: 'Geef ons je beste schatting in de aanvraag. Tot ongeveer 1 week voor het feest kan je het aantal porties nog naar boven of beneden bijstellen. Op de dag zelf hebben we meestal wat speling om een paar porties extra te maken, maar reken vooraf op 5 á 10% buffer als je het zeker wilt weten.'
-				}
-			}
-		]
-	};
+	const faqList: BlogFaq[] = [
+		BLOG_FAQS_NL.allergies,
+		BLOG_FAQS_NL.leadtime,
+		{
+			id: 'occasion-mix',
+			question: 'Hoeveel hapjes per persoon op een verjaardag of zakelijke borrel?',
+			answer:
+				'De vuistregel van 5–7 hapjes per persoon werkt ook voor verjaardagen, zakelijke borrels en jubilea, mits de borrel een paar uur duurt. Bij een korte zakelijke receptie van 1 á 2 uur kom je vaak weg met 3 á 4 hapjes per persoon. Vervangen de hapjes op een verjaardag het diner? Reken dan op 10–15 stuks per persoon. Onze 1 á 2 porties per gast passen overal: borrel, dessert of midnight snack.'
+		},
+		{
+			id: 'guest-count-change',
+			question: 'Wat als er meer of minder gasten komen dan ik nu verwacht?',
+			answer:
+				'Geef ons je beste schatting in de aanvraag. Tot ongeveer 1 week voor het feest kan je het aantal porties nog naar boven of beneden bijstellen. Op de dag zelf hebben we meestal wat speling om een paar porties extra te maken, maar reken vooraf op 5 á 10% buffer als je het zeker wilt weten.'
+		}
+	];
+
+	const faqJsonLd = buildFaqJsonLd(faqList, { id: canonical + '#faq' });
 
 	const articleJsonLdHtml = jsonLdScript(articleJsonLd);
 	const faqJsonLdHtml = jsonLdScript(faqJsonLd);
@@ -213,10 +193,10 @@
 						</thead>
 						<tbody class="text-muted-foreground">
 							<tr class="border-b border-border/60">
-								<td class="py-3 pr-4">50</td>
+								<td class="py-3 pr-4">45</td>
 								<td class="py-3 pr-4">1 uur, 1 bediende</td>
-								<td class="py-3 pr-4">€425</td>
-								<td class="py-3">€450</td>
+								<td class="py-3 pr-4">€395</td>
+								<td class="py-3">€420</td>
 							</tr>
 							<tr class="border-b border-border/60">
 								<td class="py-3 pr-4">100</td>
@@ -277,62 +257,7 @@
 				</p>
 			</section>
 
-			<section class="mt-12 space-y-6">
-				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Veelgestelde vragen</h2>
-
-				<div class="space-y-2">
-					<h3 class="font-heading text-xl md:text-2xl">
-						Hebben jullie opties voor allergieën of dieetwensen?
-					</h3>
-					<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-						Ja, we denken graag mee. De tiramisu heeft mascarpone, ei en lange vingers als basis
-						en is dus standaard niet lactosevrij of glutenvrij. De tiramisu kan ook alcoholvrij
-						en cafeïnevrij gemaakt worden. De burrata-bowl is in basis vegetarisch en kan ook
-						glutenvrij gemaakt worden. Geef in je aanvraag door welke allergieën of voorkeuren
-						er spelen, dan kijken we welke aanpassingen passen. Voor strenge allergieën zijn we
-						eerlijk dat we ter plekke werken, dus volledige kruisbesmettingsvrije productie
-						kunnen we niet garanderen.
-					</p>
-				</div>
-
-				<div class="space-y-2">
-					<h3 class="font-heading text-xl md:text-2xl">
-						Hoe ver van tevoren moet ik Hangende Hapjes boeken?
-					</h3>
-					<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-						Wij zijn nog tot kort voor het evenement te boeken en kunnen snel schakelen. Stuur
-						ons gerust een verzoek via het contactformulier of bel ons op het telefoonnummer op
-						de contactpagina. Ook al kunnen wij soms dezelfde dag nog jouw evenement van hapjes
-						voorzien, wij raden aan om zeker 2 á 3 maanden van tevoren te boeken, zodat we de
-						beschikbaarheid kunnen afstemmen.
-					</p>
-				</div>
-
-				<div class="space-y-2">
-					<h3 class="font-heading text-xl md:text-2xl">
-						Hoeveel hapjes per persoon op een verjaardag of zakelijke borrel?
-					</h3>
-					<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-						De vuistregel van 5–7 hapjes per persoon werkt ook voor verjaardagen, zakelijke
-						borrels en jubilea, mits de borrel een paar uur duurt. Bij een korte zakelijke
-						receptie van 1 á 2 uur kom je vaak weg met 3 á 4 hapjes per persoon. Vervangen de
-						hapjes op een verjaardag het diner? Reken dan op 10–15 stuks per persoon. Onze 1 á 2
-						porties per gast passen overal: borrel, dessert of midnight snack.
-					</p>
-				</div>
-
-				<div class="space-y-2">
-					<h3 class="font-heading text-xl md:text-2xl">
-						Wat als er meer of minder gasten komen dan ik nu verwacht?
-					</h3>
-					<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-						Geef ons je beste schatting in de aanvraag. Tot ongeveer 1 week voor het feest kan je
-						het aantal porties nog naar boven of beneden bijstellen. Op de dag zelf hebben we
-						meestal wat speling om een paar porties extra te maken, maar reken vooraf op 5 á 10%
-						buffer als je het zeker wilt weten.
-					</p>
-				</div>
-			</section>
+			<BlogFaqSection items={faqList} />
 
 			<section class="mt-14 rounded-lg border border-border p-6 md:p-8">
 				<h2 class="font-heading text-xl tracking-tight md:text-2xl">

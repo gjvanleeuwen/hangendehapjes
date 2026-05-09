@@ -8,13 +8,14 @@ export const nl: Translations = {
 	meta: {
 		title: 'Hangende Hapjes | Live catering voor jouw bruiloft of evenement',
 		description:
-			'Verse tiramisu en burrata-bowls, ter plekke gemaakt voor jouw gasten. Hapjes en borrel catering voor bruiloften, recepties en zakelijke events. Vanaf €425.'
+			'Verse tiramisu en burrata-bowls, ter plekke gemaakt voor jouw gasten. Hapjes en borrel catering voor bruiloften, recepties en zakelijke events. Vanaf €395.'
 	},
 	nav: {
 		about: 'Over ons',
 		products: 'Concepten',
 		photos: 'Foto’s',
 		contact: 'Contact',
+		homeHref: '/',
 		switchLabel: 'EN',
 		switchHref: '/en',
 		otherLabel: 'English'
@@ -32,7 +33,7 @@ export const nl: Translations = {
 		heading: 'Aan wie hangen de hapjes?',
 		body: [
 			'Dat zijn Charlotte en Gijs. Bijna één jaar getrouwd en al 12 jaar samen, is er één ding waar wij echt blij van worden: eten verzorgen voor anderen. De ervaring van talloze feestjes en diners thuis nemen wij nu mee naar ons eerste catering concept.',
-			'Maar als er één ding is waar we niet eensgezind over zijn, is het wel etenskeuze. Charlotte is een echte bakker en zoutekauw maar ook een fan van "hearty" en "classic" eten. Daarentegen houdt Gijs juist van alles nieuw en anders en is hartig koken meer zijn passie.',
+			'Maar als er één ding is waar we niet eensgezind over zijn, is het wel etenskeuze. Charlotte is een echte bakker en zoetekauw maar ook een fan van "hearty" en "classic" eten. Daarentegen houdt Gijs juist van alles nieuw en anders en is hartig koken meer zijn passie.',
 			'Gelukkig hebben jullie daar alleen maar profijt van! Twee super leuke concepten, hartig en zoet, voor jouw bruiloft, borrel, receptie, walking dinner of zakelijk event.'
 		]
 	},
@@ -45,14 +46,15 @@ export const nl: Translations = {
 				id: 'toetjes',
 				name: 'De Toetjes Vrouw',
 				pitch: 'Verse tiramisu die we als een toren opbouwen bij het serveren.',
-				priceFrom: 'Vanaf €425',
-				priceNote: '50 porties',
+				priceFrom: 'Vanaf €395',
+				priceNote: 'voor 45 personen',
+				portionNote: '1 portie per persoon, ongeveer 2 á 3 standaard hapjes groot.',
 				bullets: [
 					'Twee lange vingers, overgoten met espresso en likeur',
 					'Klassieke mascarpone-crème met gepasteuriseerde eieren',
 					'En natuurlijk een mooie laag cacao',
 					'Huisgemaakt door Charlotte',
-					'Vanaf €425 voor 50 porties · €650 voor 100 · €1.125 voor 200'
+					'Vanaf €395 voor 45 personen · €650 voor 100 · €1.125 voor 200'
 				],
 				image: TOETJES_IMAGE,
 				imageAlt: 'Charlotte maakt live tiramisu voor een gast'
@@ -61,19 +63,36 @@ export const nl: Translations = {
 				id: 'borrel',
 				name: 'De Borrel Baas',
 				pitch: 'Burrata-bowl met toppings en dips naar keuze voor extra variëteit.',
-				priceFrom: 'Vanaf €450',
-				priceNote: '50 porties',
+				priceFrom: 'Vanaf €420',
+				priceNote: 'voor 45 personen',
+				portionNote: '1 portie per persoon, ongeveer 2 á 3 standaard hapjes groot.',
 				bullets: [
 					'Stracciatella — het romige binnenste van een burrata',
 					'Scrocchi-toastjes om mee te dippen',
-					'Twee toppings naar keuze (parmaham, tomaten etc.)',
-					'Een saus zoals pesto of balsamico-vinaigrette',
-					'Vanaf €450 voor 50 porties · €700 voor 100 · €1.225 voor 200'
+					{
+						label: '2 toppings naar keuze',
+						options: [
+							'crispy prosciutto',
+							'tomatensalsa',
+							'pijnboompitten',
+							'vijgen',
+							'gegrilde perzik',
+							'spicy nduja',
+							'pistachenoten',
+							'parmigiano flakes'
+						]
+					},
+					{
+						label: '1 saus naar keuze',
+						options: ['olijfolie', 'balsamico', 'truffelolie', 'pesto', 'spicy honey']
+					},
+					'Vanaf €420 voor 45 personen · €700 voor 100 · €1.225 voor 200'
 				],
 				image: BORREL_IMAGE,
 				imageAlt: 'Gijs maakt een live burrata-bowl voor een gast'
 			}
-		]
+		],
+		priceFooter: 'Prijzen excl. BTW · Reiskosten gratis tot 50 km vanaf Hilversum.'
 	},
 	faq: {
 		eyebrow: 'Waarom Hangende Hapjes',
@@ -117,7 +136,7 @@ export const nl: Translations = {
 				id: 'combine',
 				question: 'Kan ik beide concepten boeken, en wie komt er serveren?',
 				answer:
-					'Zeker, je kan beide concepten los of samen op één feest boeken. Sommige hosts kiezen voor De BorrelBaas tijdens de borrel/receptie en De ToetjesVrouw als dessert. Zowel Gijs als Charlotte maken heerlijke tiramisu en burrata-bowls, wie er komt is afhankelijk van de beschikbaarheid en is niet verbonden met de conceptkeuze.'
+					'Zeker, je kan beide concepten los of samen op één feest boeken. Sommige hosts kiezen voor De BorrelBaas tijdens de borrel/receptie en De ToetjesVrouw als dessert. Voor de combinatie rekenen we ongeveer €80 extra voor de extra voorbereiding van twee menu’s. Zowel Gijs als Charlotte maken heerlijke tiramisu en burrata-bowls, wie er komt is afhankelijk van de beschikbaarheid en is niet verbonden met de conceptkeuze.'
 			},
 			{
 				id: 'portion',
@@ -195,8 +214,12 @@ export const nl: Translations = {
 		readingHeading: 'Goed om te weten',
 		readingLinks: [
 			{
-				label: 'Meer informatie',
+				label: 'Hoeveel hapjes per persoon',
 				href: '/blog/hoeveel-hapjes-per-persoon'
+			},
+			{
+				label: 'Tiramisu op je bruiloft',
+				href: '/blog/tiramisu-bruiloft'
 			}
 		]
 	}

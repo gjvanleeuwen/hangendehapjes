@@ -1,12 +1,15 @@
 export type Locale = 'nl' | 'en';
 
+export type ProductBullet = string | { label: string; options: string[] };
+
 export type Product = {
 	id: 'toetjes' | 'borrel';
 	name: string;
 	pitch: string;
 	priceFrom: string;
 	priceNote: string;
-	bullets: string[];
+	portionNote: string;
+	bullets: ProductBullet[];
 	image: string;
 	imageAlt: string;
 };
@@ -21,6 +24,7 @@ export type Translations = {
 		products: string;
 		photos: string;
 		contact: string;
+		homeHref: string;
 		switchLabel: string;
 		switchHref: string;
 		otherLabel: string;
@@ -41,6 +45,7 @@ export type Translations = {
 		heading: string;
 		intro: string;
 		items: Product[];
+		priceFooter: string;
 	};
 	faq: {
 		eyebrow: string;

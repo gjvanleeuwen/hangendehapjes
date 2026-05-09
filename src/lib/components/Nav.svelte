@@ -11,23 +11,23 @@
 >
 	<div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
 		<a
-			href="#top"
+			href={t.nav.homeHref}
 			class="font-wordmark text-(--brand-teal) text-lg font-bold uppercase tracking-[0.08em]"
 		>
 			Hangende Hapjes
 		</a>
 
 		<nav class="hidden items-center gap-8 text-sm md:flex">
-			<a class="text-muted-foreground transition-colors hover:text-foreground" href="#about">
+			<a class="text-muted-foreground transition-colors hover:text-foreground" href="{t.nav.homeHref}#about">
 				{t.nav.about}
 			</a>
-			<a class="text-muted-foreground transition-colors hover:text-foreground" href="#products">
+			<a class="text-muted-foreground transition-colors hover:text-foreground" href="{t.nav.homeHref}#products">
 				{t.nav.products}
 			</a>
-			<a class="text-muted-foreground transition-colors hover:text-foreground" href="#photos">
+			<a class="text-muted-foreground transition-colors hover:text-foreground" href="{t.nav.homeHref}#photos">
 				{t.nav.photos}
 			</a>
-			<a class="text-muted-foreground transition-colors hover:text-foreground" href="#contact">
+			<a class="text-muted-foreground transition-colors hover:text-foreground" href="{t.nav.homeHref}#contact">
 				{t.nav.contact}
 			</a>
 		</nav>
@@ -40,7 +40,7 @@
 			>
 				{t.nav.switchLabel}
 			</a>
-			<Button href="#contact" size="sm" class="hidden sm:inline-flex">{t.nav.contact}</Button>
+			<Button href="{t.nav.homeHref}#contact" size="sm" class="hidden sm:inline-flex">{t.nav.contact}</Button>
 		</div>
 	</div>
 </header>
