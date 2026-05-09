@@ -98,6 +98,8 @@ After these three, the next batch (S4 live cooking, S5 wat kost catering, S6 /ca
 
 - [ ] **Wedding cake / bruidstaart options** — extend De Toetjes Vrouw with a bruidstaart aanbod. Charlotte's baking background already supports this. Decide: separate product or sub-offer of De Toetjes Vrouw? Pricing tiers, sizes, flavours. Once decided, add a `Service` node to JSON-LD, a section on the homepage, copy in `nl.ts` / `en.ts`, photos. Likely also opens up content angles (`/blog/bruidstaart-of-tiramisu`, `bruidstaart` keyword cluster) — log those in [docs/seo-content-plan.md](docs/seo-content-plan.md) when scoping.
 
+- [ ] **Calibrate mix surcharge in the admin calculator** — current model in [src/lib/admin/pricing.ts](src/lib/admin/pricing.ts) uses tiramisu's prep curve (the higher of the two) at the smaller-batch portion count, so 55/50 and 50/55 splits price symmetrically. Side effect: a 50/50 mix of 100 lands at €7.69/portion vs €6.50 for pure tira-100 (~+18%), which is on the high side for catering mix premiums (typical 10–15%). Three knobs to evaluate once real-world quotes come in: (1) drop default `mixPrepFactor` from 1.0 to 0.75, (2) switch to the average of tira+burr prep curves instead of using the max, (3) leave as-is and rely on the per-quote override in the calculator's advanced section. Revisit after the first ~5 real mixed-quote requests so we have actual data to calibrate against. Same review should sanity-check the extra-person tier formula (`setup + ceil(N/50) × per_50`) and the travel-cost defaults (€100 free retour, €0,45/km).
+
 
 ## Worth knowing, not urgent
 
