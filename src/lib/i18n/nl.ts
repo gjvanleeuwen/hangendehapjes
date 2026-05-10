@@ -53,7 +53,7 @@ export const nl: Translations = {
 					'Klassieke mascarpone-crème met gepasteuriseerde eieren',
 					'En natuurlijk een mooie laag cacao',
 					'Huisgemaakt door Charlotte',
-					'Vanaf €425 voor 50 porties · €650 voor 100 · €1.125 voor 200'
+					'Vanaf €425 voor 50 porties · €650 voor 100 · grotere events op aanvraag'
 				],
 				image: TOETJES_IMAGE,
 				imageAlt: 'Charlotte maakt live tiramisu voor een gast'
@@ -84,7 +84,7 @@ export const nl: Translations = {
 						label: '1 saus naar keuze',
 						options: ['olijfolie', 'balsamico', 'truffelolie', 'pesto', 'spicy honey']
 					},
-					'Vanaf €450 voor 50 porties · €700 voor 100 · €1.225 voor 200'
+					'Vanaf €450 voor 50 porties · €750 voor 100 · grotere events op aanvraag'
 				],
 				image: BORREL_IMAGE,
 				imageAlt: 'Gijs maakt een live burrata-bowl voor een gast'

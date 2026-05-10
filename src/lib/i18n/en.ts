@@ -53,7 +53,7 @@ export const en: Translations = {
 					'Classic mascarpone cream with pasteurised eggs',
 					'And of course a nice layer of cocoa',
 					'Homemade by Charlotte',
-					'From €425 for 50 portions · €650 for 100 · €1,125 for 200'
+					'From €425 for 50 portions · €650 for 100 · larger events on request'
 				],
 				image: TOETJES_IMAGE,
 				imageAlt: 'Charlotte making live tiramisu for a guest'
@@ -84,7 +84,7 @@ export const en: Translations = {
 						label: '1 sauce of your choice',
 						options: ['olive oil', 'balsamic', 'truffle oil', 'pesto', 'spicy honey']
 					},
-					'From €450 for 50 portions · €700 for 100 · €1,225 for 200'
+					'From €450 for 50 portions · €750 for 100 · larger events on request'
 				],
 				image: BORREL_IMAGE,
 				imageAlt: 'Gijs making a live burrata bowl for a guest'

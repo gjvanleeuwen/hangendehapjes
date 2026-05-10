@@ -7,14 +7,23 @@ interface Tier {
 }
 
 export const PRICE_TIERS: Record<Product, Tier> = {
-	tiramisu: { 50: 425, 100: 650, 200: 1125 },
-	burrata: { 50: 450, 100: 700, 200: 1225 }
+	tiramisu: { 50: 425, 100: 650, 200: 1225 },
+	burrata: { 50: 450, 100: 750, 200: 1395 }
 };
 
 export const PREP_HOURS: Record<Product, Tier> = {
 	tiramisu: { 50: 1.25, 100: 2, 200: 3.5 },
 	burrata: { 50: 0.6, 100: 1, 200: 1.75 }
 };
+
+export const CLEANUP_HOURS: Tier = { 50: 0.8, 100: 1, 200: 1.5 };
+
+export const INGREDIENT_COST_PER_PORTION: Record<Product, number> = {
+	tiramisu: 1.58,
+	burrata: 2.62
+};
+
+export const PACKAGING_COST_PER_PORTION = 0.33;
 
 function highestPrepProduct(): Product {
 	const a = PREP_HOURS.tiramisu[100];
@@ -33,9 +42,8 @@ export const MIN_TOTAL_PORTIONS = 50;
 export interface PricingConfig {
 	mixPrepFactor: number;
 	hourlyRate: number;
-	extraPersonSetup: number;
-	extraPersonPer50: number;
-	extraPersonMinPortions1: number;
+	extraPersonDriveHours: number;
+	mandatoryExtraPersonAt: number;
 	extraPersonMinPortions2: number;
 	freeRoundTripKm: number;
 	costPerKm: number;
@@ -44,13 +52,14 @@ export interface PricingConfig {
 export const DEFAULT_CONFIG: PricingConfig = {
 	mixPrepFactor: 1.0,
 	hourlyRate: 75,
-	extraPersonSetup: 50,
-	extraPersonPer50: 75,
-	extraPersonMinPortions1: 100,
-	extraPersonMinPortions2: 200,
+	extraPersonDriveHours: 1.5,
+	mandatoryExtraPersonAt: 125,
+	extraPersonMinPortions2: 250,
 	freeRoundTripKm: 100,
 	costPerKm: 0.45
 };
+
+export const SOLO_PORTIONS_PER_HOUR = 50;
 
 function interp(x: number, x0: number, x1: number, y0: number, y1: number): number {
 	return y0 + ((x - x0) * (y1 - y0)) / (x1 - x0);
@@ -74,17 +83,26 @@ export function prepHours(product: Product, portions: number): number {
 	return piecewise(PREP_HOURS[product], portions);
 }
 
+export function cleanupHours(portions: number): number {
+	if (portions <= 0) return 0;
+	return piecewise(CLEANUP_HOURS, portions);
+}
+
 export interface PriceBreakdown {
 	totalPortions: number;
 	primary: { product: Product; portions: number; price: number } | null;
 	extension: { product: Product; portions: number; price: number } | null;
 	mixSurcharge: number;
+	mixSurchargeHours: number;
 	extraPersonFee: number;
+	extraPersonDriveHours: number;
+	extraPersonMandatory: boolean;
 	travelFee: number;
 	travelChargedKm: number;
 	total: number;
 	perPortion: number;
 	allowedExtraPeople: number;
+	effectiveExtraPeople: number;
 	warnings: string[];
 }
 
@@ -114,6 +132,7 @@ export function calculatePrice(input: {
 	let primary: PriceBreakdown['primary'] = null;
 	let extension: PriceBreakdown['extension'] = null;
 	let mixSurcharge = 0;
+	let mixSurchargeHours = 0;
 
 	if (isMix) {
 		const tiraIsPrimary = tiraPortions >= burrPortions;
@@ -130,6 +149,7 @@ export function calculatePrice(input: {
 		extension = { product: secondaryProduct, portions: secondaryN, price: round2(extPrice) };
 
 		const surchargeHours = prepHours(highestPrepProduct(), secondaryN);
+		mixSurchargeHours = surchargeHours;
 		mixSurcharge = round2(surchargeHours * config.hourlyRate * config.mixPrepFactor);
 	} else if (isPure) {
 		const product: Product = tiraPortions > 0 ? 'tiramisu' : 'burrata';
@@ -137,19 +157,17 @@ export function calculatePrice(input: {
 		primary = { product, portions, price: round2(purePrice(product, portions)) };
 	}
 
-	let allowedExtra = 0;
-	if (totalPortions >= config.extraPersonMinPortions1) allowedExtra = 1;
-	if (totalPortions >= config.extraPersonMinPortions2) allowedExtra = 2;
-	const cappedExtra = Math.min(extraPeople, allowedExtra);
+	const mandatory = totalPortions >= config.mandatoryExtraPersonAt;
+	const allowedExtra = totalPortions >= config.extraPersonMinPortions2 ? 2 : 1;
+	let cappedExtra = Math.min(Math.max(0, extraPeople), allowedExtra);
+	if (mandatory) cappedExtra = Math.max(cappedExtra, 1);
 	if (extraPeople > allowedExtra) {
-		warnings.push(`Extra persoon vereist minimaal ${config.extraPersonMinPortions1} porties (2× extra vereist ${config.extraPersonMinPortions2}).`);
+		warnings.push(`Maximaal ${allowedExtra} extra persoon (2× extra vereist ${config.extraPersonMinPortions2}+ porties).`);
 	}
 
-	const segments = Math.ceil(totalPortions / 50);
+	const driveHoursPerPerson = config.extraPersonDriveHours;
 	const extraPersonFee =
-		cappedExtra > 0
-			? round2(cappedExtra * (config.extraPersonSetup + segments * config.extraPersonPer50))
-			: 0;
+		cappedExtra > 0 ? round2(cappedExtra * driveHoursPerPerson * config.hourlyRate) : 0;
 
 	const roundTripKm = Math.max(0, oneWayKm) * 2;
 	const travelChargedKm = Math.max(0, roundTripKm - config.freeRoundTripKm);
@@ -164,18 +182,90 @@ export function calculatePrice(input: {
 		primary,
 		extension,
 		mixSurcharge,
+		mixSurchargeHours: round2(mixSurchargeHours),
 		extraPersonFee,
+		extraPersonDriveHours: cappedExtra > 0 ? driveHoursPerPerson : 0,
+		extraPersonMandatory: mandatory,
 		travelFee,
 		travelChargedKm,
 		total,
 		perPortion,
 		allowedExtraPeople: allowedExtra,
+		effectiveExtraPeople: cappedExtra,
 		warnings
 	};
 }
 
 function round2(n: number): number {
 	return Math.round(n * 100) / 100;
+}
+
+export interface InternalBreakdown {
+	hours: {
+		prep: number;
+		walking: number;
+		cleanup: number;
+		drive: number;
+		total: number;
+	};
+	costs: {
+		ingredientsTira: number;
+		ingredientsBurr: number;
+		ingredients: number;
+		packaging: number;
+		total: number;
+	};
+	people: number;
+	grossProfit: number;
+	hourlyRatePerPerson: number;
+}
+
+export function calculateInternals(
+	result: PriceBreakdown,
+	input: { tiraPortions: number; burrPortions: number; config: PricingConfig }
+): InternalBreakdown {
+	const { tiraPortions, burrPortions, config } = input;
+	const total = result.totalPortions;
+	const people = 1 + result.effectiveExtraPeople;
+
+	let prep = 0;
+	if (result.primary) prep += prepHours(result.primary.product, result.primary.portions);
+	if (result.extension) prep += prepHours(result.extension.product, result.extension.portions);
+	prep += result.mixSurchargeHours;
+
+	const walking = total / SOLO_PORTIONS_PER_HOUR;
+	const cleanup = cleanupHours(total);
+	const drive = config.extraPersonDriveHours * people;
+	const totalPersonHours = prep + walking + cleanup + drive;
+
+	const ingredientsTira = tiraPortions * INGREDIENT_COST_PER_PORTION.tiramisu;
+	const ingredientsBurr = burrPortions * INGREDIENT_COST_PER_PORTION.burrata;
+	const ingredients = ingredientsTira + ingredientsBurr;
+	const packaging = total * PACKAGING_COST_PER_PORTION;
+	const totalCosts = ingredients + packaging;
+
+	const grossProfit = result.total - totalCosts;
+	const hourlyRatePerPerson = totalPersonHours > 0 ? grossProfit / totalPersonHours : 0;
+
+	return {
+		hours: {
+			prep: round2(prep),
+			walking: round2(walking),
+			cleanup: round2(cleanup),
+			drive: round2(drive),
+			total: round2(totalPersonHours)
+		},
+		costs: {
+			ingredientsTira: round2(ingredientsTira),
+			ingredientsBurr: round2(ingredientsBurr),
+			ingredients: round2(ingredients),
+			packaging: round2(packaging),
+			total: round2(totalCosts)
+		},
+		people,
+		grossProfit: round2(grossProfit),
+		hourlyRatePerPerson: round2(hourlyRatePerPerson)
+	};
 }
 
 export function priceCurve(opts: {

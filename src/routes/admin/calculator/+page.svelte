@@ -6,8 +6,11 @@
 	import { formatEUR } from '$lib/admin/calc';
 	import {
 		DEFAULT_CONFIG,
+		INGREDIENT_COST_PER_PORTION,
 		MIN_PORTIONS_PER_PRODUCT,
+		PACKAGING_COST_PER_PORTION,
 		PRODUCT_LABELS,
+		calculateInternals,
 		calculatePrice,
 		priceCurve,
 		type PricingConfig
@@ -29,6 +32,18 @@
 			config: $state.snapshot(config)
 		})
 	);
+
+	const internals = $derived(
+		calculateInternals(result, {
+			tiraPortions,
+			burrPortions,
+			config: $state.snapshot(config)
+		})
+	);
+
+	function fmtHours(h: number): string {
+		return h.toFixed(2).replace('.', ',') + 'u';
+	}
 
 	const totalPortions = $derived(tiraPortions + burrPortions);
 	const isMix = $derived(tiraPortions > 0 && burrPortions > 0);
@@ -130,11 +145,34 @@
 </svelte:head>
 
 <div class="space-y-8">
-	<div>
+	<div class="space-y-2">
 		<h1 class="font-heading text-2xl">Calculator</h1>
 		<p class="text-muted-foreground text-sm">
 			Bereken een offerteprijs op basis van porties, mix en extra personen.
 		</p>
+		<details class="text-muted-foreground text-xs">
+			<summary class="cursor-pointer hover:text-foreground">Hoe werkt de prijsopbouw?</summary>
+			<div class="mt-2 space-y-1.5 leading-relaxed">
+				<p>
+					<strong>Basistarief per portie</strong> komt uit de tiers (50/100/200) — bevat alle
+					eten, lopen, schoonmaak en de eerste rit. Boven 200 wordt lineair geëxtrapoleerd op
+					basis van de 100→200 helling.
+				</p>
+				<p>
+					<strong>Mix-surcharge</strong> dekt de extra prep van een tweede product (we gebruiken
+					tiramisu's prep-curve op de kleinere portie als symmetrische basis).
+				</p>
+				<p>
+					<strong>Extra persoon</strong> wordt verplicht vanaf {DEFAULT_CONFIG.mandatoryExtraPersonAt}
+					porties (één persoon kan niet meer dan ±2u lopen). Fee dekt alleen de rituren — looptijd
+					zit al in het basistarief, dus we rekenen niet dubbel.
+				</p>
+				<p>
+					<strong>Reiskosten</strong>: eerste {DEFAULT_CONFIG.freeRoundTripKm} km retour gratis,
+					daarna €{DEFAULT_CONFIG.costPerKm.toFixed(2).replace('.', ',')}/km.
+				</p>
+			</div>
+		</details>
 	</div>
 
 	<div class="grid gap-8 lg:grid-cols-[1fr_minmax(0,560px)]">
@@ -249,8 +287,10 @@
 						<button
 							type="button"
 							onclick={() => (extraPeople = n)}
-							disabled={n > result.allowedExtraPeople}
-							class="border px-3 py-1.5 text-sm transition disabled:opacity-30 {extraPeople === n
+							disabled={n > result.allowedExtraPeople ||
+								(n === 0 && result.extraPersonMandatory)}
+							class="border px-3 py-1.5 text-sm transition disabled:opacity-30 {result.effectiveExtraPeople ===
+							n
 								? 'bg-primary text-primary-foreground border-primary'
 								: 'hover:bg-muted'}"
 						>
@@ -258,17 +298,31 @@
 						</button>
 					{/each}
 				</div>
+				{#if result.extraPersonMandatory}
+					<p class="text-xs text-amber-700">
+						Vanaf {config.mandatoryExtraPersonAt} porties is een tweede persoon vereist (één persoon kan
+						niet langer dan ±2 uur lopen).
+					</p>
+				{/if}
 				<p class="text-muted-foreground text-xs">
-					+1 vanaf {config.extraPersonMinPortions1} porties · +2 vanaf {config.extraPersonMinPortions2}
+					Verplicht vanaf {config.mandatoryExtraPersonAt} porties · +2 toegestaan vanaf {config.extraPersonMinPortions2}
 					porties.
 				</p>
+				{#if result.effectiveExtraPeople > 0}
+					<p class="text-muted-foreground text-xs">
+						Per extra persoon: {config.extraPersonDriveHours.toString().replace('.', ',')}u rijden ×
+						€{config.hourlyRate} = {formatEUR(
+							config.extraPersonDriveHours * config.hourlyRate
+						)}. Looptijd is al gedekt in het basistarief van de hapjes.
+					</p>
+				{/if}
 			</fieldset>
 
 			<details class="border p-4">
 				<summary class="cursor-pointer text-sm font-medium">Pricing-aannames (geavanceerd)</summary>
 				<div class="mt-3 grid gap-3 sm:grid-cols-2">
 					<div class="space-y-1.5">
-						<Label for="hourly">Uurloon prep (€)</Label>
+						<Label for="hourly">Uurloon (€)</Label>
 						<Input id="hourly" type="number" min="0" step="1" bind:value={config.hourlyRate} />
 					</div>
 					<div class="space-y-1.5">
@@ -282,23 +336,33 @@
 						/>
 					</div>
 					<div class="space-y-1.5">
-						<Label for="epsetup">Extra persoon — setup (€)</Label>
+						<Label for="epdrive">Extra persoon — rijuren</Label>
 						<Input
-							id="epsetup"
+							id="epdrive"
 							type="number"
 							min="0"
-							step="1"
-							bind:value={config.extraPersonSetup}
+							step="0.1"
+							bind:value={config.extraPersonDriveHours}
 						/>
 					</div>
 					<div class="space-y-1.5">
-						<Label for="epseg">Extra persoon — per 50 porties (€)</Label>
+						<Label for="epmand">2e persoon verplicht vanaf (porties)</Label>
 						<Input
-							id="epseg"
+							id="epmand"
 							type="number"
 							min="0"
-							step="1"
-							bind:value={config.extraPersonPer50}
+							step="5"
+							bind:value={config.mandatoryExtraPersonAt}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="epmax2">+2 toegestaan vanaf (porties)</Label>
+						<Input
+							id="epmax2"
+							type="number"
+							min="0"
+							step="5"
+							bind:value={config.extraPersonMinPortions2}
 						/>
 					</div>
 					<div class="space-y-1.5">
@@ -372,7 +436,9 @@
 						{#if result.extraPersonFee > 0}
 							<tr>
 								<td class="py-1 text-muted-foreground">
-									Extra persoon ({extraPeople}×)
+									Extra persoon ({result.effectiveExtraPeople}×) — {result.extraPersonDriveHours
+										.toString()
+										.replace('.', ',')}u rijden
 								</td>
 								<td class="py-1 text-right tabular-nums">{formatEUR(result.extraPersonFee)}</td>
 							</tr>
@@ -391,6 +457,76 @@
 						</tr>
 					</tbody>
 				</table>
+			</div>
+
+			<!-- Bottomline / take-home -->
+			<div class="bg-card border p-4 text-sm">
+				<div class="text-muted-foreground mb-2 text-xs uppercase tracking-wide">
+					Onze cijfers (intern)
+				</div>
+				<table class="w-full">
+					<tbody>
+						<tr>
+							<td class="py-1">Klant betaalt</td>
+							<td class="py-1 text-right tabular-nums">{formatEUR(result.total)}</td>
+						</tr>
+						{#if tiraPortions > 0}
+							<tr>
+								<td class="py-1 text-muted-foreground">
+									Ingrediënten tiramisu — {tiraPortions} × {formatEUR(
+										INGREDIENT_COST_PER_PORTION.tiramisu
+									)}
+								</td>
+								<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.ingredientsTira)}</td>
+							</tr>
+						{/if}
+						{#if burrPortions > 0}
+							<tr>
+								<td class="py-1 text-muted-foreground">
+									Ingrediënten burrata — {burrPortions} × {formatEUR(
+										INGREDIENT_COST_PER_PORTION.burrata
+									)}
+								</td>
+								<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.ingredientsBurr)}</td>
+							</tr>
+						{/if}
+						{#if totalPortions > 0}
+							<tr>
+								<td class="py-1 text-muted-foreground">
+									Verpakking — {totalPortions} × {formatEUR(PACKAGING_COST_PER_PORTION)}
+								</td>
+								<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.packaging)}</td>
+							</tr>
+						{/if}
+						<tr class="border-t font-medium">
+							<td class="py-2">Voor ons (bruto)</td>
+							<td class="py-2 text-right tabular-nums">{formatEUR(internals.grossProfit)}</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div class="mt-3 grid grid-cols-2 gap-3 border-t pt-3">
+					<div>
+						<div class="text-muted-foreground text-xs">Werkuren totaal (mensuren)</div>
+						<div class="font-heading text-2xl tabular-nums">{fmtHours(internals.hours.total)}</div>
+						<div class="text-muted-foreground mt-0.5 text-xs">
+							{fmtHours(internals.hours.prep)} prep · {fmtHours(internals.hours.walking)} lopen ·
+							{fmtHours(internals.hours.cleanup)} schoonmaak · {fmtHours(internals.hours.drive)} rijden
+						</div>
+					</div>
+					<div>
+						<div class="text-muted-foreground text-xs">
+							Per persoon ({internals.people}× — gemiddeld)
+						</div>
+						<div class="font-heading text-2xl tabular-nums">
+							{formatEUR(internals.grossProfit / internals.people)}
+						</div>
+						<div class="text-muted-foreground mt-0.5 text-xs">
+							~{fmtHours(internals.hours.total / internals.people)} werk ·
+							{formatEUR(internals.hourlyRatePerPerson)}/uur
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<!-- Chart -->
