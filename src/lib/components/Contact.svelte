@@ -17,9 +17,11 @@
 	let eventDate = $state('');
 	let location = $state('');
 	let guests = $state('');
+	let referral = $state('');
 	let message = $state('');
 	let interestToetjes = $state(false);
 	let interestBorrel = $state(false);
+	let interestBruidstaart = $state(false);
 	let website = $state('');
 	let submitting = $state(false);
 
@@ -33,6 +35,7 @@
 		const interests: string[] = [];
 		if (interestToetjes) interests.push(t.contact.labels.toetjes);
 		if (interestBorrel) interests.push(t.contact.labels.borrel);
+		if (interestBruidstaart) interests.push(t.contact.labels.bruidstaart);
 
 		try {
 			const res = await fetch('/api/contact', {
@@ -45,6 +48,7 @@
 					eventDate,
 					location,
 					guests,
+					referral,
 					message,
 					interests,
 					website,
@@ -54,6 +58,11 @@
 
 			if (!res.ok) {
 				const data = (await res.json().catch(() => null)) as { error?: string } | null;
+				const reason =
+					res.status === 429 || data?.error === 'rate_limited'
+						? 'rate_limited'
+						: data?.error || `http_${res.status}`;
+				window.umami?.track('contact_error', { reason, locale });
 				if (res.status === 429 || data?.error === 'rate_limited') {
 					toast.error(t.contact.errorRateTitle, { description: t.contact.errorRateBody });
 				} else {
@@ -62,6 +71,11 @@
 				return;
 			}
 
+			window.umami?.track('contact_submit', {
+				locale,
+				interests: interests.join(',') || 'none',
+				referral: referral ? 'provided' : 'empty'
+			});
 			toast.success(t.contact.successTitle, { description: t.contact.successBody });
 			name = '';
 			email = '';
@@ -69,10 +83,13 @@
 			eventDate = '';
 			location = '';
 			guests = '';
+			referral = '';
 			message = '';
 			interestToetjes = false;
 			interestBorrel = false;
+			interestBruidstaart = false;
 		} catch {
+			window.umami?.track('contact_error', { reason: 'network', locale });
 			toast.error(t.contact.errorTitle, { description: t.contact.errorBody });
 		} finally {
 			submitting = false;
@@ -173,7 +190,25 @@
 						<Checkbox bind:checked={interestBorrel} />
 						{t.contact.labels.borrel}
 					</label>
+					<label class="flex items-center gap-2 text-sm">
+						<Checkbox bind:checked={interestBruidstaart} />
+						{t.contact.labels.bruidstaart}
+					</label>
 				</div>
+			</div>
+
+			<div class="space-y-2">
+				<Label for="referral">
+					{t.contact.labels.referral}
+					<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
+				</Label>
+				<Input
+					id="referral"
+					name="referral"
+					maxlength={200}
+					placeholder={t.contact.placeholders.referral}
+					bind:value={referral}
+				/>
 			</div>
 
 			<div class="space-y-2">

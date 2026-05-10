@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Translations } from '$lib/i18n/types';
 	import * as Card from '$lib/components/ui/card/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import QuoteIcon from '@lucide/svelte/icons/quote';
 	import SectionHeading from './SectionHeading.svelte';
 
@@ -17,5 +18,14 @@
 				<p class="max-w-xl text-muted-foreground">{t.reviews.empty}</p>
 			</Card.Content>
 		</Card.Root>
+
+		<div
+			class="mx-auto mt-4 flex max-w-3xl flex-col items-center justify-between gap-3 rounded-lg border bg-background px-5 py-4 text-center sm:flex-row sm:gap-6 sm:text-left"
+		>
+			<p class="text-sm text-muted-foreground">{t.reviews.cta.text}</p>
+			<Button href={t.reviews.cta.href} target="_blank" rel="noopener" size="sm">
+				{t.reviews.cta.button}
+			</Button>
+		</div>
 	</div>
 </section>

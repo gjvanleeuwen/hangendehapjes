@@ -62,6 +62,14 @@ export const PayloadSchema = v.object({
 		),
 		[]
 	),
+	referral: v.optional(
+		v.pipe(
+			v.string(),
+			v.transform((s) => s.replace(CRLF, ' ').trim()),
+			v.maxLength(200, 'referral too long')
+		),
+		''
+	),
 	message: v.pipe(
 		v.string(),
 		v.transform((s) => s.replace(CRLF_NORMALIZE, '\n').trim()),

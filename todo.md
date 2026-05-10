@@ -1,37 +1,13 @@
-# Post-launch checklist
-
-The SEO infra (canonical, hreflang, OG, Twitter card, JSON-LD `LocalBusiness`, sitemap, robots.txt) is already wired in code. Most of what follows is *external* setup.
-
-## Today
-
 ### DNS / hosting sanity
 
-- [x] Pick one canonical domain (`https://hangendehapjes.nl` is hardcoded in [src/lib/site-config.ts](src/lib/site-config.ts)) and 301-redirect `www.` to apex via Dokploy/Traefik (done as 308; `http://www` is a two-hop redirect — left as-is, negligible impact)
 - [ ] Decide what to do with the alt domains in [site-config.ts](src/lib/site-config.ts) (`detoetjesvrouw.nl`, `deborrelbaas.nl`): 301 to the main site, or park
 - [ ] **Lighthouse audit** — Chrome DevTools → Lighthouse → mobile + perf/SEO/accessibility. Hero image is large (`hero.jpeg`); if LCP is slow, generate a smaller variant.
 
-## Search Console follow-ups
+### Funnel tracking (do before any ad spend or referral payouts)
 
-GSC + Bing were submitted on 2026-04-26. Indexing has fully landed: both `/` and `/en` are indexed on Google + Bing, sitemap is processed, no manual actions, branded "hangende hapjes" search ranks #1, and the blog post is already pulling 116 impressions. Also picked up by **ChatGPT** — first referral visit logged in Umami on 2026-05-09, so the GEO setup is producing citations earlier than expected.
-
-<details>
-<summary>Indexing checks (all completed — collapsed)</summary>
-
-#### Around 2026-04-30 (3–5 days post-submit)
-
-- [x] **GSC → Sitemaps**: status "Success" with ≥ 2 URLs discovered.
-- [x] **GSC → URL Inspection**: `https://hangendehapjes.nl/` and `https://hangendehapjes.nl/en` both on Google.
-- [x] GSC **Manual actions** and **Security issues** — both empty.
-- [x] **Bing Webmaster Tools → Sitemaps**: "Processed".
-- [x] **Bing → URL Submission**: `/` and `/en` submitted.
-
-#### Around 2026-05-09 (10–14 days post-submit)
-
-- [x] **GSC → Pages**: both `/` and `/en` in "Indexed".
-- [x] Branded "hangende hapjes" search in incognito → ranking #1.
-- [x] **GSC → Performance**: data is flowing (163 impressions across 5 pages in the first ~2 weeks).
-
-</details>
+- [ ] **Wire end-to-end funnel into Umami** — without this every later channel decision (ads, referrals, content prioritisation) is guessing. Three pieces:
+  1. **UTM-tag every external link** that points at the site: Instagram bio link, IG story link stickers, Linktree (if any), every directory listing (theperfectwedding.nl, future Showbird/Gigstarter), email signature, press follow-ups. Convention: `?utm_source=instagram&utm_medium=bio&utm_campaign=2026q2`. Umami already captures referrer + UTM; no setup needed beyond the tagging discipline. Maintain a small reference list of "where this URL is posted" in [docs/](docs/) so we don't lose the mapping.
+- [ ] **Spin up a "Deals" tracking sheet** (Notion DB or Google Sheet, doesn't matter). Columns: `date / source / lead name / status (lead → quote → booked → paid) / quote € / booking €`. Manual entry, ~30 sec per lead. This is the only place that knows deal value; Umami knows volume + source. Together they give CAC + conversion rate by source. Don't build software for this until 50+ rows exist.
 
 ### Findings from 2026-05-09 check-in
 
@@ -56,33 +32,18 @@ Goal: get cited by ChatGPT, Perplexity, Gemini, Claude when people ask "live cat
 
   Each page emits its own `LocalBusiness` JSON-LD with the city in `areaServed` (not just `Country`). Mirror to `/en/catering/...`. SvelteKit dynamic route `[slug]/+page.svelte` with a typed slug→content map keeps it simple and keeps content in git. GBP is already doing the heavy lifting for the map pack — these pages are reinforcement.
 
-- [ ] **Build an in-app `/blog` route** with hardcoded posts (SvelteKit-native markdown via `mdsvex`, or just `+page.svelte` per post — start simple, no CMS). Goal: rank for *question-intent* queries (different from location pages above, which target *geographic intent*). Each post = one clean answer to a real Google query. Topic seeds:
-  - "Originele catering voor een bruiloft"
-  - "Live cooking op een bruiloft of receptie — hoe werkt het?"
-  - "Wat kost catering voor 50/100/200 personen?" (price-curiosity intent is huge)
-  - "Hoeveel hapjes per persoon op een receptie?"
-  - "Tiramisu live serveren op een feest"
-  - "Burrata bar — wat is het en wanneer past het?"
-
-  Per post, add an `Article` JSON-LD node and link from the homepage footer. NL first; mirror to EN only once a post is ranking.
-- [x] Add an **FAQ section** to the site with clean Q→A pairs (voor hoeveel personen, kosten vanaf, reisafstand, wat hebben jullie op locatie nodig, vegetarisch/allergieën, etc.) and wrap it in `FAQPage` JSON-LD. LLMs extract these almost verbatim. — FAQ section already existed; added `FAQPage` node with `Question`/`Answer` mapped from `t.faq.items` to the `@graph` in [src/lib/components/SEO.svelte](src/lib/components/SEO.svelte). Worth revisiting copy for vegetarisch/allergieën coverage when the menu firms up.
-- [x] Add **`/llms.txt`** — short markdown file at the site root describing who/what/where in plain text. Five minutes, low certainty of payoff but harmless. Convention: [llmstxt.org](https://llmstxt.org).
-- [ ] (Ongoing, low priority) Be a real participant in NL wedding-adjacent Reddit/forum threads when genuinely useful. LLMs weight Reddit heavily. Do not spam.
-
 ## GEO strategy follow-ups (added 2026-04-28)
 
 From the `/geo-optimizer` strategy run. Off-site authority work to increase AI citation odds across ChatGPT, Claude, Perplexity, Gemini, and Google AI Overviews. The on-site enabler edits (NL+BE `areaServed`, `dateModified` via `__BUILD_DATE__`, explicit AI-bot rules in robots.txt, Person `sameAs`) are already in code.
 
 - [ ] **Apple Maps Connect + Bing Places for Business** — separate from GBP, broadens the local-pack citation graph. Same NAP as GBP (name, address, phone, email).
 - [ ] **Wikidata entity for Hangende Hapjes** — free, ~30 min, biggest ChatGPT lever short of Wikipedia (and Wikipedia is gated on press, see below). Properties: *instance of* (catering company), *country* (NL), *HQ location* (Hilversum), *founder* (Charlotte + Gijs van Leeuwen as new items), *inception*, *official website*, *sameAs* Instagram. Reference each property to homepage / Insta. Then add the Q-number to `LocalBusiness.sameAs` in [src/lib/components/SEO.svelte](src/lib/components/SEO.svelte).
-- [ ] **List on Showbird + Gigstarter** (NL entertainment-booking platforms). Fits the "eten als entertainment" positioning — different audience than wedding directories. The other NL wedding directories have already been evaluated above; not re-listing them here.
+- [ ] **List on Cateron** 
 - [ ] **Gooi en Eemlander backlink follow-up** — article is published; follow up with the editor / journalist to confirm the online version has a clickable link to `hangendehapjes.nl`. Local-press editorial backlinks support the Wikipedia notability case below.
 - [ ] **Pitch 1–2 more press outlets** — candidates: Bruidsmagazine, ThePerfectWedding.nl editorial (not just the listing), Het Parool food, NRC Lux. Angle: novel live-walking duo, NL-first concept, real prices, founder quote. One pitch deck reused. Goal: 1 additional press hit in the next 60 days. (Overlaps with the existing "Pitch one NL wedding/event blog" bullet — treat that as the same item, this just makes it concrete.)
 - [ ] **Set up Reddit account + first 5–10 helpful comments** — operationalises the "be a real participant" bullet above with concrete subreddits and a starter cadence: r/thenetherlands, r/Amsterdam, r/Hilversum, r/Wedding. Useful first; the named account itself becomes the citation surface for Gemini.
 - [ ] **Post-event review-request flow** — automated Postmark email 3 days after each event with a one-click link to leave a Google review on GBP. Goal: 5+ real reviews on the profile.
 - [ ] **Populate Reviews section + add `Review` schema** — once 5+ reviews exist: replace the empty-state copy in [src/lib/i18n/nl.ts](src/lib/i18n/nl.ts) and `en.ts`, add `Review` nodes and `aggregateRating` to `LocalBusiness` in [src/lib/components/SEO.svelte](src/lib/components/SEO.svelte). Blocked on the review-request flow producing reviews. (Subsumes the `aggregateRating` note further down under "Worth knowing, not urgent".)
-- [ ] **Prioritise the "hoeveel hapjes per persoon" blog post** — already listed in the blog seeds above. It's the strongest first-party-data candidate: niche query, real numbers from your bookings (50 porties/uur, ~2–3 standaard hapjes per portie), nobody else has written it. Ship it as the *first* post when the `/blog` route lands.
-- [ ] **Dutch Wikipedia draft** — later. Notability bar = significant coverage in multiple independent sources; blocked on at least 2 press hits (Gooi en Eemlander + 1 more). Draft on `nl.wikipedia.org` first; cross-link from the Wikidata item. Big lever — ChatGPT cites Wikipedia in ~48% of its top citations.
 
 ## Recurring (added 2026-04-28)
 
@@ -101,26 +62,71 @@ Full ranked content calendar — target queries, intent, difficulty, per-post br
 
 The three concrete next-up posts pulled from there:
 
-- [ ] **Post — "Hoeveel hapjes per persoon op een receptie of bruiloft?"** (S1 in the plan). First-party-data anchor for the "Catering planning facts" cluster. Already echoed above as the priority blog post; this is the same item.
-- [ ] **Post — "Tiramisu op je bruiloft"** (S2 in the plan). User-priority target. SERP for "tiramisu bruiloft" is owned by recipe sites and Tiktok — *zero* NL caterer is positioned on the phrase. Land-grab opportunity. Optionally merge with the existing "Tiramisu live serveren" blog seed into one master post (broader phrase wins more intent). Slug: `/blog/tiramisu-bruiloft`. Schema: `Article` + nested `Service` ref to De Toetjes Vrouw.
-- [ ] **Post — "Burrata op je bruiloft"** (S3 in the plan). Sister to the tiramisu post — same own-the-term play for De Borrel Baas. **Confirmed AI Overview win**: searching "burrata bruiloft" already triggers a Google AI Overview describing the burrata-bar concept, citing OhMyFoodness + 3 recipe sites — *zero* caterer cited. Once our service-side page exists we should land in that citation set fast. Slug: `/blog/burrata-bruiloft` (broader than the original `/burrata-bar-bruiloft` slug to capture both queries). Ship in tandem with the tiramisu post for symmetry.
+- [x] **Post — "Hoeveel hapjes per persoon op een receptie of bruiloft?"** (S1 in the plan). First-party-data anchor for the "Catering planning facts" cluster. Already echoed above as the priority blog post; this is the same item.
+- [x] **Post — "Tiramisu op je bruiloft"** (S2 in the plan). User-priority target. SERP for "tiramisu bruiloft" is owned by recipe sites and Tiktok — *zero* NL caterer is positioned on the phrase. Land-grab opportunity. Optionally merge with the existing "Tiramisu live serveren" blog seed into one master post (broader phrase wins more intent). Slug: `/blog/tiramisu-bruiloft`. Schema: `Article` + nested `Service` ref to De Toetjes Vrouw.
+- [x] **Post — "Burrata op je bruiloft"** (S3 in the plan). Sister to the tiramisu post — same own-the-term play for De Borrel Baas. **Confirmed AI Overview win**: searching "burrata bruiloft" already triggers a Google AI Overview describing the burrata-bar concept, citing OhMyFoodness + 3 recipe sites — *zero* caterer cited. Once our service-side page exists we should land in that citation set fast. Slug: `/blog/burrata-bruiloft` (broader than the original `/burrata-bar-bruiloft` slug to capture both queries). Ship in tandem with the tiramisu post for symmetry.
+- [ ] **Dedicated OG images for the tiramisu and burrata blog posts** — both posts currently reuse a generic image (`/images/07.jpeg` for tiramisu, `/images/borrel.jpeg` for burrata) instead of a purpose-built social card like `og-blog-hoeveel-hapjes-per-persoon.jpg`. Produce `static/og-blog-tiramisu-bruiloft.jpg` and `static/og-blog-burrata-bruiloft.jpg` at 1200×630, then swap the `ogImage` constant in [src/routes/blog/tiramisu-bruiloft/+page.svelte](src/routes/blog/tiramisu-bruiloft/+page.svelte) and [src/routes/blog/burrata-bruiloft/+page.svelte](src/routes/blog/burrata-bruiloft/+page.svelte). Matching OG cards lift social CTR and improve LLM thumbnail rendering when the posts get cited.
+- [ ] **Post — "Charlotte's tiramisu recept" (publiek, geen email-gate)** — Charlotte's actual recipe with photos, written in her voice, no form. Targets long-tail "tiramisu recept" variants ("tiramisu zonder alcohol", "tiramisu met amaretto", "echte Italiaanse tiramisu thuis") rather than the impossibly competitive "tiramisu recept" head term. Strong E-E-A-T signal (real person, real baker background, real photos) and prime LLM-citation material — recipe content gets quoted heavily by ChatGPT/Perplexity. Considered (and rejected) gating it behind email capture: audience-intent mismatch — recipe-grabbers are home cooks, not event hosts, and we have no nurture system to monetise the list yet. Public ranking + AI citations beat a list of unqualified emails. Slug: `/blog/tiramisu-recept`. Schema: `Recipe` JSON-LD (Google rewards this with rich-result rendering) + nested `Service` ref to De Toetjes Vrouw at the bottom of the post for the live-serving alternative.
 
-After these three, the next batch (S4 live cooking, S5 wat kost catering, S6 /catering/hilversum) is in the calendar in the plan doc. Don't add them as tasks until the first batch ships.
+After these four, the next batch (S4 live cooking, S5 wat kost catering, S6 /catering/hilversum) is in the calendar in the plan doc. Don't add them as tasks until the first batch ships.
 
 ## Product roadmap
 
 - [ ] **Wedding cake / bruidstaart options** — extend De Toetjes Vrouw with a bruidstaart aanbod. Charlotte's baking background already supports this. Decide: separate product or sub-offer of De Toetjes Vrouw? Pricing tiers, sizes, flavours. Once decided, add a `Service` node to JSON-LD, a section on the homepage, copy in `nl.ts` / `en.ts`, photos. Likely also opens up content angles (`/blog/bruidstaart-of-tiramisu`, `bruidstaart` keyword cluster) — log those in [docs/seo-content-plan.md](docs/seo-content-plan.md) when scoping.
 
+- [ ] **In-person tasting / sampling in Hilversum (potential lead magnet)** — we're happy to host couples or planners for a tasting if they come to Hilversum. Productise: define what's included (1 tira portion + 1 burrata bowl per person? small fee or free? what timeslots?), how it's booked (separate form on site or via existing contact?), and what happens after (hard CTA to book). Once productised this becomes the **strongest lead magnet we have** — far higher conversion than any PDF download because it's intent-loaded (you don't drive 30+ min to Hilversum unless you're seriously considering booking). Recipe-as-email-magnet was rejected (audience-intent mismatch, no nurture system); a tasting voucher is the better play once we have:
+  - A clear tasting product (price, scope, time)
+  - A booking flow (could be as simple as a calendar link in a "Boek een proeverij" CTA)
+  - A follow-up email template that converts taste → quote within ~3 days
+  Until those exist, leave this as a dormant lead-gen channel.
+
 - [ ] **Calibrate mix surcharge in the admin calculator** — current model in [src/lib/admin/pricing.ts](src/lib/admin/pricing.ts) uses tiramisu's prep curve (the higher of the two) at the smaller-batch portion count, so 55/50 and 50/55 splits price symmetrically. Side effect: a 50/50 mix of 100 lands at €7.69/portion vs €6.50 for pure tira-100 (~+18%), which is on the high side for catering mix premiums (typical 10–15%). Three knobs to evaluate once real-world quotes come in: (1) drop default `mixPrepFactor` from 1.0 to 0.75, (2) switch to the average of tira+burr prep curves instead of using the max, (3) leave as-is and rely on the per-quote override in the calculator's advanced section. Revisit after the first ~5 real mixed-quote requests so we have actual data to calibrate against. Same review should sanity-check the extra-person tier formula (`setup + ceil(N/50) × per_50`) and the travel-cost defaults (€100 free retour, €0,45/km).
+
+
+## Paid acquisition (defer ~1–2 months)
+
+Hold ad spend until the funnel is measurable and organic has produced a baseline pulse. Right now (2026-05-10): ~60k Insta Reel views and the first contact-form lead just landed — too small a sample to know whether organic + word-of-mouth sustains a steady cadence. Ads on top of unmeasured organic confound attribution.
+
+Gates before turning ads on (all three must be true):
+
+1. **Funnel tracking is live** — UTM tagging on every external link, custom Umami events on contact submit + admin offerte/factuur generation, "Hoe heb je over ons gehoord?" field on the contact form. See "Funnel tracking" under *Today* above.
+2. **Organic baseline established** — at minimum 3 contact-form leads in a 30-day window without ad spend, so we know the floor we're paying ads to lift above.
+3. **Durable assets shipped** — at least 3 location pages (`/catering/hilversum` + 2 others) and 2 more blog posts beyond `hoeveel-hapjes-per-persoon`, so ad clicks land somewhere with substance.
+
+When activated, start narrow and measurable:
+
+- [ ] **Google Search Ads — €15–25/day, 2-week test**. Geo-fence to Hilversum + Het Gooi only. 5–10 hand-picked high-intent keywords (e.g. "live catering Hilversum", "originele bruiloftscatering Gooi", "tiramisu bruiloft Nederland", "burrata bar bruiloft"). Single ad group, exact + phrase match only (no broad). Conversion goal in Google Ads = the `contact_submit` Umami event (mirror to GA4 if needed for the conversion bidding model, otherwise stick to Manual CPC). Kill any keyword with 0 conversions after 50 clicks; scale any with CAC < €100. Do NOT enable Performance Max — it's a black box and at this budget the bid system has nothing to optimise toward.
+- [ ] **Skip Meta Ads for now**. Insta Reels are doing brand-level top-of-funnel reach for free (60k organic views in the same window a paid campaign would burn through €500+ to match). Revisit only when organic IG reach plateaus AND we want retargeting on warm pixel audiences — at that point install the Meta pixel via [src/lib/components/SEO.svelte](src/lib/components/SEO.svelte) or hooks, with a privacy banner if needed.
+
+Mental model for spend timing: ads buy *speed* when the calendar has gaps and you need a booking *this month*, not as a permanent line item. Treat them as a faucet, not a foundation.
+
+
+## Partnerships / referrals (start now, real outreach within ~30 days)
+
+The single highest-leverage acquisition channel for catering: **wedding venues** and **wedding planners**. One preferred-vendor slot at a busy venue or planner book = tens of weddings/year of inbound, dwarfing any ad campaign at this stage. Strategic framing decided 2026-05-10:
+
+- **Lead with relationship, not money.** Cash kickbacks as the opening move can actually kill the conversation at the best venues (NL norm: many treat direct referral fees as a conflict-of-interest with their clients). The pitch is reciprocal recommendation + a free tasting at their next staff event — *not* a finder's fee. Money comes in stage 2.
+- **We're not stepping on existing caterers' toes.** Frame as receptie/borrel add-on, not dinner replacement: 30–60 minutes of live walking-tray experience between ceremony and dinner. We're adjacent to seated catering, not competitive — and most full-service caterers don't do walking-around live prep.
+
+### Outreach plan
+
+- [ ] **Pick 3 first-target venues in Het Gooi** that allow / require external catering ("trouwen zonder catering" / flexibele locaties). Easy wins because there's no political tension with an exclusive caterer. Candidates to evaluate: Kasteel Groeneveld (verify external-catering policy), Landgoed Zonnestraal, Sypesteyn, museums and country-house locations in Bussum/Laren/Blaricum/Naarden. Avoid full-service / exclusive-catering venues for the first batch.
+- [ ] **Approach script (no money in it):** "We're a new live-catering concept based in Hilversum — couple walking around with a tray, making fresh tiramisu / burrata per guest as part of the receptie. Not a dinner replacement, more an entertainment add-on. We'd love to do a 50-portion tasting at your next staff event, no strings, so you and your coordinators can taste it. If you like it, we'd be honoured to be on your preferred-vendor list." That's it for the first contact. Cost to us: ~€100 in food + a Saturday afternoon. Cheaper and far more memorable than a kickback offer.
+- [ ] **Target a parallel cohort of wedding planners.** Different rules: planners run on a vendor-fee model, *expect* commission. Lead with **10% of booking value** (cap at €300/event) or a flat **€150–250/booking** from the first contact. Find candidates via theperfectwedding.nl planner listings, recent "in the press" articles about NL wedding planners, and Insta hashtags `#weddingplannernl` `#trouwplanner`. Pick 3 planners covering Gooi/Amsterdam/Utrecht to start.
+- [ ] **Track everything in the Deals sheet** (defined under *Today* → *Funnel tracking*) plus a per-partner row in a small "Partners" tab: `partner / first contact date / status (cold → tasted → preferred-vendor → producing leads) / leads sent / bookings closed`. Without this, we'll forget who said what after partner #4.
+
+### Stage 2 (only after the first organic referral lands)
+
+- [ ] **Formalise with a flat €100–150 per booked event** for venues that have sent at least one lead. Communicate as "thank you for trusting us" rather than "here's why you should". One-pager (PDF or email) with the terms — keep it simple, no contracts.
+- [ ] **Bump to 5–8% of booking value (capped €300/event)** only if a partner explicitly asks for percentage. Most won't.
+- [ ] **In-kind alternatives** for venues whose policies forbid cash: free 50-portion catering at their next staff/team event, or a tasting voucher couples can redeem when booking via that venue. Same economics, none of the policy friction.
+
+The whole partnership track is gated on having the funnel tracking in place — we need to know which leads came via which partner before paying anything out. Do *Today → Funnel tracking* first, then this.
 
 
 ## Worth knowing, not urgent
 
+- [ ] **Surface "geen schotelgeld" as a differentiator** — most wedding/event venues charge schotelgeld (a per-guest or flat plating fee, typically €2–5 p.p.) when external dessert is served *by the venue* off plates. Because we walk between guests with our own tray and serve directly into our own bakjes, that fee doesn't apply — the venue isn't doing any plating. Useful angle for cost-conscious couples comparing De Toetjes Vrouw against a traditional bruidstaart. Surface as: (a) an FAQ entry ("Moeten we schotelgeld betalen aan onze locatie?"), (b) a paragraph in the `/blog/tiramisu-bruiloft` post (and the upcoming bruidstaart copy), and/or (c) a bullet on the Toetjes product card. Concrete and money-saving; fits the voice rule about "concrete beats vague". Verify with one or two recent venue contracts before claiming it as universally true — a small minority of venues charge a flat external-catering fee regardless of plating.
 - [ ] **Embed live social proof on the homepage**: latest Instagram post (or a small grid) and a Google Reviews block once GBP has a few reviews. Instagram has no clean official embed for SvelteKit — either oEmbed iframe per post (simple, ~okay perf) or fetch via Instagram Basic Display API and render natively (more work, better LCP). Google reviews: use the Places API `place_details` → render server-side; avoid third-party widgets that ship a tracker. Wire `aggregateRating` into the `Service` JSON-LD at the same time.
 - [ ] JSON-LD `LocalBusiness` is missing `telephone`, `streetAddress`, and `postalCode` (all flagged as non-critical by Rich Results Test). Add as a bundle if/when you want a richer Google Knowledge Panel — adding only `telephone` won't unlock it on its own. Fine to keep just city while the business is new, and don't put a home address in there if you'd rather not. Edit in [src/lib/components/SEO.svelte](src/lib/components/SEO.svelte).
 - [ ] Sitemap omits `<lastmod>` — fine for two URLs, would matter at scale.
-- [x] No `Service` schema for the two products. Worth adding when you have reviews/quotes to attach. — added entry-tier `Service` nodes (with `Offer` + `UnitPriceSpecification` per 50-portion reference quantity) into a `@graph` alongside `LocalBusiness` in [src/lib/components/SEO.svelte](src/lib/components/SEO.svelte). Add `aggregateRating` later once reviews exist.
-
-## Indexing reality check
-
-Even with everything submitted, expect **5–14 days** before the site shows up for "hangende hapjes" branded searches on Google, and **weeks-to-months** for competitive terms like "live tiramisu Hilversum." Word-of-mouth + Instagram is going to be your main funnel for a while regardless — the site's job is to be a credible landing page for inbound prospects, which it is.

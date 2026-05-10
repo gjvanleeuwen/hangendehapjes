@@ -8,7 +8,7 @@ export const en: Translations = {
 	meta: {
 		title: 'Hangende Hapjes | Live catering for your wedding or event',
 		description:
-			'Fresh tiramisu and burrata bowls, made on the spot for your guests. Bites & drinks catering for weddings, receptions and corporate events. From €395.'
+			'Fresh tiramisu and burrata bowls, made on the spot for your guests. Bites & drinks catering for weddings, receptions and corporate events. From €425.'
 	},
 	nav: {
 		about: 'About',
@@ -46,15 +46,14 @@ export const en: Translations = {
 				id: 'toetjes',
 				name: 'De Toetjes Vrouw',
 				pitch: 'Fresh tiramisu that we build up like a tower while serving.',
-				priceFrom: 'From €395',
-				priceNote: 'for 45 guests',
-				portionNote: '1 portion per guest, about 2 to 3 standard bites in size.',
+				priceFrom: 'From €425',
+				priceNote: 'for 50 guests',
 				bullets: [
 					'Two ladyfingers, drenched with espresso and liqueur',
 					'Classic mascarpone cream with pasteurised eggs',
 					'And of course a nice layer of cocoa',
 					'Homemade by Charlotte',
-					'From €395 for 45 guests · €650 for 100 · €1,125 for 200'
+					'From €425 for 50 portions · €650 for 100 · €1,125 for 200'
 				],
 				image: TOETJES_IMAGE,
 				imageAlt: 'Charlotte making live tiramisu for a guest'
@@ -63,9 +62,8 @@ export const en: Translations = {
 				id: 'borrel',
 				name: 'De Borrel Baas',
 				pitch: 'Burrata bowl with your choice of toppings and dips.',
-				priceFrom: 'From €420',
-				priceNote: 'for 45 guests',
-				portionNote: '1 portion per guest, about 2 to 3 standard bites in size.',
+				priceFrom: 'From €450',
+				priceNote: 'for 50 guests',
 				bullets: [
 					'Stracciatella — the creamy inside of a burrata',
 					'Scrocchi toasts to dip with',
@@ -86,13 +84,14 @@ export const en: Translations = {
 						label: '1 sauce of your choice',
 						options: ['olive oil', 'balsamic', 'truffle oil', 'pesto', 'spicy honey']
 					},
-					'From €420 for 45 guests · €700 for 100 · €1,225 for 200'
+					'From €450 for 50 portions · €700 for 100 · €1,225 for 200'
 				],
 				image: BORREL_IMAGE,
 				imageAlt: 'Gijs making a live burrata bowl for a guest'
 			}
 		],
-		priceFooter: 'Prices exclude VAT · Travel costs free up to 50 km from Hilversum.'
+		priceFooter: 'Prices exclude VAT · Travel costs free up to 50 km from Hilversum.',
+		priceCta: 'Request a quote'
 	},
 	faq: {
 		eyebrow: 'Why Hangende Hapjes',
@@ -167,7 +166,12 @@ export const en: Translations = {
 	reviews: {
 		heading: 'What guests are saying',
 		empty:
-			'Hangende Hapjes has just started, quotes and reviews are coming here soon. Already tasted the bites? Feel free to send us a note.'
+			'Hangende Hapjes has just started, quotes and reviews are coming here soon. Already tasted the bites? Feel free to send us a note.',
+		cta: {
+			text: 'Tasted our bites? Tell us how good they were.',
+			button: 'Write a review',
+			href: 'https://g.page/r/CYBafahKAvrMEBM/review'
+		}
 	},
 	photos: {
 		heading: 'In action',
@@ -188,11 +192,14 @@ export const en: Translations = {
 			interests: 'What’s your pick?',
 			toetjes: 'Tiramisu (De Toetjes Vrouw)',
 			borrel: 'Burrata (De Borrel Baas)',
+			bruidstaart: 'Wedding cake (De Toetjes Vrouw)',
 			both: 'Both',
+			referral: 'How did you hear about us?',
 			message: 'Message'
 		},
 		placeholders: {
-			message: 'Tell us about your party, the vibe, venue, any wishes and more.'
+			message: 'Tell us about your party, the vibe, venue, any wishes and more.',
+			referral: 'E.g. via Instagram, a friend, Google…'
 		},
 		optional: 'optional',
 		submit: 'Send',

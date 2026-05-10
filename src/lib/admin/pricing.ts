@@ -1,19 +1,19 @@
 export type Product = 'tiramisu' | 'burrata';
 
 interface Tier {
-	45: number;
+	50: number;
 	100: number;
 	200: number;
 }
 
 export const PRICE_TIERS: Record<Product, Tier> = {
-	tiramisu: { 45: 395, 100: 650, 200: 1125 },
-	burrata: { 45: 420, 100: 700, 200: 1225 }
+	tiramisu: { 50: 425, 100: 650, 200: 1125 },
+	burrata: { 50: 450, 100: 700, 200: 1225 }
 };
 
 export const PREP_HOURS: Record<Product, Tier> = {
-	tiramisu: { 45: 1.25, 100: 2, 200: 3.5 },
-	burrata: { 45: 0.6, 100: 1, 200: 1.75 }
+	tiramisu: { 50: 1.25, 100: 2, 200: 3.5 },
+	burrata: { 50: 0.6, 100: 1, 200: 1.75 }
 };
 
 function highestPrepProduct(): Product {
@@ -22,15 +22,13 @@ function highestPrepProduct(): Product {
 	return a >= b ? 'tiramisu' : 'burrata';
 }
 
-const ENTRY_TIER = 45;
-
 export const PRODUCT_LABELS: Record<Product, string> = {
 	tiramisu: 'Tiramisu (De Toetjes Vrouw)',
 	burrata: 'Burrata (De Borrel Baas)'
 };
 
-export const MIN_PORTIONS_PER_PRODUCT = ENTRY_TIER;
-export const MIN_TOTAL_PORTIONS = ENTRY_TIER;
+export const MIN_PORTIONS_PER_PRODUCT = 50;
+export const MIN_TOTAL_PORTIONS = 50;
 
 export interface PricingConfig {
 	mixPrepFactor: number;
@@ -59,8 +57,8 @@ function interp(x: number, x0: number, x1: number, y0: number, y1: number): numb
 }
 
 function piecewise(value: Tier, n: number): number {
-	if (n <= ENTRY_TIER) return value[45];
-	if (n <= 100) return interp(n, ENTRY_TIER, 100, value[45], value[100]);
+	if (n <= 50) return value[50];
+	if (n <= 100) return interp(n, 50, 100, value[50], value[100]);
 	if (n <= 200) return interp(n, 100, 200, value[100], value[200]);
 	const slope = (value[200] - value[100]) / 100;
 	return value[200] + (n - 200) * slope;
@@ -189,7 +187,7 @@ export function priceCurve(opts: {
 	to?: number;
 	step?: number;
 }): { x: number; total: number; perPortion: number }[] {
-	const { tiraShare, extraPeople, oneWayKm, config, from = ENTRY_TIER, to = 300, step = 5 } = opts;
+	const { tiraShare, extraPeople, oneWayKm, config, from = 50, to = 300, step = 5 } = opts;
 	const out: { x: number; total: number; perPortion: number }[] = [];
 	for (let n = from; n <= to; n += step) {
 		const tira = Math.round(n * tiraShare);

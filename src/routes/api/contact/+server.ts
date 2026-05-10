@@ -25,6 +25,7 @@ const buildConfirmation = (clean: Clean) => {
 				location: 'Locatie',
 				guests: 'Aantal gasten',
 				interests: 'Interesse',
+				referral: 'Hoe ons gevonden',
 				message: 'Bericht'
 			}
 		: {
@@ -33,6 +34,7 @@ const buildConfirmation = (clean: Clean) => {
 				location: 'Location',
 				guests: 'Number of guests',
 				interests: 'Interest',
+				referral: 'How they found us',
 				message: 'Message'
 			};
 
@@ -42,6 +44,7 @@ const buildConfirmation = (clean: Clean) => {
 		clean.location ? `${labels.location}: ${clean.location}` : null,
 		clean.guests ? `${labels.guests}: ${clean.guests}` : null,
 		clean.interests.length ? `${labels.interests}: ${clean.interests.join(', ')}` : null,
+		clean.referral ? `${labels.referral}: ${clean.referral}` : null,
 		'',
 		`${labels.message}:`,
 		clean.message
@@ -159,6 +162,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 		clean.location ? `Locatie: ${clean.location}` : null,
 		clean.guests ? `Aantal gasten: ${clean.guests}` : null,
 		clean.interests.length ? `Interesse: ${clean.interests.join(', ')}` : null,
+		clean.referral ? `Hoe ons gevonden: ${clean.referral}` : null,
 		`Taal: ${clean.locale}`,
 		'',
 		'Bericht:',

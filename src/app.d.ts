@@ -11,6 +11,12 @@ declare global {
 		// interface Platform {}
 	}
 
+	interface Window {
+		umami?: {
+			track: (event: string, data?: Record<string, unknown>) => void;
+		};
+	}
+
 	const __BUILD_DATE__: string;
 }
 

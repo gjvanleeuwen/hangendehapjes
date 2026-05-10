@@ -193,10 +193,10 @@
 						</thead>
 						<tbody class="text-muted-foreground">
 							<tr class="border-b border-border/60">
-								<td class="py-3 pr-4">45</td>
+								<td class="py-3 pr-4">50</td>
 								<td class="py-3 pr-4">1 uur, 1 bediende</td>
-								<td class="py-3 pr-4">€395</td>
-								<td class="py-3">€420</td>
+								<td class="py-3 pr-4">€425</td>
+								<td class="py-3">€450</td>
 							</tr>
 							<tr class="border-b border-border/60">
 								<td class="py-3 pr-4">100</td>

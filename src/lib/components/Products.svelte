@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Translations } from '$lib/i18n/types';
 	import * as Card from '$lib/components/ui/card/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import SectionHeading from './SectionHeading.svelte';
@@ -34,11 +35,10 @@
 						</Card.Description>
 					</Card.Header>
 					<Card.Content class="px-6 pb-6">
-						<div class="flex items-baseline gap-3">
+						<div>
 							<p class="font-heading text-xl">{product.priceFrom}</p>
-							<p class="text-sm text-muted-foreground">{product.priceNote}</p>
+							<p class="mt-1 text-xs text-muted-foreground/70">{product.priceNote}</p>
 						</div>
-						<p class="mt-1 text-[11px] text-muted-foreground/60">{product.portionNote}</p>
 						<Separator class="my-6" />
 						<ul class="space-y-2 text-sm leading-relaxed text-muted-foreground">
 							{#each product.bullets as bullet, i (i)}
@@ -72,5 +72,10 @@
 		</div>
 
 		<p class="mt-8 text-center text-xs text-muted-foreground">{t.products.priceFooter}</p>
+		<div class="mt-3 flex justify-center">
+			<Button href="{t.nav.homeHref}#contact" size="lg" class="px-10 py-6 text-base">
+				{t.products.priceCta}
+			</Button>
+		</div>
 	</div>
 </section>

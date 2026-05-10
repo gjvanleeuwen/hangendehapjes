@@ -8,7 +8,6 @@ export type Product = {
 	pitch: string;
 	priceFrom: string;
 	priceNote: string;
-	portionNote: string;
 	bullets: ProductBullet[];
 	image: string;
 	imageAlt: string;
@@ -46,6 +45,7 @@ export type Translations = {
 		intro: string;
 		items: Product[];
 		priceFooter: string;
+		priceCta: string;
 	};
 	faq: {
 		eyebrow: string;
@@ -56,6 +56,11 @@ export type Translations = {
 	reviews: {
 		heading: string;
 		empty: string;
+		cta: {
+			text: string;
+			button: string;
+			href: string;
+		};
 	};
 	photos: {
 		heading: string;
@@ -75,11 +80,14 @@ export type Translations = {
 			interests: string;
 			toetjes: string;
 			borrel: string;
+			bruidstaart: string;
 			both: string;
+			referral: string;
 			message: string;
 		};
 		placeholders: {
 			message: string;
+			referral: string;
 		};
 		optional: string;
 		submit: string;

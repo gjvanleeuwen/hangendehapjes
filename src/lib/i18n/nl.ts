@@ -8,7 +8,7 @@ export const nl: Translations = {
 	meta: {
 		title: 'Hangende Hapjes | Live catering voor jouw bruiloft of evenement',
 		description:
-			'Verse tiramisu en burrata-bowls, ter plekke gemaakt voor jouw gasten. Hapjes en borrel catering voor bruiloften, recepties en zakelijke events. Vanaf €395.'
+			'Verse tiramisu en burrata-bowls, ter plekke gemaakt voor jouw gasten. Hapjes en borrel catering voor bruiloften, recepties en zakelijke events. Vanaf €425.'
 	},
 	nav: {
 		about: 'Over ons',
@@ -46,15 +46,14 @@ export const nl: Translations = {
 				id: 'toetjes',
 				name: 'De Toetjes Vrouw',
 				pitch: 'Verse tiramisu die we als een toren opbouwen bij het serveren.',
-				priceFrom: 'Vanaf €395',
-				priceNote: 'voor 45 personen',
-				portionNote: '1 portie per persoon, ongeveer 2 á 3 standaard hapjes groot.',
+				priceFrom: 'Vanaf €425',
+				priceNote: 'voor 50 personen',
 				bullets: [
 					'Twee lange vingers, overgoten met espresso en likeur',
 					'Klassieke mascarpone-crème met gepasteuriseerde eieren',
 					'En natuurlijk een mooie laag cacao',
 					'Huisgemaakt door Charlotte',
-					'Vanaf €395 voor 45 personen · €650 voor 100 · €1.125 voor 200'
+					'Vanaf €425 voor 50 porties · €650 voor 100 · €1.125 voor 200'
 				],
 				image: TOETJES_IMAGE,
 				imageAlt: 'Charlotte maakt live tiramisu voor een gast'
@@ -63,9 +62,8 @@ export const nl: Translations = {
 				id: 'borrel',
 				name: 'De Borrel Baas',
 				pitch: 'Burrata-bowl met toppings en dips naar keuze voor extra variëteit.',
-				priceFrom: 'Vanaf €420',
-				priceNote: 'voor 45 personen',
-				portionNote: '1 portie per persoon, ongeveer 2 á 3 standaard hapjes groot.',
+				priceFrom: 'Vanaf €450',
+				priceNote: 'voor 50 personen',
 				bullets: [
 					'Stracciatella — het romige binnenste van een burrata',
 					'Scrocchi-toastjes om mee te dippen',
@@ -86,13 +84,14 @@ export const nl: Translations = {
 						label: '1 saus naar keuze',
 						options: ['olijfolie', 'balsamico', 'truffelolie', 'pesto', 'spicy honey']
 					},
-					'Vanaf €420 voor 45 personen · €700 voor 100 · €1.225 voor 200'
+					'Vanaf €450 voor 50 porties · €700 voor 100 · €1.225 voor 200'
 				],
 				image: BORREL_IMAGE,
 				imageAlt: 'Gijs maakt een live burrata-bowl voor een gast'
 			}
 		],
-		priceFooter: 'Prijzen excl. BTW · Reiskosten gratis tot 50 km vanaf Hilversum.'
+		priceFooter: 'Prijzen excl. BTW · Reiskosten gratis tot 50 km vanaf Hilversum.',
+		priceCta: 'Vraag een offerte aan'
 	},
 	faq: {
 		eyebrow: 'Waarom Hangende Hapjes',
@@ -167,7 +166,12 @@ export const nl: Translations = {
 	reviews: {
 		heading: 'Wat gasten zeggen',
 		empty:
-			'Hangende hapjes is net begonnen, quotes en reviews komen hier binnenkort. Heb jij de hapjes al wel geproefd? Stuur ons gerust een berichtje.'
+			'Hangende hapjes is net begonnen, quotes en reviews komen hier binnenkort. Heb jij de hapjes al wel geproefd? Stuur ons gerust een berichtje.',
+		cta: {
+			text: 'Heb jij onze hapjes geproefd? Laat ons weten hoe lekker ze waren.',
+			button: 'Schrijf een review',
+			href: 'https://g.page/r/CYBafahKAvrMEBM/review'
+		}
 	},
 	photos: {
 		heading: 'In actie',
@@ -188,11 +192,14 @@ export const nl: Translations = {
 			interests: 'Waar kies je voor?',
 			toetjes: 'Tiramisu (De Toetjes Vrouw)',
 			borrel: 'Burrata (De Borrel Baas)',
+			bruidstaart: 'Bruidstaart (De Toetjes Vrouw)',
 			both: 'Beide',
+			referral: 'Hoe heb je over ons gehoord?',
 			message: 'Bericht'
 		},
 		placeholders: {
-			message: 'Vertel ons over je feest, sfeer, locatie, eventuele wensen en meer.'
+			message: 'Vertel ons over je feest, sfeer, locatie, eventuele wensen en meer.',
+			referral: 'Bijv. via Instagram, een vriend, Google…'
 		},
 		optional: 'optioneel',
 		submit: 'Verstuur',
@@ -220,6 +227,10 @@ export const nl: Translations = {
 			{
 				label: 'Tiramisu op je bruiloft',
 				href: '/blog/tiramisu-bruiloft'
+			},
+			{
+				label: 'Burrata op je bruiloft',
+				href: '/blog/burrata-bruiloft'
 			}
 		]
 	}
