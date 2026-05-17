@@ -1,15 +1,17 @@
 <script lang="ts">
 	import type { Translations } from '$lib/i18n/types';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import Picture from '$lib/components/Picture.svelte';
 
 	type Props = { t: Translations };
 	let { t }: Props = $props();
 </script>
 
 <section class="bg-foreground text-background relative isolate min-h-[80vh] overflow-hidden">
-	<img
+	<Picture
 		src={t.hero.image}
 		alt={t.hero.imageAlt}
+		sizes="100vw"
 		class="absolute inset-0 -z-10 size-full object-cover opacity-60"
 		loading="eager"
 		fetchpriority="high"

@@ -13,6 +13,7 @@
 		"lint": "prettier --check .",
 		"format": "prettier --write .",
 		"og": "bun scripts/generate-og.ts",
+		"images": "bun scripts/optimize-images.ts",
 		"test:contact": "bun scripts/test-contact-schema.ts"
 	},
 	"devDependencies": {

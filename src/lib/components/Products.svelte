@@ -5,6 +5,7 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import SectionHeading from './SectionHeading.svelte';
+	import Picture from './Picture.svelte';
 
 	type Props = { t: Translations };
 	let { t }: Props = $props();
@@ -21,9 +22,10 @@
 			{#each t.products.items as product (product.id)}
 				<Card.Root class="overflow-hidden p-0">
 					<div class="aspect-9/16 overflow-hidden bg-muted md:aspect-4/5">
-						<img
+						<Picture
 							src={product.image}
 							alt={product.imageAlt}
+							sizes="(min-width: 768px) min(540px, 50vw), 100vw"
 							loading="lazy"
 							class="size-full object-cover"
 						/>

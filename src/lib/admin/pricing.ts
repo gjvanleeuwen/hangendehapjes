@@ -25,12 +25,6 @@ export const INGREDIENT_COST_PER_PORTION: Record<Product, number> = {
 
 export const PACKAGING_COST_PER_PORTION = 0.33;
 
-function highestPrepProduct(): Product {
-	const a = PREP_HOURS.tiramisu[100];
-	const b = PREP_HOURS.burrata[100];
-	return a >= b ? 'tiramisu' : 'burrata';
-}
-
 export const PRODUCT_LABELS: Record<Product, string> = {
 	tiramisu: 'Tiramisu (De Toetjes Vrouw)',
 	burrata: 'Burrata (De Borrel Baas)'
@@ -40,7 +34,7 @@ export const MIN_PORTIONS_PER_PRODUCT = 50;
 export const MIN_TOTAL_PORTIONS = 50;
 
 export interface PricingConfig {
-	mixPrepFactor: number;
+	mixSharedDeduction: number;
 	hourlyRate: number;
 	extraPersonDriveHours: number;
 	mandatoryExtraPersonAt: number;
@@ -50,7 +44,7 @@ export interface PricingConfig {
 }
 
 export const DEFAULT_CONFIG: PricingConfig = {
-	mixPrepFactor: 1.0,
+	mixSharedDeduction: 125,
 	hourlyRate: 75,
 	extraPersonDriveHours: 1.5,
 	mandatoryExtraPersonAt: 125,
@@ -88,12 +82,16 @@ export function cleanupHours(portions: number): number {
 	return piecewise(CLEANUP_HOURS, portions);
 }
 
+export interface ProductLine {
+	product: Product;
+	portions: number;
+	price: number;
+}
+
 export interface PriceBreakdown {
 	totalPortions: number;
-	primary: { product: Product; portions: number; price: number } | null;
-	extension: { product: Product; portions: number; price: number } | null;
-	mixSurcharge: number;
-	mixSurchargeHours: number;
+	productLines: ProductLine[];
+	mixDeduction: number;
 	extraPersonFee: number;
 	extraPersonDriveHours: number;
 	extraPersonMandatory: boolean;
@@ -129,32 +127,26 @@ export function calculatePrice(input: {
 		warnings.push(`Minimaal ${MIN_TOTAL_PORTIONS} porties.`);
 	}
 
-	let primary: PriceBreakdown['primary'] = null;
-	let extension: PriceBreakdown['extension'] = null;
-	let mixSurcharge = 0;
-	let mixSurchargeHours = 0;
+	const productLines: ProductLine[] = [];
+	let mixDeduction = 0;
+
+	if (tiraPortions > 0) {
+		productLines.push({
+			product: 'tiramisu',
+			portions: tiraPortions,
+			price: round2(purePrice('tiramisu', tiraPortions))
+		});
+	}
+	if (burrPortions > 0) {
+		productLines.push({
+			product: 'burrata',
+			portions: burrPortions,
+			price: round2(purePrice('burrata', burrPortions))
+		});
+	}
 
 	if (isMix) {
-		const tiraIsPrimary = tiraPortions >= burrPortions;
-		const primaryProduct: Product = tiraIsPrimary ? 'tiramisu' : 'burrata';
-		const secondaryProduct: Product = tiraIsPrimary ? 'burrata' : 'tiramisu';
-		const primaryN = tiraIsPrimary ? tiraPortions : burrPortions;
-		const secondaryN = tiraIsPrimary ? burrPortions : tiraPortions;
-
-		const primaryPrice = purePrice(primaryProduct, primaryN);
-		const extPrice =
-			purePrice(secondaryProduct, primaryN + secondaryN) - purePrice(secondaryProduct, primaryN);
-
-		primary = { product: primaryProduct, portions: primaryN, price: round2(primaryPrice) };
-		extension = { product: secondaryProduct, portions: secondaryN, price: round2(extPrice) };
-
-		const surchargeHours = prepHours(highestPrepProduct(), secondaryN);
-		mixSurchargeHours = surchargeHours;
-		mixSurcharge = round2(surchargeHours * config.hourlyRate * config.mixPrepFactor);
-	} else if (isPure) {
-		const product: Product = tiraPortions > 0 ? 'tiramisu' : 'burrata';
-		const portions = tiraPortions > 0 ? tiraPortions : burrPortions;
-		primary = { product, portions, price: round2(purePrice(product, portions)) };
+		mixDeduction = round2(config.mixSharedDeduction);
 	}
 
 	const mandatory = totalPortions >= config.mandatoryExtraPersonAt;
@@ -173,16 +165,15 @@ export function calculatePrice(input: {
 	const travelChargedKm = Math.max(0, roundTripKm - config.freeRoundTripKm);
 	const travelFee = round2(travelChargedKm * config.costPerKm);
 
-	const base = (primary?.price ?? 0) + (extension?.price ?? 0) + mixSurcharge;
+	const linesSum = productLines.reduce((s, l) => s + l.price, 0);
+	const base = linesSum - mixDeduction;
 	const total = round2(base + extraPersonFee + travelFee);
 	const perPortion = totalPortions > 0 ? round2(total / totalPortions) : 0;
 
 	return {
 		totalPortions,
-		primary,
-		extension,
-		mixSurcharge,
-		mixSurchargeHours: round2(mixSurchargeHours),
+		productLines,
+		mixDeduction,
 		extraPersonFee,
 		extraPersonDriveHours: cappedExtra > 0 ? driveHoursPerPerson : 0,
 		extraPersonMandatory: mandatory,
@@ -229,9 +220,9 @@ export function calculateInternals(
 	const people = 1 + result.effectiveExtraPeople;
 
 	let prep = 0;
-	if (result.primary) prep += prepHours(result.primary.product, result.primary.portions);
-	if (result.extension) prep += prepHours(result.extension.product, result.extension.portions);
-	prep += result.mixSurchargeHours;
+	for (const line of result.productLines) {
+		prep += prepHours(line.product, line.portions);
+	}
 
 	const walking = total / SOLO_PORTIONS_PER_HOUR;
 	const cleanup = cleanupHours(total);

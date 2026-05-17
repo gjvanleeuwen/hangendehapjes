@@ -159,8 +159,10 @@
 					basis van de 100→200 helling.
 				</p>
 				<p>
-					<strong>Mix-surcharge</strong> dekt de extra prep van een tweede product (we gebruiken
-					tiramisu's prep-curve op de kleinere portie als symmetrische basis).
+					<strong>Mix (twee soorten)</strong> = beide producten op hun eigen prijs voor het
+					bestelde aantal, opgeteld, minus een vaste aftrek voor gedeelde overhead (1 rit en 1
+					schoonmaak in plaats van 2). Symmetrisch — meer porties betekent altijd een hogere
+					prijs, los van welk product groter is.
 				</p>
 				<p>
 					<strong>Extra persoon</strong> wordt verplicht vanaf {DEFAULT_CONFIG.mandatoryExtraPersonAt}
@@ -326,13 +328,13 @@
 						<Input id="hourly" type="number" min="0" step="1" bind:value={config.hourlyRate} />
 					</div>
 					<div class="space-y-1.5">
-						<Label for="mixfactor">Mix-prep factor</Label>
+						<Label for="mixded">Mix gedeelde aftrek (€)</Label>
 						<Input
-							id="mixfactor"
+							id="mixded"
 							type="number"
 							min="0"
-							step="0.1"
-							bind:value={config.mixPrepFactor}
+							step="5"
+							bind:value={config.mixSharedDeduction}
 						/>
 					</div>
 					<div class="space-y-1.5">
@@ -411,26 +413,20 @@
 				<div class="text-muted-foreground mb-2 text-xs uppercase tracking-wide">Opbouw (intern)</div>
 				<table class="w-full">
 					<tbody>
-						{#if result.primary}
+						{#each result.productLines as line}
 							<tr>
 								<td class="py-1">
-									{PRODUCT_LABELS[result.primary.product]} · {result.primary.portions} porties
+									{PRODUCT_LABELS[line.product]} · {line.portions} porties
 								</td>
-								<td class="py-1 text-right tabular-nums">{formatEUR(result.primary.price)}</td>
+								<td class="py-1 text-right tabular-nums">{formatEUR(line.price)}</td>
 							</tr>
-						{/if}
-						{#if result.extension}
+						{/each}
+						{#if result.mixDeduction > 0}
 							<tr>
 								<td class="py-1 text-muted-foreground">
-									Uitbreiding {PRODUCT_LABELS[result.extension.product]} · {result.extension.portions} porties
+									Gedeelde overhead (1 rit + schoonmaak ipv 2)
 								</td>
-								<td class="py-1 text-right tabular-nums">{formatEUR(result.extension.price)}</td>
-							</tr>
-						{/if}
-						{#if result.mixSurcharge > 0}
-							<tr>
-								<td class="py-1 text-muted-foreground">Mix-surcharge (extra prep)</td>
-								<td class="py-1 text-right tabular-nums">{formatEUR(result.mixSurcharge)}</td>
+								<td class="py-1 text-right tabular-nums">−{formatEUR(result.mixDeduction)}</td>
 							</tr>
 						{/if}
 						{#if result.extraPersonFee > 0}

@@ -17,9 +17,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 	const lang = path.startsWith('/en') ? 'en' : 'nl';
-	return resolve(event, {
+	const response = await resolve(event, {
 		transformPageChunk: ({ html }) => html.replace('%lang%', lang)
 	});
+
+	if (path.startsWith('/images/optimized/')) {
+		response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+	}
+
+	return response;
 };
 
 const SILENT_STATUSES = new Set([404, 405]);
