@@ -15,6 +15,15 @@ const INVALID_NOTIFY_THROTTLE_MS = 5 * 60_000;
 const lastSubmission = new Map<string, number>();
 const lastInvalidNotify = new Map<string, number>();
 
+const serviceTypeLabel = (serviceType: Clean['serviceType'], isNl: boolean) =>
+	serviceType === 'taart'
+		? isNl
+			? 'Dessert / taart'
+			: 'Dessert / cake'
+		: isNl
+			? 'Hangende hapjes (live)'
+			: 'Hanging snacks (live)';
+
 const buildConfirmation = (clean: Clean) => {
 	const isNl = clean.locale !== 'en';
 
@@ -24,7 +33,8 @@ const buildConfirmation = (clean: Clean) => {
 				eventDate: 'Datum',
 				location: 'Locatie',
 				guests: 'Aantal gasten',
-				interests: 'Interesse',
+				choice: 'Wat je wilt',
+				serving: 'Geserveerd',
 				referral: 'Hoe ons gevonden',
 				message: 'Bericht'
 			}
@@ -33,17 +43,22 @@ const buildConfirmation = (clean: Clean) => {
 				eventDate: 'Date',
 				location: 'Location',
 				guests: 'Number of guests',
-				interests: 'Interest',
+				choice: 'What you want',
+				serving: 'Served',
 				referral: 'How they found us',
 				message: 'Message'
 			};
+
+	const serviceLabel = serviceTypeLabel(clean.serviceType, isNl);
+	const serving = [clean.dagdeel, clean.servingTime].filter(Boolean).join(' — ');
 
 	const summary = [
 		clean.phone ? `${labels.phone}: ${clean.phone}` : null,
 		clean.eventDate ? `${labels.eventDate}: ${clean.eventDate}` : null,
 		clean.location ? `${labels.location}: ${clean.location}` : null,
 		clean.guests ? `${labels.guests}: ${clean.guests}` : null,
-		clean.interests.length ? `${labels.interests}: ${clean.interests.join(', ')}` : null,
+		`${labels.choice}: ${serviceLabel} — ${clean.choice}`,
+		serving ? `${labels.serving}: ${serving}` : null,
 		clean.referral ? `${labels.referral}: ${clean.referral}` : null,
 		'',
 		`${labels.message}:`,
@@ -154,14 +169,16 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	}
 	lastSubmission.set(ip, now);
 
+	const serving = [clean.dagdeel, clean.servingTime].filter(Boolean).join(' — ');
 	const lines = [
 		`Naam: ${clean.name}`,
 		`Email: ${clean.email}`,
 		clean.phone ? `Telefoon: ${clean.phone}` : null,
-		clean.eventDate ? `Datum: ${clean.eventDate}` : null,
-		clean.location ? `Locatie: ${clean.location}` : null,
-		clean.guests ? `Aantal gasten: ${clean.guests}` : null,
-		clean.interests.length ? `Interesse: ${clean.interests.join(', ')}` : null,
+		`Datum: ${clean.eventDate}`,
+		`Locatie: ${clean.location}`,
+		`Aantal gasten: ${clean.guests}`,
+		`Wat: ${serviceTypeLabel(clean.serviceType, clean.locale !== 'en')} — ${clean.choice}`,
+		serving ? `Geserveerd: ${serving}` : null,
 		clean.referral ? `Hoe ons gevonden: ${clean.referral}` : null,
 		`Taal: ${clean.locale}`,
 		'',

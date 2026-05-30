@@ -257,8 +257,6 @@
 				</p>
 			</section>
 
-			<BlogFaqSection items={faqList} />
-
 			<section class="mt-14 rounded-lg border border-border p-6 md:p-8">
 				<h2 class="font-heading text-xl tracking-tight md:text-2xl">
 					Plan je feest? Vertel ons hoeveel gasten je verwacht.
@@ -274,6 +272,11 @@
 					Vraag een voorstel aan
 				</a>
 			</section>
+
+			<BlogFaqSection
+				items={faqList}
+				intro="De meestgestelde vragen over porties, hoeveelheden en timing."
+			/>
 		</article>
 	</main>
 	<Footer t={nl} />

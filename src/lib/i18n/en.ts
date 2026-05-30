@@ -115,15 +115,9 @@ export const en: Translations = {
 			},
 			{
 				id: 'booking',
-				question: 'How does booking work?',
+				question: 'How does booking work and how far in advance?',
 				answer:
-					'Fill in the contact form with your date, location and number of guests. We’ll get back to you within 1–2 days with a tailored proposal. Sound good? Then the booking is set.'
-			},
-			{
-				id: 'leadtime',
-				question: 'How far in advance should I book?',
-				answer:
-					'We can often turn things around quickly, sometimes even same-day. To be safe, we recommend booking at least 2 to 3 months ahead. Send us your date and we’ll check straight away if it fits.'
+					'Fill in the contact form with your date, location and number of guests. We’ll get back to you within 1–2 days with a tailored proposal. Sound good? Then the booking is set. We can often turn things around quickly, sometimes even same-day, but to be safe we recommend booking at least 2 to 3 months ahead.'
 			},
 			{
 				id: 'travel',
@@ -135,7 +129,7 @@ export const en: Translations = {
 				id: 'combine',
 				question: 'Can I book both concepts, and who comes to serve?',
 				answer:
-					'Sure, you can book both concepts separately or together at the same party. Some hosts pick De Borrel Baas during the drinks/reception and De Toetjes Vrouw for dessert. For the combination we charge around €80 extra for the additional prep across two menus. Both Gijs and Charlotte make delicious tiramisu and burrata bowls — who comes depends on availability and isn’t tied to which concept you pick.'
+					'Sure, you can book both concepts separately or together at the same party. Some hosts pick De Borrel Baas during the drinks/reception and De Toetjes Vrouw for dessert. Combine both at one event and you get €125 off, because we only have to travel out and set up once. Both Gijs and Charlotte make delicious tiramisu and burrata bowls — who comes depends on availability and isn’t tied to which concept you pick.'
 			},
 			{
 				id: 'portion',
@@ -176,7 +170,10 @@ export const en: Translations = {
 	photos: {
 		heading: 'In action',
 		intro: 'The latest moments from our events are on Instagram.',
-		cta: 'View Instagram'
+		cta: 'View Instagram',
+		blockedTitle: 'The Instagram posts couldn’t load',
+		blockedBody:
+			'Your browser or an extension (like a tracker or cookie blocker) is blocking the embeds. No worries, you can find all our footage directly on Instagram.'
 	},
 	contact: {
 		heading: 'Book us for your party',
@@ -189,17 +186,46 @@ export const en: Translations = {
 			eventDate: 'Date',
 			location: 'Location',
 			guests: 'Number of guests',
-			interests: 'What’s your pick?',
-			toetjes: 'Tiramisu (De Toetjes Vrouw)',
-			borrel: 'Burrata (De Borrel Baas)',
-			bruidstaart: 'Wedding cake (De Toetjes Vrouw)',
-			both: 'Both',
+			serviceType: 'What’s your pick?',
+			choice: 'And which one?',
+			dagdeel: 'When should we serve?',
+			servingTime: 'Or a time',
 			referral: 'How did you hear about us?',
 			message: 'Message'
 		},
+		serviceTypes: {
+			hapjes: {
+				title: 'Our hanging snacks',
+				description: 'Made live in front of your guests, straight from the tray.'
+			},
+			taart: {
+				title: 'A dessert or cake',
+				description: 'A full dessert or cake, made by De Toetjes Vrouw.'
+			}
+		},
+		options: {
+			tiramisuLive: 'Tiramisu — De Toetjes Vrouw',
+			burrataLive: 'Burrata — De Borrel Baas',
+			bruidstaart: 'Classic wedding cake',
+			millefeuille: 'Italian millefeuille',
+			tiramisuTaart: 'Tiramisu (as a cake or tower)'
+		},
+		dagdelen: {
+			placeholder: 'Pick a moment',
+			taartmoment: 'Cake cutting',
+			receptie: 'Reception/drinks',
+			feest: 'Party',
+			dessert: 'Dessert',
+			voorgerecht: 'Starter/walking dinner'
+		},
+		whatsapp: {
+			cta: 'Message us on WhatsApp',
+			or: 'or'
+		},
 		placeholders: {
 			message: 'Tell us about your party, the vibe, venue, any wishes and more.',
-			referral: 'E.g. via Instagram, a friend, Google…'
+			referral: 'E.g. via Instagram, a friend, Google…',
+			choice: 'Make a choice…'
 		},
 		optional: 'optional',
 		submit: 'Send',
@@ -217,6 +243,7 @@ export const en: Translations = {
 		instagram: 'Instagram',
 		facebook: 'Facebook',
 		tiktok: 'TikTok',
+		whatsapp: 'WhatsApp',
 		emailLabel: 'Email'
 	}
 };

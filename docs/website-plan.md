@@ -10,7 +10,7 @@ A single-page SvelteKit site (Dutch primary, English mirror at `/en`) that intro
 - **Primary domain:** `hangendehapjes.nl`. Also owned: `detoetjesvrouw.nl`, `deborrelbaas.nl` — point both at the main site for now.
 - **Contact destination:** `info@hangendehapjes.nl`.
 - **Email transport:** Postmark via the `postmark` npm package. `POSTMARK_TOKEN` from `$env/static/private`. Sender uses a verified `hangendehapjes.nl` address.
-- **Pricing on site:** show only the entry tier per product as *"vanaf €425 / vanaf €450 (50 porties)"*. Higher tiers are quoted on request.
+- **Pricing on site:** show only the entry tier per product as _"vanaf €425 / vanaf €450 (50 porties)"_. Higher tiers are quoted on request.
 - **Socials:** Instagram only — `@hangendehapjes`.
 - **KvK:** hidden until they decide to register the business formally.
 
@@ -23,7 +23,7 @@ A single-page SvelteKit site (Dutch primary, English mirror at `/en`) that intro
 
 ## Audience
 
-Couples planning weddings, corporate event organisers, agencies, and people throwing receptions or parties — typically in or around the Randstad. They're comparing us against caterers and entertainment, so the site should make clear we are *both*.
+Couples planning weddings, corporate event organisers, agencies, and people throwing receptions or parties — typically in or around the Randstad. They're comparing us against caterers and entertainment, so the site should make clear we are _both_.
 
 ## Page structure
 
@@ -48,8 +48,8 @@ A sticky-ish top bar with the logo/wordmark, the section anchors, and a NL / EN 
 - Full-bleed photo (one of the action shots in `static/images/` — pick one with a tray and a guest interaction).
 - Wordmark "Hangende Hapjes" prominent.
 - One-line tagline. Working drafts:
-  - NL: *"Live hapjes, gemaakt aan tafel — bij u op locatie."*
-  - EN: *"Live snacks, made tray-side — at your event."*
+  - NL: _"Live hapjes, gemaakt aan tafel — bij u op locatie."_
+  - EN: _"Live snacks, made tray-side — at your event."_
 - Subline (one sentence): we cater weddings, receptions and corporate parties from Hilversum with two signature concepts: De Toetjes Vrouw and De Borrel Baas.
 - Primary CTA button → scrolls to **Contact**.
 - Secondary CTA → scrolls to **Products**.
@@ -73,24 +73,24 @@ Card layout, two cards side-by-side on desktop, stacked on mobile. Each card has
 - A one-line pitch
 - "Meer info" / "More info" toggle that expands an accordion with: what guests get, how it works, pace, indicative pricing, what we wear.
 
-Pricing wording: show indicative tiers, but always pair with *"vanaf"* / *"from"* and a note that travel and extra serving staff are quoted in the proposal. We do not want a checkout vibe.
+Pricing wording: show indicative tiers, but always pair with _"vanaf"_ / _"from"_ and a note that travel and extra serving staff are quoted in the proposal. We do not want a checkout vibe.
 
 ### Product 1 — De Toetjes Vrouw
 
-- **Pitch (NL):** *Verse tiramisu, voor uw ogen gemaakt.*
-- **Pitch (EN):** *Fresh tiramisu, made in front of your guests.*
+- **Pitch (NL):** _Verse tiramisu, voor uw ogen gemaakt._
+- **Pitch (EN):** _Fresh tiramisu, made in front of your guests._
 - **What guests get:** a small cup with two lange vingers, espresso/likeur erover, traditionele mascarpone-crème met gepasteuriseerde eieren, afgewerkt met cacao.
 - **Pace:** ±50 porties per uur per persoon. Sneller tempo = extra bediende (tegen meerprijs).
-- **Pricing on site:** *"Vanaf €425 — 50 porties"*. Hogere aantallen op aanvraag.
+- **Pricing on site:** _"Vanaf €425 — 50 porties"_. Hogere aantallen op aanvraag.
 - **Wear:** afgestemd op het thema van het feest.
 
 ### Product 2 — De Borrel Baas
 
-- **Pitch (NL):** *Burrata-bowl, live opgemaakt aan uw tafel.*
-- **Pitch (EN):** *Burrata bowl, plated live tray-side.*
+- **Pitch (NL):** _Burrata-bowl, live opgemaakt aan uw tafel._
+- **Pitch (EN):** _Burrata bowl, plated live tray-side._
 - **What guests get:** een schaaltje met stracciatella (het binnenste van de burrata), scrocchi-toastjes om in te dippen, twee toppings naar keuze (krokante parmaham, parmezaan, pijnboompitten, tomaat, …) en een saus (pesto of balsamico-vinaigrette).
 - **Pace:** ±50 porties per uur per persoon. Sneller tempo = extra bediende (tegen meerprijs).
-- **Pricing on site:** *"Vanaf €450 — 50 porties"*. Hogere aantallen op aanvraag.
+- **Pricing on site:** _"Vanaf €450 — 50 porties"_. Hogere aantallen op aanvraag.
 - **Wear:** afgestemd op het thema van het feest.
 
 ### Cross-product notes (display once, e.g. under the cards)
@@ -104,7 +104,7 @@ Pricing wording: show indicative tiers, but always pair with *"vanaf"* / *"from"
 
 Section is built but renders an empty state for now:
 
-- Heading + one-line copy: *"Onze eerste gasten zijn net geweest — quotes komen binnenkort."* / *"Our first guests just had us — quotes coming soon."*
+- Heading + one-line copy: _"Onze eerste gasten zijn net geweest — quotes komen binnenkort."_ / _"Our first guests just had us — quotes coming soon."_
 - Component is ready to receive an array of `{ quote, author, event }` objects from the locale file. Adding a review = editing the locale file, no code.
 
 ## 5. Photos
@@ -133,14 +133,14 @@ Notes:
 
 A single form. Fields:
 
-- Naam / Name *(required)*
-- Email *(required)*
-- Telefoon / Phone *(optional)*
-- Datum van het event / Event date *(optional, date picker)*
-- Locatie / Location *(optional)*
-- Aantal gasten / Number of guests *(optional, number)*
-- Geïnteresseerd in / Interested in *(checkboxes: De Toetjes Vrouw, De Borrel Baas, Beide)*
-- Bericht / Message *(required, textarea)*
+- Naam / Name _(required)_
+- Email _(required)_
+- Telefoon / Phone _(optional)_
+- Datum van het event / Event date _(optional, date picker)_
+- Locatie / Location _(optional)_
+- Aantal gasten / Number of guests _(optional, number)_
+- Geïnteresseerd in / Interested in _(checkboxes: De Toetjes Vrouw, De Borrel Baas, Beide)_
+- Bericht / Message _(required, textarea)_
 - Honeypot field (hidden)
 
 Submit handler is a SvelteKit server endpoint (`src/routes/api/contact/+server.ts`) that:
@@ -151,7 +151,7 @@ Submit handler is a SvelteKit server endpoint (`src/routes/api/contact/+server.t
 
 After submit:
 
-- Optimistic success state with copy: *"Bedankt — we reageren meestal binnen 1–2 dagen."* / *"Thanks — we usually reply within 1–2 days."*
+- Optimistic success state with copy: _"Bedankt — we reageren meestal binnen 1–2 dagen."_ / _"Thanks — we usually reply within 1–2 days."_
 - No double submits; disable button while in flight.
 
 Anti-spam: honeypot + simple per-IP rate limit (e.g. 5/hour). No captcha for v1.

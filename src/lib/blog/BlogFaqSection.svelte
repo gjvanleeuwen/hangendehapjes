@@ -1,19 +1,42 @@
 <script lang="ts">
 	import type { BlogFaq } from './faqs';
+	import * as Accordion from '$lib/components/ui/accordion/index.js';
 
-	type Props = { items: BlogFaq[]; heading?: string };
-	let { items, heading = 'Veelgestelde vragen' }: Props = $props();
+	type Props = { items: BlogFaq[]; heading?: string; intro?: string };
+	let {
+		items,
+		heading = 'Veelgestelde vragen',
+		intro = 'De vragen die we het vaakst krijgen, kort en duidelijk beantwoord.'
+	}: Props = $props();
 </script>
 
-<section class="mt-12 space-y-6">
+<section class="mt-12">
 	<h2 class="font-heading text-2xl tracking-tight md:text-3xl">{heading}</h2>
+	{#if intro}
+		<p class="mt-2 text-base text-muted-foreground">{intro}</p>
+	{/if}
 
-	{#each items as item (item.id)}
-		<div class="space-y-2">
-			<h3 class="font-heading text-xl md:text-2xl">{item.question}</h3>
-			<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-				{item.answer}
-			</p>
-		</div>
-	{/each}
+	<Accordion.Root type="single" class="mt-6 space-y-2">
+		{#each items as item (item.id)}
+			<Accordion.Item
+				value={item.id}
+				class="data-[state=open]:bg-(--brand-magenta)/12 -mx-4 rounded-lg px-4 transition-colors"
+			>
+				<Accordion.Trigger class="text-base font-normal md:text-lg">
+					{item.question}
+				</Accordion.Trigger>
+				<Accordion.Content>
+					<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
+						{item.answer}
+					</p>
+				</Accordion.Content>
+			</Accordion.Item>
+		{/each}
+	</Accordion.Root>
 </section>
+
+<style>
+	section :global([data-slot='accordion-trigger-icon']) {
+		color: var(--brand-magenta);
+	}
+</style>

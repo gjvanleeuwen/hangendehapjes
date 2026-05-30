@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import MuxClips from '$lib/components/MuxClips.svelte';
 	import { jsonLdScript } from '$lib/seo';
 	import {
 		BUILD_DATE,
@@ -55,7 +56,7 @@
 			id: 'tiramisu-taart',
 			question: 'Maken jullie ook een tiramisu taart of Italiaanse bruidstaart?',
 			answer:
-				'Ja, dat doen we. Charlotte heeft veel patisserie ervaring en al vele bruidstaarten verzorgt voor vrienden en klanten en het is altijd een succes. Zelf hadden wij een italiaanse mille-feuille als bruidstaart maar ook één grote tiramisu in showformaat zouden wij iedereen aanraden. Ook de echte hoge bruidstaart kunnen wij maken met een tiramisu smaak en vulling, een echte aanrader. Laat ons via het contactformulier weten wat je graag zou willen dan sturen wij een voorstel, ook kan je alles vooraf komen proeven of een proefdoosje voor de bruidstaart mee naar huisnemen.'
+				'Ja, dat doen we. Charlotte heeft veel patisserie ervaring en al vele bruidstaarten verzorgt voor vrienden en klanten en het is altijd een succes. Zelf hadden wij een italiaanse mille-feuille als bruidstaart maar ook één grote tiramisu in showformaat zouden wij iedereen aanraden. Ook de echte hoge bruidstaart kunnen wij maken met een tiramisu smaak en vulling, een echte aanrader. Qua prijs reken je op iets meer dan onze hangende hapjes (vanaf €425 voor 50 personen): de porties zijn wat groter, maar het live afmaken op locatie, het bezorgen en het serveren zit allemaal inbegrepen. Laat ons via het contactformulier weten wat je graag zou willen dan sturen wij een voorstel, ook kan je een portie vooraf komen proeven of een proefdoosje voor de bruidstaart mee naar huis nemen.'
 		},
 		{
 			id: 'tiramisu-zonder-alcohol',
@@ -125,6 +126,8 @@
 				    dienblad krijgt elke gast een eigen vers gemaakte tiramisu.
 					Wij maken onze tiramisu met Traditionele mascarpone-crème, Koffie uit de mokapot, Amaretto likeur, lange vingers en cacao.
 					Met een praatje en een glimlach, geniet elke gast zo van het dessert, de midnight snack, taartmoment of waar jij denkt dat de Tiramisu het beste zou passen.
+				</p>
+				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Toch liever een Tiramisu taart om zelf aan te snijden of een toren voor gasten om zelf uit te pakken, ook dan ben je aan het juiste adres.
 				</p>
 			</header>
@@ -143,6 +146,14 @@
 					<li>Maak van jouw dessert of taartmoment een extra feestje</li>
 				</ul>
 			</section>
+
+			<MuxClips
+				clips={[
+					{ playbackId: 'Q6dowlovJnKajd134vOoS60101q00RS3NYz2YgOCv4gQpE', title: 'Tiramisu live op een bruiloft' },
+					{ playbackId: 'wAh8024FDNRT8VtuMTapIO5uHxiWIpr00d4t2aKMV8Stc', title: 'Tiramisu ter plekke opgebouwd' }
+				]}
+				gridClass="mx-auto mt-6 grid max-w-xl grid-cols-2 justify-items-center gap-3 sm:gap-4"
+			/>
 
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
@@ -166,16 +177,47 @@
 					</li>
 					<li>
 					    Zelf hadden wij op onze bruiloft een ijsbar, na een zittend diner was dit echt perfect om nog even een praatje te maken en
-						en de after-dinner dip over te slaan. Maar ook als taartmoment creer je sfeer en een vrij gevoel voor het start van het feest of receptie zonder rijen en schotelgeld.
+						en de after-dinner dip over te slaan. Maar ook als taartmoment creëer je sfeer en een vrij gevoel voor het start van het feest of receptie zonder rijen en schotelgeld.
 					</li>
 				</ul>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 				        Zijn er vragen over ons recept van de gasten of wordt er een grapje gemaakt? We gaan er graag in mee en praten met liefde over de tiramisu.
 						Toetjesfanaat of niet, we halen ze allemal over om lekker te proeven.
 				</p>
+			</section>
+
+			<section class="mt-12 space-y-4">
+				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
+					Tiramisu taart, toren of Italiaanse bruidstaart
+				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Liever een tiramisu taart, toren of een Italiaanse bruidstaart? Ook dan kunnen wij helpen, zie de
-					veelgestelde vragen onder aan deze pagina.
+					Liever geen live moment, maar een taart om zelf aan te snijden of een toren waar gasten
+					zelf een glaasje uit pakken? Ook dan ben je bij ons aan het juiste adres. Charlotte heeft
+					veel patisserie-ervaring en buiten klassieke bruidstaarten leveren wij ook een heerlijke en prachtige
+					Tiramisu taart of italiaanse milefoglie.
+				</p>
+				<ul
+					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
+				>
+					<li>
+						<strong>Tiramisu taart of toren</strong> in showformaat om zelf aan te snijden, of glazen/porties
+						die wij ter plekke opmaken en gasten zelf ophalen. Ideaal als je een een grotere portie wilt serveren,
+						krap in de tijd zit of gewoon zelf graag onderdeel wilt zijn van het taartmoment maar toch tiramisu wil.
+					</li>
+					<li>
+						<strong>Italiaanse mille-feuille</strong> als bruidstaart, precies zoals wij die zelf op
+						onze eigen bruiloft hadden. Een groot feest om zelf af te maken met rood fruit als je dat wilt!
+					</li>
+					<li>
+						<strong>Klassieke hoge bruidstaart</strong> met een tiramisu-smaak en -vulling, een echte
+						aanrader.
+					</li>
+				</ul>
+				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
+					Laat ons via het <a href="/#contact" class="underline hover:text-foreground"
+						>contactformulier</a
+					> weten wat je voor ogen hebt, dan sturen we een voorstel op maat. Je kan ook eerst langskomen
+					om te proeven of een proefdoosje voor de bruidstaart mee naar huis nemen.
 				</p>
 			</section>
 
@@ -233,7 +275,9 @@
 				    We hebben weinig nodig op locatie: een klein hoekje
 					voor de koelelementen, een stopcontact en een waterkraan. Verder regelen we alles
 					zelf, van bakjes tot servetten.
-					Heb je toch een krapper moment en wil je wel Tiramisu? Kijk dan naar de optie om het te serveren als grote taart of vanuit glazen die wij terplekke opmaken maar gasten kunnen ophalen.
+				</p>
+				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
+					Heb je een krapper moment? Dan kan de tiramisu ook als grote taart of als glaasjes om zelf op te halen.
 				</p>
 			</section>
 
@@ -302,8 +346,9 @@
 						verse tiramisu. Koffie en zoet in één hapje.
 					</li>
 					<li>
-						<strong>Als taartmoment (Receptie of feest)</strong> Of je nu graag de taart net na je ceremonie of later op de avond plant, voor beide is wat extra rust voor jezelf super fijn.
-						Maak je eigen Tiramisu of snijd een stuk van je tiramisu taart maar geniet daarna zelf lekker van het moment en laat ons je gasten vers serveren. Geen schotelgeld, geen lange en geforceerde rijen, gewoon wat lekkers voor iedereen.
+						<strong>Als taartmoment (receptie of feest).</strong> Snijd zelf je tiramisutaart aan en laat
+						ons daarna je gasten vers serveren. Geen schotelgeld, geen lange rijen, gewoon wat lekkers
+						voor iedereen.
 					</li>
 				</ul>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
@@ -313,12 +358,12 @@
 					Twijfel je tussen <a
 						href="/blog/hoeveel-hapjes-per-persoon"
 						class="underline hover:text-foreground">hoeveel porties je nodig hebt</a
-					>, of wil je tiramisu en burrata combineren? Lees onze andere blog, of stuur ons een
-					mail met je datum en aantal gasten. We denken graag met je mee.
+					>, of wil je tiramisu en burrata combineren? <a
+						href="/blog/burrata-bruiloft"
+						class="underline hover:text-foreground">Lees onze andere blog</a
+					>, of stuur ons een mail met je datum en aantal gasten. We denken graag met je mee.
 				</p>
 			</section>
-
-			<BlogFaqSection items={faqList} />
 
 			<section class="mt-14 rounded-lg border border-border p-6 md:p-8">
 				<h2 class="font-heading text-xl tracking-tight md:text-2xl">
@@ -326,7 +371,7 @@
 				</h2>
 				<p class="mt-3 text-base leading-relaxed text-muted-foreground md:text-lg">
 					Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een
-					voorstel op maat: alleen tiramisu, alleen burrata, of beide.
+					voorstel op maat: Tiramisu als hangend hapje of als taart, wat past bij jullie?
 				</p>
 				<a
 					href="/#contact"
@@ -335,6 +380,11 @@
 					Vraag een voorstel aan
 				</a>
 			</section>
+
+			<BlogFaqSection
+				items={faqList}
+				intro="Alles wat je je afvraagt over tiramisu op je bruiloft, als live hapje of als taart."
+			/>
 		</article>
 	</main>
 	<Footer t={nl} />

@@ -66,6 +66,8 @@ export type Translations = {
 		heading: string;
 		intro: string;
 		cta: string;
+		blockedTitle: string;
+		blockedBody: string;
 	};
 	contact: {
 		heading: string;
@@ -77,17 +79,40 @@ export type Translations = {
 			eventDate: string;
 			location: string;
 			guests: string;
-			interests: string;
-			toetjes: string;
-			borrel: string;
-			bruidstaart: string;
-			both: string;
+			serviceType: string;
+			choice: string;
+			dagdeel: string;
+			servingTime: string;
 			referral: string;
 			message: string;
+		};
+		serviceTypes: {
+			hapjes: { title: string; description: string };
+			taart: { title: string; description: string };
+		};
+		options: {
+			tiramisuLive: string;
+			burrataLive: string;
+			bruidstaart: string;
+			millefeuille: string;
+			tiramisuTaart: string;
+		};
+		dagdelen: {
+			placeholder: string;
+			taartmoment: string;
+			receptie: string;
+			feest: string;
+			dessert: string;
+			voorgerecht: string;
+		};
+		whatsapp: {
+			cta: string;
+			or: string;
 		};
 		placeholders: {
 			message: string;
 			referral: string;
+			choice: string;
 		};
 		optional: string;
 		submit: string;
@@ -104,6 +129,7 @@ export type Translations = {
 		instagram: string;
 		facebook: string;
 		tiktok: string;
+		whatsapp: string;
 		emailLabel: string;
 		readingHeading?: string;
 		readingLinks?: { label: string; href: string }[];

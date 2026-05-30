@@ -51,10 +51,10 @@ Hard rules:
   - Guests can choose whom they want, including cross-overs.
 - **First catering concept.** They're new to this and that's part of the charm. Authenticity over polish. Don't write like a 10-year-old caterer.
 - **Couple energy.** "Net 1 jaar getrouwd, al bijna 15 jaar samen, talloze feestjes en diners thuis als achtergrond" is the implicit backstory.
-- **Vocabulary that fits**: *lekker, leuk, super, echt, gewoon, een praatje, een schaaltje, ter plekke, hartig, zoet, eensgezind*.
-- **Vocabulary to avoid**: corporate verbs and nominalisations (*"verzorgen op locatie"*, *"service-aanbod"*, *"culinaire beleving"*), passive constructions, anything that sounds like a hotel chain brochure.
-- **CTAs and section openers can be playful**: *"Waar kies jij voor?"*, *"Hartig of zoet?"*, *"Welke past bij jouw feest?"* — echoing the Insta close.
-- **Concrete beats vague**: *50 porties*, *€0,45 per km*, *vanaf Hilversum*. Numbers and details are good.
+- **Vocabulary that fits**: _lekker, leuk, super, echt, gewoon, een praatje, een schaaltje, ter plekke, hartig, zoet, eensgezind_.
+- **Vocabulary to avoid**: corporate verbs and nominalisations (_"verzorgen op locatie"_, _"service-aanbod"_, _"culinaire beleving"_), passive constructions, anything that sounds like a hotel chain brochure.
+- **CTAs and section openers can be playful**: _"Waar kies jij voor?"_, _"Hartig of zoet?"_, _"Welke past bij jouw feest?"_ — echoing the Insta close.
+- **Concrete beats vague**: _50 porties_, _€0,45 per km_, _vanaf Hilversum_. Numbers and details are good.
 
 ## i18n approach
 

@@ -65,9 +65,9 @@
 		},
 		{
 			id: 'burrata-walking-dinner',
-			question: 'Past burrata in een walking dinnero of samen met foodtrucks?',
+			question: 'Past burrata in een walking dinner of samen met foodtrucks?',
 			answer:
-				'Heel goed. De burrata-bowl is licht genoeg om als eerste of tweede gang in een walking dinner te dienen, naast warme gerechten van een andere cateraar. Veel hosts zetten ons in tussen de ceremonie en het diner of bijvoorbeeld samen met een Pizza foodtruck. Wij werken graag samen met de avondcateraar om timing en allergieën op elkaar af te stemmen.'
+				'Heel goed. De burrata-bowl is licht genoeg om als eerste of tweede gang in een walking dinner te dienen, naast warme gerechten van een andere cateraar. Veel evenementen nemen bijvoorbeeld Burrata als hoofdgerecht, hebben een Pizza/pasta foodtruck voor het hoofdgerecht en daarna kunnen wij nogmaals met een portie tiramisu rondkomen als dessert. Wij werken graag samen met de avondcateraar om timing en allergieën op elkaar af te stemmen.'
 		},
 		{
 			id: 'burrata-houdbaarheid',
@@ -323,8 +323,6 @@
 				</p>
 			</section>
 
-			<BlogFaqSection items={faqList} />
-
 			<section class="mt-14 rounded-lg border border-border p-6 md:p-8">
 				<h2 class="font-heading text-xl tracking-tight md:text-2xl">
 					Burrata op jouw bruiloft? Stuur ons je datum.
@@ -340,6 +338,11 @@
 					Vraag een voorstel aan
 				</a>
 			</section>
+
+			<BlogFaqSection
+				items={faqList}
+				intro="Alles wat je je afvraagt over een live burrata bar op je bruiloft of feest."
+			/>
 		</article>
 	</main>
 	<Footer t={nl} />

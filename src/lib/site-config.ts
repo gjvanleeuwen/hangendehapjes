@@ -1,6 +1,9 @@
 export const SITE_URL = 'https://hangendehapjes.nl';
 export const SITE_NAME = 'Hangende Hapjes';
 export const CONTACT_EMAIL = 'info@hangendehapjes.nl';
+export const CONTACT_PHONE = '+31 6 36111564';
+export const WHATSAPP_NUMBER = '31636111564';
+export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
 export const INSTAGRAM_URL = 'https://instagram.com/hangendehapjes';
 export const FACEBOOK_URL = 'https://www.facebook.com/profile.php?id=61588917984227';
 export const TIKTOK_URL = 'https://www.tiktok.com/@hangendehapjes';

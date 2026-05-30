@@ -32,7 +32,7 @@ export const nl: Translations = {
 	about: {
 		heading: 'Aan wie hangen de hapjes?',
 		body: [
-			'Dat zijn Charlotte en Gijs. Bijna één jaar getrouwd en al 12 jaar samen, is er één ding waar wij echt blij van worden: eten verzorgen voor anderen. De ervaring van talloze feestjes en diners thuis nemen wij nu mee naar ons eerste catering concept.',
+			'Dat zijn Charlotte en Gijs. Net één jaar getrouwd en al 12 jaar samen, er is één ding waar wij echt blij van worden: eten verzorgen voor anderen. De ervaring van talloze feestjes en diners thuis nemen wij nu mee naar ons eerste catering concept.',
 			'Maar als er één ding is waar we niet eensgezind over zijn, is het wel etenskeuze. Charlotte is een echte bakker en zoetekauw maar ook een fan van "hearty" en "classic" eten. Daarentegen houdt Gijs juist van alles nieuw en anders en is hartig koken meer zijn passie.',
 			'Gelukkig hebben jullie daar alleen maar profijt van! Twee super leuke concepten, hartig en zoet, voor jouw bruiloft, borrel, receptie, walking dinner of zakelijk event.'
 		]
@@ -115,15 +115,9 @@ export const nl: Translations = {
 			},
 			{
 				id: 'booking',
-				question: 'Hoe werkt boeken?',
+				question: 'Hoe werkt boeken en moet dat snel?',
 				answer:
-					'Vul het contactformulier in met je datum, locatie en aantal gasten. We komen binnen 1–2 dagen bij je terug met een voorstel op maat. Akkoord? Dan staat de boeking.'
-			},
-			{
-				id: 'leadtime',
-				question: 'Hoe ver van tevoren moet ik boeken?',
-				answer:
-					'Wij kunnen snel schakelen, soms zelfs op de dag zelf. Voor zekerheid raden we aan om minstens 2 á 3 maanden van tevoren te boeken. Stuur ons je datum, dan checken we meteen of het past.'
+					'Vul het contactformulier in met je datum, locatie en aantal gasten. We komen binnen 1–2 dagen bij je terug met een voorstel op maat. Akkoord? Dan staat de boeking. Wij kunnen snel schakelen, soms zelfs op de dag zelf, maar voor zekerheid raden we aan om minstens 2 á 3 maanden van tevoren te boeken.'
 			},
 			{
 				id: 'travel',
@@ -135,7 +129,7 @@ export const nl: Translations = {
 				id: 'combine',
 				question: 'Kan ik beide concepten boeken, en wie komt er serveren?',
 				answer:
-					'Zeker, je kan beide concepten los of samen op één feest boeken. Sommige hosts kiezen voor De BorrelBaas tijdens de borrel/receptie en De ToetjesVrouw als dessert. Voor de combinatie rekenen we ongeveer €80 extra voor de extra voorbereiding van twee menu’s. Zowel Gijs als Charlotte maken heerlijke tiramisu en burrata-bowls, wie er komt is afhankelijk van de beschikbaarheid en is niet verbonden met de conceptkeuze.'
+					'Zeker, je kan beide concepten los of samen op één feest boeken. Sommige hosts kiezen voor De BorrelBaas tijdens de borrel/receptie en De ToetjesVrouw als dessert. Een richtprijs voor een combi van beide concepten is onze standaard vanaf prijs voor beide concepten met ~€125 korting. Zowel Gijs als Charlotte maken heerlijke tiramisu en burrata-bowls, wie er komt is afhankelijk van de beschikbaarheid en is niet verbonden met de conceptkeuze.'
 			},
 			{
 				id: 'portion',
@@ -176,7 +170,10 @@ export const nl: Translations = {
 	photos: {
 		heading: 'In actie',
 		intro: 'De laatste sfeerbeelden van onze evenementen staan op Instagram.',
-		cta: 'Bekijk Instagram'
+		cta: 'Bekijk Instagram',
+		blockedTitle: 'De Instagram-posts zijn geblokkeerd',
+		blockedBody:
+			'Je browser of een extensie (zoals een tracker- of cookieblokker) houdt de Instagram embeds tegen. Geen zorgen, je vindt al onze beelden direct op Instagram.'
 	},
 	contact: {
 		heading: 'Boek ons voor jouw feest',
@@ -186,20 +183,49 @@ export const nl: Translations = {
 			name: 'Naam',
 			email: 'E-mailadres',
 			phone: 'Telefoonnummer',
-			eventDate: 'Datum',
-			location: 'Locatie',
+			eventDate: 'Datum evenement',
+			location: 'Locatie evenement',
 			guests: 'Aantal gasten',
-			interests: 'Waar kies je voor?',
-			toetjes: 'Tiramisu (De Toetjes Vrouw)',
-			borrel: 'Burrata (De Borrel Baas)',
-			bruidstaart: 'Bruidstaart (De Toetjes Vrouw)',
-			both: 'Beide',
+			serviceType: 'Waar ben je in geïnteresseerd?',
+			choice: 'En welke?',
+			dagdeel: 'Als welk onderdeel van je evenement?',
+			servingTime: 'En hoelaat ongeveer?',
 			referral: 'Hoe heb je over ons gehoord?',
 			message: 'Bericht'
 		},
+		serviceTypes: {
+			hapjes: {
+				title: 'De Hangende Hapjes',
+				description: 'Catering als live entertainment, vers voor elke gast.'
+			},
+			taart: {
+				title: 'Een bruidstaart',
+				description: 'Een custom bruidstaart of grote italiaanse milefeuille/tiramisu gemaakt door Charlotte.'
+			}
+		},
+		options: {
+			tiramisuLive: 'Tiramisu',
+			burrataLive: 'Burrata',
+			bruidstaart: 'Klassieke bruidstaart',
+			millefeuille: 'Italiaanse millefeuille',
+			tiramisuTaart: 'Tiramisu Taart'
+		},
+		dagdelen: {
+			placeholder: 'Kies een onderdeel',
+			taartmoment: 'Taartmoment',
+      receptie: 'Receptie/borrel',
+			voorgerecht: 'Voorgerecht/walking dinner',
+			dessert: 'Dessert',
+			feest: 'Feest'
+		},
+		whatsapp: {
+			cta: 'Stuur een WhatsApp',
+			or: 'of'
+		},
 		placeholders: {
 			message: 'Vertel ons over je feest, sfeer, locatie, eventuele wensen en meer.',
-			referral: 'Bijv. via Instagram, een vriend, Google…'
+			referral: 'Bijv. via Instagram, een vriend, Google…',
+			choice: 'Maak een keuze…'
 		},
 		optional: 'optioneel',
 		submit: 'Verstuur',
@@ -217,6 +243,7 @@ export const nl: Translations = {
 		instagram: 'Instagram',
 		facebook: 'Facebook',
 		tiktok: 'TikTok',
+		whatsapp: 'WhatsApp',
 		emailLabel: 'E-mail',
 		readingHeading: 'Goed om te weten',
 		readingLinks: [

@@ -25,42 +25,46 @@ export const PayloadSchema = v.object({
 		),
 		''
 	),
-	eventDate: v.optional(
+	eventDate: v.pipe(
+		v.string(),
+		v.transform((s) => s.replace(CRLF, ' ').trim()),
+		v.minLength(1, 'eventDate is required'),
+		v.maxLength(25, 'eventDate too long')
+	),
+	location: v.pipe(
+		v.string(),
+		v.transform((s) => s.replace(CRLF, ' ').trim()),
+		v.minLength(1, 'location is required'),
+		v.maxLength(200, 'location too long')
+	),
+	guests: v.pipe(
+		v.union([v.string(), v.number()]),
+		v.transform((s) => String(s).replace(CRLF, ' ').trim()),
+		v.minLength(1, 'guests is required'),
+		v.maxLength(10, 'guests too long')
+	),
+	serviceType: v.picklist(['hapjes', 'taart'], 'service type is required'),
+	choice: v.pipe(
+		v.string(),
+		v.transform((s) => s.replace(CRLF, ' ').trim()),
+		v.minLength(1, 'choice is required'),
+		v.maxLength(120, 'choice too long')
+	),
+	dagdeel: v.optional(
 		v.pipe(
 			v.string(),
 			v.transform((s) => s.replace(CRLF, ' ').trim()),
-			v.maxLength(25, 'eventDate too long')
+			v.maxLength(40, 'dagdeel too long')
 		),
 		''
 	),
-	location: v.optional(
+	servingTime: v.optional(
 		v.pipe(
 			v.string(),
 			v.transform((s) => s.replace(CRLF, ' ').trim()),
-			v.maxLength(200, 'location too long')
+			v.maxLength(20, 'servingTime too long')
 		),
 		''
-	),
-	guests: v.optional(
-		v.pipe(
-			v.union([v.string(), v.number()]),
-			v.transform((s) => String(s).replace(CRLF, ' ').trim()),
-			v.maxLength(10, 'guests too long')
-		),
-		''
-	),
-	interests: v.optional(
-		v.pipe(
-			v.array(
-				v.pipe(
-					v.string(),
-					v.transform((s) => s.replace(CRLF, ' ').trim()),
-					v.maxLength(100, 'interest item too long')
-				)
-			),
-			v.maxLength(10, 'too many interests')
-		),
-		[]
 	),
 	referral: v.optional(
 		v.pipe(

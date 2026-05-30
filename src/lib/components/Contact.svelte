@@ -4,7 +4,8 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
-	import { Checkbox } from '$lib/components/ui/checkbox/index.js';
+	import { WHATSAPP_URL } from '$lib/site-config';
+	import { cn } from '$lib/utils.js';
 	import { toast } from 'svelte-sonner';
 	import SectionHeading from './SectionHeading.svelte';
 
@@ -17,25 +18,58 @@
 	let eventDate = $state('');
 	let location = $state('');
 	let guests = $state('');
+	let serviceType = $state<'' | 'hapjes' | 'taart'>('');
+	let choiceKey = $state('');
+	let dagdeel = $state<'' | 'taartmoment' | 'receptie' | 'feest' | 'dessert' | 'voorgerecht'>('');
+	let servingTime = $state('');
 	let referral = $state('');
 	let message = $state('');
-	let interestToetjes = $state(false);
-	let interestBorrel = $state(false);
-	let interestBruidstaart = $state(false);
 	let website = $state('');
 	let submitting = $state(false);
 
 	const today = new Date().toISOString().slice(0, 10);
 
+	const serviceTypeCards = $derived([
+		{ key: 'hapjes' as const, title: t.contact.serviceTypes.hapjes.title },
+		{ key: 'taart' as const, title: t.contact.serviceTypes.taart.title }
+	]);
+
+	const optionGroups = $derived({
+		'': [],
+		hapjes: [
+			{ key: 'tiramisu-live', label: t.contact.options.tiramisuLive },
+			{ key: 'burrata-live', label: t.contact.options.burrataLive }
+		],
+		taart: [
+			{ key: 'bruidstaart', label: t.contact.options.bruidstaart },
+			{ key: 'millefeuille', label: t.contact.options.millefeuille },
+			{ key: 'tiramisu-taart', label: t.contact.options.tiramisuTaart }
+		]
+	});
+
+	const currentOptions = $derived(optionGroups[serviceType]);
+	const selectedChoice = $derived(currentOptions.find((o) => o.key === choiceKey) ?? null);
+
+	const waHref = $derived(
+		`${WHATSAPP_URL}?text=${encodeURIComponent(
+			locale === 'en'
+				? 'Hi! I have a question about Hangende Hapjes 👋'
+				: 'Hoi! Ik heb een vraag over Hangende Hapjes 👋'
+		)}`
+	);
+
+	const selectClass =
+		'border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full min-w-0 rounded-lg border bg-transparent px-2.5 py-1 text-base outline-none transition-colors focus-visible:ring-3 md:text-sm';
+
+	function pickServiceType(value: 'hapjes' | 'taart') {
+		serviceType = value;
+		choiceKey = '';
+	}
+
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		if (submitting) return;
 		submitting = true;
-
-		const interests: string[] = [];
-		if (interestToetjes) interests.push(t.contact.labels.toetjes);
-		if (interestBorrel) interests.push(t.contact.labels.borrel);
-		if (interestBruidstaart) interests.push(t.contact.labels.bruidstaart);
 
 		try {
 			const res = await fetch('/api/contact', {
@@ -48,9 +82,12 @@
 					eventDate,
 					location,
 					guests,
+					serviceType,
+					choice: selectedChoice?.label ?? '',
+					dagdeel: dagdeel ? t.contact.dagdelen[dagdeel] : '',
+					servingTime,
 					referral,
 					message,
-					interests,
 					website,
 					locale
 				})
@@ -73,7 +110,8 @@
 
 			window.umami?.track('contact_submit', {
 				locale,
-				interests: interests.join(',') || 'none',
+				serviceType: serviceType || 'none',
+				choice: choiceKey || 'none',
 				referral: referral ? 'provided' : 'empty'
 			});
 			toast.success(t.contact.successTitle, { description: t.contact.successBody });
@@ -83,11 +121,12 @@
 			eventDate = '';
 			location = '';
 			guests = '';
+			serviceType = '';
+			choiceKey = '';
+			dagdeel = '';
+			servingTime = '';
 			referral = '';
 			message = '';
-			interestToetjes = false;
-			interestBorrel = false;
-			interestBruidstaart = false;
 		} catch {
 			window.umami?.track('contact_error', { reason: 'network', locale });
 			toast.error(t.contact.errorTitle, { description: t.contact.errorBody });
@@ -144,34 +183,27 @@
 					/>
 				</div>
 				<div class="space-y-2">
-					<Label for="eventDate">
-						{t.contact.labels.eventDate}
-						<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
-					</Label>
+					<Label for="eventDate">{t.contact.labels.eventDate}</Label>
 					<Input
 						id="eventDate"
 						name="eventDate"
 						type="date"
+						required
 						min={today}
 						bind:value={eventDate}
 					/>
 				</div>
 				<div class="space-y-2">
-					<Label for="location">
-						{t.contact.labels.location}
-						<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
-					</Label>
-					<Input id="location" name="location" maxlength={200} bind:value={location} />
+					<Label for="location">{t.contact.labels.location}</Label>
+					<Input id="location" name="location" required maxlength={200} bind:value={location} />
 				</div>
 				<div class="space-y-2">
-					<Label for="guests">
-						{t.contact.labels.guests}
-						<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
-					</Label>
+					<Label for="guests">{t.contact.labels.guests}</Label>
 					<Input
 						id="guests"
 						name="guests"
 						type="number"
+						required
 						min="1"
 						max="99999"
 						bind:value={guests}
@@ -179,21 +211,66 @@
 				</div>
 			</div>
 
-			<div class="space-y-3">
-				<Label>{t.contact.labels.interests}</Label>
-				<div class="flex flex-wrap gap-6">
-					<label class="flex items-center gap-2 text-sm">
-						<Checkbox bind:checked={interestToetjes} />
-						{t.contact.labels.toetjes}
-					</label>
-					<label class="flex items-center gap-2 text-sm">
-						<Checkbox bind:checked={interestBorrel} />
-						{t.contact.labels.borrel}
-					</label>
-					<label class="flex items-center gap-2 text-sm">
-						<Checkbox bind:checked={interestBruidstaart} />
-						{t.contact.labels.bruidstaart}
-					</label>
+			<fieldset class="space-y-3">
+				<legend class="mb-2 text-sm font-medium">{t.contact.labels.serviceType}</legend>
+				<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+					{#each serviceTypeCards as card (card.key)}
+						<label
+							class={cn(
+								'flex cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-2 text-center text-sm transition-colors',
+								serviceType === card.key
+									? 'border-primary bg-primary/5 font-medium text-foreground ring-1 ring-primary'
+									: 'border-input text-muted-foreground hover:border-primary/50'
+							)}
+						>
+							<input
+								type="radio"
+								name="serviceType"
+								value={card.key}
+								checked={serviceType === card.key}
+								required
+								onchange={() => pickServiceType(card.key)}
+								class="sr-only"
+							/>
+							{card.title}
+						</label>
+					{/each}
+				</div>
+			</fieldset>
+
+			{#if serviceType}
+				<div class="space-y-2">
+					<Label for="choice">{t.contact.labels.choice}</Label>
+					<select id="choice" name="choice" required bind:value={choiceKey} class={selectClass}>
+						<option value="" disabled>{t.contact.placeholders.choice}</option>
+						{#each currentOptions as opt (opt.key)}
+							<option value={opt.key}>{opt.label}</option>
+						{/each}
+					</select>
+				</div>
+			{/if}
+
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<div class="space-y-2">
+					<Label for="dagdeel">
+						{t.contact.labels.dagdeel}
+						<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
+					</Label>
+					<select id="dagdeel" name="dagdeel" bind:value={dagdeel} class={selectClass}>
+						<option value="">{t.contact.dagdelen.placeholder}</option>
+						<option value="taartmoment">{t.contact.dagdelen.taartmoment}</option>
+						<option value="receptie">{t.contact.dagdelen.receptie}</option>
+						<option value="feest">{t.contact.dagdelen.feest}</option>
+						<option value="dessert">{t.contact.dagdelen.dessert}</option>
+						<option value="voorgerecht">{t.contact.dagdelen.voorgerecht}</option>
+					</select>
+				</div>
+				<div class="space-y-2">
+					<Label for="servingTime">
+						{t.contact.labels.servingTime}
+						<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
+					</Label>
+					<Input id="servingTime" name="servingTime" type="time" bind:value={servingTime} />
 				</div>
 			</div>
 
@@ -237,9 +314,31 @@
 				</label>
 			</div>
 
-			<Button type="submit" size="lg" disabled={submitting}>
-				{submitting ? t.contact.submitting : t.contact.submit}
-			</Button>
+			<div class="flex flex-wrap items-center gap-x-4 gap-y-3">
+				<Button type="submit" size="lg" disabled={submitting}>
+					{submitting ? t.contact.submitting : t.contact.submit}
+				</Button>
+				<span class="text-sm text-muted-foreground">{t.contact.whatsapp.or}</span>
+				<a
+					href={waHref}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="inline-flex h-11 items-center gap-2 rounded-md border border-input px-5 text-sm font-medium transition-colors hover:border-primary/50 hover:bg-primary/5"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="currentColor"
+						class="size-5 text-[#25D366]"
+						aria-hidden="true"
+					>
+						<path
+							d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm0 1.67c2.2 0 4.27.86 5.83 2.42a8.2 8.2 0 0 1 2.42 5.82c0 4.54-3.7 8.23-8.25 8.23a8.2 8.2 0 0 1-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.37c0-4.54 3.7-8.24 8.25-8.24Zm-3.05 4.43c-.14 0-.37.05-.57.27-.2.21-.76.74-.76 1.81 0 1.07.78 2.1.89 2.25.11.14 1.53 2.34 3.71 3.28.52.22.92.36 1.24.46.52.17.99.14 1.37.09.42-.06 1.28-.52 1.46-1.03.18-.51.18-.94.13-1.03-.05-.09-.2-.14-.41-.25-.21-.11-1.28-.63-1.48-.7-.2-.07-.34-.11-.49.11-.14.21-.56.7-.69.85-.13.14-.25.16-.46.05-.21-.11-.9-.33-1.71-1.06-.63-.56-1.06-1.26-1.18-1.47-.13-.21-.01-.33.09-.43.09-.09.21-.25.32-.37.11-.13.14-.21.21-.36.07-.14.04-.27-.02-.38-.05-.11-.49-1.18-.67-1.61-.18-.43-.36-.37-.49-.37l-.42-.01Z"
+						/>
+					</svg>
+					{t.contact.whatsapp.cta}
+				</a>
+			</div>
 		</form>
 	</div>
 </section>
