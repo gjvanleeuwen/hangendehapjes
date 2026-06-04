@@ -2,11 +2,14 @@ export type DocumentKind = 'offerte' | 'factuur' | 'kwitantie';
 
 export type BtwRate = 0 | 9 | 21 | 'none';
 
+export type DiscountMode = 'pct' | 'amount';
+
 export interface LineItem {
 	description: string;
 	qty: number;
 	unitPrice: number;
 	btwRate: BtwRate;
+	discountPct: number;
 }
 
 export interface Recipient {
@@ -23,5 +26,7 @@ export interface DocumentState {
 	paidOn: string;
 	recipient: Recipient;
 	lineItems: LineItem[];
+	discountMode: DiscountMode;
+	discountValue: number;
 	notes: string;
 }

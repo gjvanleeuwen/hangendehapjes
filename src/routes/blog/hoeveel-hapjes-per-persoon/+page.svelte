@@ -12,6 +12,7 @@
 	import { nl } from '$lib/i18n/nl';
 	import { BLOG_FAQS_NL, buildFaqJsonLd, type BlogFaq } from '$lib/blog/faqs';
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
+	import BlogCta from '$lib/blog/BlogCta.svelte';
 
 	const headline = 'Hoeveel hapjes moet je serveren per persoon voor een receptie of bruiloft?';
 	const title = 'Hoeveel hapjes moet je serveren per persoon? | Hangende Hapjes';
@@ -20,6 +21,7 @@
 	const slug = '/blog/hoeveel-hapjes-per-persoon';
 	const canonical = SITE_URL + slug;
 	const ogImage = SITE_URL + '/og-blog-hoeveel-hapjes-per-persoon.jpg';
+	const datePublished = '2026-04-28';
 
 	const articleJsonLd = {
 		'@context': 'https://schema.org',
@@ -27,7 +29,7 @@
 		'@id': canonical + '#article',
 		headline,
 		description,
-		datePublished: BUILD_DATE,
+		datePublished,
 		dateModified: BUILD_DATE,
 		inLanguage: 'nl-NL',
 		mainEntityOfPage: canonical,
@@ -207,8 +209,8 @@
 							<tr>
 								<td class="py-3 pr-4">200</td>
 								<td class="py-3 pr-4">2 uur, 2 bedienden</td>
-								<td class="py-3 pr-4">€1.125</td>
-								<td class="py-3">€1.225</td>
+								<td class="py-3 pr-4">€1.150</td>
+								<td class="py-3">€1.200</td>
 							</tr>
 						</tbody>
 					</table>
@@ -257,21 +259,11 @@
 				</p>
 			</section>
 
-			<section class="mt-14 rounded-lg border border-border p-6 md:p-8">
-				<h2 class="font-heading text-xl tracking-tight md:text-2xl">
-					Plan je feest? Vertel ons hoeveel gasten je verwacht.
-				</h2>
-				<p class="mt-3 text-base leading-relaxed text-muted-foreground md:text-lg">
-					Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een
-					voorstel op maat: hartig, zoet of beide.
-				</p>
-				<a
-					href="/#contact"
-					class="bg-(--brand-magenta) mt-6 inline-flex h-10 items-center justify-center rounded-md px-5 text-sm font-medium text-white transition-colors hover:opacity-90"
-				>
-					Vraag een voorstel aan
-				</a>
-			</section>
+			<BlogCta
+				event="hapjes"
+				heading="Plan je feest? Vertel ons hoeveel gasten je verwacht."
+				body="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: hartig, zoet of beide."
+			/>
 
 			<BlogFaqSection
 				items={faqList}

@@ -84,7 +84,7 @@ export const en: Translations = {
 						label: '1 sauce of your choice',
 						options: ['olive oil', 'balsamic', 'truffle oil', 'pesto', 'spicy honey']
 					},
-					'From €450 for 50 portions · €750 for 100 · larger events on request'
+					'From €450 for 50 portions · €700 for 100 · larger events on request'
 				],
 				image: BORREL_IMAGE,
 				imageAlt: 'Gijs making a live burrata bowl for a guest'

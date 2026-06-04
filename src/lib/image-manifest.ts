@@ -115,6 +115,39 @@ export const IMAGE_MANIFEST = {
 			1920
 		]
 	},
+	"HH_burrata_Parma": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"HH_burrata_Peach": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"HH_burrata_T": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
 	"toetjes": {
 		"width": 3000,
 		"height": 4000,

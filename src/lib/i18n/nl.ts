@@ -84,7 +84,7 @@ export const nl: Translations = {
 						label: '1 saus naar keuze',
 						options: ['olijfolie', 'balsamico', 'truffelolie', 'pesto', 'spicy honey']
 					},
-					'Vanaf €450 voor 50 porties · €750 voor 100 · grotere events op aanvraag'
+					'Vanaf €450 voor 50 porties · €700 voor 100 · grotere events op aanvraag'
 				],
 				image: BORREL_IMAGE,
 				imageAlt: 'Gijs maakt een live burrata-bowl voor een gast'
@@ -256,8 +256,8 @@ export const nl: Translations = {
 				href: '/blog/tiramisu-bruiloft'
 			},
 			{
-				label: 'Burrata op je bruiloft',
-				href: '/blog/burrata-bruiloft'
+				label: 'Burrata bar op je feest',
+				href: '/blog/burrata-catering'
 			}
 		]
 	}

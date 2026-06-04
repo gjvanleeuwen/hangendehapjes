@@ -5,7 +5,14 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { BUSINESS } from '$lib/admin/business';
-	import { calcTotals, formatBtw, formatDateNL, formatEUR, lineSubtotal } from '$lib/admin/calc';
+	import {
+		calcTotals,
+		formatBtw,
+		formatDateNL,
+		formatEUR,
+		lineDiscountAmount,
+		lineSubtotal
+	} from '$lib/admin/calc';
 	import type { BtwRate, DocumentKind, DocumentState } from '$lib/admin/types';
 
 	const today = new Date().toISOString().slice(0, 10);
@@ -18,7 +25,9 @@
 		validUntil: '',
 		paidOn: today,
 		recipient: { name: '', company: '', address: '' },
-		lineItems: [{ description: '', qty: 50, unitPrice: 2.5, btwRate: 'none' }],
+		lineItems: [{ description: '', qty: 50, unitPrice: 2.5, btwRate: 'none', discountPct: 0 }],
+		discountMode: 'pct',
+		discountValue: 0,
 		notes: ''
 	});
 
@@ -33,14 +42,19 @@
 				unitPrice: number;
 				btwRate: BtwRate;
 			};
-			doc.lineItems = [data];
+			doc.lineItems = [{ ...data, discountPct: 0 }];
 			sessionStorage.removeItem('hh_calculator_prefill');
 		} catch {
 			// ignore
 		}
 	});
 
-	const totals = $derived(calcTotals($state.snapshot(doc).lineItems));
+	const totals = $derived(
+		calcTotals($state.snapshot(doc).lineItems, {
+			mode: doc.discountMode,
+			value: doc.discountValue
+		})
+	);
 
 	const headingLabel = $derived(
 		doc.kind === 'offerte' ? 'Offerte' : doc.kind === 'factuur' ? 'Factuur' : 'Kwitantie'
@@ -50,9 +64,15 @@
 	const showBtwColumn = $derived(doc.kind !== 'kwitantie' && !allNoVat);
 	const showBtwBreakdown = $derived(doc.kind !== 'kwitantie' && totals.btwGroups.length > 0);
 
+	const hasDiscount = $derived(totals.lineDiscountTotal > 0 || totals.totalDiscount > 0);
+	const showSummaryDetail = $derived(showBtwBreakdown || hasDiscount);
+	const totalDiscountLabel = $derived(
+		doc.discountMode === 'pct' ? `Korting ${doc.discountValue}%` : 'Korting'
+	);
+
 	function addLine() {
 		const fallbackRate: BtwRate = allNoVat ? 'none' : 9;
-		doc.lineItems.push({ description: '', qty: 1, unitPrice: 0, btwRate: fallbackRate });
+		doc.lineItems.push({ description: '', qty: 1, unitPrice: 0, btwRate: fallbackRate, discountPct: 0 });
 	}
 
 	function removeLine(i: number) {
@@ -165,6 +185,17 @@
 									bind:value={item.unitPrice}
 								/>
 							</div>
+							<div class="flex-1 min-w-[80px]">
+								<label class="text-muted-foreground mb-1 block text-xs" for="disc-{i}">Korting %</label>
+								<Input
+									id="disc-{i}"
+									type="number"
+									min="0"
+									max="100"
+									step="1"
+									bind:value={item.discountPct}
+								/>
+							</div>
 							<div class="flex-1 min-w-[110px]">
 								<label class="text-muted-foreground mb-1 block text-xs" for="btw-{i}">BTW</label>
 								<select
@@ -205,6 +236,43 @@
 				{/each}
 			</div>
 			<Button type="button" variant="outline" onclick={addLine}>+ Regel toevoegen</Button>
+		</fieldset>
+
+		<fieldset class="space-y-3 border p-4">
+			<legend class="px-1 text-sm font-medium">Korting op totaal</legend>
+			<div class="flex flex-wrap items-end gap-2">
+				<div class="min-w-[140px] flex-1">
+					<label class="text-muted-foreground mb-1 block text-xs" for="disc-mode">Type</label>
+					<select
+						id="disc-mode"
+						bind:value={doc.discountMode}
+						class="border-input bg-background h-9 w-full border px-2 text-sm"
+					>
+						<option value="pct">Percentage (%)</option>
+						<option value="amount">Vast bedrag (€)</option>
+					</select>
+				</div>
+				<div class="min-w-[120px] flex-1">
+					<label class="text-muted-foreground mb-1 block text-xs" for="disc-val">
+						{doc.discountMode === 'pct' ? 'Korting %' : 'Korting €'}
+					</label>
+					<Input
+						id="disc-val"
+						type="number"
+						min="0"
+						max={doc.discountMode === 'pct' ? 100 : undefined}
+						step={doc.discountMode === 'pct' ? 1 : 0.01}
+						bind:value={doc.discountValue}
+					/>
+				</div>
+			</div>
+			{#if totals.totalDiscount > 0}
+				<p class="text-muted-foreground text-xs">
+					Korting op totaal: −{formatEUR(totals.totalDiscount)} (over {formatEUR(
+						totals.subtotal + totals.totalDiscount
+					)} na regelkortingen).
+				</p>
+			{/if}
 		</fieldset>
 
 		<div class="space-y-1.5">
@@ -282,8 +350,8 @@
 					</tr>
 				</thead>
 				<tbody>
-					{#each doc.lineItems as item}
-						<tr class="border-b border-neutral-200 align-top">
+					{#each doc.lineItems as item (item)}
+						<tr class="align-top {item.discountPct > 0 ? '' : 'border-b border-neutral-200'}">
 							<td class="py-2 pr-2">{item.description || '—'}</td>
 							<td class="py-2 pr-2 text-right tabular-nums">{item.qty}</td>
 							<td class="py-2 pr-2 text-right tabular-nums">{formatEUR(item.unitPrice)}</td>
@@ -292,6 +360,16 @@
 							{/if}
 							<td class="py-2 text-right tabular-nums">{formatEUR(lineSubtotal(item))}</td>
 						</tr>
+						{#if item.discountPct > 0}
+							<tr class="border-b border-neutral-200 align-top text-neutral-600">
+								<td class="pb-2 pl-3 text-xs" colspan={showBtwColumn ? 4 : 3}>
+									Korting {item.discountPct}%
+								</td>
+								<td class="pb-2 text-right text-xs tabular-nums">
+									−{formatEUR(lineDiscountAmount(item))}
+								</td>
+							</tr>
+						{/if}
 					{/each}
 				</tbody>
 			</table>
@@ -299,25 +377,47 @@
 			<div class="mt-4 flex justify-end">
 				<table class="text-sm">
 					<tbody>
-						{#if showBtwBreakdown}
+						{#if showSummaryDetail}
 							<tr>
 								<td class="py-1 pr-6">Subtotaal</td>
-								<td class="py-1 text-right tabular-nums">{formatEUR(totals.subtotal)}</td>
+								<td class="py-1 text-right tabular-nums">{formatEUR(totals.grossSubtotal)}</td>
 							</tr>
-							{#each totals.btwGroups as g}
-								<tr>
-									<td class="py-1 pr-6">BTW {g.rate}% over {formatEUR(g.base)}</td>
-									<td class="py-1 text-right tabular-nums">{formatEUR(g.tax)}</td>
-								</tr>
-							{/each}
-							{#if totals.noVatBase > 0}
-								<tr>
-									<td class="py-1 pr-6 text-neutral-600">Geen BTW over {formatEUR(totals.noVatBase)}</td>
-									<td class="py-1 text-right tabular-nums">—</td>
+							{#if totals.lineDiscountTotal > 0}
+								<tr class="text-neutral-600">
+									<td class="py-1 pr-6">Korting op regels</td>
+									<td class="py-1 text-right tabular-nums">−{formatEUR(totals.lineDiscountTotal)}</td>
 								</tr>
 							{/if}
+							{#if totals.totalDiscount > 0}
+								<tr class="text-neutral-600">
+									<td class="py-1 pr-6">{totalDiscountLabel}</td>
+									<td class="py-1 text-right tabular-nums">−{formatEUR(totals.totalDiscount)}</td>
+								</tr>
+							{/if}
+							{#if showBtwBreakdown}
+								{#if hasDiscount}
+									<tr>
+										<td class="py-1 pr-6">Subtotaal na korting</td>
+										<td class="py-1 text-right tabular-nums">{formatEUR(totals.subtotal)}</td>
+									</tr>
+								{/if}
+								{#each totals.btwGroups as g}
+									<tr>
+										<td class="py-1 pr-6">BTW {g.rate}% over {formatEUR(g.base)}</td>
+										<td class="py-1 text-right tabular-nums">{formatEUR(g.tax)}</td>
+									</tr>
+								{/each}
+								{#if totals.noVatBase > 0}
+									<tr>
+										<td class="py-1 pr-6 text-neutral-600">Geen BTW over {formatEUR(totals.noVatBase)}</td>
+										<td class="py-1 text-right tabular-nums">—</td>
+									</tr>
+								{/if}
+							{/if}
 							<tr class="border-t border-neutral-400 font-medium">
-								<td class="py-2 pr-6">Totaal</td>
+								<td class="py-2 pr-6">
+									{doc.kind === 'kwitantie' ? 'Totaal voldaan' : 'Totaal'}
+								</td>
 								<td class="py-2 text-right tabular-nums">{formatEUR(totals.total)}</td>
 							</tr>
 						{:else}

@@ -75,7 +75,12 @@
 
 		<p class="mt-8 text-center text-xs text-muted-foreground">{t.products.priceFooter}</p>
 		<div class="mt-3 flex justify-center">
-			<Button href="{t.nav.homeHref}#contact" size="lg" class="px-10 py-6 text-base">
+			<Button
+				href="{t.nav.homeHref}#contact"
+				size="lg"
+				class="px-10 py-6 text-base"
+				data-umami-event="home_offerte"
+			>
 				{t.products.priceCta}
 			</Button>
 		</div>

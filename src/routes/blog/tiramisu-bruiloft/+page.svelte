@@ -13,6 +13,7 @@
 	import { nl } from '$lib/i18n/nl';
 	import { BLOG_FAQS_NL, buildFaqJsonLd, type BlogFaq } from '$lib/blog/faqs';
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
+	import BlogCta from '$lib/blog/BlogCta.svelte';
 
 	const headline = 'Tiramisu op je bruiloft: live geserveerd, ter plekke opgebouwd';
 	const title = 'Tiramisu op je bruiloft: live geserveerd | Hangende Hapjes';
@@ -22,6 +23,7 @@
 	const canonical = SITE_URL + slug;
 	const ogImage = SITE_URL + '/images/07.jpeg';
 	const serviceId = SITE_URL + '/#service-toetjes';
+	const datePublished = '2026-05-09';
 
 	const articleJsonLd = {
 		'@context': 'https://schema.org',
@@ -29,7 +31,7 @@
 		'@id': canonical + '#article',
 		headline,
 		description,
-		datePublished: BUILD_DATE,
+		datePublished,
 		dateModified: BUILD_DATE,
 		inLanguage: 'nl-NL',
 		mainEntityOfPage: canonical,
@@ -312,7 +314,7 @@
 							<tr>
 								<td class="py-3 pr-4">200</td>
 								<td class="py-3 pr-4">2 uur, 2 bedienden</td>
-								<td class="py-3">€1.125</td>
+								<td class="py-3">€1.150</td>
 							</tr>
 						</tbody>
 					</table>
@@ -359,27 +361,18 @@
 						href="/blog/hoeveel-hapjes-per-persoon"
 						class="underline hover:text-foreground">hoeveel porties je nodig hebt</a
 					>, of wil je tiramisu en burrata combineren? <a
-						href="/blog/burrata-bruiloft"
+						href="/blog/burrata-catering"
 						class="underline hover:text-foreground">Lees onze andere blog</a
 					>, of stuur ons een mail met je datum en aantal gasten. We denken graag met je mee.
 				</p>
 			</section>
 
-			<section class="mt-14 rounded-lg border border-border p-6 md:p-8">
-				<h2 class="font-heading text-xl tracking-tight md:text-2xl">
-					Tiramisu op jouw bruiloft? Stuur ons je datum.
-				</h2>
-				<p class="mt-3 text-base leading-relaxed text-muted-foreground md:text-lg">
-					Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een
-					voorstel op maat: Tiramisu als hangend hapje of als taart, wat past bij jullie?
-				</p>
-				<a
-					href="/#contact"
-					class="bg-(--brand-magenta) mt-6 inline-flex h-10 items-center justify-center rounded-md px-5 text-sm font-medium text-white transition-colors hover:opacity-90"
-				>
-					Vraag een voorstel aan
-				</a>
-			</section>
+			<BlogCta
+				event="tiramisu"
+				heading="Tiramisu op jouw bruiloft? Stuur ons je datum."
+				body="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: Tiramisu als hangend hapje of als taart, wat past bij jullie?"
+				waText="Hoi! Ik heb een vraag over tiramisu van Hangende Hapjes 👋"
+			/>
 
 			<BlogFaqSection
 				items={faqList}

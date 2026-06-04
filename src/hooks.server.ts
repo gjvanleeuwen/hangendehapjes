@@ -5,6 +5,10 @@ import { ADMIN_COOKIE, verifyToken } from '$lib/server/admin-auth';
 export const handle: Handle = async ({ event, resolve }) => {
 	const path = event.url.pathname;
 
+	if (path === '/blog/burrata-bruiloft') {
+		throw redirect(301, '/blog/burrata-catering');
+	}
+
 	if (path.startsWith('/admin')) {
 		const isLogin = path === '/admin/login';
 		const token = event.cookies.get(ADMIN_COOKIE);

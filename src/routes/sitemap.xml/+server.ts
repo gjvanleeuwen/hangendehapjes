@@ -19,7 +19,7 @@ const urls: UrlEntry[] = [
 	{ loc: altUrlEn, priority: '0.8', alternates: true },
 	{ loc: SITE_URL + '/blog/hoeveel-hapjes-per-persoon', priority: '0.7' },
 	{ loc: SITE_URL + '/blog/tiramisu-bruiloft', priority: '0.7' },
-	{ loc: SITE_URL + '/blog/burrata-bruiloft', priority: '0.7' }
+	{ loc: SITE_URL + '/blog/burrata-catering', priority: '0.7' }
 ];
 
 export const GET: RequestHandler = async () => {

@@ -5,11 +5,14 @@
 	import { Label } from '$lib/components/ui/label';
 	import { formatEUR } from '$lib/admin/calc';
 	import {
+		BURRATA_TOPPINGS,
+		DEFAULT_BURRATA_TOPPINGS,
 		DEFAULT_CONFIG,
 		INGREDIENT_COST_PER_PORTION,
 		MIN_PORTIONS_PER_PRODUCT,
 		PACKAGING_COST_PER_PORTION,
 		PRODUCT_LABELS,
+		burrataIngredientCost,
 		calculateInternals,
 		calculatePrice,
 		priceCurve,
@@ -20,8 +23,17 @@
 	let burrPortions = $state(100);
 	let extraPeople = $state(0);
 	let oneWayKm = $state(0);
+	let burrToppings = $state<string[]>([...DEFAULT_BURRATA_TOPPINGS]);
 
 	const config = $state<PricingConfig>({ ...DEFAULT_CONFIG });
+
+	const burrCostPerPortion = $derived(burrataIngredientCost(burrToppings));
+
+	function toggleTopping(key: string) {
+		burrToppings = burrToppings.includes(key)
+			? burrToppings.filter((k) => k !== key)
+			: [...burrToppings, key];
+	}
 
 	const result = $derived(
 		calculatePrice({
@@ -37,7 +49,8 @@
 		calculateInternals(result, {
 			tiraPortions,
 			burrPortions,
-			config: $state.snapshot(config)
+			config: $state.snapshot(config),
+			burrataIngredientCost: burrCostPerPortion
 		})
 	);
 
@@ -57,8 +70,8 @@
 			oneWayKm,
 			config: $state.snapshot(config),
 			from: 50,
-			to: 300,
-			step: 5
+			to: 1000,
+			step: 10
 		})
 	);
 
@@ -75,7 +88,7 @@
 		validPoints.length > 0 ? Math.max(...validPoints.map((p) => p.total)) * 1.1 : 1
 	);
 	const xMin = 50;
-	const xMax = 300;
+	const xMax = 1000;
 
 	function xToPx(x: number) {
 		return padL + ((x - xMin) / (xMax - xMin)) * (chartW - padL - padR);
@@ -119,11 +132,16 @@
 	function useInOfferte() {
 		if (totalPortions === 0 || result.warnings.length > 0) return;
 
+		const toppingLabels = BURRATA_TOPPINGS.filter((t) => burrToppings.includes(t.key)).map(
+			(t) => t.label
+		);
+		const burrSuffix = toppingLabels.length ? ` met ${toppingLabels.join(', ')}` : '';
+
 		const description = isMix
-			? `Hangende Hapjes — ${tiraPortions}× tiramisu + ${burrPortions}× burrata`
+			? `Hangende Hapjes — ${tiraPortions}× tiramisu + ${burrPortions}× burrata${burrSuffix}`
 			: tiraPortions > 0
 				? `Hangende Hapjes — ${tiraPortions}× tiramisu (De Toetjes Vrouw)`
-				: `Hangende Hapjes — ${burrPortions}× burrata (De Borrel Baas)`;
+				: `Hangende Hapjes — ${burrPortions}× burrata${burrSuffix} (De Borrel Baas)`;
 
 		const payload = {
 			description,
@@ -173,6 +191,11 @@
 					<strong>Reiskosten</strong>: eerste {DEFAULT_CONFIG.freeRoundTripKm} km retour gratis,
 					daarna €{DEFAULT_CONFIG.costPerKm.toFixed(2).replace('.', ',')}/km.
 				</p>
+				<p>
+					<strong>Volumekorting</strong> (uit in standaard, 0%) trekt een percentage van het
+					eten + service af zodra het totaal de drempel haalt. Reis- en extra-persoonskosten
+					blijven buiten de korting, want dat zijn echte kosten. Stel in onder de aannames.
+				</p>
 			</div>
 		</details>
 	</div>
@@ -213,35 +236,13 @@
 				</div>
 
 				<div class="grid gap-4 sm:grid-cols-2">
-					<div>
-						<div class="mb-1 flex items-baseline justify-between">
-							<Label for="tira">{PRODUCT_LABELS.tiramisu}</Label>
-							<span class="text-sm tabular-nums">{tiraPortions}</span>
-						</div>
-						<input
-							id="tira"
-							type="range"
-							min="0"
-							max="300"
-							step="5"
-							bind:value={tiraPortions}
-							class="w-full"
-						/>
+					<div class="space-y-1.5">
+						<Label for="tira">{PRODUCT_LABELS.tiramisu}</Label>
+						<Input id="tira" type="number" min="0" step="5" bind:value={tiraPortions} />
 					</div>
-					<div>
-						<div class="mb-1 flex items-baseline justify-between">
-							<Label for="burr">{PRODUCT_LABELS.burrata}</Label>
-							<span class="text-sm tabular-nums">{burrPortions}</span>
-						</div>
-						<input
-							id="burr"
-							type="range"
-							min="0"
-							max="300"
-							step="5"
-							bind:value={burrPortions}
-							class="w-full"
-						/>
+					<div class="space-y-1.5">
+						<Label for="burr">{PRODUCT_LABELS.burrata}</Label>
+						<Input id="burr" type="number" min="0" step="5" bind:value={burrPortions} />
 					</div>
 				</div>
 
@@ -252,6 +253,37 @@
 					{/if}
 				</p>
 			</fieldset>
+
+			{#if burrPortions > 0}
+				<fieldset class="space-y-3 border p-4">
+					<legend class="px-1 text-sm font-medium">Burrata-toppings</legend>
+					<p class="text-muted-foreground text-xs">
+						Kies wat er op de burrata komt. Bepaalt de kostprijs per portie en dus jullie marge —
+						de klantprijs blijft het tarief uit de tiers.
+					</p>
+					<div class="flex flex-wrap gap-2">
+						{#each BURRATA_TOPPINGS as t (t.key)}
+							<button
+								type="button"
+								onclick={() => toggleTopping(t.key)}
+								class="flex items-baseline gap-1.5 border px-3 py-1.5 text-sm transition {burrToppings.includes(
+									t.key
+								)
+									? 'bg-primary text-primary-foreground border-primary'
+									: 'hover:bg-muted'}"
+							>
+								{t.label}
+								<span class="text-xs tabular-nums opacity-60">{formatEUR(t.costPerPortion)}</span>
+							</button>
+						{/each}
+					</div>
+					<p class="text-muted-foreground text-xs">
+						Kostprijs ingrediënten:
+						<span class="text-foreground font-medium tabular-nums">{formatEUR(burrCostPerPortion)}</span>
+						per portie · {burrToppings.length} toppings · +{formatEUR(PACKAGING_COST_PER_PORTION)} verpakking
+					</p>
+				</fieldset>
+			{/if}
 
 			<fieldset class="space-y-3 border p-4">
 				<legend class="px-1 text-sm font-medium">Reisafstand</legend>
@@ -387,6 +419,27 @@
 							bind:value={config.costPerKm}
 						/>
 					</div>
+					<div class="space-y-1.5">
+						<Label for="voldisc">Volumekorting (%)</Label>
+						<Input
+							id="voldisc"
+							type="number"
+							min="0"
+							max="100"
+							step="1"
+							bind:value={config.volumeDiscountPercent}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="voldiscthr">Volumekorting vanaf (porties)</Label>
+						<Input
+							id="voldiscthr"
+							type="number"
+							min="0"
+							step="50"
+							bind:value={config.volumeDiscountThreshold}
+						/>
+					</div>
 				</div>
 			</details>
 		</section>
@@ -427,6 +480,15 @@
 									Gedeelde overhead (1 rit + schoonmaak ipv 2)
 								</td>
 								<td class="py-1 text-right tabular-nums">−{formatEUR(result.mixDeduction)}</td>
+							</tr>
+						{/if}
+						{#if result.volumeDiscount > 0}
+							<tr>
+								<td class="py-1 text-muted-foreground">
+									Volumekorting ({result.volumeDiscountPercent.toString().replace('.', ',')}% vanaf {config.volumeDiscountThreshold}
+									porties)
+								</td>
+								<td class="py-1 text-right tabular-nums">−{formatEUR(result.volumeDiscount)}</td>
 							</tr>
 						{/if}
 						{#if result.extraPersonFee > 0}
@@ -479,9 +541,7 @@
 						{#if burrPortions > 0}
 							<tr>
 								<td class="py-1 text-muted-foreground">
-									Ingrediënten burrata — {burrPortions} × {formatEUR(
-										INGREDIENT_COST_PER_PORTION.burrata
-									)}
+									Ingrediënten burrata — {burrPortions} × {formatEUR(burrCostPerPortion)}
 								</td>
 								<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.ingredientsBurr)}</td>
 							</tr>
@@ -547,7 +607,7 @@
 					{/each}
 
 					<!-- X axis ticks -->
-					{#each [50, 100, 150, 200, 250, 300] as x}
+					{#each [50, 250, 500, 750, 1000] as x}
 						<text x={xToPx(x)} y={chartH - 10} text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">
 							{x}
 						</text>
@@ -591,9 +651,3 @@
 		</section>
 	</div>
 </div>
-
-<style>
-	input[type='range'] {
-		accent-color: var(--brand-magenta);
-	}
-</style>

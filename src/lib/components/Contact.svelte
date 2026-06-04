@@ -323,6 +323,7 @@
 					href={waHref}
 					target="_blank"
 					rel="noopener noreferrer"
+					data-umami-event="home_whatsapp"
 					class="inline-flex h-11 items-center gap-2 rounded-md border border-input px-5 text-sm font-medium transition-colors hover:border-primary/50 hover:bg-primary/5"
 				>
 					<svg
