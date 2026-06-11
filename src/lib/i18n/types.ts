@@ -11,6 +11,7 @@ export type Product = {
 	bullets: ProductBullet[];
 	image: string;
 	imageAlt: string;
+	article?: { href: string; label: string };
 };
 
 export type Translations = {
@@ -56,6 +57,15 @@ export type Translations = {
 	reviews: {
 		heading: string;
 		empty: string;
+		items: {
+			name: string;
+			rating: number;
+			date: string;
+			productId?: string;
+			avatar?: string;
+			quote: string[];
+		}[];
+		reviewNoun: { one: string; other: string };
 		cta: {
 			text: string;
 			button: string;

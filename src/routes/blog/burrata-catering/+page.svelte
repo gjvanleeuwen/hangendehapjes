@@ -2,11 +2,14 @@
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import Picture from '$lib/components/Picture.svelte';
-	import { jsonLdScript } from '$lib/seo';
+	import { jsonLdScript, aggregateRatingJsonLd } from '$lib/seo';
+	import BlogReviewTeaser from '$lib/blog/BlogReviewTeaser.svelte';
 	import {
 		BUILD_DATE,
 		OG_IMAGE_HEIGHT,
 		OG_IMAGE_WIDTH,
+		PRODUCT_MIN_PORTIONS,
+		PRODUCT_PRICES_EUR_FROM,
 		SITE_NAME,
 		SITE_URL
 	} from '$lib/site-config';
@@ -44,6 +47,44 @@
 		publisher: { '@id': SITE_URL + '/#localbusiness' },
 		about: { '@id': serviceId },
 		mentions: [{ '@id': serviceId }]
+	};
+
+	// Canonical commercial page for the burrata service. The full reviews live on the
+	// homepage; here we only surface the aggregate score + count (matching the compact
+	// teaser below) and link through, so the page stays light and policy-compliant.
+	const borrelReviews = nl.reviews.items.filter((review) => review.productId === 'borrel');
+
+	const productJsonLd = {
+		'@context': 'https://schema.org',
+		'@type': ['Service', 'Product'],
+		'@id': serviceId,
+		name: 'De Borrel Baas — live burrata bar',
+		description,
+		image: ogImage,
+		brand: { '@type': 'Brand', name: SITE_NAME },
+		serviceType: 'Catering',
+		provider: { '@id': SITE_URL + '/#localbusiness' },
+		areaServed: [
+			{ '@type': 'Country', name: 'Netherlands' },
+			{ '@type': 'Country', name: 'Belgium' }
+		],
+		offers: {
+			'@type': 'Offer',
+			priceCurrency: 'EUR',
+			price: PRODUCT_PRICES_EUR_FROM.borrel,
+			availability: 'https://schema.org/InStock',
+			priceSpecification: {
+				'@type': 'UnitPriceSpecification',
+				price: PRODUCT_PRICES_EUR_FROM.borrel,
+				priceCurrency: 'EUR',
+				referenceQuantity: {
+					'@type': 'QuantitativeValue',
+					value: PRODUCT_MIN_PORTIONS,
+					unitText: 'portions'
+				}
+			}
+		},
+		...aggregateRatingJsonLd(borrelReviews)
 	};
 
 	const faqList: BlogFaq[] = [
@@ -91,6 +132,7 @@
 
 	const articleJsonLdHtml = jsonLdScript(articleJsonLd);
 	const faqJsonLdHtml = jsonLdScript(faqJsonLd);
+	const productJsonLdHtml = jsonLdScript(productJsonLd);
 </script>
 
 <svelte:head>
@@ -121,6 +163,7 @@
 
 	{@html articleJsonLdHtml}
 	{@html faqJsonLdHtml}
+	{@html productJsonLdHtml}
 </svelte:head>
 
 <div id="top" class="bg-background text-foreground">
@@ -348,6 +391,8 @@
 					korting op de gecombineerde vanaf prijs.
 				</p>
 			</section>
+
+			<BlogReviewTeaser reviews={borrelReviews} />
 
 			<BlogCta
 				event="burrata"

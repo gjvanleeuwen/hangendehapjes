@@ -56,7 +56,8 @@ export const nl: Translations = {
 					'Vanaf €425 voor 50 porties · €650 voor 100 · grotere events op aanvraag'
 				],
 				image: TOETJES_IMAGE,
-				imageAlt: 'Charlotte maakt live tiramisu voor een gast'
+				imageAlt: 'Charlotte maakt live tiramisu voor een gast',
+				article: { href: '/blog/tiramisu-bruiloft', label: 'Lees meer over onze tiramisu' }
 			},
 			{
 				id: 'borrel',
@@ -87,7 +88,8 @@ export const nl: Translations = {
 					'Vanaf €450 voor 50 porties · €700 voor 100 · grotere events op aanvraag'
 				],
 				image: BORREL_IMAGE,
-				imageAlt: 'Gijs maakt een live burrata-bowl voor een gast'
+				imageAlt: 'Gijs maakt een live burrata-bowl voor een gast',
+				article: { href: '/blog/burrata-catering', label: 'Lees meer over onze burrata bar' }
 			}
 		],
 		priceFooter: 'Prijzen excl. BTW · Reiskosten gratis tot 50 km vanaf Hilversum.',
@@ -161,6 +163,22 @@ export const nl: Translations = {
 		heading: 'Wat gasten zeggen',
 		empty:
 			'Hangende hapjes is net begonnen, quotes en reviews komen hier binnenkort. Heb jij de hapjes al wel geproefd? Stuur ons gerust een berichtje.',
+		items: [
+			{
+				name: 'Stip Hilversum',
+				rating: 5,
+				date: '2026-06-11',
+				productId: 'borrel',
+				avatar:
+					'https://lh3.googleusercontent.com/a-/ALV-UjV6dVUTj84XE0qV3PZrYxq7J4LroeRxqpwC99z7kGh-43-jYN4=w144-h144-p-rp-mo-br100',
+				quote: [
+					'Voor de opening van ons nieuwe Stip-bureau hebben wij "Hangende Hapjes" ingeschakeld voor de catering, en dat was een uitstekende keuze. Gedurende de hele middag liepen zij rond met heerlijke Burrata Bowls, die bij onze gasten enorm in de smaak vielen. Er was volop keuze uit verschillende toppings en sauzen, waardoor iedereen zijn eigen favoriete combinatie kon samenstellen.',
+					'Naast de uitstekende kwaliteit van het eten onderscheidt "Hangende Hapjes" zich ook door hun persoonlijke en gastvrije aanpak. Ze staan altijd open voor een praatje of een uitleg over de gerechten en zorgen ervoor dat gasten zich welkom voelen. De vriendelijke service, professionele uitstraling en smaakvolle gerechten maakten onze opening compleet.',
+					'Wij kijken terug op een zeer geslaagde samenwerking en kunnen "Hangende Hapjes" van harte aanbevelen voor ieder evenement.'
+				]
+			}
+		],
+		reviewNoun: { one: 'review', other: 'reviews' },
 		cta: {
 			text: 'Heb jij onze hapjes geproefd? Laat ons weten hoe lekker ze waren.',
 			button: 'Schrijf een review',

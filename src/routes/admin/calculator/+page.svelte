@@ -9,25 +9,63 @@
 		DEFAULT_BURRATA_TOPPINGS,
 		DEFAULT_CONFIG,
 		INGREDIENT_COST_PER_PORTION,
+		MILLEFEUILLE_DEFAULT_FRUIT_COST_PER_PORTION,
 		MIN_PORTIONS_PER_PRODUCT,
 		PACKAGING_COST_PER_PORTION,
 		PRODUCT_LABELS,
+		VARIANT_LABELS,
 		burrataIngredientCost,
 		calculateInternals,
 		calculatePrice,
-		priceCurve,
-		type PricingConfig
+		calculateSpecialInternals,
+		calculateSpecialPrice,
+		specialIngredientCostPerPortion,
+		validationCurve,
+		type PricingConfig,
+		type SpecialVariant
 	} from '$lib/admin/pricing';
 
-	let tiraPortions = $state(0);
-	let burrPortions = $state(100);
+	type Mode = 'hapjes' | SpecialVariant;
+	const SPECIAL_VARIANTS: SpecialVariant[] = [
+		'tiramisu-taart',
+		'tiramisu-toren',
+		'millefeuille-taart'
+	];
+
+	let mode = $state<Mode>('hapjes');
+	let hapjesKind = $state<'tira' | 'burr' | 'mix'>('burr');
+	let portions = $state(100); // gedeeld over alle varianten — makkelijk schakelen/vergelijken
+	let tiraSharePct = $state(50); // verdeling tiramisu/burrata bij een mix
+	let fruitCost = $state(MILLEFEUILLE_DEFAULT_FRUIT_COST_PER_PORTION);
 	let extraPeople = $state(0);
 	let oneWayKm = $state(0);
 	let burrToppings = $state<string[]>([...DEFAULT_BURRATA_TOPPINGS]);
 
 	const config = $state<PricingConfig>({ ...DEFAULT_CONFIG });
 
+	const isSpecial = $derived(mode !== 'hapjes');
+	const isMix = $derived(mode === 'hapjes' && hapjesKind === 'mix');
 	const burrCostPerPortion = $derived(burrataIngredientCost(burrToppings));
+
+	// Hapjes-verdeling afgeleid van het gedeelde aantal porties.
+	const tiraPortions = $derived(
+		mode !== 'hapjes'
+			? 0
+			: hapjesKind === 'tira'
+				? portions
+				: hapjesKind === 'mix'
+					? Math.round((portions * tiraSharePct) / 100)
+					: 0
+	);
+	const burrPortions = $derived(
+		mode !== 'hapjes'
+			? 0
+			: hapjesKind === 'burr'
+				? portions
+				: hapjesKind === 'mix'
+					? portions - Math.round((portions * tiraSharePct) / 100)
+					: 0
+	);
 
 	function toggleTopping(key: string) {
 		burrToppings = burrToppings.includes(key)
@@ -36,97 +74,172 @@
 	}
 
 	const result = $derived(
-		calculatePrice({
-			tiraPortions,
-			burrPortions,
-			extraPeople,
-			oneWayKm,
-			config: $state.snapshot(config)
-		})
+		mode !== 'hapjes'
+			? calculateSpecialPrice({
+					variant: mode,
+					portions,
+					extraPeople,
+					oneWayKm,
+					config: $state.snapshot(config),
+					fruitCostPerPortion: fruitCost
+				})
+			: calculatePrice({
+					tiraPortions,
+					burrPortions,
+					extraPeople,
+					oneWayKm,
+					config: $state.snapshot(config)
+				})
 	);
 
 	const internals = $derived(
-		calculateInternals(result, {
-			tiraPortions,
-			burrPortions,
-			config: $state.snapshot(config),
-			burrataIngredientCost: burrCostPerPortion
-		})
+		mode !== 'hapjes'
+			? calculateSpecialInternals(result, {
+					variant: mode,
+					config: $state.snapshot(config),
+					fruitCostPerPortion: fruitCost
+				})
+			: calculateInternals(result, {
+					tiraPortions,
+					burrPortions,
+					config: $state.snapshot(config),
+					burrataIngredientCost: burrCostPerPortion
+				})
 	);
 
 	function fmtHours(h: number): string {
 		return h.toFixed(2).replace('.', ',') + 'u';
 	}
 
-	const totalPortions = $derived(tiraPortions + burrPortions);
-	const isMix = $derived(tiraPortions > 0 && burrPortions > 0);
+	const totalPortions = $derived(portions);
 
-	const tiraShare = $derived(totalPortions > 0 ? tiraPortions / totalPortions : 0);
+	const tiraShare = $derived(
+		mode !== 'hapjes'
+			? 1
+			: hapjesKind === 'tira'
+				? 1
+				: hapjesKind === 'burr'
+					? 0
+					: tiraSharePct / 100
+	);
 
-	const curveData = $derived(
-		priceCurve({
+	// Validatiecurve: constante lijnen voor het actieve type, alleen afhankelijk van het
+	// type + de aannames (niet van het gekozen aantal porties). De marker volgt de porties.
+	const curve = $derived(
+		validationCurve({
+			mode,
 			tiraShare,
-			extraPeople,
-			oneWayKm,
 			config: $state.snapshot(config),
+			fruitCostPerPortion: fruitCost,
 			from: 50,
-			to: 1000,
-			step: 10
+			to: 150,
+			step: 5
 		})
 	);
-
-	// Chart geometry
-	const chartW = 540;
-	const chartH = 220;
-	const padL = 48;
-	const padR = 12;
-	const padT = 12;
-	const padB = 28;
-
-	const validPoints = $derived(curveData.filter((p) => Number.isFinite(p.total)));
-	const yMax = $derived(
-		validPoints.length > 0 ? Math.max(...validPoints.map((p) => p.total)) * 1.1 : 1
+	const curvePoint = $derived(
+		totalPortions >= 50 && totalPortions <= 150
+			? validationCurve({
+					mode,
+					tiraShare,
+					config: $state.snapshot(config),
+					fruitCostPerPortion: fruitCost,
+					from: totalPortions,
+					to: totalPortions,
+					step: 1
+				})[0]
+			: null
 	);
-	const xMin = 50;
-	const xMax = 1000;
+	const locationLabel = $derived(isSpecial ? 'opbouw' : 'lopen');
 
-	function xToPx(x: number) {
-		return padL + ((x - xMin) / (xMax - xMin)) * (chartW - padL - padR);
+	// Mini-grafiek-geometrie (x = porties 50→150).
+	const CW = 320;
+	const CH = 104;
+	const CPL = 38;
+	const CPR = 10;
+	const CPT = 12;
+	const CPB = 18;
+	const VX_MIN = 50;
+	const VX_MAX = 150;
+	const VX_STEP = 5;
+	function vx(x: number) {
+		return CPL + ((x - VX_MIN) / (VX_MAX - VX_MIN)) * (CW - CPL - CPR);
 	}
-	function yToPx(y: number) {
-		return chartH - padB - (y / yMax) * (chartH - padT - padB);
+	function vy(y: number, lo: number, hi: number) {
+		const span = hi - lo || 1;
+		return CH - CPB - ((y - lo) / span) * (CH - CPT - CPB);
+	}
+	function vpath(pts: { x: number; y: number }[], lo: number, hi: number) {
+		return pts.length ? 'M' + pts.map((p) => `${vx(p.x)},${vy(p.y, lo, hi)}`).join(' L') : '';
+	}
+	function padRange(vals: number[]): { lo: number; hi: number } {
+		const min = Math.min(...vals);
+		const max = Math.max(...vals);
+		const pad = (max - min) * 0.15 || max * 0.1 || 1;
+		return { lo: Math.max(0, min - pad), hi: max + pad };
+	}
+	function yTicks(lo: number, hi: number): number[] {
+		return [lo, (lo + hi) / 2, hi];
+	}
+	function valAt(pts: { x: number; y: number }[], x: number): number | null {
+		return pts.find((p) => p.x === x)?.y ?? null;
 	}
 
-	const linePath = $derived.by(() => {
-		const pts = validPoints.map((p) => `${xToPx(p.x)},${yToPx(p.total)}`);
-		return pts.length ? 'M' + pts.join(' L') : '';
-	});
-
-	const yTicks = $derived.by(() => {
-		const step = niceStep(yMax / 4);
-		const ticks: number[] = [];
-		for (let v = 0; v <= yMax; v += step) ticks.push(v);
-		return ticks;
-	});
-
-	function niceStep(raw: number): number {
-		const pow = Math.pow(10, Math.floor(Math.log10(raw)));
-		const n = raw / pow;
-		const nice = n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10;
-		return nice * pow;
+	// Gedeelde hover-porties over alle drie de grafieken.
+	let hoverN = $state<number | null>(null);
+	function handleHover(e: MouseEvent) {
+		const svg = e.currentTarget as SVGSVGElement;
+		const rect = svg.getBoundingClientRect();
+		const vbX = ((e.clientX - rect.left) / rect.width) * CW;
+		const frac = (vbX - CPL) / (CW - CPL - CPR);
+		const raw = VX_MIN + frac * (VX_MAX - VX_MIN);
+		const snapped = Math.round(raw / VX_STEP) * VX_STEP;
+		hoverN = Math.max(VX_MIN, Math.min(VX_MAX, snapped));
 	}
 
-	function setSplit(option: 'tira' | 'burr' | 'mix') {
-		if (option === 'tira') {
-			burrPortions = 0;
-			if (tiraPortions === 0) tiraPortions = 100;
-		} else if (option === 'burr') {
-			tiraPortions = 0;
-			if (burrPortions === 0) burrPortions = 100;
-		} else {
-			if (tiraPortions < MIN_PORTIONS_PER_PRODUCT) tiraPortions = MIN_PORTIONS_PER_PRODUCT;
-			if (burrPortions < MIN_PORTIONS_PER_PRODUCT) burrPortions = MIN_PORTIONS_PER_PRODUCT;
+	// Per-grafiek lijn-data, afgeleid van de constante curve.
+	const hoursLines = $derived([
+		{
+			label: 'prep',
+			color: 'var(--brand-magenta)',
+			pts: curve.map((p) => ({ x: p.x, y: p.prepHours })),
+			dot: curvePoint?.prepHours ?? null
+		},
+		{
+			label: locationLabel,
+			color: '#0ea5e9',
+			pts: curve.map((p) => ({ x: p.x, y: p.locationHours })),
+			dot: curvePoint?.locationHours ?? null
 		}
+	]);
+	const hoursRange = $derived(
+		padRange(curve.flatMap((p) => [p.prepHours, p.locationHours]).concat(0))
+	);
+	const ppLine = $derived([
+		{
+			label: '€/portie',
+			color: 'var(--brand-magenta)',
+			pts: curve.map((p) => ({ x: p.x, y: p.perPortion })),
+			dot: curvePoint?.perPortion ?? null
+		}
+	]);
+	const ppRange = $derived(padRange(curve.map((p) => p.perPortion)));
+	const phLine = $derived([
+		{
+			label: '€/uur p.p.',
+			color: '#0ea5e9',
+			pts: curve.map((p) => ({ x: p.x, y: p.perHour })),
+			dot: curvePoint?.perHour ?? null
+		}
+	]);
+	const phRange = $derived(padRange(curve.map((p) => p.perHour)));
+
+	function setSplit(kind: 'tira' | 'burr' | 'mix') {
+		mode = 'hapjes';
+		hapjesKind = kind;
+	}
+
+	function setVariant(v: SpecialVariant) {
+		mode = v;
 	}
 
 	function useInOfferte() {
@@ -137,11 +250,13 @@
 		);
 		const burrSuffix = toppingLabels.length ? ` met ${toppingLabels.join(', ')}` : '';
 
-		const description = isMix
-			? `Hangende Hapjes — ${tiraPortions}× tiramisu + ${burrPortions}× burrata${burrSuffix}`
-			: tiraPortions > 0
-				? `Hangende Hapjes — ${tiraPortions}× tiramisu (De Toetjes Vrouw)`
-				: `Hangende Hapjes — ${burrPortions}× burrata${burrSuffix} (De Borrel Baas)`;
+		const description = isSpecial
+			? `Hangende Hapjes — ${portions}× ${VARIANT_LABELS[mode as SpecialVariant]}`
+			: isMix
+				? `Hangende Hapjes — ${tiraPortions}× tiramisu + ${burrPortions}× burrata${burrSuffix}`
+				: tiraPortions > 0
+					? `Hangende Hapjes — ${tiraPortions}× tiramisu (De Toetjes Vrouw)`
+					: `Hangende Hapjes — ${burrPortions}× burrata${burrSuffix} (De Borrel Baas)`;
 
 		const payload = {
 			description,
@@ -204,12 +319,42 @@
 		<!-- Inputs -->
 		<section class="space-y-6">
 			<fieldset class="space-y-3 border p-4">
+				<legend class="px-1 text-sm font-medium">Aantal</legend>
+				<div class="grid gap-4 sm:grid-cols-2">
+					<div class="space-y-1.5">
+						<Label for="portions">Porties (personen)</Label>
+						<Input id="portions" type="number" min="0" step="5" bind:value={portions} />
+					</div>
+					{#if isMix}
+						<div class="space-y-1.5">
+							<Label for="tirashare">Aandeel tiramisu (%)</Label>
+							<Input
+								id="tirashare"
+								type="number"
+								min="0"
+								max="100"
+								step="5"
+								bind:value={tiraSharePct}
+							/>
+						</div>
+					{/if}
+				</div>
+				<p class="text-muted-foreground text-xs">
+					Gedeeld over alle varianten — schakel hieronder van type en vergelijk bij hetzelfde aantal.
+					{#if isMix}
+						· {tiraPortions} tiramisu + {burrPortions} burrata (min. {MIN_PORTIONS_PER_PRODUCT} per
+						soort)
+					{/if}
+				</p>
+			</fieldset>
+
+			<fieldset class="space-y-3 border p-4">
 				<legend class="px-1 text-sm font-medium">Wat</legend>
 				<div class="flex flex-wrap gap-2">
 					<button
 						type="button"
 						onclick={() => setSplit('tira')}
-						class="border px-3 py-1.5 text-sm transition {tiraPortions > 0 && burrPortions === 0
+						class="border px-3 py-1.5 text-sm transition {mode === 'hapjes' && hapjesKind === 'tira'
 							? 'bg-primary text-primary-foreground border-primary'
 							: 'hover:bg-muted'}"
 					>
@@ -218,7 +363,7 @@
 					<button
 						type="button"
 						onclick={() => setSplit('burr')}
-						class="border px-3 py-1.5 text-sm transition {burrPortions > 0 && tiraPortions === 0
+						class="border px-3 py-1.5 text-sm transition {mode === 'hapjes' && hapjesKind === 'burr'
 							? 'bg-primary text-primary-foreground border-primary'
 							: 'hover:bg-muted'}"
 					>
@@ -234,27 +379,116 @@
 						Mix
 					</button>
 				</div>
-
-				<div class="grid gap-4 sm:grid-cols-2">
-					<div class="space-y-1.5">
-						<Label for="tira">{PRODUCT_LABELS.tiramisu}</Label>
-						<Input id="tira" type="number" min="0" step="5" bind:value={tiraPortions} />
-					</div>
-					<div class="space-y-1.5">
-						<Label for="burr">{PRODUCT_LABELS.burrata}</Label>
-						<Input id="burr" type="number" min="0" step="5" bind:value={burrPortions} />
-					</div>
+				<div class="flex flex-wrap gap-2 border-t pt-3">
+					{#each SPECIAL_VARIANTS as v (v)}
+						<button
+							type="button"
+							onclick={() => setVariant(v)}
+							class="border px-3 py-1.5 text-sm transition {mode === v
+								? 'bg-primary text-primary-foreground border-primary'
+								: 'hover:bg-muted'}"
+						>
+							{VARIANT_LABELS[v]}
+						</button>
+					{/each}
 				</div>
 
 				<p class="text-muted-foreground text-xs">
-					Totaal: <span class="text-foreground font-medium tabular-nums">{totalPortions}</span> porties
 					{#if isMix}
-						(mix vereist min. {MIN_PORTIONS_PER_PRODUCT} per soort)
+						Mix — beide producten op eigen tarief, minus gedeelde overhead.
+					{:else if mode === 'millefeuille-taart'}
+						Portie-anker €{config.millefeuillePriceAt50} @50 → €{config.millefeuillePriceAt100} @100.
+					{:else if mode === 'tiramisu-taart'}
+						Hapjestarief + €{config.cakeSurchargePerPortion.toFixed(2).replace('.', ',')}/persoon.
+					{:else if mode === 'tiramisu-toren'}
+						Hapjestarief + €{config.towerSurchargePerPortion.toFixed(2).replace('.', ',')}/persoon.
+					{:else}
+						Basistarief per portie uit de tiers.
 					{/if}
 				</p>
 			</fieldset>
 
-			{#if burrPortions > 0}
+			<fieldset class="space-y-3 border p-4">
+				<legend class="px-1 text-sm font-medium">Fijn-afstemmen (deze variant)</legend>
+				{#if !isSpecial}
+					<div class="grid gap-3 sm:grid-cols-2">
+						<div class="space-y-1.5">
+							<Label for="pph">Porties per uur (lopen)</Label>
+							<Input id="pph" type="number" min="1" step="5" bind:value={config.portionsPerHour} />
+						</div>
+					</div>
+					<p class="text-muted-foreground text-xs">Looptijd = porties ÷ porties-per-uur.</p>
+				{:else if mode === 'tiramisu-taart'}
+					<div class="grid gap-3 sm:grid-cols-2">
+						<div class="space-y-1.5">
+							<Label for="cb50">Opbouw @50 pers. (u)</Label>
+							<Input id="cb50" type="number" min="0" step="0.05" bind:value={config.cakeBuildHoursAt50} />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="cb100">Opbouw @100 pers. (u)</Label>
+							<Input id="cb100" type="number" min="0" step="0.05" bind:value={config.cakeBuildHoursAt100} />
+						</div>
+					</div>
+					<p class="text-muted-foreground text-xs">
+						Prep = standaard hapjesprep × 2 (dubbele portie). Prijs = hapjestarief + €{config.cakeSurchargePerPortion
+							.toFixed(2)
+							.replace('.', ',')}/persoon.
+					</p>
+				{:else if mode === 'tiramisu-toren'}
+					<div class="grid gap-3 sm:grid-cols-2">
+						<div class="space-y-1.5">
+							<Label for="tb50">Opbouw @50 pers. (u)</Label>
+							<Input id="tb50" type="number" min="0" step="0.05" bind:value={config.towerBuildHoursAt50} />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="tb100">Opbouw @100 pers. (u)</Label>
+							<Input id="tb100" type="number" min="0" step="0.05" bind:value={config.towerBuildHoursAt100} />
+						</div>
+					</div>
+					<p class="text-muted-foreground text-xs">
+						Prep = standaard hapjesprep × 1,5. Prijs = hapjestarief + €{config.towerSurchargePerPortion
+							.toFixed(2)
+							.replace('.', ',')}/persoon.
+					</p>
+				{:else if mode === 'millefeuille-taart'}
+					<div class="grid gap-3 sm:grid-cols-2">
+						<div class="space-y-1.5">
+							<Label for="mp50">Prep @50 pers. (u)</Label>
+							<Input id="mp50" type="number" min="0" step="0.25" bind:value={config.millefeuillePrepHoursAt50} />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="mp100">Prep @100 pers. (u)</Label>
+							<Input id="mp100" type="number" min="0" step="0.25" bind:value={config.millefeuillePrepHoursAt100} />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="mpr50">Prijs @50 pers. (€)</Label>
+							<Input id="mpr50" type="number" min="0" step="25" bind:value={config.millefeuillePriceAt50} />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="mpr100">Prijs @100 pers. (€)</Label>
+							<Input id="mpr100" type="number" min="0" step="25" bind:value={config.millefeuillePriceAt100} />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="mcb50">Opbouw @50 pers. (u)</Label>
+							<Input id="mcb50" type="number" min="0" step="0.05" bind:value={config.cakeBuildHoursAt50} />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="mcb100">Opbouw @100 pers. (u)</Label>
+							<Input id="mcb100" type="number" min="0" step="0.05" bind:value={config.cakeBuildHoursAt100} />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="fruit">Fruitkostprijs per portie (€)</Label>
+							<Input id="fruit" type="number" min="0" step="0.05" bind:value={fruitCost} />
+						</div>
+					</div>
+					<p class="text-muted-foreground text-xs">
+						Prijs is portie-verankerd (uurtarief is een uitkomst, geen input). Opbouw = zelfde als
+						tiramisu-taart. Fruit drukt op de marge, niet op de prijs.
+					</p>
+				{/if}
+			</fieldset>
+
+			{#if !isSpecial && burrPortions > 0}
 				<fieldset class="space-y-3 border p-4">
 					<legend class="px-1 text-sm font-medium">Burrata-toppings</legend>
 					<p class="text-muted-foreground text-xs">
@@ -441,6 +675,66 @@
 						/>
 					</div>
 				</div>
+
+				<div class="text-muted-foreground mt-4 mb-1 text-xs font-medium uppercase tracking-wide">
+					Taarten op locatie
+				</div>
+				<div class="grid gap-3 sm:grid-cols-2">
+					<div class="space-y-1.5">
+						<Label for="cakesur">Tiramisu-taart toeslag (€/persoon)</Label>
+						<Input
+							id="cakesur"
+							type="number"
+							min="0"
+							step="0.25"
+							bind:value={config.cakeSurchargePerPortion}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="towersur">Tiramisu-toren toeslag (€/persoon)</Label>
+						<Input
+							id="towersur"
+							type="number"
+							min="0"
+							step="0.25"
+							bind:value={config.towerSurchargePerPortion}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="glassdep">Glaswerk afschrijving (€/portie)</Label>
+						<Input
+							id="glassdep"
+							type="number"
+							min="0"
+							step="0.1"
+							bind:value={config.glassDepreciationPerPortion}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="cbprice">Cakeboard prijs (€)</Label>
+						<Input
+							id="cbprice"
+							type="number"
+							min="0"
+							step="0.25"
+							bind:value={config.cakeboardPrice}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="cbper">Cakeboard per (personen)</Label>
+						<Input
+							id="cbper"
+							type="number"
+							min="1"
+							step="1"
+							bind:value={config.cakeboardPerPersons}
+						/>
+					</div>
+				</div>
+				<p class="text-muted-foreground mt-2 text-xs">
+					Opbouwtijden, millefeuille-prep en -prijsankers en porties/uur staan onder
+					“Fijn-afstemmen (deze variant)”.
+				</p>
 			</details>
 		</section>
 
@@ -469,11 +763,27 @@
 						{#each result.productLines as line}
 							<tr>
 								<td class="py-1">
-									{PRODUCT_LABELS[line.product]} · {line.portions} porties
+									{line.label ?? PRODUCT_LABELS[line.product]} · {line.portions} porties
 								</td>
 								<td class="py-1 text-right tabular-nums">{formatEUR(line.price)}</td>
 							</tr>
 						{/each}
+						{#if isSpecial && result.surchargeTotal}
+							<tr>
+								<td class="text-muted-foreground py-1 pl-4">
+									Basis (hapjestarief {result.totalPortions} pers.)
+								</td>
+								<td class="py-1 text-right tabular-nums">{formatEUR(result.baseLinePrice ?? 0)}</td>
+							</tr>
+							<tr>
+								<td class="text-muted-foreground py-1 pl-4">
+									Toeslag — {result.totalPortions} × €{(result.surchargePerPortion ?? 0)
+										.toFixed(2)
+										.replace('.', ',')}
+								</td>
+								<td class="py-1 text-right tabular-nums">+{formatEUR(result.surchargeTotal)}</td>
+							</tr>
+						{/if}
 						{#if result.mixDeduction > 0}
 							<tr>
 								<td class="py-1 text-muted-foreground">
@@ -528,31 +838,59 @@
 							<td class="py-1">Klant betaalt</td>
 							<td class="py-1 text-right tabular-nums">{formatEUR(result.total)}</td>
 						</tr>
-						{#if tiraPortions > 0}
-							<tr>
-								<td class="py-1 text-muted-foreground">
-									Ingrediënten tiramisu — {tiraPortions} × {formatEUR(
-										INGREDIENT_COST_PER_PORTION.tiramisu
-									)}
-								</td>
-								<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.ingredientsTira)}</td>
-							</tr>
-						{/if}
-						{#if burrPortions > 0}
-							<tr>
-								<td class="py-1 text-muted-foreground">
-									Ingrediënten burrata — {burrPortions} × {formatEUR(burrCostPerPortion)}
-								</td>
-								<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.ingredientsBurr)}</td>
-							</tr>
-						{/if}
-						{#if totalPortions > 0}
-							<tr>
-								<td class="py-1 text-muted-foreground">
-									Verpakking — {totalPortions} × {formatEUR(PACKAGING_COST_PER_PORTION)}
-								</td>
-								<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.packaging)}</td>
-							</tr>
+						{#if isSpecial && mode !== 'hapjes'}
+							{#if totalPortions > 0}
+								<tr>
+									<td class="py-1 text-muted-foreground">
+										Ingrediënten — {totalPortions} × {formatEUR(
+											specialIngredientCostPerPortion(mode, fruitCost)
+										)}
+										{#if mode === 'millefeuille-taart'}
+											(incl. {formatEUR(fruitCost)} fruit)
+										{/if}
+									</td>
+									<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.ingredients)}</td>
+								</tr>
+								<tr>
+									<td class="py-1 text-muted-foreground">
+										{#if mode === 'tiramisu-toren'}
+											Glaswerk (afschrijving) — {totalPortions} × {formatEUR(
+												config.glassDepreciationPerPortion
+											)}
+										{:else}
+											Cakeboards — {formatEUR(config.cakeboardPrice)} per {config.cakeboardPerPersons} pers.
+										{/if}
+									</td>
+									<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.packaging)}</td>
+								</tr>
+							{/if}
+						{:else}
+							{#if tiraPortions > 0}
+								<tr>
+									<td class="py-1 text-muted-foreground">
+										Ingrediënten tiramisu — {tiraPortions} × {formatEUR(
+											INGREDIENT_COST_PER_PORTION.tiramisu
+										)}
+									</td>
+									<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.ingredientsTira)}</td>
+								</tr>
+							{/if}
+							{#if burrPortions > 0}
+								<tr>
+									<td class="py-1 text-muted-foreground">
+										Ingrediënten burrata — {burrPortions} × {formatEUR(burrCostPerPortion)}
+									</td>
+									<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.ingredientsBurr)}</td>
+								</tr>
+							{/if}
+							{#if totalPortions > 0}
+								<tr>
+									<td class="py-1 text-muted-foreground">
+										Verpakking — {totalPortions} × {formatEUR(PACKAGING_COST_PER_PORTION)}
+									</td>
+									<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.packaging)}</td>
+								</tr>
+							{/if}
 						{/if}
 						<tr class="border-t font-medium">
 							<td class="py-2">Voor ons (bruto)</td>
@@ -566,7 +904,12 @@
 						<div class="text-muted-foreground text-xs">Werkuren totaal (mensuren)</div>
 						<div class="font-heading text-2xl tabular-nums">{fmtHours(internals.hours.total)}</div>
 						<div class="text-muted-foreground mt-0.5 text-xs">
-							{fmtHours(internals.hours.prep)} prep · {fmtHours(internals.hours.walking)} lopen ·
+							{fmtHours(internals.hours.prep)} prep ·
+							{#if isSpecial}
+								{fmtHours(internals.hours.build)} opbouw ·
+							{:else}
+								{fmtHours(internals.hours.walking)} lopen ·
+							{/if}
 							{fmtHours(internals.hours.cleanup)} schoonmaak · {fmtHours(internals.hours.drive)} rijden
 						</div>
 					</div>
@@ -585,58 +928,132 @@
 				</div>
 			</div>
 
-			<!-- Chart -->
-			<div class="bg-card border p-4">
-				<div class="text-muted-foreground mb-2 text-xs uppercase tracking-wide">
-					Prijscurve bij huidige mix
+			{#snippet miniChart(
+				title: string,
+				lines: { label: string; color: string; pts: { x: number; y: number }[]; dot: number | null }[],
+				lo: number,
+				hi: number,
+				fmt: (n: number) => string
+			)}
+				<div>
+					<div class="mb-1 flex items-center justify-between text-xs">
+						<span class="text-muted-foreground">{title}</span>
+						<span class="flex gap-2">
+							{#each lines as l (l.label)}
+								<span class="tabular-nums" style="color:{l.color}"
+									>{l.label}{l.dot != null ? ' ' + fmt(l.dot) : ''}</span
+								>
+							{/each}
+						</span>
+					</div>
+					<svg
+						viewBox="0 0 {CW} {CH}"
+						class="h-auto w-full"
+						role="img"
+						aria-label={title}
+						onmousemove={handleHover}
+						onmouseleave={() => (hoverN = null)}
+					>
+						{#each yTicks(lo, hi) as t (t)}
+							<line
+								x1={CPL}
+								x2={CW - CPR}
+								y1={vy(t, lo, hi)}
+								y2={vy(t, lo, hi)}
+								stroke="currentColor"
+								stroke-opacity="0.1"
+							/>
+							<text
+								x={CPL - 4}
+								y={vy(t, lo, hi)}
+								font-size="7"
+								text-anchor="end"
+								dominant-baseline="middle"
+								fill="currentColor"
+								opacity="0.55"
+							>
+								{fmt(t)}
+							</text>
+						{/each}
+						{#each [50, 100, 150] as t (t)}
+							<text x={vx(t)} y={CH - 4} font-size="7" text-anchor="middle" fill="currentColor" opacity="0.45">
+								{t}
+							</text>
+						{/each}
+						{#if curvePoint}
+							<line
+								x1={vx(curvePoint.x)}
+								x2={vx(curvePoint.x)}
+								y1={CPT}
+								y2={CH - CPB}
+								stroke="currentColor"
+								stroke-opacity="0.25"
+								stroke-dasharray="3 3"
+							/>
+						{/if}
+						{#each lines as l (l.label)}
+							<path d={vpath(l.pts, lo, hi)} fill="none" stroke={l.color} stroke-width="1.5" />
+							{#if curvePoint && l.dot != null}
+								<circle cx={vx(curvePoint.x)} cy={vy(l.dot, lo, hi)} r="3" fill={l.color} />
+							{/if}
+						{/each}
+						{#if hoverN != null}
+							<line
+								x1={vx(hoverN)}
+								x2={vx(hoverN)}
+								y1={CPT}
+								y2={CH - CPB}
+								stroke="currentColor"
+								stroke-opacity="0.5"
+							/>
+							<text
+								x={hoverN > 110 ? vx(hoverN) - 4 : vx(hoverN) + 4}
+								y={CPT + 2}
+								font-size="7"
+								text-anchor={hoverN > 110 ? 'end' : 'start'}
+								fill="currentColor"
+								opacity="0.7"
+							>
+								{hoverN}p
+							</text>
+							{#each lines as l (l.label)}
+								{@const hv = valAt(l.pts, hoverN)}
+								{#if hv != null}
+									<circle cx={vx(hoverN)} cy={vy(hv, lo, hi)} r="2.5" fill={l.color} />
+									<text
+										x={hoverN > 110 ? vx(hoverN) - 5 : vx(hoverN) + 5}
+										y={vy(hv, lo, hi) - 3}
+										font-size="7"
+										text-anchor={hoverN > 110 ? 'end' : 'start'}
+										fill={l.color}
+									>
+										{fmt(hv)}
+									</text>
+								{/if}
+							{/each}
+						{/if}
+					</svg>
 				</div>
-				<svg viewBox="0 0 {chartW} {chartH}" class="h-auto w-full" role="img" aria-label="Prijscurve">
-					<!-- Y axis ticks -->
-					{#each yTicks as t}
-						<line
-							x1={padL}
-							x2={chartW - padR}
-							y1={yToPx(t)}
-							y2={yToPx(t)}
-							stroke="currentColor"
-							stroke-opacity="0.1"
-						/>
-						<text x={padL - 6} y={yToPx(t)} text-anchor="end" dominant-baseline="middle" font-size="10" fill="currentColor" opacity="0.6">
-							{Math.round(t)}
-						</text>
-					{/each}
+			{/snippet}
 
-					<!-- X axis ticks -->
-					{#each [50, 250, 500, 750, 1000] as x}
-						<text x={xToPx(x)} y={chartH - 10} text-anchor="middle" font-size="10" fill="currentColor" opacity="0.6">
-							{x}
-						</text>
-					{/each}
-
-					<!-- Curve -->
-					<path d={linePath} fill="none" stroke="var(--brand-magenta)" stroke-width="2" />
-
-					<!-- Current marker -->
-					{#if totalPortions >= xMin && totalPortions <= xMax && Number.isFinite(result.total)}
-						<line
-							x1={xToPx(totalPortions)}
-							x2={xToPx(totalPortions)}
-							y1={padT}
-							y2={chartH - padB}
-							stroke="var(--brand-magenta)"
-							stroke-opacity="0.3"
-							stroke-dasharray="3 3"
-						/>
-						<circle
-							cx={xToPx(totalPortions)}
-							cy={yToPx(result.total)}
-							r="5"
-							fill="var(--brand-magenta)"
-						/>
-					{/if}
-				</svg>
+			<div class="bg-card border p-4">
+				<div class="text-muted-foreground mb-3 text-xs uppercase tracking-wide">
+					Schaling (ter validatie) — porties 50–150
+				</div>
+				<div class="space-y-3">
+					{@render miniChart(
+						`Werkuren (prep · ${locationLabel})`,
+						hoursLines,
+						hoursRange.lo,
+						hoursRange.hi,
+						fmtHours
+					)}
+					{@render miniChart('Prijs per portie', ppLine, ppRange.lo, ppRange.hi, formatEUR)}
+					{@render miniChart('Opbrengst per uur p.p.', phLine, phRange.lo, phRange.hi, formatEUR)}
+				</div>
 				<p class="text-muted-foreground mt-2 text-xs">
-					Verticale as: totaalprijs (€). Horizontale as: porties.
+					Lijnen hangen alleen af van het type en de aannames. De stip toont waar deze offerte ({totalPortions}
+					porties) op de lijn valt.
 				</p>
 			</div>
 

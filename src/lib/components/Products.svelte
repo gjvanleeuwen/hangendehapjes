@@ -68,6 +68,15 @@
 								</li>
 							{/each}
 						</ul>
+						{#if product.article}
+							<a
+								href={product.article.href}
+								class="mt-5 inline-flex items-center gap-1 text-sm font-medium text-(--brand-magenta) hover:underline"
+							>
+								{product.article.label}
+								<ChevronRight class="size-3.5" />
+							</a>
+						{/if}
 					</Card.Content>
 				</Card.Root>
 			{/each}

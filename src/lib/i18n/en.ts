@@ -161,6 +161,22 @@ export const en: Translations = {
 		heading: 'What guests are saying',
 		empty:
 			'Hangende Hapjes has just started, quotes and reviews are coming here soon. Already tasted the bites? Feel free to send us a note.',
+		items: [
+			{
+				name: 'Stip Hilversum',
+				rating: 5,
+				date: '2026-06-11',
+				productId: 'borrel',
+				avatar:
+					'https://lh3.googleusercontent.com/a-/ALV-UjV6dVUTj84XE0qV3PZrYxq7J4LroeRxqpwC99z7kGh-43-jYN4=w144-h144-p-rp-mo-br100',
+				quote: [
+					'For the opening of our new Stip office we brought in "Hangende Hapjes" for the catering, and that was an excellent choice. All afternoon they walked around with delicious Burrata Bowls, which went down a treat with our guests. There was plenty of choice between different toppings and sauces, so everyone could put together their own favourite combination.',
+					'Beyond the excellent quality of the food, "Hangende Hapjes" also stands out for their personal and welcoming approach. They are always up for a chat or an explanation of the dishes and make sure guests feel welcome. The friendly service, professional look and tasteful dishes made our opening complete.',
+					'We look back on a very successful collaboration and can wholeheartedly recommend "Hangende Hapjes" for any event.'
+				]
+			}
+		],
+		reviewNoun: { one: 'review', other: 'reviews' },
 		cta: {
 			text: 'Tasted our bites? Tell us how good they were.',
 			button: 'Write a review',

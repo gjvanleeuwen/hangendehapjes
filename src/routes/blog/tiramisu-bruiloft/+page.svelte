@@ -2,11 +2,14 @@
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import MuxClips from '$lib/components/MuxClips.svelte';
-	import { jsonLdScript } from '$lib/seo';
+	import { jsonLdScript, aggregateRatingJsonLd } from '$lib/seo';
+	import BlogReviewTeaser from '$lib/blog/BlogReviewTeaser.svelte';
 	import {
 		BUILD_DATE,
 		OG_IMAGE_HEIGHT,
 		OG_IMAGE_WIDTH,
+		PRODUCT_MIN_PORTIONS,
+		PRODUCT_PRICES_EUR_FROM,
 		SITE_NAME,
 		SITE_URL
 	} from '$lib/site-config';
@@ -47,6 +50,44 @@
 		mentions: [{ '@id': serviceId }]
 	};
 
+	// Canonical commercial page for the tiramisu service. No tiramisu review exists yet,
+	// so aggregateRatingJsonLd([]) yields no rating markup — the aggregate + compact
+	// teaser below appear automatically once a review tagged productId 'toetjes' is added.
+	const toetjesReviews = nl.reviews.items.filter((review) => review.productId === 'toetjes');
+
+	const productJsonLd = {
+		'@context': 'https://schema.org',
+		'@type': ['Service', 'Product'],
+		'@id': serviceId,
+		name: 'De Toetjes Vrouw — live tiramisu',
+		description,
+		image: ogImage,
+		brand: { '@type': 'Brand', name: SITE_NAME },
+		serviceType: 'Catering',
+		provider: { '@id': SITE_URL + '/#localbusiness' },
+		areaServed: [
+			{ '@type': 'Country', name: 'Netherlands' },
+			{ '@type': 'Country', name: 'Belgium' }
+		],
+		offers: {
+			'@type': 'Offer',
+			priceCurrency: 'EUR',
+			price: PRODUCT_PRICES_EUR_FROM.toetjes,
+			availability: 'https://schema.org/InStock',
+			priceSpecification: {
+				'@type': 'UnitPriceSpecification',
+				price: PRODUCT_PRICES_EUR_FROM.toetjes,
+				priceCurrency: 'EUR',
+				referenceQuantity: {
+					'@type': 'QuantitativeValue',
+					value: PRODUCT_MIN_PORTIONS,
+					unitText: 'portions'
+				}
+			}
+		},
+		...aggregateRatingJsonLd(toetjesReviews)
+	};
+
 	const faqList: BlogFaq[] = [
 		{
 			id: 'tiramisu-toren',
@@ -80,6 +121,7 @@
 
 	const articleJsonLdHtml = jsonLdScript(articleJsonLd);
 	const faqJsonLdHtml = jsonLdScript(faqJsonLd);
+	const productJsonLdHtml = jsonLdScript(productJsonLd);
 </script>
 
 <svelte:head>
@@ -110,6 +152,7 @@
 
 	{@html articleJsonLdHtml}
 	{@html faqJsonLdHtml}
+	{@html productJsonLdHtml}
 </svelte:head>
 
 <div id="top" class="bg-background text-foreground">
@@ -366,6 +409,8 @@
 					>, of stuur ons een mail met je datum en aantal gasten. We denken graag met je mee.
 				</p>
 			</section>
+
+			<BlogReviewTeaser reviews={toetjesReviews} />
 
 			<BlogCta
 				event="tiramisu"

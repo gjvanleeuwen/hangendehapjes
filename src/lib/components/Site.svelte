@@ -24,7 +24,7 @@
 		<About {t} />
 		<Products {t} />
 		<FAQ {t} />
-		<Reviews {t} />
+		<Reviews {t} {locale} />
 		<Photos {t} />
 		<Contact {t} {locale} />
 	</main>

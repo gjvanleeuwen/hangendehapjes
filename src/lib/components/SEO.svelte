@@ -16,7 +16,7 @@
 		SITE_URL,
 		TIKTOK_URL
 	} from '$lib/site-config';
-	import { jsonLdScript } from '$lib/seo';
+	import { jsonLdScript, aggregateRatingJsonLd } from '$lib/seo';
 
 	type Props = { t: Translations; locale: Locale };
 	let { t, locale }: Props = $props();
@@ -29,6 +29,12 @@
 	const ogLocaleAlt = $derived(locale === 'nl' ? 'en_US' : 'nl_NL');
 
 	const businessId = SITE_URL + '/#localbusiness';
+
+	// The homepage carries the overall, business-wide rating (Google Business Profile
+	// style: one score + count across all reviews). The individual product reviews
+	// live on each product's canonical blog page (e.g. /blog/burrata-catering), so
+	// the Service nodes here stay plain and the review entities aren't duplicated.
+	const businessAggregate = $derived(aggregateRatingJsonLd(t.reviews.items ?? []));
 
 	const jsonLd = $derived({
 		'@context': 'https://schema.org',
@@ -61,7 +67,8 @@
 				founder: [{ '@id': SITE_URL + '/#charlotte' }, { '@id': SITE_URL + '/#gijs' }],
 				sameAs: [INSTAGRAM_URL, FACEBOOK_URL, TIKTOK_URL],
 				priceRange: '€€',
-				inLanguage: locale === 'nl' ? 'nl-NL' : 'en-US'
+				inLanguage: locale === 'nl' ? 'nl-NL' : 'en-US',
+				...businessAggregate
 			},
 			{
 				'@type': 'Person',
