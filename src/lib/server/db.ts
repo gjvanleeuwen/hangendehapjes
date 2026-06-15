@@ -1,5 +1,6 @@
 import postgres from 'postgres';
 import { env } from '$env/dynamic/private';
+import { DEAL_STATUSES } from '$lib/deals';
 
 /**
  * Single Postgres connection pool for the whole server (adapter-node is a
@@ -52,44 +53,64 @@ export async function ensureSchema(): Promise<Sql | null> {
 	if (!sql) return null;
 
 	if (!schemaPromise) {
-		schemaPromise = sql`
-			CREATE TABLE IF NOT EXISTS deals (
-				id                   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-				created_at           timestamptz NOT NULL DEFAULT now(),
-				updated_at           timestamptz NOT NULL DEFAULT now(),
+		const statusList = DEAL_STATUSES.map((s) => `'${s}'`).join(', ');
 
-				-- contact
-				name                 text NOT NULL DEFAULT '',
-				email                text NOT NULL DEFAULT '',
-				phone                text NOT NULL DEFAULT '',
-				source               text NOT NULL DEFAULT '',
+		schemaPromise = (async () => {
+			await sql`
+				CREATE TABLE IF NOT EXISTS deals (
+					id                   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+					created_at           timestamptz NOT NULL DEFAULT now(),
+					updated_at           timestamptz NOT NULL DEFAULT now(),
 
-				-- event details
-				event_date           date,
-				event_date_text      text NOT NULL DEFAULT '',
-				location             text NOT NULL DEFAULT '',
-				guests               text NOT NULL DEFAULT '',
-				service_type         text NOT NULL DEFAULT '',
-				choice               text NOT NULL DEFAULT '',
-				dagdeel              text NOT NULL DEFAULT '',
-				serving_time         text NOT NULL DEFAULT '',
+					-- contact
+					name                 text NOT NULL DEFAULT '',
+					email                text NOT NULL DEFAULT '',
+					phone                text NOT NULL DEFAULT '',
+					source               text NOT NULL DEFAULT '',
+					attribution          text NOT NULL DEFAULT '',
 
-				-- pipeline
-				status               text NOT NULL DEFAULT 'nieuw'
-					CHECK (status IN ('nieuw','offerte_verstuurd','geaccepteerd','afgewezen','afgerond')),
-				offerte_amount       numeric(10,2),
-				offerte_verstuurd_op date,
-				geldig_tot           date,
-				geaccepteerd_op      date,
+					-- event details
+					event_date           date,
+					event_date_text      text NOT NULL DEFAULT '',
+					location             text NOT NULL DEFAULT '',
+					guests               text NOT NULL DEFAULT '',
+					service_type         text NOT NULL DEFAULT '',
+					choice               text NOT NULL DEFAULT '',
+					dagdeel              text NOT NULL DEFAULT '',
+					serving_time         text NOT NULL DEFAULT '',
 
-				-- meta
-				message              text NOT NULL DEFAULT '',
-				notes                text NOT NULL DEFAULT '',
-				origin               text NOT NULL DEFAULT 'manual'
+					-- pipeline
+					status               text NOT NULL DEFAULT 'nieuw',
+					offerte_amount       numeric(10,2),
+					btw_amount           numeric(10,2),
+					costs                numeric(10,2),
+					offerte_verstuurd_op date,
+					geldig_tot           date,
+					geaccepteerd_op      date,
+
+					-- effort: JSON object of phase key -> hours, e.g. {"inkoop": 2}
+					time_spent           text NOT NULL DEFAULT '{}',
+
+					-- meta
+					message              text NOT NULL DEFAULT '',
+					notes                text NOT NULL DEFAULT '',
+					origin               text NOT NULL DEFAULT 'manual'
+				);
+			`;
+
+			// Migrations for tables created by an earlier version of the schema.
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS attribution text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS btw_amount numeric(10,2)`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS costs numeric(10,2)`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS time_spent text NOT NULL DEFAULT '{}'`;
+
+			// Keep the status whitelist in sync with DEAL_STATUSES (e.g. adds
+			// 'in_optie'). Drop + re-add so new statuses are always accepted.
+			await sql.unsafe('ALTER TABLE deals DROP CONSTRAINT IF EXISTS deals_status_check');
+			await sql.unsafe(
+				`ALTER TABLE deals ADD CONSTRAINT deals_status_check CHECK (status IN (${statusList}))`
 			);
-		`.then(() => {
-			// no-op; table is ready
-		});
+		})();
 
 		// If the migration itself fails, reset so a later request can retry.
 		schemaPromise.catch(() => {

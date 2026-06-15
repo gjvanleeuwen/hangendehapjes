@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS deals (
 	email                text NOT NULL DEFAULT '',
 	phone                text NOT NULL DEFAULT '',
 	source               text NOT NULL DEFAULT '',
+	attribution          text NOT NULL DEFAULT '',
 	event_date           date,
 	event_date_text      text NOT NULL DEFAULT '',
 	location             text NOT NULL DEFAULT '',
@@ -28,11 +29,14 @@ CREATE TABLE IF NOT EXISTS deals (
 	dagdeel              text NOT NULL DEFAULT '',
 	serving_time         text NOT NULL DEFAULT '',
 	status               text NOT NULL DEFAULT 'nieuw'
-		CHECK (status IN ('nieuw','offerte_verstuurd','geaccepteerd','afgewezen','afgerond')),
+		CHECK (status IN ('nieuw','offerte_verstuurd','in_optie','geaccepteerd','afgewezen','afgerond')),
 	offerte_amount       numeric(10,2),
+	btw_amount           numeric(10,2),
+	costs                numeric(10,2),
 	offerte_verstuurd_op date,
 	geldig_tot           date,
 	geaccepteerd_op      date,
+	time_spent           text NOT NULL DEFAULT '{}',
 	message              text NOT NULL DEFAULT '',
 	notes                text NOT NULL DEFAULT '',
 	origin               text NOT NULL DEFAULT 'manual'

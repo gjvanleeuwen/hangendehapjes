@@ -6,7 +6,14 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { Calendar, Day as CalendarDay } from '$lib/components/ui/calendar';
 	import { formatDateNL, formatEUR } from '$lib/admin/calc';
-	import { DEAL_STATUSES, STATUS_LABELS, isWon, type Deal } from '$lib/deals';
+	import {
+		DEAL_STATUSES,
+		STATUS_LABELS,
+		TIME_PHASES,
+		isWon,
+		isCalendarEvent,
+		type Deal
+	} from '$lib/deals';
 	import { getLocalTimeZone, today, type DateValue } from '@internationalized/date';
 	import { SvelteMap } from 'svelte/reactivity';
 
@@ -14,6 +21,37 @@
 
 	let showAdd = $state(false);
 	let editingId = $state<string | null>(null);
+
+	// Live financial + time state for the open editor (one row at a time).
+	let edit = $state({
+		offerteAmount: 0,
+		btwAmount: 0,
+		costs: 0,
+		time: {} as Record<string, number>
+	});
+
+	const openEdit = (d: Deal) => {
+		editingId = d.id;
+		edit = {
+			offerteAmount: d.offerteAmount ?? 0,
+			btwAmount: d.btwAmount ?? 0,
+			costs: d.costs ?? 0,
+			time: Object.fromEntries(TIME_PHASES.map((p) => [p.key, d.timeSpent[p.key] ?? 0]))
+		};
+	};
+
+	const editExcl = $derived((edit.offerteAmount || 0) - (edit.btwAmount || 0));
+	const editTakeHome = $derived(editExcl - (edit.costs || 0));
+	const editHours = $derived(
+		Object.values(edit.time).reduce((sum, h) => sum + (Number(h) || 0), 0)
+	);
+	const editHourly = $derived(editHours > 0 ? editTakeHome / editHours : null);
+
+	// Convenience: fill BTW from a rate applied to the (incl. BTW) total.
+	const applyRate = (rate: number) => {
+		const incl = edit.offerteAmount || 0;
+		edit.btwAmount = rate > 0 ? Math.round((incl - incl / (1 + rate / 100)) * 100) / 100 : 0;
+	};
 
 	const selectClass =
 		'border-input bg-background h-9 w-full rounded-md border px-2 text-sm shadow-sm';
@@ -34,8 +72,8 @@
 	const keyOf = (d: { year: number; month: number; day: number }) =>
 		`${d.year}-${pad(d.month)}-${pad(d.day)}`;
 
-	// Booked deals that have a real date.
-	const eventDeals = $derived(data.deals.filter((d) => isWon(d) && d.eventDate));
+	// Booked or in-optie deals that have a real date.
+	const eventDeals = $derived(data.deals.filter((d) => isCalendarEvent(d) && d.eventDate));
 
 	const eventsByDate = $derived.by(() => {
 		const m = new SvelteMap<string, Deal[]>();
@@ -173,12 +211,24 @@
 					<Input id="add-choice" name="choice" maxlength={120} />
 				</div>
 				<div class="space-y-1">
-					<Label for="add-source">Hoe gevonden (bron)</Label>
+					<Label for="add-source">Hoe gevonden (bron, wat ze zeiden)</Label>
 					<Input id="add-source" name="source" maxlength={200} placeholder="Instagram, Google, mond-tot-mond…" />
+				</div>
+				<div class="space-y-1">
+					<Label for="add-attribution">Attributie (echte bron, als je 't weet)</Label>
+					<Input id="add-attribution" name="attribution" maxlength={200} placeholder="overschrijft bron in de cijfers" />
 				</div>
 				<div class="space-y-1">
 					<Label for="add-offerteAmount">Offertebedrag (€)</Label>
 					<Input id="add-offerteAmount" name="offerteAmount" inputmode="decimal" placeholder="0,00" />
+				</div>
+				<div class="space-y-1">
+					<Label for="add-btwAmount">Btw-bedrag (€)</Label>
+					<Input id="add-btwAmount" name="btwAmount" inputmode="decimal" placeholder="0,00" />
+				</div>
+				<div class="space-y-1">
+					<Label for="add-costs">Kosten (excl. btw, €)</Label>
+					<Input id="add-costs" name="costs" inputmode="decimal" placeholder="0,00" />
 				</div>
 				<div class="space-y-1">
 					<Label for="add-offerteVerstuurdOp">Offerte verstuurd op</Label>
@@ -267,10 +317,16 @@
 						weekdayFormat="short"
 					>
 						{#snippet day({ day: date, outsideMonth })}
+							{@const evs = eventsByDate.get(keyOf(date))}
 							<CalendarDay>
 								{date.day}
-								{#if !outsideMonth && eventDays.has(keyOf(date))}
-									<span class="bg-primary block size-1 rounded-full" aria-hidden="true"></span>
+								{#if !outsideMonth && evs}
+									<span
+										class="{evs.some(isWon)
+											? 'bg-primary'
+											: 'bg-amber-500'} block size-1 rounded-full"
+										aria-hidden="true"
+									></span>
 								{/if}
 							</CalendarDay>
 						{/snippet}
@@ -297,12 +353,20 @@
 									</div>
 									{#each evs as d (d.id)}
 										<div class="px-3 py-2 text-sm">
-											<div class="font-medium">{d.name}</div>
+											<div class="flex items-center gap-2">
+												<span class="font-medium">{d.name}</span>
+												{#if d.status === 'in_optie'}
+													<span class="bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800">
+														optie{#if d.geldigTot} t/m {formatDateNL(d.geldigTot)}{/if}
+													</span>
+												{/if}
+											</div>
 											<div class="text-muted-foreground text-xs">
 												{#if d.serviceType}{serviceLabel(d)}{/if}
 												{#if d.guests}· {d.guests} gasten{/if}
 												{#if d.location}· {d.location}{/if}
 											</div>
+											{#if d.notes}<div class="text-muted-foreground mt-0.5 text-xs italic">{d.notes}</div>{/if}
 										</div>
 									{/each}
 								</div>
@@ -395,7 +459,7 @@
 							<button
 								type="button"
 								class="underline"
-								onclick={() => (editingId = editingId === d.id ? null : d.id)}
+								onclick={() => (editingId === d.id ? (editingId = null) : openEdit(d))}
 							>
 								{editingId === d.id ? 'Sluiten' : 'Bewerk'}
 							</button>
@@ -471,16 +535,64 @@
 											<Input id="e-choice-{d.id}" name="choice" value={d.choice} maxlength={120} />
 										</div>
 										<div class="space-y-1">
-											<Label for="e-source-{d.id}">Bron</Label>
+											<Label for="e-source-{d.id}">Bron (wat ze zeiden)</Label>
 											<Input id="e-source-{d.id}" name="source" value={d.source} maxlength={200} />
 										</div>
 										<div class="space-y-1">
-											<Label for="e-offerteAmount-{d.id}">Offertebedrag (€)</Label>
+											<Label for="e-attribution-{d.id}">Attributie (echte bron)</Label>
+											<Input
+												id="e-attribution-{d.id}"
+												name="attribution"
+												value={d.attribution}
+												maxlength={200}
+											/>
+										</div>
+										<div class="space-y-1">
+											<Label for="e-offerteAmount-{d.id}">Offertebedrag (incl. btw, €)</Label>
 											<Input
 												id="e-offerteAmount-{d.id}"
 												name="offerteAmount"
-												inputmode="decimal"
-												value={d.offerteAmount ?? ''}
+												type="number"
+												step="0.01"
+												min="0"
+												bind:value={edit.offerteAmount}
+											/>
+										</div>
+										<div class="space-y-1">
+											<Label for="e-btwAmount-{d.id}">Btw-bedrag (€)</Label>
+											<div class="flex gap-1">
+												<Input
+													id="e-btwAmount-{d.id}"
+													name="btwAmount"
+													type="number"
+													step="0.01"
+													min="0"
+													class="flex-1"
+													bind:value={edit.btwAmount}
+												/>
+												<select
+													class="border-input bg-background h-9 shrink-0 rounded-md border px-1 text-sm"
+													onchange={(e) => {
+														applyRate(Number(e.currentTarget.value));
+														e.currentTarget.selectedIndex = 0;
+													}}
+												>
+													<option value="">btw%</option>
+													<option value="9">9%</option>
+													<option value="21">21%</option>
+													<option value="0">0%</option>
+												</select>
+											</div>
+										</div>
+										<div class="space-y-1">
+											<Label for="e-costs-{d.id}">Kosten (excl. btw, €)</Label>
+											<Input
+												id="e-costs-{d.id}"
+												name="costs"
+												type="number"
+												step="0.01"
+												min="0"
+												bind:value={edit.costs}
 											/>
 										</div>
 										<div class="space-y-1">
@@ -505,6 +617,30 @@
 												value={d.geaccepteerdOp ?? ''}
 											/>
 										</div>
+									</div>
+									<div class="space-y-1">
+										<span class="text-sm font-medium">Tijd per fase (uren)</span>
+										<div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+											{#each TIME_PHASES as p (p.key)}
+												<div class="space-y-1">
+													<Label for="e-time-{p.key}-{d.id}" class="text-xs">{p.label}</Label>
+													<Input
+														id="e-time-{p.key}-{d.id}"
+														name="time_{p.key}"
+														type="number"
+														step="0.25"
+														min="0"
+														bind:value={edit.time[p.key]}
+													/>
+												</div>
+											{/each}
+										</div>
+									</div>
+									<div class="bg-muted/40 flex flex-wrap gap-x-4 gap-y-1 p-2 text-sm">
+										<span>Excl. btw: <strong>{formatEUR(editExcl)}</strong></span>
+										<span>Take-home: <strong>{formatEUR(editTakeHome)}</strong></span>
+										<span>Uren: <strong>{editHours}</strong></span>
+										<span>Per uur: <strong>{editHourly == null ? '—' : formatEUR(editHourly)}</strong></span>
 									</div>
 									<div class="space-y-1">
 										<Label for="e-notes-{d.id}">Interne notitie</Label>

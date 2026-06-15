@@ -5,6 +5,7 @@
 export const DEAL_STATUSES = [
 	'nieuw',
 	'offerte_verstuurd',
+	'in_optie',
 	'geaccepteerd',
 	'afgewezen',
 	'afgerond'
@@ -15,6 +16,7 @@ export type DealStatus = (typeof DEAL_STATUSES)[number];
 export const STATUS_LABELS: Record<DealStatus, string> = {
 	nieuw: 'Nieuw',
 	offerte_verstuurd: 'Offerte verstuurd',
+	in_optie: 'In optie',
 	geaccepteerd: 'Geaccepteerd',
 	afgewezen: 'Afgewezen',
 	afgerond: 'Afgerond'
@@ -27,7 +29,8 @@ export type Deal = {
 	name: string;
 	email: string;
 	phone: string;
-	source: string;
+	source: string; // what the lead said in the form ("Hoe ons gevonden")
+	attribution: string; // our corrected/known bucket for funnel analysis
 	eventDate: string | null; // YYYY-MM-DD
 	eventDateText: string; // original free-text date (e.g. "ergens in september")
 	location: string;
@@ -37,7 +40,10 @@ export type Deal = {
 	dagdeel: string;
 	servingTime: string;
 	status: DealStatus;
-	offerteAmount: number | null;
+	offerteAmount: number | null; // total the client pays, incl. BTW
+	btwAmount: number | null; // BTW (VAT) portion of the offerte
+	costs: number | null; // our costs excl. BTW (ingredients, travel, rentals…)
+	timeSpent: Record<string, number>; // hours per process phase (see TIME_PHASES)
 	offerteVerstuurdOp: string | null; // YYYY-MM-DD
 	geldigTot: string | null; // YYYY-MM-DD
 	geaccepteerdOp: string | null; // YYYY-MM-DD
@@ -51,6 +57,7 @@ export type DealInput = {
 	email?: string;
 	phone?: string;
 	source?: string;
+	attribution?: string;
 	eventDate?: string | null;
 	eventDateText?: string;
 	location?: string;
@@ -61,6 +68,9 @@ export type DealInput = {
 	servingTime?: string;
 	status?: DealStatus;
 	offerteAmount?: number | null;
+	btwAmount?: number | null;
+	costs?: number | null;
+	timeSpent?: Record<string, number>;
 	offerteVerstuurdOp?: string | null;
 	geldigTot?: string | null;
 	geaccepteerdOp?: string | null;
@@ -73,11 +83,47 @@ export type DealInput = {
 export const isOfferteSent = (d: Pick<Deal, 'status' | 'offerteVerstuurdOp'>) =>
 	!!d.offerteVerstuurdOp ||
 	d.status === 'offerte_verstuurd' ||
+	d.status === 'in_optie' ||
 	d.status === 'geaccepteerd' ||
 	d.status === 'afgerond';
 
 export const isWon = (d: Pick<Deal, 'status'>) =>
 	d.status === 'geaccepteerd' || d.status === 'afgerond';
+
+// Offerte out, awaiting a final yes/no — counts toward "pending sales".
+export const isPending = (d: Pick<Deal, 'status'>) =>
+	d.status === 'offerte_verstuurd' || d.status === 'in_optie';
+
+// Shown on the agenda calendar / ICS feed (a provisional hold or a real booking).
+export const isCalendarEvent = (d: Pick<Deal, 'status'>) =>
+	d.status === 'in_optie' || d.status === 'geaccepteerd' || d.status === 'afgerond';
+
+// Prefer our corrected attribution bucket; fall back to what the lead said.
+export const effectiveSource = (d: Pick<Deal, 'source' | 'attribution'>) =>
+	d.attribution.trim() || d.source.trim() || 'Onbekend';
+
+// The phases of one job, in order. Hours are logged per phase per deal so we
+// can see where time actually goes and price future offertes accordingly.
+export const TIME_PHASES = [
+	{ key: 'offerte', label: 'Offerte & contact' },
+	{ key: 'inkoop', label: 'Inkoop' },
+	{ key: 'voorbereiding', label: 'Voorbereiding' },
+	{ key: 'reizen', label: 'Reizen' },
+	{ key: 'event', label: 'Op locatie' },
+	{ key: 'afhandeling', label: 'Afhandeling' }
+] as const;
+
+export const totalHours = (d: Pick<Deal, 'timeSpent'>) =>
+	Object.values(d.timeSpent).reduce((sum, h) => sum + (Number(h) || 0), 0);
+
+// Revenue excl. BTW (what we actually keep before costs).
+export const revenueExcl = (d: Pick<Deal, 'offerteAmount' | 'btwAmount'>) =>
+	(d.offerteAmount ?? 0) - (d.btwAmount ?? 0);
+
+// Take-home = revenue excl. BTW − our costs. The BTW is passed on to the tax
+// office, so it's not ours; this is a management view, not a tax calculation.
+export const dealTakeHome = (d: Pick<Deal, 'offerteAmount' | 'btwAmount' | 'costs'>) =>
+	revenueExcl(d) - (d.costs ?? 0);
 
 export type MonthMetric = {
 	month: string; // YYYY-MM
@@ -92,6 +138,14 @@ export type SourceMetric = {
 	won: number;
 };
 
+export type PhaseMetric = {
+	phase: string;
+	label: string;
+	hours: number; // total logged across won deals
+	deals: number; // how many won deals logged this phase
+	avg: number; // hours / deals (0 if none)
+};
+
 export type Metrics = {
 	total: number;
 	offertes: number;
@@ -99,9 +153,16 @@ export type Metrics = {
 	lost: number;
 	open: number;
 	conversionPct: number; // won / offertes
-	wonValue: number; // sum of offerteAmount for won deals
+	wonValue: number; // sum of offerteAmount for won deals (incl. BTW)
+	pendingValue: number; // sum of offerteAmount for offertes still out (incl. in optie)
+	vat: number; // BTW on won sales
+	costs: number; // costs on won deals
+	takeHome: number; // revenue excl. BTW − costs, over won deals
+	hours: number; // hours logged across won deals
+	hourly: number | null; // takeHome / hours
 	byMonth: MonthMetric[];
 	bySource: SourceMetric[];
+	byPhase: PhaseMetric[];
 };
 
 /**
@@ -113,10 +174,11 @@ export function computeMetrics(deals: Deal[], monthsBack = 6): Metrics {
 	const offertes = deals.filter(isOfferteSent).length;
 	const won = deals.filter(isWon).length;
 	const lost = deals.filter((d) => d.status === 'afgewezen').length;
-	const open = deals.filter((d) => d.status === 'nieuw' || d.status === 'offerte_verstuurd').length;
-	const wonValue = deals
-		.filter(isWon)
-		.reduce((sum, d) => sum + (d.offerteAmount ?? 0), 0);
+	const open = deals.filter(
+		(d) => d.status === 'nieuw' || d.status === 'offerte_verstuurd' || d.status === 'in_optie'
+	).length;
+	const wonValue = deals.filter(isWon).reduce((sum, d) => sum + (d.offerteAmount ?? 0), 0);
+	const pendingValue = deals.filter(isPending).reduce((sum, d) => sum + (d.offerteAmount ?? 0), 0);
 
 	const months = new Map<string, MonthMetric>();
 	for (const d of deals) {
@@ -134,13 +196,33 @@ export function computeMetrics(deals: Deal[], monthsBack = 6): Metrics {
 
 	const sources = new Map<string, SourceMetric>();
 	for (const d of deals) {
-		const source = d.source.trim() || 'Onbekend';
+		const source = effectiveSource(d);
 		const s = sources.get(source) ?? { source, leads: 0, won: 0 };
 		s.leads += 1;
 		if (isWon(d)) s.won += 1;
 		sources.set(source, s);
 	}
 	const bySource = [...sources.values()].sort((a, b) => b.leads - a.leads);
+
+	// Financial + time analysis is based on won deals (actually executed work).
+	const wonDeals = deals.filter(isWon);
+	const vat = wonDeals.reduce((sum, d) => sum + (d.btwAmount ?? 0), 0);
+	const costs = wonDeals.reduce((sum, d) => sum + (d.costs ?? 0), 0);
+	const takeHome = wonDeals.reduce((sum, d) => sum + dealTakeHome(d), 0);
+	const hours = wonDeals.reduce((sum, d) => sum + totalHours(d), 0);
+
+	const byPhase: PhaseMetric[] = TIME_PHASES.map((p) => {
+		let h = 0;
+		let count = 0;
+		for (const d of wonDeals) {
+			const v = Number(d.timeSpent[p.key]) || 0;
+			if (v > 0) {
+				h += v;
+				count += 1;
+			}
+		}
+		return { phase: p.key, label: p.label, hours: h, deals: count, avg: count ? h / count : 0 };
+	});
 
 	return {
 		total: deals.length,
@@ -150,8 +232,15 @@ export function computeMetrics(deals: Deal[], monthsBack = 6): Metrics {
 		open,
 		conversionPct: offertes ? Math.round((won / offertes) * 100) : 0,
 		wonValue,
+		pendingValue,
+		vat,
+		costs,
+		takeHome,
+		hours,
+		hourly: hours > 0 ? takeHome / hours : null,
 		byMonth,
-		bySource
+		bySource,
+		byPhase
 	};
 }
 

@@ -39,7 +39,7 @@
 			</div>
 			<p class="text-muted-foreground text-sm">
 				{m.open} open · {m.lost} {STATUS_LABELS.afgewezen.toLowerCase()} · {formatEUR(m.wonValue)} geboekte
-				waarde
+				waarde · {formatEUR(m.pendingValue)} openstaand (offerte/optie)
 			</p>
 
 			<div class="grid gap-4 md:grid-cols-2">
@@ -93,6 +93,49 @@
 					</div>
 				{/if}
 			</div>
+			<div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+				<div class="bg-card border p-4">
+					<div class="text-lg font-semibold">{formatEUR(m.takeHome)}</div>
+					<div class="text-muted-foreground text-xs">Take-home (geboekt)</div>
+				</div>
+				<div class="bg-card border p-4">
+					<div class="text-lg font-semibold">{m.hourly == null ? '—' : formatEUR(m.hourly)}</div>
+					<div class="text-muted-foreground text-xs">Per uur (take-home)</div>
+				</div>
+				<div class="bg-card border p-4">
+					<div class="text-lg font-semibold">{formatEUR(m.vat)}</div>
+					<div class="text-muted-foreground text-xs">Btw op verkoop</div>
+				</div>
+				<div class="bg-card border p-4">
+					<div class="text-lg font-semibold">{formatEUR(m.costs)}</div>
+					<div class="text-muted-foreground text-xs">Kosten</div>
+				</div>
+			</div>
+			{#if m.hours > 0}
+				<div class="border">
+					<div class="bg-muted p-2 text-sm font-medium">Tijd per fase (geboekte klussen) · {m.hours} uur totaal</div>
+					<table class="w-full text-sm">
+						<thead class="text-muted-foreground text-left text-xs">
+							<tr>
+								<th class="p-2 font-medium">Fase</th>
+								<th class="p-2 font-medium">Totaal uren</th>
+								<th class="p-2 font-medium">Klussen</th>
+								<th class="p-2 font-medium">Gem. per klus</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each m.byPhase as row (row.phase)}
+								<tr class="border-t">
+									<td class="p-2">{row.label}</td>
+									<td class="p-2">{row.hours}</td>
+									<td class="p-2">{row.deals}</td>
+									<td class="p-2">{row.avg ? row.avg.toFixed(1) : '—'}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{/if}
 			<p class="text-muted-foreground text-xs">
 				Later te vergelijken met Search Console & Instagram om te zien waar leads vandaan komen.
 			</p>

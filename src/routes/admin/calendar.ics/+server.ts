@@ -51,8 +51,9 @@ const serviceLabel = (d: Deal) =>
 
 function buildEvent(d: Deal, stamp: string): string[] {
 	const date = d.eventDate as string; // guaranteed by the query
+	const tentative = d.status === 'in_optie';
 	const titleBits = [d.name, serviceLabel(d)].filter(Boolean).join(' — ');
-	const summary = `🍽 ${titleBits}${d.guests ? ` (${d.guests}p)` : ''}`;
+	const summary = `${tentative ? '🕒 (optie) ' : '🍽 '}${titleBits}${d.guests ? ` (${d.guests}p)` : ''}`;
 
 	const descLines = [
 		d.choice ? `Keuze: ${d.choice}` : null,
@@ -71,6 +72,7 @@ function buildEvent(d: Deal, stamp: string): string[] {
 		`LAST-MODIFIED:${icsStamp(d.updatedAt)}`,
 		`DTSTART;VALUE=DATE:${icsDate(date)}`,
 		`DTEND;VALUE=DATE:${nextDay(date)}`,
+		`STATUS:${tentative ? 'TENTATIVE' : 'CONFIRMED'}`,
 		fold(`SUMMARY:${esc(summary)}`),
 		d.location ? fold(`LOCATION:${esc(d.location)}`) : null,
 		descLines.length ? fold(`DESCRIPTION:${esc(descLines.join('\n'))}`) : null,

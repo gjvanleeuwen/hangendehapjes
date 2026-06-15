@@ -25,6 +25,22 @@ const asIso = (v: unknown): string => {
 
 const asNum = (v: unknown): number | null => (v == null ? null : Number(v));
 
+const parseTimeSpent = (v: unknown): Record<string, number> => {
+	if (typeof v !== 'string' || !v) return {};
+	try {
+		const parsed = JSON.parse(v);
+		if (!parsed || typeof parsed !== 'object') return {};
+		const out: Record<string, number> = {};
+		for (const [k, val] of Object.entries(parsed)) {
+			const n = Number(val);
+			if (Number.isFinite(n) && n > 0) out[k] = n;
+		}
+		return out;
+	} catch {
+		return {};
+	}
+};
+
 function rowToDeal(r: Record<string, unknown>): Deal {
 	return {
 		id: String(r.id),
@@ -34,6 +50,7 @@ function rowToDeal(r: Record<string, unknown>): Deal {
 		email: (r.email as string) ?? '',
 		phone: (r.phone as string) ?? '',
 		source: (r.source as string) ?? '',
+		attribution: (r.attribution as string) ?? '',
 		eventDate: asDateStr(r.event_date),
 		eventDateText: (r.event_date_text as string) ?? '',
 		location: (r.location as string) ?? '',
@@ -44,6 +61,9 @@ function rowToDeal(r: Record<string, unknown>): Deal {
 		servingTime: (r.serving_time as string) ?? '',
 		status: (r.status as DealStatus) ?? 'nieuw',
 		offerteAmount: asNum(r.offerte_amount),
+		btwAmount: asNum(r.btw_amount),
+		costs: asNum(r.costs),
+		timeSpent: parseTimeSpent(r.time_spent),
 		offerteVerstuurdOp: asDateStr(r.offerte_verstuurd_op),
 		geldigTot: asDateStr(r.geldig_tot),
 		geaccepteerdOp: asDateStr(r.geaccepteerd_op),
@@ -62,6 +82,7 @@ export async function createDeal(input: DealInput): Promise<Deal | null> {
 		email: input.email ?? '',
 		phone: input.phone ?? '',
 		source: input.source ?? '',
+		attribution: input.attribution ?? '',
 		event_date: input.eventDate ?? null,
 		event_date_text: input.eventDateText ?? '',
 		location: input.location ?? '',
@@ -72,6 +93,9 @@ export async function createDeal(input: DealInput): Promise<Deal | null> {
 		serving_time: input.servingTime ?? '',
 		status: input.status ?? 'nieuw',
 		offerte_amount: input.offerteAmount ?? null,
+		btw_amount: input.btwAmount ?? null,
+		costs: input.costs ?? null,
+		time_spent: JSON.stringify(input.timeSpent ?? {}),
 		offerte_verstuurd_op: input.offerteVerstuurdOp ?? null,
 		geldig_tot: input.geldigTot ?? null,
 		geaccepteerd_op: input.geaccepteerdOp ?? null,
@@ -103,7 +127,7 @@ export async function listEventDeals(): Promise<Deal[]> {
 	if (!sql) return [];
 	const rows = await sql`
 		SELECT * FROM deals
-		WHERE event_date IS NOT NULL AND status IN ('geaccepteerd', 'afgerond')
+		WHERE event_date IS NOT NULL AND status IN ('in_optie', 'geaccepteerd', 'afgerond')
 		ORDER BY event_date
 	`;
 	return rows.map(rowToDeal);
@@ -128,6 +152,7 @@ export async function updateDeal(
 		email: 'email',
 		phone: 'phone',
 		source: 'source',
+		attribution: 'attribution',
 		eventDate: 'event_date',
 		eventDateText: 'event_date_text',
 		location: 'location',
@@ -138,6 +163,9 @@ export async function updateDeal(
 		servingTime: 'serving_time',
 		status: 'status',
 		offerteAmount: 'offerte_amount',
+		btwAmount: 'btw_amount',
+		costs: 'costs',
+		timeSpent: 'time_spent',
 		offerteVerstuurdOp: 'offerte_verstuurd_op',
 		geldigTot: 'geldig_tot',
 		geaccepteerdOp: 'geaccepteerd_op',
@@ -151,7 +179,9 @@ export async function updateDeal(
 	for (const [key, value] of Object.entries(fields)) {
 		if (value === undefined) continue;
 		const col = map[key as keyof DealInput];
-		if (col) row[col] = value;
+		if (!col) continue;
+		// time_spent is a JSON-encoded text column.
+		row[col] = key === 'timeSpent' ? JSON.stringify(value) : value;
 	}
 
 	if (Object.keys(row).length === 0) return getDeal(id);

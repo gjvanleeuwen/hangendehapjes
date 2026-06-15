@@ -12,6 +12,7 @@ import {
 	type DealInput,
 	type DealStatus
 } from '$lib/server/deals';
+import { TIME_PHASES } from '$lib/deals';
 import type { Actions, PageServerLoad } from './$types';
 
 const EXPIRY_WINDOW_DAYS = 7;
@@ -36,7 +37,12 @@ export const load: PageServerLoad = async ({ url }) => {
 		: null;
 
 	const expiringSoon = deals
-		.filter((d) => d.status === 'offerte_verstuurd' && d.geldigTot && d.geldigTot <= soon)
+		.filter(
+			(d) =>
+				(d.status === 'offerte_verstuurd' || d.status === 'in_optie') &&
+				d.geldigTot &&
+				d.geldigTot <= soon
+		)
 		.sort((a, b) => (a.geldigTot ?? '').localeCompare(b.geldigTot ?? ''));
 
 	return { deals, expiringSoon, today, dbConfigured, calendarUrl };
@@ -61,6 +67,21 @@ const statusOf = (fd: FormData): DealStatus => {
 	return (DEAL_STATUSES as readonly string[]).includes(s) ? (s as DealStatus) : 'nieuw';
 };
 
+const hoursOrZero = (raw: string): number => {
+	const n = Number(raw.replace(',', '.').trim());
+	return Number.isFinite(n) && n > 0 ? n : 0;
+};
+
+// Read time_<phase> inputs from the full editor into a { phase: hours } object.
+const parseTimeSpent = (fd: FormData): Record<string, number> => {
+	const out: Record<string, number> = {};
+	for (const p of TIME_PHASES) {
+		const h = hoursOrZero(String(fd.get(`time_${p.key}`) ?? ''));
+		if (h > 0) out[p.key] = h;
+	}
+	return out;
+};
+
 export const actions: Actions = {
 	// Manual add + backfill of past aanvragen.
 	create: async ({ request }) => {
@@ -75,6 +96,7 @@ export const actions: Actions = {
 			email: str(fd, 'email', 254),
 			phone: str(fd, 'phone', 30),
 			source: str(fd, 'source', 200),
+			attribution: str(fd, 'attribution', 200),
 			eventDate: toDateOrNull(str(fd, 'eventDate', 25)),
 			eventDateText: str(fd, 'eventDate', 25),
 			location: str(fd, 'location', 200),
@@ -83,6 +105,8 @@ export const actions: Actions = {
 			choice: str(fd, 'choice', 120),
 			status: statusOf(fd),
 			offerteAmount: amountOrNull(fd, 'offerteAmount'),
+			btwAmount: amountOrNull(fd, 'btwAmount'),
+			costs: amountOrNull(fd, 'costs'),
 			offerteVerstuurdOp: toDateOrNull(str(fd, 'offerteVerstuurdOp', 25)),
 			geldigTot: toDateOrNull(str(fd, 'geldigTot', 25)),
 			geaccepteerdOp: toDateOrNull(str(fd, 'geaccepteerdOp', 25)),
@@ -122,6 +146,7 @@ export const actions: Actions = {
 		if (fd.has('email')) fields.email = str(fd, 'email', 254);
 		if (fd.has('phone')) fields.phone = str(fd, 'phone', 30);
 		if (fd.has('source')) fields.source = str(fd, 'source', 200);
+		if (fd.has('attribution')) fields.attribution = str(fd, 'attribution', 200);
 		if (fd.has('eventDate')) {
 			fields.eventDate = toDateOrNull(str(fd, 'eventDate', 25));
 			fields.eventDateText = str(fd, 'eventDate', 25);
@@ -131,6 +156,11 @@ export const actions: Actions = {
 		if (fd.has('serviceType')) fields.serviceType = str(fd, 'serviceType', 20);
 		if (fd.has('choice')) fields.choice = str(fd, 'choice', 120);
 		if (fd.has('offerteAmount')) fields.offerteAmount = amountOrNull(fd, 'offerteAmount');
+		if (fd.has('btwAmount')) fields.btwAmount = amountOrNull(fd, 'btwAmount');
+		if (fd.has('costs')) fields.costs = amountOrNull(fd, 'costs');
+		// The full editor always submits the time inputs; the quick status form
+		// does not — gate on the first phase field being present.
+		if (fd.has(`time_${TIME_PHASES[0].key}`)) fields.timeSpent = parseTimeSpent(fd);
 		if (fd.has('offerteVerstuurdOp'))
 			fields.offerteVerstuurdOp = toDateOrNull(str(fd, 'offerteVerstuurdOp', 25));
 		if (fd.has('geldigTot')) fields.geldigTot = toDateOrNull(str(fd, 'geldigTot', 25));
@@ -141,8 +171,11 @@ export const actions: Actions = {
 		// Convenience auto-stamps when advancing the pipeline and the date wasn't
 		// part of this form (so we never overwrite a value the user just cleared).
 		const today = todayStr();
+		// Sending an offerte or putting a date in option both start the 14-day
+		// hold window (offerte_verstuurd_op → geldig_tot). We handle freeing the
+		// date manually via the "verloopt binnenkort" list.
 		if (
-			fields.status === 'offerte_verstuurd' &&
+			(fields.status === 'offerte_verstuurd' || fields.status === 'in_optie') &&
 			!fd.has('offerteVerstuurdOp') &&
 			!existing.offerteVerstuurdOp
 		) {
