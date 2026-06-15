@@ -16,6 +16,7 @@
 			<div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
 				<a href="/admin" class="font-heading text-lg">Hangende Hapjes — admin</a>
 				<nav class="flex items-center gap-4 text-sm">
+					<a href="/admin/aanvragen" class="hover:underline">Aanvragen</a>
 					<a href="/admin/document" class="hover:underline">Document</a>
 					<a href="/admin/calculator" class="hover:underline">Calculator</a>
 					<form method="POST" action="/admin/logout">

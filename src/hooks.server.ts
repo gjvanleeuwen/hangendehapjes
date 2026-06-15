@@ -11,10 +11,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	if (path.startsWith('/admin')) {
 		const isLogin = path === '/admin/login';
+		// The ICS calendar feed is token-gated in its own handler — calendar apps
+		// can't send the admin cookie, so it must bypass the cookie auth gate.
+		const isCalendarFeed = path === '/admin/calendar.ics';
 		const token = event.cookies.get(ADMIN_COOKIE);
 		const authed = await verifyToken(token);
 		event.locals.adminAuthed = authed;
-		if (!authed && !isLogin) {
+		if (!authed && !isLogin && !isCalendarFeed) {
 			const next = encodeURIComponent(path + event.url.search);
 			throw redirect(303, `/admin/login?next=${next}`);
 		}

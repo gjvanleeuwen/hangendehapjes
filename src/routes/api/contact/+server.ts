@@ -5,6 +5,7 @@ import { env } from '$env/dynamic/private';
 import { dev } from '$app/environment';
 import { notifyError } from '$lib/server/notify';
 import { PayloadSchema, type Clean } from '$lib/server/contact-schema';
+import { createDeal, toDateOrNull } from '$lib/server/deals';
 import type { RequestHandler } from './$types';
 
 const CONTACT_TO = 'info@hangendehapjes.nl';
@@ -114,6 +115,43 @@ const pruneOlderThan = (map: Map<string, number>, now: number, ms: number) => {
 	for (const [k, t] of map) if (now - t > ms) map.delete(k);
 };
 
+/**
+ * Best-effort: record every genuine submission as a `nieuw` deal so the lead
+ * lands in the pipeline and is never lost. Fire-and-forget — a missing or
+ * broken DB must never block or slow the contact form. Email stays the source
+ * of truth.
+ */
+const captureDeal = (clean: Clean) => {
+	void (async () => {
+		try {
+			await createDeal({
+				name: clean.name,
+				email: clean.email,
+				phone: clean.phone,
+				source: clean.referral,
+				eventDate: toDateOrNull(clean.eventDate),
+				eventDateText: clean.eventDate,
+				location: clean.location,
+				guests: clean.guests,
+				serviceType: clean.serviceType,
+				choice: clean.choice,
+				dagdeel: clean.dagdeel,
+				servingTime: clean.servingTime,
+				message: clean.message,
+				status: 'nieuw',
+				origin: 'contact_form'
+			});
+		} catch (err) {
+			void notifyError(err, {
+				source: 'contact form — deal capture (non-fatal)',
+				url: '/api/contact',
+				method: 'POST',
+				extra: { submitter: clean.email }
+			});
+		}
+	})();
+};
+
 export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	const ip = getClientAddress();
 	const now = Date.now();
@@ -168,6 +206,8 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 		return json({ ok: false, error: 'rate_limited' }, { status: 429 });
 	}
 	lastSubmission.set(ip, now);
+
+	captureDeal(clean);
 
 	const serving = [clean.dagdeel, clean.servingTime].filter(Boolean).join(' — ');
 	const lines = [
