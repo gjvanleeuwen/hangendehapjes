@@ -36,20 +36,10 @@ export const en: Translations = {
 			'But if there’s one thing we don’t see eye to eye on, it’s food. Charlotte has a real sweet tooth and loves baking, but is also a fan of "hearty" and "classic" food. Gijs on the other hand loves everything new and different, and savoury cooking is more his passion.',
 			'Lucky for you, that only works in your favour! Two really fun concepts, savoury and sweet, for your wedding, drinks, reception, walking dinner or corporate event.'
 		],
-		portraits: [
-			{
-				src: '/images/charlotte_evenement.jpeg',
-				name: 'Charlotte',
-				role: 'Sweet & classic',
-				alt: 'Charlotte serving a freshly made bite to a guest'
-			},
-			{
-				src: '/images/gijs_evenement.jpeg',
-				name: 'Gijs',
-				role: 'Savoury & different',
-				alt: 'Gijs making a bite on the spot on his tray'
-			}
-		]
+		photo: {
+			src: '/images/owners.jpeg',
+			alt: 'Charlotte and Gijs of Hangende Hapjes together with their hanging tray'
+		}
 	},
 	products: {
 		heading: 'Will you pick sweet or savoury?',
@@ -280,6 +270,7 @@ export const en: Translations = {
 		facebook: 'Facebook',
 		tiktok: 'TikTok',
 		whatsapp: 'WhatsApp',
-		emailLabel: 'Email'
+		emailLabel: 'Email',
+		photoCredit: 'Photography by'
 	}
 };

@@ -27,6 +27,17 @@ export const IMAGE_MANIFEST = {
 			1920
 		]
 	},
+	"burrata_trio": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
 	"charlotte_2": {
 		"width": 2252,
 		"height": 4000,
@@ -168,6 +179,27 @@ export const IMAGE_MANIFEST = {
 			960,
 			1280,
 			1920
+		]
+	},
+	"owners": {
+		"width": 4100,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"WhatsApp Image 2026-04-26 at 17.13.04": {
+		"width": 1452,
+		"height": 1600,
+		"widths": [
+			320,
+			640,
+			960,
+			1280
 		]
 	}
 } as const satisfies Record<string, OptimizedImage>;

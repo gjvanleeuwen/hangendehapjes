@@ -11,9 +11,12 @@
 
 <footer class="border-t border-border bg-background">
 	<div class="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-12 md:flex-row md:items-start md:justify-between">
-		<div>
-			<p class="font-wordmark text-lg font-bold uppercase tracking-[0.08em] text-primary">Hangende Hapjes</p>
-			<p class="text-sm text-muted-foreground">{t.footer.tagline}</p>
+		<div class="flex flex-col gap-6 md:self-stretch">
+			<div>
+				<p class="font-wordmark text-lg font-bold uppercase tracking-[0.08em] text-primary">Hangende Hapjes</p>
+				<p class="text-sm text-muted-foreground">{t.footer.tagline}</p>
+			</div>
+			<p class="text-xs text-muted-foreground md:mt-auto">© {year} Hangende Hapjes</p>
 		</div>
 		{#if t.footer.readingHeading && t.footer.readingLinks && t.footer.readingLinks.length > 0}
 			<div class="flex flex-col gap-2 text-sm">
@@ -130,7 +133,15 @@
 					</svg>
 				</a>
 			</div>
-			<p class="text-xs text-muted-foreground">© {year} Hangende Hapjes</p>
+			<p class="text-xs text-muted-foreground">
+				{t.footer.photoCredit}
+				<a
+					href="http://www.dijkstrafotografie.com/"
+					target="_blank"
+					rel="noopener"
+					class="underline hover:text-foreground">Dijkstra Fotografie</a
+				>
+			</p>
 		</div>
 	</div>
 </footer>

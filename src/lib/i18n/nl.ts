@@ -32,24 +32,14 @@ export const nl: Translations = {
 	about: {
 		heading: 'Aan wie hangen de hapjes?',
 		body: [
-			'Dat zijn Charlotte en Gijs. Net één jaar getrouwd en al 12 jaar samen, er is één ding waar wij echt blij van worden: eten verzorgen voor anderen. De ervaring van talloze feestjes en diners thuis nemen wij nu mee naar ons eerste catering concept.',
+			'Dat zijn Charlotte en Gijs. Net één jaar getrouwd en al 12 jaar samen, er is één ding waar wij echt blij van worden: eten verzorgen voor anderen. Buiten jaren in de horeca nemen we ook die ervaring van talloze feestjes en diners thuis nu mee naar ons eerste catering concept.',
 			'Maar als er één ding is waar we niet eensgezind over zijn, is het wel etenskeuze. Charlotte is een echte bakker en zoetekauw maar ook een fan van "hearty" en "classic" eten. Daarentegen houdt Gijs juist van alles nieuw en anders en is hartig koken meer zijn passie.',
 			'Gelukkig hebben jullie daar alleen maar profijt van! Twee super leuke concepten, hartig en zoet, voor jouw bruiloft, borrel, receptie, walking dinner of zakelijk event.'
 		],
-		portraits: [
-			{
-				src: '/images/charlotte_evenement.jpeg',
-				name: 'Charlotte',
-				role: 'Zoet & klassiek',
-				alt: 'Charlotte serveert een vers gemaakt hapje aan een gast'
-			},
-			{
-				src: '/images/gijs_evenement.jpeg',
-				name: 'Gijs',
-				role: 'Hartig & anders',
-				alt: 'Gijs maakt ter plekke een hapje klaar op zijn dienblad'
-			}
-		]
+		photo: {
+			src: '/images/owners.jpeg',
+			alt: 'Charlotte en Gijs van Hangende Hapjes samen met hun hangende dienblad'
+		}
 	},
 	products: {
 		heading: 'Kies jij voor zoet of zout?',
@@ -283,6 +273,7 @@ export const nl: Translations = {
 		tiktok: 'TikTok',
 		whatsapp: 'WhatsApp',
 		emailLabel: 'E-mail',
+		photoCredit: 'Foto’s door',
 		readingHeading: 'Goed om te weten',
 		readingLinks: [
 			{

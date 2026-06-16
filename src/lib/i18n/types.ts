@@ -42,7 +42,7 @@ export type Translations = {
 	about: {
 		heading: string;
 		body: string[];
-		portraits: { src: string; name: string; role: string; alt: string }[];
+		photo: { src: string; alt: string };
 	};
 	products: {
 		heading: string;
@@ -144,6 +144,7 @@ export type Translations = {
 		tiktok: string;
 		whatsapp: string;
 		emailLabel: string;
+		photoCredit: string;
 		readingHeading?: string;
 		readingLinks?: { label: string; href: string }[];
 	};
