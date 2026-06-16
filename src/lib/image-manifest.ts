@@ -6,17 +6,6 @@ export type OptimizedImage = {
 };
 
 export const IMAGE_MANIFEST = {
-	"01": {
-		"width": 3000,
-		"height": 4000,
-		"widths": [
-			320,
-			640,
-			960,
-			1280,
-			1920
-		]
-	},
 	"02": {
 		"width": 1280,
 		"height": 1600,
@@ -27,7 +16,18 @@ export const IMAGE_MANIFEST = {
 			1280
 		]
 	},
-	"03": {
+	"burrata_closeup": {
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"charlotte_2": {
 		"width": 2252,
 		"height": 4000,
 		"widths": [
@@ -38,7 +38,7 @@ export const IMAGE_MANIFEST = {
 			1920
 		]
 	},
-	"04": {
+	"charlotte_3": {
 		"width": 2252,
 		"height": 4000,
 		"widths": [
@@ -49,7 +49,18 @@ export const IMAGE_MANIFEST = {
 			1920
 		]
 	},
-	"05": {
+	"charlotte_evenement": {
+		"width": 2500,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"charlotte_main": {
 		"width": 2252,
 		"height": 4000,
 		"widths": [
@@ -60,8 +71,8 @@ export const IMAGE_MANIFEST = {
 			1920
 		]
 	},
-	"06": {
-		"width": 2252,
+	"gijs_2": {
+		"width": 3000,
 		"height": 4000,
 		"widths": [
 			320,
@@ -71,8 +82,8 @@ export const IMAGE_MANIFEST = {
 			1920
 		]
 	},
-	"07": {
-		"width": 2252,
+	"gijs_3": {
+		"width": 3000,
 		"height": 4000,
 		"widths": [
 			320,
@@ -82,9 +93,9 @@ export const IMAGE_MANIFEST = {
 			1920
 		]
 	},
-	"08": {
-		"width": 2252,
-		"height": 4000,
+	"gijs_evenement": {
+		"width": 3414,
+		"height": 4552,
 		"widths": [
 			320,
 			640,
@@ -93,7 +104,7 @@ export const IMAGE_MANIFEST = {
 			1920
 		]
 	},
-	"borrel": {
+	"gijs_main": {
 		"width": 3000,
 		"height": 4000,
 		"widths": [
@@ -105,7 +116,18 @@ export const IMAGE_MANIFEST = {
 		]
 	},
 	"hero": {
-		"width": 3000,
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"HH_burrata_3 (1)": {
+		"width": 2252,
 		"height": 4000,
 		"widths": [
 			320,
@@ -139,17 +161,6 @@ export const IMAGE_MANIFEST = {
 	},
 	"HH_burrata_T": {
 		"width": 2252,
-		"height": 4000,
-		"widths": [
-			320,
-			640,
-			960,
-			1280,
-			1920
-		]
-	},
-	"toetjes": {
-		"width": 3000,
 		"height": 4000,
 		"widths": [
 			320,

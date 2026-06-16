@@ -8,6 +8,7 @@ export const DEAL_STATUSES = [
 	'in_optie',
 	'geaccepteerd',
 	'afgewezen',
+	'afgewezen_intern',
 	'afgerond'
 ] as const;
 
@@ -18,7 +19,8 @@ export const STATUS_LABELS: Record<DealStatus, string> = {
 	offerte_verstuurd: 'Offerte verstuurd',
 	in_optie: 'In optie',
 	geaccepteerd: 'Geaccepteerd',
-	afgewezen: 'Afgewezen',
+	afgewezen: 'Afgewezen (klant)', // klant wilde niet / koos iemand anders
+	afgewezen_intern: 'Afgewezen (wij)', // wij konden niet — geen capaciteit / datum bezet
 	afgerond: 'Afgerond'
 };
 
@@ -81,11 +83,14 @@ export type DealInput = {
 };
 
 export const isOfferteSent = (d: Pick<Deal, 'status' | 'offerteVerstuurdOp'>) =>
-	!!d.offerteVerstuurdOp ||
-	d.status === 'offerte_verstuurd' ||
-	d.status === 'in_optie' ||
-	d.status === 'geaccepteerd' ||
-	d.status === 'afgerond';
+	// Deals we declined ourselves don't belong in the conversion funnel — losing
+	// them is our choice (capacity/date), not a failure to convert the client.
+	d.status !== 'afgewezen_intern' &&
+	(!!d.offerteVerstuurdOp ||
+		d.status === 'offerte_verstuurd' ||
+		d.status === 'in_optie' ||
+		d.status === 'geaccepteerd' ||
+		d.status === 'afgerond');
 
 export const isWon = (d: Pick<Deal, 'status'>) =>
 	d.status === 'geaccepteerd' || d.status === 'afgerond';
@@ -153,8 +158,12 @@ export type Metrics = {
 	lost: number;
 	open: number;
 	conversionPct: number; // won / offertes
+	declinedByUs: number; // deals we turned down (capacity/date) — outside the funnel
 	wonValue: number; // sum of offerteAmount for won deals (incl. BTW)
 	pendingValue: number; // sum of offerteAmount for offertes still out (incl. in optie)
+	pendingTakeHome: number; // potential take-home if all pending offertes land
+	optieValue: number; // offerteAmount of deals specifically in optie
+	optieTakeHome: number; // take-home of deals specifically in optie
 	vat: number; // BTW on won sales
 	costs: number; // costs on won deals
 	takeHome: number; // revenue excl. BTW − costs, over won deals
@@ -174,11 +183,17 @@ export function computeMetrics(deals: Deal[], monthsBack = 6): Metrics {
 	const offertes = deals.filter(isOfferteSent).length;
 	const won = deals.filter(isWon).length;
 	const lost = deals.filter((d) => d.status === 'afgewezen').length;
+	const declinedByUs = deals.filter((d) => d.status === 'afgewezen_intern').length;
 	const open = deals.filter(
 		(d) => d.status === 'nieuw' || d.status === 'offerte_verstuurd' || d.status === 'in_optie'
 	).length;
 	const wonValue = deals.filter(isWon).reduce((sum, d) => sum + (d.offerteAmount ?? 0), 0);
-	const pendingValue = deals.filter(isPending).reduce((sum, d) => sum + (d.offerteAmount ?? 0), 0);
+	const pendingDeals = deals.filter(isPending);
+	const pendingValue = pendingDeals.reduce((sum, d) => sum + (d.offerteAmount ?? 0), 0);
+	const pendingTakeHome = pendingDeals.reduce((sum, d) => sum + dealTakeHome(d), 0);
+	const optieDeals = deals.filter((d) => d.status === 'in_optie');
+	const optieValue = optieDeals.reduce((sum, d) => sum + (d.offerteAmount ?? 0), 0);
+	const optieTakeHome = optieDeals.reduce((sum, d) => sum + dealTakeHome(d), 0);
 
 	const months = new Map<string, MonthMetric>();
 	for (const d of deals) {
@@ -231,8 +246,12 @@ export function computeMetrics(deals: Deal[], monthsBack = 6): Metrics {
 		lost,
 		open,
 		conversionPct: offertes ? Math.round((won / offertes) * 100) : 0,
+		declinedByUs,
 		wonValue,
 		pendingValue,
+		pendingTakeHome,
+		optieValue,
+		optieTakeHome,
 		vat,
 		costs,
 		takeHome,

@@ -74,18 +74,18 @@
 				'@type': 'Person',
 				'@id': SITE_URL + '/#charlotte',
 				name: 'Charlotte',
-				jobTitle: 'De Toetjes Vrouw',
+				jobTitle: 'Co-founder & pastry chef',
 				worksFor: { '@id': businessId },
-				image: SITE_URL + '/images/07.jpeg',
+				image: SITE_URL + '/images/charlotte_main.jpeg',
 				sameAs: ['https://www.instagram.com/charlottefaas_/']
 			},
 			{
 				'@type': 'Person',
 				'@id': SITE_URL + '/#gijs',
 				name: 'Gijs van Leeuwen',
-				jobTitle: 'De Borrel Baas',
+				jobTitle: 'Co-founder & chef',
 				worksFor: { '@id': businessId },
-				image: SITE_URL + '/images/01.jpeg',
+				image: SITE_URL + '/images/gijs_main.jpeg',
 				sameAs: ['https://www.instagram.com/gijs_vanleeuwen/']
 			},
 			...t.products.items.map((product) => ({

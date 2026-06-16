@@ -70,8 +70,8 @@ export const INGREDIENT_COST_PER_PORTION: Record<Product, number> = {
 };
 
 export const PRODUCT_LABELS: Record<Product, string> = {
-	tiramisu: 'Tiramisu (De Toetjes Vrouw)',
-	burrata: 'Burrata (De Borrel Baas)'
+	tiramisu: 'Tiramisu',
+	burrata: 'Burrata'
 };
 
 export const MIN_PORTIONS_PER_PRODUCT = 50;

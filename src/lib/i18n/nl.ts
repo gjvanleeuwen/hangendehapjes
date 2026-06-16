@@ -1,8 +1,8 @@
 import type { Translations } from './types';
 
 const HERO_IMAGE = '/images/hero.jpeg';
-const TOETJES_IMAGE = '/images/07.jpeg';
-const BORREL_IMAGE = '/images/01.jpeg';
+const TOETJES_IMAGE = '/images/charlotte_main.jpeg';
+const BORREL_IMAGE = '/images/HH_burrata_Parma.jpeg';
 
 export const nl: Translations = {
 	meta: {
@@ -35,6 +35,20 @@ export const nl: Translations = {
 			'Dat zijn Charlotte en Gijs. Net één jaar getrouwd en al 12 jaar samen, er is één ding waar wij echt blij van worden: eten verzorgen voor anderen. De ervaring van talloze feestjes en diners thuis nemen wij nu mee naar ons eerste catering concept.',
 			'Maar als er één ding is waar we niet eensgezind over zijn, is het wel etenskeuze. Charlotte is een echte bakker en zoetekauw maar ook een fan van "hearty" en "classic" eten. Daarentegen houdt Gijs juist van alles nieuw en anders en is hartig koken meer zijn passie.',
 			'Gelukkig hebben jullie daar alleen maar profijt van! Twee super leuke concepten, hartig en zoet, voor jouw bruiloft, borrel, receptie, walking dinner of zakelijk event.'
+		],
+		portraits: [
+			{
+				src: '/images/charlotte_evenement.jpeg',
+				name: 'Charlotte',
+				role: 'Zoet & klassiek',
+				alt: 'Charlotte serveert een vers gemaakt hapje aan een gast'
+			},
+			{
+				src: '/images/gijs_evenement.jpeg',
+				name: 'Gijs',
+				role: 'Hartig & anders',
+				alt: 'Gijs maakt ter plekke een hapje klaar op zijn dienblad'
+			}
 		]
 	},
 	products: {
@@ -44,7 +58,8 @@ export const nl: Translations = {
 		items: [
 			{
 				id: 'toetjes',
-				name: 'De Toetjes Vrouw',
+				kicker: 'Zoet · klassiek',
+				name: 'Tiramisu',
 				pitch: 'Verse tiramisu die we als een toren opbouwen bij het serveren.',
 				priceFrom: 'Vanaf €425',
 				priceNote: 'voor 50 personen',
@@ -57,11 +72,16 @@ export const nl: Translations = {
 				],
 				image: TOETJES_IMAGE,
 				imageAlt: 'Charlotte maakt live tiramisu voor een gast',
+				video: {
+					playbackId: 'wAh8024FDNRT8VtuMTapIO5uHxiWIpr00d4t2aKMV8Stc',
+					title: 'Verse tiramisu ter plekke opgebouwd'
+				},
 				article: { href: '/blog/tiramisu-bruiloft', label: 'Lees meer over onze tiramisu' }
 			},
 			{
 				id: 'borrel',
-				name: 'De Borrel Baas',
+				kicker: 'Hartig · nieuw & anders',
+				name: 'Burrata',
 				pitch: 'Burrata-bowl met toppings en dips naar keuze voor extra variëteit.',
 				priceFrom: 'Vanaf €450',
 				priceNote: 'voor 50 personen',
@@ -88,7 +108,7 @@ export const nl: Translations = {
 					'Vanaf €450 voor 50 porties · €700 voor 100 · grotere events op aanvraag'
 				],
 				image: BORREL_IMAGE,
-				imageAlt: 'Gijs maakt een live burrata-bowl voor een gast',
+				imageAlt: 'Een vers opgemaakte burrata-bowl met crispy prosciutto, pijnboompitten en scrocchi-toastjes',
 				article: { href: '/blog/burrata-catering', label: 'Lees meer over onze burrata bar' }
 			}
 		],
@@ -131,7 +151,7 @@ export const nl: Translations = {
 				id: 'combine',
 				question: 'Kan ik beide concepten boeken, en wie komt er serveren?',
 				answer:
-					'Zeker, je kan beide concepten los of samen op één feest boeken. Sommige hosts kiezen voor De BorrelBaas tijdens de borrel/receptie en De ToetjesVrouw als dessert. Een richtprijs voor een combi van beide concepten is onze standaard vanaf prijs voor beide concepten met ~€125 korting. Zowel Gijs als Charlotte maken heerlijke tiramisu en burrata-bowls, wie er komt is afhankelijk van de beschikbaarheid en is niet verbonden met de conceptkeuze.'
+					'Zeker, je kan beide concepten los of samen op één feest boeken. Sommige hosts kiezen voor de burrata tijdens de borrel/receptie en de tiramisu als dessert. Een richtprijs voor een combi van beide concepten is onze standaard vanaf prijs voor beide concepten met ~€125 korting. Zowel Gijs als Charlotte maken heerlijke tiramisu en burrata-bowls, wie er komt is afhankelijk van de beschikbaarheid en is niet verbonden met de conceptkeuze.'
 			},
 			{
 				id: 'portion',

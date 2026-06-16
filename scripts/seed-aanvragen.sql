@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS deals (
 	dagdeel              text NOT NULL DEFAULT '',
 	serving_time         text NOT NULL DEFAULT '',
 	status               text NOT NULL DEFAULT 'nieuw'
-		CHECK (status IN ('nieuw','offerte_verstuurd','in_optie','geaccepteerd','afgewezen','afgerond')),
+		CHECK (status IN ('nieuw','offerte_verstuurd','in_optie','geaccepteerd','afgewezen','afgewezen_intern','afgerond')),
 	offerte_amount       numeric(10,2),
 	btw_amount           numeric(10,2),
 	costs                numeric(10,2),

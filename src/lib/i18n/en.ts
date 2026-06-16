@@ -1,8 +1,8 @@
 import type { Translations } from './types';
 
 const HERO_IMAGE = '/images/hero.jpeg';
-const TOETJES_IMAGE = '/images/07.jpeg';
-const BORREL_IMAGE = '/images/01.jpeg';
+const TOETJES_IMAGE = '/images/charlotte_main.jpeg';
+const BORREL_IMAGE = '/images/HH_burrata_Parma.jpeg';
 
 export const en: Translations = {
 	meta: {
@@ -35,6 +35,20 @@ export const en: Translations = {
 			'That’s Charlotte and Gijs. Almost one year married and 12 years together, and if there’s one thing that genuinely makes us happy, it’s putting on food for other people. We’re bringing the experience of countless parties and dinners at home into our first catering concept.',
 			'But if there’s one thing we don’t see eye to eye on, it’s food. Charlotte has a real sweet tooth and loves baking, but is also a fan of "hearty" and "classic" food. Gijs on the other hand loves everything new and different, and savoury cooking is more his passion.',
 			'Lucky for you, that only works in your favour! Two really fun concepts, savoury and sweet, for your wedding, drinks, reception, walking dinner or corporate event.'
+		],
+		portraits: [
+			{
+				src: '/images/charlotte_evenement.jpeg',
+				name: 'Charlotte',
+				role: 'Sweet & classic',
+				alt: 'Charlotte serving a freshly made bite to a guest'
+			},
+			{
+				src: '/images/gijs_evenement.jpeg',
+				name: 'Gijs',
+				role: 'Savoury & different',
+				alt: 'Gijs making a bite on the spot on his tray'
+			}
 		]
 	},
 	products: {
@@ -44,7 +58,8 @@ export const en: Translations = {
 		items: [
 			{
 				id: 'toetjes',
-				name: 'De Toetjes Vrouw',
+				kicker: 'Sweet · classic',
+				name: 'Tiramisu',
 				pitch: 'Fresh tiramisu that we build up like a tower while serving.',
 				priceFrom: 'From €425',
 				priceNote: 'for 50 guests',
@@ -56,11 +71,16 @@ export const en: Translations = {
 					'From €425 for 50 portions · €650 for 100 · larger events on request'
 				],
 				image: TOETJES_IMAGE,
-				imageAlt: 'Charlotte making live tiramisu for a guest'
+				imageAlt: 'Charlotte making live tiramisu for a guest',
+				video: {
+					playbackId: 'wAh8024FDNRT8VtuMTapIO5uHxiWIpr00d4t2aKMV8Stc',
+					title: 'Fresh tiramisu built on the spot'
+				}
 			},
 			{
 				id: 'borrel',
-				name: 'De Borrel Baas',
+				kicker: 'Savoury · new & different',
+				name: 'Burrata',
 				pitch: 'Burrata bowl with your choice of toppings and dips.',
 				priceFrom: 'From €450',
 				priceNote: 'for 50 guests',
@@ -87,7 +107,7 @@ export const en: Translations = {
 					'From €450 for 50 portions · €700 for 100 · larger events on request'
 				],
 				image: BORREL_IMAGE,
-				imageAlt: 'Gijs making a live burrata bowl for a guest'
+				imageAlt: 'A freshly built burrata bowl with crispy prosciutto, pine nuts and scrocchi toasts'
 			}
 		],
 		priceFooter: 'Prices exclude VAT · Travel costs free up to 50 km from Hilversum.',
@@ -129,7 +149,7 @@ export const en: Translations = {
 				id: 'combine',
 				question: 'Can I book both concepts, and who comes to serve?',
 				answer:
-					'Sure, you can book both concepts separately or together at the same party. Some hosts pick De Borrel Baas during the drinks/reception and De Toetjes Vrouw for dessert. Combine both at one event and you get €125 off, because we only have to travel out and set up once. Both Gijs and Charlotte make delicious tiramisu and burrata bowls — who comes depends on availability and isn’t tied to which concept you pick.'
+					'Sure, you can book both concepts separately or together at the same party. Some hosts pick the burrata during the drinks/reception and the tiramisu for dessert. Combine both at one event and you get €125 off, because we only have to travel out and set up once. Both Gijs and Charlotte make delicious tiramisu and burrata bowls — who comes depends on availability and isn’t tied to which concept you pick.'
 			},
 			{
 				id: 'portion',
@@ -216,12 +236,12 @@ export const en: Translations = {
 			},
 			taart: {
 				title: 'A dessert or cake',
-				description: 'A full dessert or cake, made by De Toetjes Vrouw.'
+				description: 'A full dessert or cake, made by Charlotte.'
 			}
 		},
 		options: {
-			tiramisuLive: 'Tiramisu — De Toetjes Vrouw',
-			burrataLive: 'Burrata — De Borrel Baas',
+			tiramisuLive: 'Tiramisu',
+			burrataLive: 'Burrata',
 			bruidstaart: 'Classic wedding cake',
 			millefeuille: 'Italian millefeuille',
 			tiramisuTaart: 'Tiramisu (as a cake or tower)'

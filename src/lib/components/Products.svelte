@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import type { Translations } from '$lib/i18n/types';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -9,6 +10,12 @@
 
 	type Props = { t: Translations };
 	let { t }: Props = $props();
+
+	onMount(() => {
+		if (t.products.items.some((product) => product.video)) {
+			void import('@mux/mux-player');
+		}
+	});
 </script>
 
 <section id="products" class="bg-muted/40">
@@ -21,16 +28,31 @@
 		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 			{#each t.products.items as product (product.id)}
 				<Card.Root class="overflow-hidden p-0">
-					<div class="aspect-9/16 overflow-hidden bg-muted md:aspect-4/5">
-						<Picture
-							src={product.image}
-							alt={product.imageAlt}
-							sizes="(min-width: 768px) min(540px, 50vw), 100vw"
-							loading="lazy"
-							class="size-full object-cover"
-						/>
+					<div class="aspect-3/4 overflow-hidden bg-muted">
+						{#if product.video}
+							<mux-player
+								playback-id={product.video.playbackId}
+								stream-type="on-demand"
+								title={product.video.title}
+								autoplay="muted"
+								loop
+								nohotkeys
+								style="display: block; width: 100%; height: 100%; --controls: none; --media-object-fit: cover;"
+							></mux-player>
+						{:else}
+							<Picture
+								src={product.image}
+								alt={product.imageAlt}
+								sizes="(min-width: 768px) min(540px, 50vw), 100vw"
+								loading="lazy"
+								class="size-full object-cover"
+							/>
+						{/if}
 					</div>
 					<Card.Header class="px-6 pt-6">
+						<p class="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
+							{product.kicker}
+						</p>
 						<Card.Title class="font-heading text-2xl">{product.name}</Card.Title>
 						<Card.Description class="text-base text-muted-foreground">
 							{product.pitch}

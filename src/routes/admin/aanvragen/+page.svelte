@@ -93,16 +93,12 @@
 	);
 
 	let placeholder = $state<DateValue>(today(getLocalTimeZone()));
-	let selectedDay = $state<DateValue | undefined>(undefined);
 
-	const selectedKey = $derived(selectedDay ? keyOf(selectedDay) : null);
-	const shownEvents = $derived(
-		selectedKey ? (eventsByDate.get(selectedKey) ?? []) : upcomingEvents
-	);
-
+	// The list always shows every upcoming event, independent of which months the
+	// calendar is currently showing — navigating the calendar never filters it.
 	const shownByDate = $derived.by(() => {
 		const m = new SvelteMap<string, Deal[]>();
-		for (const d of shownEvents) {
+		for (const d of upcomingEvents) {
 			const list = m.get(d.eventDate as string) ?? [];
 			list.push(d);
 			m.set(d.eventDate as string, list);
@@ -112,6 +108,15 @@
 
 	// Match the list height to the calendar so the rest scrolls.
 	let calHeight = $state(0);
+
+	// Colour the "geldig tot" date for offertes/opties still awaiting a reply,
+	// so chasing is readable straight from the table (no separate reminder box).
+	const geldigClass = (d: Deal) => {
+		if (!d.geldigTot || (d.status !== 'offerte_verstuurd' && d.status !== 'in_optie')) return '';
+		if (d.geldigTot < data.today) return 'text-destructive font-medium'; // verlopen
+		if (d.geldigTot <= data.soon) return 'font-medium text-amber-600'; // verloopt binnenkort
+		return '';
+	};
 </script>
 
 <svelte:head>
@@ -264,53 +269,16 @@
 		</form>
 	{/if}
 
-	<!-- Attention: offertes expiring soon -->
-	{#if data.expiringSoon.length > 0}
-		<section class="border-l-4 border-amber-500 bg-amber-50 p-4">
-			<h2 class="font-heading text-lg text-amber-900">⏳ Offertes verlopen binnenkort</h2>
-			<p class="mb-3 text-sm text-amber-800">
-				Deze offertes zijn verstuurd en lopen af — tijd om na te bellen of te mailen.
-			</p>
-			<ul class="space-y-2">
-				{#each data.expiringSoon as d (d.id)}
-					<li class="flex flex-wrap items-center justify-between gap-2 text-sm">
-						<span>
-							<strong>{d.name}</strong>
-							{#if d.geldigTot}
-								— geldig tot <strong>{formatDateNL(d.geldigTot)}</strong>
-							{/if}
-							{#if d.eventDate}<span class="text-amber-700"> (event {formatDateNL(d.eventDate)})</span>{/if}
-						</span>
-						{#if d.email}
-							<a
-								class="underline"
-								href="mailto:{d.email}?subject={encodeURIComponent('Je offerte van Hangende Hapjes')}"
-							>
-								Mail {d.email}
-							</a>
-						{/if}
-					</li>
-				{/each}
-			</ul>
-		</section>
-	{/if}
-
 	<!-- Agenda: booked events on a calendar + height-matched scrollable list -->
 	{#if eventDeals.length > 0}
 		<section class="space-y-2">
 			<div class="flex items-center justify-between gap-2">
 				<h2 class="font-heading text-lg">📅 Agenda</h2>
-				{#if selectedDay}
-					<Button variant="outline" onclick={() => (selectedDay = undefined)}>
-						Toon alle aankomende
-					</Button>
-				{/if}
 			</div>
 			<div class="grid gap-4 lg:grid-cols-[auto_1fr] lg:items-start">
 				<div class="bg-card border" bind:clientHeight={calHeight}>
 					<Calendar
 						type="single"
-						bind:value={selectedDay}
 						bind:placeholder
 						numberOfMonths={2}
 						locale="nl-NL"
@@ -335,7 +303,7 @@
 
 				<div class="bg-card flex flex-col border">
 					<div class="bg-muted border-b p-2 text-sm font-medium">
-						{selectedKey ? formatDateNL(selectedKey) : 'Aankomende events'} · {shownEvents.length}
+						Aankomende events · {upcomingEvents.length}
 					</div>
 					<div
 						class="overflow-y-auto"
@@ -343,7 +311,7 @@
 					>
 						{#if shownByDate.length === 0}
 							<p class="text-muted-foreground p-4 text-sm">
-								{selectedKey ? 'Geen events op deze dag.' : 'Nog geen geboekte events.'}
+								Nog geen geboekte events.
 							</p>
 						{:else}
 							{#each shownByDate as [date, evs] (date)}
@@ -452,7 +420,7 @@
 						<td class="p-2 whitespace-nowrap">
 							{d.offerteAmount != null ? formatEUR(d.offerteAmount) : '—'}
 						</td>
-						<td class="p-2 whitespace-nowrap">
+						<td class="p-2 whitespace-nowrap {geldigClass(d)}">
 							{d.geldigTot ? formatDateNL(d.geldigTot) : '—'}
 						</td>
 						<td class="space-x-2 p-2 whitespace-nowrap">

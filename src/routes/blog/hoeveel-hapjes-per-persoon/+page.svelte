@@ -171,7 +171,7 @@
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Wij verzorgen per bediende ongeveer 50–70 porties in het u ur. Voor groepen boven de 100 gasten
 					raden we daarom aan om een extra bediende te vragen, zodat iedereen binnen het tijdsblok aan de beurt komt.
-					Je kan de ToetjesVrouw (Tiramisu) en de BorrelBaas (Burrata) combineren op één evenement voor zowel voorgerecht als dessert. 
+					Je kan de tiramisu en de burrata combineren op één evenement voor zowel voorgerecht als dessert.
 					Hiermee serveren wij evenveel als 300 traditionele borrelhapjes per uur wat perfect is voor grotere groepen.
 				</p>
 			</section>
@@ -181,7 +181,7 @@
 					Kosten Hangende Hapjes
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					In de volgende tabel kan zie je de verwachtte prijzen (excl BTW) voor de ToetjesVrouw (Tiramisu) en de BorrelBaas (Burrata) op de drie standaardgroottes; 1 portie = 1 gast.
+					In de volgende tabel zie je de verwachte prijzen (excl. BTW) voor de tiramisu en de burrata op de drie standaardgroottes; 1 portie = 1 gast.
 				</p>
 				<div class="overflow-x-auto">
 					<table class="w-full border-collapse text-sm md:text-base">
@@ -189,8 +189,8 @@
 							<tr class="border-b border-border text-left">
 								<th class="py-3 pr-4 font-heading font-semibold">Porties</th>
 								<th class="py-3 pr-4 font-heading font-semibold">Tijd &amp; bezetting</th>
-								<th class="py-3 pr-4 font-heading font-semibold">De Toetjes Vrouw</th>
-								<th class="py-3 font-heading font-semibold">De Borrel Baas</th>
+								<th class="py-3 pr-4 font-heading font-semibold">Tiramisu</th>
+								<th class="py-3 font-heading font-semibold">Burrata</th>
 							</tr>
 						</thead>
 						<tbody class="text-muted-foreground">
@@ -238,11 +238,11 @@
 					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
 				>
 					<li>
-						<strong>Tijdens de borrel of receptie</strong>: De BorrelBaas tussen jouw gasten met
+						<strong>Tijdens de borrel of receptie</strong>: verse burrata tussen jouw gasten met
 						heerlijke burrata, voordat het diner begint of de bitterballen in het vet gaan.
 					</li>
 					<li>
-						<strong>Bij het dessert</strong>: De ToetjesVrouw als verrassingsmoment in plaats van
+						<strong>Bij het dessert</strong>: verse tiramisu als verrassingsmoment in plaats van
 						een dessertbuffet. Iedereen strekt even de benen met verse tiramisu, opgebouwd waar je gast bij staat.
 					</li>
 					<li>

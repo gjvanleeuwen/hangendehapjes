@@ -15,8 +15,6 @@ import {
 import { TIME_PHASES } from '$lib/deals';
 import type { Actions, PageServerLoad } from './$types';
 
-const EXPIRY_WINDOW_DAYS = 7;
-
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
 const addDays = (iso: string, days: number) => {
@@ -29,23 +27,14 @@ export const load: PageServerLoad = async ({ url }) => {
 	const dbConfigured = isDbConfigured();
 	const deals = dbConfigured ? await listDeals() : [];
 	const today = todayStr();
-	const soon = addDays(today, EXPIRY_WINDOW_DAYS);
+	const soon = addDays(today, 7); // "verloopt binnenkort" window for table colouring
 
 	const calToken = env.CALENDAR_TOKEN;
 	const calendarUrl = calToken
 		? `${url.origin}/admin/calendar.ics?token=${encodeURIComponent(calToken)}`
 		: null;
 
-	const expiringSoon = deals
-		.filter(
-			(d) =>
-				(d.status === 'offerte_verstuurd' || d.status === 'in_optie') &&
-				d.geldigTot &&
-				d.geldigTot <= soon
-		)
-		.sort((a, b) => (a.geldigTot ?? '').localeCompare(b.geldigTot ?? ''));
-
-	return { deals, expiringSoon, today, dbConfigured, calendarUrl };
+	return { deals, today, soon, dbConfigured, calendarUrl };
 };
 
 const str = (fd: FormData, key: string, max = 1000): string =>

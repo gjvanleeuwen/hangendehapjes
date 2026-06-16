@@ -24,7 +24,7 @@
 		'Een Italiaanse catering burrata bar huren voor je bruiloft, bedrijfsfeest of borrel? Wij bouwen per gast verse hapjes en snacks op, live tussen je gasten. Bekijk prijzen.';
 	const slug = '/blog/burrata-catering';
 	const canonical = SITE_URL + slug;
-	const ogImage = SITE_URL + '/images/borrel.jpeg';
+	const ogImage = SITE_URL + '/og-blog-burrata-catering.jpg';
 	const serviceId = SITE_URL + '/#service-borrel';
 
 	const articleJsonLd = {
@@ -58,7 +58,7 @@
 		'@context': 'https://schema.org',
 		'@type': ['Service', 'Product'],
 		'@id': serviceId,
-		name: 'De Borrel Baas — live burrata bar',
+		name: 'Live burrata bar catering',
 		description,
 		image: ogImage,
 		brand: { '@type': 'Brand', name: SITE_NAME },
@@ -179,8 +179,9 @@
 				</h1>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Zoek jij nog naar een heerlijke italiaanse snack, voorgerecht of hapje voor je bruiloft,
-					borrel of bedrijfsfeest? Wij bouwen per gast een verse burrata-bowl op. De BorrelBaas					loopt rond met een dienblad om de nek, schept wat romige straciatella uit Puglia in een
-					schaaltje, en bouwt voor jouw gast een heerlijk gerecht met keuze uit verscheidene toppings
+					borrel of bedrijfsfeest? Wij bouwen per gast een verse burrata-bowl op. We lopen
+					rond met een dienblad om de nek, scheppen wat romige stracciatella uit Puglia in een
+					schaaltje, en bouwen voor jouw gast een heerlijk gerecht met keuze uit verscheidene toppings
 					en sauzen. Hartig, betrokken en super lekker, een live burrata bar zonder rijen of vaste
 					plek.
 				</p>
@@ -201,6 +202,18 @@
 				</ul>
 			</section>
 
+			<figure class="mt-10 overflow-hidden rounded-xl bg-muted">
+				<div class="aspect-3/2">
+					<Picture
+						src="/images/burrata_closeup.jpeg"
+						alt="Een verse burrata-bowl wordt live opgebouwd met toppings en saus tussen de gasten"
+						sizes="(min-width: 768px) 768px, 100vw"
+						loading="lazy"
+						class="size-full object-cover"
+					/>
+				</div>
+			</figure>
+
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
 					Wat is een Hangend Hapje (burrata) precies?
@@ -212,7 +225,7 @@
 					een vaste plek als een buffet met rijen doen wij dat anders.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Bij Hangende Hapjes is de burrata bar mobiel: De BorrelBaas loopt met een
+					Bij Hangende Hapjes is de burrata bar mobiel: we lopen met een
 					hangend dienblad tussen jouw gasten door en bouwt elk gerecht op het moment van serveren
 					op. Iedereen kiest zijn eigen toppings, krijgt er een praatje bij over de burrata of de
 					nduja, en krijgt een vers gemaakt borrelhapje. Geen rijen, hoge kwaliteit, en een perfecte
@@ -253,20 +266,11 @@
 					</li>
 				</ul>
 				<figure class="mt-6">
-					<div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+					<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 						<div class="aspect-3/4 overflow-hidden rounded-lg bg-muted">
 							<Picture
 								src="/images/HH_burrata_Parma.jpeg"
 								alt="Burrata-bowl met crispy prosciutto, pijnboompitten en balsamico, vastgehouden tijdens een live burrata bar"
-								sizes="(min-width: 640px) 240px, 100vw"
-								loading="lazy"
-								class="size-full object-cover"
-							/>
-						</div>
-						<div class="aspect-3/4 overflow-hidden rounded-lg bg-muted">
-							<Picture
-								src="/images/HH_burrata_Peach.jpeg"
-								alt="Burrata-bowl met gegrilde perzik, pistache en hot honey een zoete zomerse topping op verse stracciatella"
 								sizes="(min-width: 640px) 240px, 100vw"
 								loading="lazy"
 								class="size-full object-cover"
@@ -308,6 +312,8 @@
 				</p>
 			</section>
 
+			<BlogReviewTeaser reviews={borrelReviews} />
+
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
 					Wanneer en waar past een burrata bar?
@@ -331,8 +337,8 @@
 						in plaats van) een puntzak friet.
 					</li>
 					<li>
-						<strong>Hartig én zoet samen</strong> — De Borrel Baas met burrata, De Toetjes Vrouw met
-						tiramisu als dessert, los van elkaar getimed.
+						<strong>Hartig én zoet samen</strong> — burrata bij de borrel, tiramisu als dessert, los
+						van elkaar getimed.
 					</li>
 				</ul>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
@@ -355,7 +361,7 @@
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Wat een burrata bar kost</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					In de tabel hieronder zie je de Vanaf prijs (excl. BTW) voor De Borrel Baas - 1 portie = 1 gast.
+					In de tabel hieronder zie je de vanaf-prijs (excl. BTW) voor onze live burrata bar; 1 portie = 1 gast.
 				</p>
 				<div class="overflow-x-auto">
 					<table class="w-full border-collapse text-sm md:text-base">
@@ -391,8 +397,6 @@
 					korting op de gecombineerde vanaf prijs.
 				</p>
 			</section>
-
-			<BlogReviewTeaser reviews={borrelReviews} />
 
 			<BlogCta
 				event="burrata"

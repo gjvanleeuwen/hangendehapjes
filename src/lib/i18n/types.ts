@@ -4,6 +4,7 @@ export type ProductBullet = string | { label: string; options: string[] };
 
 export type Product = {
 	id: 'toetjes' | 'borrel';
+	kicker: string;
 	name: string;
 	pitch: string;
 	priceFrom: string;
@@ -11,6 +12,7 @@ export type Product = {
 	bullets: ProductBullet[];
 	image: string;
 	imageAlt: string;
+	video?: { playbackId: string; title: string };
 	article?: { href: string; label: string };
 };
 
@@ -40,6 +42,7 @@ export type Translations = {
 	about: {
 		heading: string;
 		body: string[];
+		portraits: { src: string; name: string; role: string; alt: string }[];
 	};
 	products: {
 		heading: string;

@@ -24,7 +24,7 @@
 		"Tiramisu op je bruiloft? Wij bouwen per gast een verse portie op met mascarpone, espresso uit de mokapot en lange vingers. Een live moment, een praatje, een verhaal.";
 	const slug = '/blog/tiramisu-bruiloft';
 	const canonical = SITE_URL + slug;
-	const ogImage = SITE_URL + '/images/07.jpeg';
+	const ogImage = SITE_URL + '/images/charlotte_main.jpeg';
 	const serviceId = SITE_URL + '/#service-toetjes';
 	const datePublished = '2026-05-09';
 
@@ -59,7 +59,7 @@
 		'@context': 'https://schema.org',
 		'@type': ['Service', 'Product'],
 		'@id': serviceId,
-		name: 'De Toetjes Vrouw — live tiramisu',
+		name: 'Live tiramisu catering',
 		description,
 		image: ogImage,
 		brand: { '@type': 'Brand', name: SITE_NAME },
@@ -331,7 +331,7 @@
 					Wat tiramisu op je bruiloft kost
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					In de tabel hieronder zie je de prijzen (excl. BTW) voor De Toetjes Vrouw op de drie
+					In de tabel hieronder zie je de prijzen (excl. BTW) voor onze live tiramisu op de drie
 					standaardgroottes; 1 portie = 1 gast.
 				</p>
 				<div class="overflow-x-auto">

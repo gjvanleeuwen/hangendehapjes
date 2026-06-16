@@ -6,8 +6,8 @@
 </script>
 
 <svelte:head>
-	<link rel="icon" type="image/jpeg" href="/favicon.jpg" />
-	<link rel="apple-touch-icon" href="/favicon.jpg" />
+	<link rel="icon" type="image/png" href="/favicon.png" />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 </svelte:head>
 
 {@render children()}

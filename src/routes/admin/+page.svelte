@@ -38,8 +38,10 @@
 				</div>
 			</div>
 			<p class="text-muted-foreground text-sm">
-				{m.open} open · {m.lost} {STATUS_LABELS.afgewezen.toLowerCase()} · {formatEUR(m.wonValue)} geboekte
-				waarde · {formatEUR(m.pendingValue)} openstaand (offerte/optie)
+				{m.open} open · {m.lost} {STATUS_LABELS.afgewezen.toLowerCase()} · {m.declinedByUs}
+				{STATUS_LABELS.afgewezen_intern.toLowerCase()} · {formatEUR(m.wonValue)} geboekte waarde · {formatEUR(
+					m.pendingValue
+				)} openstaand (offerte/optie)
 			</p>
 
 			<div class="grid gap-4 md:grid-cols-2">
@@ -109,6 +111,25 @@
 				<div class="bg-card border p-4">
 					<div class="text-lg font-semibold">{formatEUR(m.costs)}</div>
 					<div class="text-muted-foreground text-xs">Kosten</div>
+				</div>
+			</div>
+			<div class="text-sm font-medium">Nog te winnen — als openstaande offertes &amp; opties doorgaan</div>
+			<div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+				<div class="bg-card border p-4">
+					<div class="text-lg font-semibold">{formatEUR(m.pendingValue)}</div>
+					<div class="text-muted-foreground text-xs">Potentiële omzet (incl. btw)</div>
+				</div>
+				<div class="bg-card border p-4">
+					<div class="text-lg font-semibold">{formatEUR(m.pendingTakeHome)}</div>
+					<div class="text-muted-foreground text-xs">Potentiële take-home</div>
+				</div>
+				<div class="bg-card border p-4">
+					<div class="text-lg font-semibold">{formatEUR(m.optieValue)}</div>
+					<div class="text-muted-foreground text-xs">Waarvan in optie (omzet)</div>
+				</div>
+				<div class="bg-card border p-4">
+					<div class="text-lg font-semibold">{formatEUR(m.optieTakeHome)}</div>
+					<div class="text-muted-foreground text-xs">Waarvan in optie (take-home)</div>
 				</div>
 			</div>
 			{#if m.hours > 0}

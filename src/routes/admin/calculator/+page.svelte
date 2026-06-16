@@ -255,8 +255,8 @@
 			: isMix
 				? `Hangende Hapjes — ${tiraPortions}× tiramisu + ${burrPortions}× burrata${burrSuffix}`
 				: tiraPortions > 0
-					? `Hangende Hapjes — ${tiraPortions}× tiramisu (De Toetjes Vrouw)`
-					: `Hangende Hapjes — ${burrPortions}× burrata${burrSuffix} (De Borrel Baas)`;
+					? `Hangende Hapjes — ${tiraPortions}× tiramisu`
+					: `Hangende Hapjes — ${burrPortions}× burrata${burrSuffix}`;
 
 		const payload = {
 			description,
