@@ -13,6 +13,7 @@ export const en: Translations = {
 	nav: {
 		about: 'About',
 		products: 'Concepts',
+		cakes: 'Wedding cakes',
 		photos: 'Photos',
 		contact: 'Contact',
 		homeHref: '/en',
@@ -27,7 +28,8 @@ export const en: Translations = {
 			'With a tray full of homemade bites, we walk between your guests. Something for everyone in a unique way, with a chat and a smile.',
 		secondaryCta: 'See our concepts',
 		image: HERO_IMAGE,
-		imageAlt: 'Charlotte and Gijs of Hangende Hapjes with a tray hanging from their neck between guests'
+		imageAlt:
+			'Charlotte and Gijs of Hangende Hapjes with a tray hanging from their neck between guests'
 	},
 	about: {
 		heading: 'Who do the bites hang from?',
@@ -50,7 +52,7 @@ export const en: Translations = {
 				id: 'toetjes',
 				kicker: 'Sweet · classic',
 				name: 'Tiramisu',
-				pitch: 'Fresh tiramisu that we build up like a tower while serving.',
+				pitch: 'Fresh tiramisu built live for each guest while serving.',
 				priceFrom: 'From €425',
 				priceNote: 'for 50 guests',
 				bullets: [
@@ -97,9 +99,35 @@ export const en: Translations = {
 					'From €450 for 50 portions · €700 for 100 · larger events on request'
 				],
 				image: BORREL_IMAGE,
-				imageAlt: 'A freshly built burrata bowl with crispy prosciutto, pine nuts and scrocchi toasts'
+				imageAlt:
+					'A freshly built burrata bowl with crispy prosciutto, pine nuts and scrocchi toasts'
 			}
 		],
+		cakeBanner: {
+			kicker: 'Showstoppers by Charlotte',
+			heading: 'We also make wedding cakes',
+			body: 'From a classic tiered wedding cake to an Italian millefoglie or tiramisu for your wedding: the same homemade character, shaped into a cake moment for your celebration.',
+			links: [
+				{
+					label: 'Classic wedding cake',
+					href: '/blog/bruidstaart',
+					image: '/images/bruitstaart_120_pers.jpeg',
+					imageAlt: 'A couple cutting a tall classic wedding cake'
+				},
+				{
+					label: 'Italian wedding cake',
+					href: '/blog/italiaanse-bruidstaart',
+					image: '/images/millefoglie_aansnijden.jpeg',
+					imageAlt: 'A couple cutting an Italian millefoglie wedding cake together'
+				},
+				{
+					label: 'Tiramisu at your wedding',
+					href: '/blog/tiramisu-bruiloft',
+					image: '/images/tiramisutaart_cacao.jpg',
+					imageAlt: 'Tiramisu cake with cocoa as a wedding cake alternative'
+				}
+			]
+		},
 		priceFooter: 'Prices exclude VAT · Travel costs free up to 50 km from Hilversum.',
 		priceCta: 'Request a quote'
 	},
@@ -234,7 +262,7 @@ export const en: Translations = {
 			burrataLive: 'Burrata',
 			bruidstaart: 'Classic wedding cake',
 			millefeuille: 'Italian millefeuille',
-			tiramisuTaart: 'Tiramisu (as a cake or tower)'
+			tiramisuTaart: 'Tiramisu cake'
 		},
 		dagdelen: {
 			placeholder: 'Pick a moment',
@@ -248,7 +276,31 @@ export const en: Translations = {
 			cta: 'Message us on WhatsApp',
 			or: 'or'
 		},
+		steps: {
+			choice: 'Your pick',
+			event: 'Your party'
+		},
+		nav: {
+			next: 'Next',
+			back: 'Back'
+		},
+		modes: {
+			form: 'Send an inquiry',
+			direct: 'Message or call me'
+		},
+		callback: {
+			heading: 'Fastest: a quick message or call',
+			intro: 'Message us directly or leave your number and we’ll call you back.',
+			label: 'Phone number',
+			placeholder: 'Your number',
+			submit: 'Call me back'
+		},
 		placeholders: {
+			name: 'E.g. Charlotte de Vries',
+			email: 'e.g. you@email.com',
+			phone: 'e.g. 06 12 34 56 78',
+			guests: 'e.g. 75',
+			location: 'E.g. De Vorstin, Hilversum',
 			message: 'Tell us about your party, the vibe, venue, any wishes and more.',
 			referral: 'E.g. via Instagram, a friend, Google…',
 			choice: 'Make a choice…'
@@ -271,6 +323,12 @@ export const en: Translations = {
 		tiktok: 'TikTok',
 		whatsapp: 'WhatsApp',
 		emailLabel: 'Email',
-		photoCredit: 'Photography by'
+		photoCredit: 'Photography by',
+		resourceLinks: [
+			{
+				label: 'Catering in Hilversum',
+				href: '/en/catering/hilversum'
+			}
+		]
 	}
 };

@@ -19,9 +19,9 @@
 	import BlogCta from '$lib/blog/BlogCta.svelte';
 
 	const headline = 'Burrata bar voor jouw feest: live, per gast opgebouwd';
-	const title = 'Live Italiaanse burrata catering | Hangende Hapjes';
+	const title = 'Burrata bar huren voor feest, borrel of bruiloft | Hangende Hapjes';
 	const description =
-		'Een Italiaanse catering burrata bar huren voor je bruiloft, bedrijfsfeest of borrel? Wij bouwen per gast verse hapjes en snacks op, live tussen je gasten. Bekijk prijzen.';
+		'Een burrata bar huren voor je bruiloft, bedrijfsfeest of borrel? Wij bouwen per gast een verse burrata-bowl op, live tussen je gasten. Bekijk toppings, timing en prijzen.';
 	const slug = '/blog/burrata-catering';
 	const canonical = SITE_URL + slug;
 	const ogImage = SITE_URL + '/og-blog-burrata-catering.jpg';
@@ -92,7 +92,7 @@
 			id: 'burrata-bar',
 			question: 'Wat is een burrata bar precies?',
 			answer:
-				'Een burrata bar is een live cateringconcept waarbij elke gast een eigen burrata-bowl krijgt, opgebouwd rond een verse burrata met toppings en saus naar keuze. Bij ons is de bar mobiel in plaats van een vast station: Met een dienblad om de nek lopen wij tussen jouw gasten door en bouwen elk hapje ter plekke op. Geen rijen, geen lege schalen, en iedereen krijgt een praatje en een verse portie.'
+				'Een burrata bar is een live cateringconcept waarbij elke gast een eigen burrata-bowl krijgt, opgebouwd rond stracciatella met toppings en saus naar keuze. Bij ons is de bar mobiel in plaats van een vast station: met een dienblad om de nek lopen wij tussen jouw gasten door en bouwen elk hapje ter plekke op. Geen rijen, geen lege schalen, en iedereen krijgt een praatje en een verse portie.'
 		},
 		{
 			id: 'burrata-bar-events',
@@ -116,13 +116,13 @@
 			id: 'burrata-walking-dinner',
 			question: 'Past burrata in een walking dinner of samen met foodtrucks?',
 			answer:
-				'Heel goed. De burrata-bowl is licht genoeg om als eerste of tweede gang in een walking dinner te dienen, naast warme gerechten van een andere cateraar. Veel evenementen nemen bijvoorbeeld Burrata als voorgerecht, hebben een Pizza/pasta foodtruck voor het hoofdgerecht en daarna kunnen wij nogmaals met een portie tiramisu rondkomen als dessert. Wij werken graag samen met de avondcateraar om timing en allergieën op elkaar af te stemmen.'
+				'Heel goed. De burrata-bowl is licht genoeg om als eerste of tweede gang in een walking dinner te dienen, naast warme gerechten van een andere cateraar. Veel evenementen nemen bijvoorbeeld burrata als voorgerecht, hebben een pizza- of pastafoodtruck voor het hoofdgerecht en daarna kunnen wij nogmaals met een portie tiramisu rondkomen als dessert. Wij werken graag samen met de avondcateraar om timing en allergieën op elkaar af te stemmen.'
 		},
 		{
 			id: 'burrata-houdbaarheid',
 			question: 'Blijft burrata wel goed tijdens een feest buiten?',
 			answer:
-				'Burrata is een vers product en moet gekoeld blijven tot het opmaken. Daar zorgen wij voor: Wij lopen rond met kleine porties recht uit de koeling die binnen 30 minuten geserveerd worden, zie het als een lopend buffet. Daardoor is de burrata altijd op temperatuur en romig, zelfs op een warme zomerdag. Wij nemen onze eigen koeling mee en hebben verder geen apparatuur of stroom nodig.'
+				'Burrata is een vers product en moet gekoeld blijven tot het opmaken. Daar zorgen wij voor: we lopen rond met kleine porties recht uit de koeling die binnen 30 minuten geserveerd worden. Daardoor is de burrata altijd op temperatuur en romig, zelfs op een warme zomerdag. Wij nemen onze eigen koeling mee en hebben verder geen apparatuur of stroom nodig.'
 		},
 		BLOG_FAQS_NL.allergies,
 		BLOG_FAQS_NL.leadtime
@@ -171,34 +171,37 @@
 	<main>
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
 			<header class="space-y-4">
-				<p class="text-(--brand-magenta) text-sm font-semibold uppercase tracking-wider">
-					Een italiaanse catering klassieker op elk evenement
+				<p class="text-sm font-semibold tracking-wider text-(--brand-magenta) uppercase">
+					Een Italiaanse cateringklassieker op elk evenement
 				</p>
 				<h1 class="font-heading text-3xl tracking-tight md:text-5xl">
 					{headline}
 				</h1>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Zoek jij nog naar een heerlijke italiaanse snack, voorgerecht of hapje voor je bruiloft,
-					borrel of bedrijfsfeest? Wij bouwen per gast een verse burrata-bowl op. We lopen
-					rond met een dienblad om de nek, scheppen wat romige stracciatella uit Puglia in een
-					schaaltje, en bouwen voor jouw gast een heerlijk gerecht met keuze uit verscheidene toppings
-					en sauzen. Hartig, betrokken en super lekker, een live burrata bar zonder rijen of vaste
-					plek.
+					Zoek je een hartig hapje voor je bruiloft, borrel of bedrijfsfeest? Wij bouwen per gast
+					een verse burrata-bowl op. We lopen rond met een dienblad om de nek, scheppen romige
+					stracciatella uit Puglia in een schaaltje en maken het af met toppings en saus naar keuze.
+					Hartig, persoonlijk en makkelijk te eten: een live burrata bar zonder rij of vaste plek.
 				</p>
 			</header>
 
 			<section
-				class="data-[state=open]:bg-(--brand-magenta)/12 mt-10 rounded-lg bg-(--brand-magenta)/8 p-6 md:p-8"
+				class="mt-10 rounded-xl border border-(--brand-magenta)/15 bg-(--brand-magenta)/5 px-6 py-5"
 				aria-labelledby="snel-antwoord"
 			>
-				<h2 id="snel-antwoord" class="font-heading text-xl tracking-tight md:text-2xl">
+				<h2
+					id="snel-antwoord"
+					class="text-xs font-semibold tracking-wider text-(--brand-magenta) uppercase"
+				>
 					Alles op een rijtje
 				</h2>
-				<ul class="mt-4 space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg">
-					<li>Vers hapje van stracciatella opgebouwd per gast</li>
+				<ul
+					class="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground marker:text-(--brand-magenta)"
+				>
+					<li>Verse stracciatella, live opgebouwd per gast</li>
 					<li>50–60 porties per uur per bediende</li>
-					<li>2 toppings én een saus naar keuze, Zoet, zout en Vega opties</li>
-					<li>Inzetbaar tijdens borrel, feest, receptie, walking dinner of beurs</li>
+					<li>2 toppings en 1 saus naar keuze, met vlees of vegetarisch</li>
+					<li>Inzetbaar tijdens borrel, receptie, walking dinner, feest of beurs</li>
 				</ul>
 			</section>
 
@@ -220,16 +223,16 @@
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Hangende Hapjes is een live cateringconcept waarbij elke gast een eigen burrata-bowl
-					krijgt. Dit hapje is opgebouwd met verse stracciatella (binnenste van een burrata) en
-					italiaanse toppings en saus naar keuze. Waar andere cateringbedrijven dit leveren vanaf
-					een vaste plek als een buffet met rijen doen wij dat anders.
+					krijgt. Die bowl maken we met verse stracciatella, het romige binnenste van burrata, en
+					Italiaanse toppings en saus naar keuze. Waar een klassieke burrata bar vaak een vast
+					station is, doen wij het lopend tussen je gasten.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Bij Hangende Hapjes is de burrata bar mobiel: we lopen met een
-					hangend dienblad tussen jouw gasten door en bouwt elk gerecht op het moment van serveren
-					op. Iedereen kiest zijn eigen toppings, krijgt er een praatje bij over de burrata of de
-					nduja, en krijgt een vers gemaakt borrelhapje. Geen rijen, hoge kwaliteit, en een perfecte
-					portie ook voor walking dinners en zakelijke evenementen.
+					Bij Hangende Hapjes is de burrata bar mobiel: we lopen met een hangend dienblad tussen
+					jouw gasten door en bouwen elk gerecht op het moment van serveren op. Iedereen kiest zijn
+					eigen toppings, krijgt er een praatje bij over de burrata of de nduja, en krijgt een vers
+					gemaakt borrelhapje. Geen rijen, geen lege schalen, en een portie die ook goed past bij
+					walking dinners en zakelijke evenementen.
 				</p>
 			</section>
 
@@ -238,16 +241,16 @@
 					Wat zit er in onze burrata-bowl?
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Een Italiaanse basis met ruimte om te variëren. Iedere gast krijgt dezelfde top-kwaliteit
-					Stracciatella uit Puglia (binnenkant burrata) en kiest zelf de combinatie die bij daarbij past. Een portie weegt ongeveer 125 gram
-					en staat gelijk aan zo'n 2 á 3 standaard borrelhapjes.
+					Een Italiaanse basis met ruimte om te variëren. Iedere gast krijgt dezelfde topkwaliteit
+					stracciatella uit Puglia en kiest zelf de combinatie die daarbij past. Een portie weegt
+					ongeveer 125 gram en staat gelijk aan zo'n 2 à 3 standaard borrelhapjes.
 				</p>
 				<ul
 					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
 				>
 					<li>
-						<strong>Verse stracciatella</strong>, het romige, slierterige binnenste
-						van de burrata scheppen wij in het bakje
+						<strong>Verse stracciatella</strong>, het romige, slierterige binnenste van burrata,
+						geschept in een bakje
 					</li>
 					<li>
 						<strong>Scrocchi-toastjes</strong>, knapperige Italiaanse cracker om mee te dippen
@@ -261,8 +264,8 @@
 						honey
 					</li>
 					<li>
-						<strong>Duurzame bakjes en bestek</strong>, gebruiksvriendelijk voor staand eten en ook super geschikt
-						voor kinderen of oudere gasten
+						<strong>Duurzame bakjes en bestek</strong>, gebruiksvriendelijk voor staand eten en ook
+						geschikt voor kinderen of oudere gasten
 					</li>
 				</ul>
 				<figure class="mt-6">
@@ -301,14 +304,14 @@
 					<li>
 						<strong>gegrilde perzik, pistache en spicy honey</strong> (zomers en een tikje zoet)
 					</li>
-					<li><strong>vijgen, Nduja en truffelolie</strong> (rijk en feestelijk)</li>
+					<li><strong>vijgen, nduja en truffelolie</strong> (rijk en feestelijk)</li>
 					<li>
-						<strong>Tomatensalsa, parmigiano en pesto</strong> (Vegetarisch en klassiek italiaans)
+						<strong>tomatensalsa, parmigiano en pesto</strong> (vegetarisch en klassiek Italiaans)
 					</li>
 				</ul>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Wij sturen vooraf graag een voorstel voor de combinaties op basis van het seizoen en jouw
-					gastenmix. Wij kunen maximaal 3 toppings en 3 sauzen tegelijkertiijd voeren in onze bakken.
+					gastenmix. We kunnen maximaal 3 toppings en 3 sauzen tegelijk meenemen in onze bakken.
 				</p>
 			</section>
 
@@ -325,43 +328,48 @@
 					class="ml-6 list-disc space-y-1.5 text-base leading-relaxed text-muted-foreground md:text-lg"
 				>
 					<li>
-						<strong>Tijdens de borrel of receptie</strong> — tussen ceremonie en diner, of als
-						zakelijke borrel op een bedrijfsfeest, in plaats van kaasplankjes en bitterballen.
+						<strong>Tijdens de borrel of receptie</strong> — tussen ceremonie en diner, of als zakelijke
+						borrel op een bedrijfsfeest, in plaats van kaasplankjes en bitterballen.
 					</li>
 					<li>
-						<strong>Als eerste of tweede gang in een walking dinner</strong> — de avondcateraar pakt
-						daarna de warme gangen over.
+						<strong>Als eerste of tweede gang in een walking dinner</strong> — de avondcateraar pakt daarna
+						de warme gangen over.
 					</li>
 					<li>
 						<strong>Als midnight snack</strong> — laat op de avond, hartig maar niet zwaar, naast (of
 						in plaats van) een puntzak friet.
 					</li>
 					<li>
-						<strong>Hartig én zoet samen</strong> — burrata bij de borrel, tiramisu als dessert, los
-						van elkaar getimed.
+						<strong>Hartig én zoet samen</strong> — burrata bij de borrel, tiramisu als dessert, los van
+						elkaar getimed.
 					</li>
 				</ul>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Wil je weten <a
 						href="/blog/hoeveel-hapjes-per-persoon"
 						class="underline hover:text-foreground">hoeveel porties je nodig hebt</a
-					> voor jouw aantal gasten? Of meer lezen over <a
-						href="/blog/tiramisu-bruiloft"
-						class="underline hover:text-foreground">tiramisu op je bruiloft</a
-					>? We hebben er een aparte blog over.
+					>
+					voor jouw aantal gasten? Of meer lezen over
+					<a href="/blog/tiramisu-bruiloft" class="underline hover:text-foreground"
+						>tiramisu op je bruiloft</a
+					>? We hebben er een aparte blog over. Zit je feest in de buurt? Lees dan ook over onze
+					<a href="/catering/hilversum" class="underline hover:text-foreground"
+						>catering in Hilversum</a
+					> en het Gooi.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Qua capaciteit verzorgen we 50–60 porties per uur per bediende; vanaf 100 gasten zetten we
 					een tweede bediende in. Op locatie hebben we weinig nodig, een hoekje voor onze koelbox is
-					genoeg. Alles is verzorgd en inbegrepen, van burrata en sauzen tot bakjes, servetten en opruimen. Zo
-					past het ook prima op buitenlocaties zonder vaste keuken.
+					genoeg. Alles is verzorgd en inbegrepen, van burrata en sauzen tot bakjes, servetten en
+					opruimen. Zo past het ook prima op buitenlocaties zonder vaste keuken.
 				</p>
 			</section>
 
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Wat een burrata bar kost</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					In de tabel hieronder zie je de vanaf-prijs (excl. BTW) voor onze live burrata bar; 1 portie = 1 gast.
+					In de tabel hieronder zie je de vanaf-prijs (excl. BTW) voor onze live burrata bar; 1
+					portie = 1 gast.
 				</p>
 				<div class="overflow-x-auto">
 					<table class="w-full border-collapse text-sm md:text-base">
@@ -392,9 +400,9 @@
 					</table>
 				</div>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Reiskosten: vanaf Hilversum tot 50km zit het bij de prijs in. Daarboven rekenen we €0,45
+					Reiskosten: vanaf Hilversum tot 50 km zit het bij de prijs in. Daarboven rekenen we €0,45
 					per kilometer. Wil je burrata en tiramisu samen op één feest? Dan krijg je ongeveer €125
-					korting op de gecombineerde vanaf prijs.
+					korting op de gecombineerde vanafprijs.
 				</p>
 			</section>
 

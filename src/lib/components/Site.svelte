@@ -6,6 +6,7 @@
 	import About from './About.svelte';
 	import Products from './Products.svelte';
 	import FAQ from './FAQ.svelte';
+	import CakeBanner from './CakeBanner.svelte';
 	import Reviews from './Reviews.svelte';
 	import Photos from './Photos.svelte';
 	import Contact from './Contact.svelte';
@@ -24,6 +25,7 @@
 		<About {t} />
 		<Products {t} />
 		<FAQ {t} />
+		<CakeBanner {t} />
 		<Reviews {t} {locale} />
 		<Photos {t} />
 		<Contact {t} {locale} />

@@ -263,6 +263,80 @@ export function computeMetrics(deals: Deal[], monthsBack = 6): Metrics {
 	};
 }
 
+// ---------------------------------------------------------------------------
+// Lead-trend significance — "is this dip real, or just small-numbers noise?"
+//
+// Leads are rare countable events, so instead of eyeballing "6 then 0" we ask:
+// if the underlying lead rate were unchanged, how surprising is the split
+// between the most-recent window and the one before it? Two equal-length
+// windows under H0 (rate unchanged) split the leads 50/50, so this is an exact
+// two-sided binomial (sign) test with p=0.5 — no libraries, no distribution
+// assumptions beyond equal-length windows. Needs a real baseline to have power:
+// a zero-period only clears p<0.05 once the prior window held >~4 leads.
+// ---------------------------------------------------------------------------
+
+export type LeadTrend = {
+	windowDays: number;
+	recent: number; // leads in the most recent window
+	prior: number; // leads in the equal window before it
+	total: number; // prior + recent
+	direction: 'drop' | 'rise' | 'flat';
+	pValue: number; // two-sided exact binomial p-value (H0: rate unchanged)
+	verdict: 'significant' | 'suggestive' | 'noise' | 'insufficient';
+};
+
+/** Two-sided exact binomial p-value for observing `recent` of `n` under p=0.5. */
+export function binomialTwoSidedP(recent: number, n: number): number {
+	if (n <= 0) return 1;
+	const lo = Math.min(recent, n - recent);
+	let term = Math.pow(0.5, n); // P(X = 0)
+	let cum = 0;
+	for (let k = 0; k <= lo; k++) {
+		cum += term;
+		term = (term * (n - k)) / (k + 1); // advance to P(X = k+1)
+	}
+	return Math.min(1, 2 * cum);
+}
+
+/** Compare two equal-length lead counts and classify the change. */
+export function leadDropTest(prior: number, recent: number, windowDays: number): LeadTrend {
+	const total = prior + recent;
+	const expected = total / 2;
+	const direction = recent < expected ? 'drop' : recent > expected ? 'rise' : 'flat';
+	const pValue = binomialTwoSidedP(recent, total);
+	const verdict: LeadTrend['verdict'] =
+		total < 5
+			? 'insufficient'
+			: pValue < 0.05
+				? 'significant'
+				: pValue < 0.1
+					? 'suggestive'
+					: 'noise';
+	return { windowDays, recent, prior, total, direction, pValue, verdict };
+}
+
+/**
+ * Bucket deals into the most-recent `windowDays` vs the equal window before it
+ * and test the split. Suspected-spam captures (`contact_form_suspect`) are
+ * excluded — they aren't real leads. `nowIso` is injected so this stays pure.
+ */
+export function periodLeadTrend(deals: Deal[], windowDays: number, nowIso: string): LeadTrend {
+	const now = new Date(nowIso).getTime();
+	const dayMs = 86_400_000;
+	const recentStart = now - windowDays * dayMs;
+	const priorStart = now - 2 * windowDays * dayMs;
+	let recent = 0;
+	let prior = 0;
+	for (const d of deals) {
+		if (d.origin === 'contact_form_suspect') continue;
+		const t = new Date(d.createdAt).getTime();
+		if (Number.isNaN(t)) continue;
+		if (t >= recentStart && t < now) recent++;
+		else if (t >= priorStart && t < recentStart) prior++;
+	}
+	return leadDropTest(prior, recent, windowDays);
+}
+
 /**
  * Returns a clean YYYY-MM-DD string if the input is a valid calendar date,
  * else null. Used to turn the contact form's free-text date field into a real

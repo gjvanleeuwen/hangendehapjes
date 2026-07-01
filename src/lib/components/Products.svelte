@@ -7,6 +7,7 @@
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import SectionHeading from './SectionHeading.svelte';
 	import Picture from './Picture.svelte';
+	import { trackInView } from '$lib/inView';
 
 	type Props = { t: Translations };
 	let { t }: Props = $props();
@@ -18,7 +19,7 @@
 	});
 </script>
 
-<section id="products" class="bg-muted/40">
+<section id="products" class="bg-muted/40" use:trackInView={{ event: 'home_products_view' }}>
 	<div class="mx-auto max-w-6xl px-6 py-20 md:py-28">
 		<div class="mb-12 max-w-2xl">
 			<SectionHeading>{t.products.heading}</SectionHeading>
@@ -35,6 +36,7 @@
 								stream-type="on-demand"
 								title={product.video.title}
 								autoplay="muted"
+								muted
 								loop
 								nohotkeys
 								style="display: block; width: 100%; height: 100%; --controls: none; --media-object-fit: cover;"
@@ -50,7 +52,7 @@
 						{/if}
 					</div>
 					<Card.Header class="px-6 pt-6">
-						<p class="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
+						<p class="text-xs font-medium tracking-[0.15em] text-muted-foreground uppercase">
 							{product.kicker}
 						</p>
 						<Card.Title class="font-heading text-2xl">{product.name}</Card.Title>
@@ -67,9 +69,7 @@
 						<ul class="space-y-2 text-sm leading-relaxed text-muted-foreground">
 							{#each product.bullets as bullet, i (i)}
 								<li class="flex gap-3">
-									<span
-										class="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground/60"
-									></span>
+									<span class="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground/60"></span>
 									{#if typeof bullet === 'string'}
 										<span>{bullet}</span>
 									{:else}

@@ -11,15 +11,22 @@ const lastmod = BUILD_DATE.slice(0, 10);
 type UrlEntry = {
 	loc: string;
 	priority: string;
-	alternates?: boolean;
+	/** When set, emit hreflang alternates pointing at this nl/en pair. */
+	alternates?: { nl: string; en: string };
 };
 
+const cateringNl = SITE_URL + '/catering/hilversum';
+const cateringEn = SITE_URL + '/en/catering/hilversum';
+
 const urls: UrlEntry[] = [
-	{ loc: altUrlNl, priority: '1.0', alternates: true },
-	{ loc: altUrlEn, priority: '0.8', alternates: true },
+	{ loc: altUrlNl, priority: '1.0', alternates: { nl: altUrlNl, en: altUrlEn } },
+	{ loc: altUrlEn, priority: '0.8', alternates: { nl: altUrlNl, en: altUrlEn } },
+	{ loc: cateringNl, priority: '0.8', alternates: { nl: cateringNl, en: cateringEn } },
+	{ loc: cateringEn, priority: '0.7', alternates: { nl: cateringNl, en: cateringEn } },
 	{ loc: SITE_URL + '/blog/hoeveel-hapjes-per-persoon', priority: '0.7' },
 	{ loc: SITE_URL + '/blog/tiramisu-bruiloft', priority: '0.7' },
-	{ loc: SITE_URL + '/blog/burrata-catering', priority: '0.7' }
+	{ loc: SITE_URL + '/blog/burrata-catering', priority: '0.7' },
+	{ loc: SITE_URL + '/blog/italiaanse-bruidstaart', priority: '0.7' }
 ];
 
 export const GET: RequestHandler = async () => {
@@ -32,9 +39,9 @@ ${urls
     <loc>${loc}</loc>${
 			alternates
 				? `
-    <xhtml:link rel="alternate" hreflang="nl" href="${altUrlNl}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${altUrlEn}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${altUrlNl}" />`
+    <xhtml:link rel="alternate" hreflang="nl" href="${alternates.nl}" />
+    <xhtml:link rel="alternate" hreflang="en" href="${alternates.en}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${alternates.nl}" />`
 				: ''
 		}
     <lastmod>${lastmod}</lastmod>

@@ -20,7 +20,7 @@
 		{#each items as item (item.id)}
 			<Accordion.Item
 				value={item.id}
-				class="data-[state=open]:bg-(--brand-magenta)/12 -mx-4 rounded-lg px-4 transition-colors"
+				class="-mx-4 rounded-lg px-4 transition-colors data-[state=open]:bg-(--brand-magenta)/12"
 			>
 				<Accordion.Trigger class="text-base font-normal md:text-lg">
 					{item.question}

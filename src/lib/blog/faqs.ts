@@ -21,10 +21,7 @@ export const BLOG_FAQS_NL = {
 
 export type SharedBlogFaqId = keyof typeof BLOG_FAQS_NL;
 
-export function buildFaqJsonLd(
-	items: BlogFaq[],
-	opts: { id: string; locale?: string }
-) {
+export function buildFaqJsonLd(items: BlogFaq[], opts: { id: string; locale?: string }) {
 	return {
 		'@context': 'https://schema.org',
 		'@type': 'FAQPage',

@@ -1,3 +1,8 @@
+really good cake website to model after: https://welovecakes.nl/trouwen/bruidstaarten-1
+
+reference for prices: https://welovecakes.nl/trouwen/prijzen
+
+
 ### DNS / hosting sanity
 
 - [ ] Decide what to do with the alt domains in [site-config.ts](src/lib/site-config.ts) (`detoetjesvrouw.nl`, `deborrelbaas.nl`): 301 to the main site, or park
@@ -7,7 +12,9 @@
 
 - [ ] **Wire end-to-end funnel into Umami** — without this every later channel decision (ads, referrals, content prioritisation) is guessing. Three pieces:
   1. **UTM-tag every external link** that points at the site: Instagram bio link, IG story link stickers, Linktree (if any), every directory listing (theperfectwedding.nl, future Showbird/Gigstarter), email signature, press follow-ups. Convention: `?utm_source=instagram&utm_medium=bio&utm_campaign=2026q2`. Umami already captures referrer + UTM; no setup needed beyond the tagging discipline. Maintain a small reference list of "where this URL is posted" in [docs/](docs/) so we don't lose the mapping.
+- [ ] **Exclude `contact_form_suspect` from `computeMetrics`.** `periodLeadTrend` already filters honeypot/spam captures, but `computeMetrics` ([src/lib/deals.ts](src/lib/deals.ts)) counts every deal regardless of origin — so honeypot trips (captured `status: 'nieuw'`, `origin: 'contact_form_suspect'`) inflate the `/admin` dashboard's `total`/`open`/monthly `leads` and add a junk `bySource` bucket, drifting from the trend widget right next to them. Either filter suspects in `computeMetrics` too, or give captures a status the funnel ignores.
 - [ ] **Spin up a "Deals" tracking sheet** (Notion DB or Google Sheet, doesn't matter). Columns: `date / source / lead name / status (lead → quote → booked → paid) / quote € / booking €`. Manual entry, ~30 sec per lead. This is the only place that knows deal value; Umami knows volume + source. Together they give CAC + conversion rate by source. Don't build software for this until 50+ rows exist.
+- [ ] **Automated conversion-rate significance monitor** (defer until the funnel events have ~4–6 weeks of data — they'd just read "insufficient" today). The lead-only monitor already shipped (`/admin` dashboard, `periodLeadTrend`/`leadDropTest`/`binomialTwoSidedP` in [src/lib/deals.ts](src/lib/deals.ts)) tests whether **lead volume** dropped — but it assumes traffic was stable across the two windows (no denominator). To test whether the **conversion rate** dropped independent of traffic, pull period counts from the **Umami API** (website id `cb19fa03-37f1-4594-8c87-d618ee43bcc4`, needs an API key) and run a **two-proportion test** (Fisher's exact / chi-square) on the ideal ratio: `contact_submit ÷ contact_view` per period — "of the people who actually reached the form, what fraction submitted?". `contact_view` only exists since 2026-06-26, so this is forward-looking. NOT GSC: GSC is organic-search-only and lags ~3 days; Umami sees all channels (IG, direct, word-of-mouth) + our funnel events. Until built, read the funnel by eye in Umami's UI (`contact_view` → `contact_start` → `contact_submit`) — it answers reach/start/finish for free. See [[umami-events]].
 
 ### Findings from 2026-05-09 check-in
 
@@ -15,6 +22,23 @@
 - [ ] **Improve `/blog/hoeveel-hapjes-per-persoon` CTR.** 116 impressions / 0.86% CTR after ~2 weeks = ranking somewhere on lower page 1 or top of page 2 but not getting clicked. Run URL Inspection in GSC to confirm position, then rewrite the title tag and meta description to better match search intent (lead with a concrete number/quantifier, e.g. "Hoeveel hapjes per persoon? Echte cijfers van een caterer"). Edit the post's `title` / `metaDescription` in [src/lib/i18n/nl.ts](src/lib/i18n/nl.ts).
 - [ ] **Re-check GSC Queries report around 2026-06-06** (≈ 4 weeks after the post launched). Filter Performance → Pages = `/blog/hoeveel-hapjes-per-persoon` and read which queries it's ranking for now that volume has built. Use those long-tail terms to inform briefs for S4+ in [docs/seo-content-plan.md](docs/seo-content-plan.md).
 - **NL-first is empirically confirmed.** `/en` got 4 impressions vs 31 on the NL homepage and 116 on the NL blog post. **Don't mirror new posts to EN until the NL version is ranking.** The blog seeds list already says this; data now backs it — bake it into the content cadence and resist the urge to dual-write.
+
+### Findings from 2026-06-26 GSC audit (first /seo-analysis run)
+
+90-day GSC: 113 clicks / 1,903 impressions / 5.94% CTR / pos 8.1. Search is healthy and **not declining** (28d-vs-prior shows zero declining pages/queries). Two threads untangled below.
+
+- **Lead-drop diagnosis (the trigger for all of this).** 6 real offertes end-May→early-June, then 0 in the next 2 weeks. Confirmed `contact_submit` (Umami) = 0 **and** Postmark = 0 for those 2 weeks → nobody submitted. The form is innocent (it delivered the earlier 6 fine) — this is demand fluctuation or a top-of-funnel gap, not a delivery bug or the honeypot. At n≈6 it's within statistical noise, not yet a trend. Capture, don't keep guessing.
+  - Shipped 2026-06-26 to make the next dry spell legible: `contact_start` (first field focus), `contact_view` / `home_products_view` (passive scroll-into-view via `src/lib/inView.ts`), progressive-disclosure form, location now optional, and a hardened honeypot that **captures** suspected spam (`origin='contact_form_suspect'`) + Telegram-pings instead of silently dropping. See [[umami-events]] / [[aanvragen-pipeline]].
+
+- [ ] **PRIORITISE `/catering/hilversum` + `/catering/het-gooi`** — this is the biggest untapped lever and the GSC data now quantifies how _close_ we already are. Sharpens the "Build location pages under `/catering/[slug]`" task below; bump it above the blog backlog. Target queries (high-intent local buyers, currently ranking only via the homepage by accident):
+  - `hapjes bestellen hilversum` — pos 7.6, 36 imp, **0 clicks** (bottom of page 1, no dedicated page)
+  - `cateraar hilversum` — pos 13.4 (page 2)
+  - `catering hilversum` — pos 21.6 (page 3)
+    Put these phrases in the title/H1/body of the Hilversum page; emit `LocalBusiness` JSON-LD with the city in `areaServed`. Note: volume is low per query, but intent is maximal — this is where buyers (not browsers) are.
+
+- [ ] **Funnel significance monitor** (the "is this drop real or noise?" tool). Build into the `/admin` dashboard — we already have the data (`deals.created_at` + `computeMetrics`). Model leads/period as Poisson with baseline rate λ (trailing weeks): P(0 leads in a period) = e^(−λ), so a zero-period is only statistically surprising (p<0.05) once **λ > 3 leads/period**. Right now λ is unestablished (one burst of 6, one of 0 — n too small to fit). Once ~6–8 weeks of post-fix data accumulate, compute λ from the trailing window and flag any period below the 5% lower Poisson bound; until then treat a single dry fortnight as noise. Keeps us from both panicking early and missing a real decline late.
+
+- **http→https + www redirects verified correct** (2026-06-26): both 308-redirect to `https://hangendehapjes.nl`. The stray `http://` entry in GSC is Google re-checking legacy URLs — it'll consolidate, no action.
 
 ## AI / LLM visibility
 

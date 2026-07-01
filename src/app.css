@@ -1,8 +1,8 @@
 @import 'tailwindcss';
-@import "tw-animate-css";
-@import "shadcn-svelte/tailwind.css";
-@import "@fontsource-variable/raleway";
-@import "@fontsource-variable/outfit";
+@import 'tw-animate-css';
+@import 'shadcn-svelte/tailwind.css';
+@import '@fontsource-variable/raleway';
+@import '@fontsource-variable/outfit';
 
 @font-face {
 	font-family: 'Lovelo Line';

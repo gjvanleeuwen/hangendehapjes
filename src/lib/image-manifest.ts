@@ -16,6 +16,39 @@ export const IMAGE_MANIFEST = {
 			1280
 		]
 	},
+	"bruidstaart_80_pers": {
+		"width": 3000,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"bruidstaart_orchidee": {
+		"width": 2040,
+		"height": 3444,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"bruitstaart_120_pers": {
+		"width": 5120,
+		"height": 3413,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
 	"burrata_closeup": {
 		"width": 5000,
 		"height": 3333,
@@ -126,6 +159,17 @@ export const IMAGE_MANIFEST = {
 			1920
 		]
 	},
+	"GuidoDijkstraFotografie.com-DSC07206": {
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
 	"hero": {
 		"width": 5000,
 		"height": 3333,
@@ -181,9 +225,96 @@ export const IMAGE_MANIFEST = {
 			1920
 		]
 	},
+	"lage_bruidstaart": {
+		"width": 3000,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"millefoglie_aansnijden": {
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"millefoglie_banner": {
+		"width": 4400,
+		"height": 2316,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"millefoglie_charlotte": {
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"millefoglie_ons": {
+		"width": 1600,
+		"height": 1067,
+		"widths": [
+			320,
+			640,
+			960,
+			1280
+		]
+	},
 	"owners": {
 		"width": 4100,
 		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"tiramisutaart_cacao": {
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"tiramisutaart_hapje": {
+		"width": 3333,
+		"height": 5000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"tiramisutaart_opbouw": {
+		"width": 3333,
+		"height": 5000,
 		"widths": [
 			320,
 			640,

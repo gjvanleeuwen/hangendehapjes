@@ -43,6 +43,7 @@ Copy on this site speaks in the voice of Gijs and Charlotte themselves — first
 
 Hard rules:
 
+- NO EM DASHES!!
 - **Always informal.** NL uses **jij / je / jouw** — never **u / uw**. EN keeps the same warmth ("you / your", contractions are fine).
 - **Never "tafel" / "aan tafel" / "tray-side" or any phrasing that implies seated table service.** They walk around at receptions, parties, and weddings with a tray slung from the neck. Use "tussen jouw gasten door", "ter plekke", "lopend", "op locatie" / "on the spot", "in front of your guests".
 - **The two characters are complementary, not interchangeable.** Lean into the contrast on copy:

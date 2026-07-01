@@ -12,35 +12,51 @@
 	<div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
 		<a
 			href={t.nav.homeHref}
-			class="font-wordmark text-(--brand-teal) text-lg font-bold uppercase tracking-[0.08em]"
+			class="font-wordmark text-lg font-bold tracking-[0.08em] text-(--brand-teal) uppercase"
 		>
 			Hangende Hapjes
 		</a>
 
 		<nav class="hidden items-center gap-8 text-sm md:flex">
-			<a class="text-muted-foreground transition-colors hover:text-foreground" href="{t.nav.homeHref}#about">
+			<a
+				class="text-muted-foreground transition-colors hover:text-foreground"
+				href="{t.nav.homeHref}#about"
+			>
 				{t.nav.about}
 			</a>
-			<a class="text-muted-foreground transition-colors hover:text-foreground" href="{t.nav.homeHref}#products">
+			<a
+				class="text-muted-foreground transition-colors hover:text-foreground"
+				href="{t.nav.homeHref}#products"
+			>
 				{t.nav.products}
 			</a>
-			<a class="text-muted-foreground transition-colors hover:text-foreground" href="{t.nav.homeHref}#photos">
+			{#if t.nav.cakes && t.products.cakeBanner}
+				<a
+					class="text-muted-foreground transition-colors hover:text-foreground"
+					href="{t.nav.homeHref}#bruidstaarten"
+				>
+					{t.nav.cakes}
+				</a>
+			{/if}
+			<a
+				class="text-muted-foreground transition-colors hover:text-foreground"
+				href="{t.nav.homeHref}#photos"
+			>
 				{t.nav.photos}
-			</a>
-			<a class="text-muted-foreground transition-colors hover:text-foreground" href="{t.nav.homeHref}#contact">
-				{t.nav.contact}
 			</a>
 		</nav>
 
 		<div class="flex items-center gap-2">
 			<a
 				href={t.nav.switchHref}
-				class="text-xs uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
+				class="text-xs tracking-wider text-muted-foreground uppercase transition-colors hover:text-foreground"
 				aria-label={t.nav.otherLabel}
 			>
 				{t.nav.switchLabel}
 			</a>
-			<Button href="{t.nav.homeHref}#contact" size="sm" class="hidden sm:inline-flex">{t.nav.contact}</Button>
+			<Button href="{t.nav.homeHref}#contact" size="sm" class="hidden sm:inline-flex"
+				>{t.nav.contact}</Button
+			>
 		</div>
 	</div>
 </header>

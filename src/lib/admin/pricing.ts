@@ -79,7 +79,8 @@ export const MIN_TOTAL_PORTIONS = 50;
 
 export interface PricingConfig {
 	mixSharedDeduction: number;
-	hourlyRate: number;
+	driveHourlyRate: number;
+	includedDriveHours: number;
 	extraPersonDriveHours: number;
 	mandatoryExtraPersonAt: number;
 	extraPersonMinPortions2: number;
@@ -90,10 +91,7 @@ export interface PricingConfig {
 	// Hangende hapjes — looptijd:
 	portionsPerHour: number; // porties per uur dat één persoon lopend ter plekke maakt
 
-	// Taart-/toren-varianten (op locatie gebouwd):
-	cakeSurchargePerPortion: number; // tiramisu-taart: bovenop het hapjestarief per persoon
-	towerSurchargePerPortion: number; // tiramisu-toren: bovenop het hapjestarief per persoon
-	glassDepreciationPerPortion: number; // toren: afschrijving glaswerk per gebruik (breuk + schoonmaak)
+	// Taart-varianten (op locatie gebouwd):
 	cakeboardPrice: number; // prijs per cakeboard
 	cakeboardPerPersons: number; // 1 cakeboard per X personen
 
@@ -101,20 +99,27 @@ export interface PricingConfig {
 	// erbuiten. Millefeuille gebruikt dezelfde opbouw-ankers als de tiramisu-taart.
 	cakeBuildHoursAt50: number;
 	cakeBuildHoursAt100: number;
-	towerBuildHoursAt50: number;
-	towerBuildHoursAt100: number;
+
+	// Tiramisu-taart — premium all-in service, op locatie opgebouwd. Eigen prijsankers
+	// houden kleine taarten mogelijk zonder ze als goedkoop dessert te positioneren.
+	tiramisuCakePriceAt30: number;
+	tiramisuCakePriceAt50: number;
+	tiramisuCakePriceAt100: number;
 
 	// Millefeuille — eigen prep-curve (zwaarder) en eigen prijsankers (portie-anchoring),
-	// beide met ankers op 50 en 100 personen. Het uurtarief is hier een uitkomst, geen input.
+	// met ankers op 25, 50 en 100 personen. Het uurtarief is hier een uitkomst, geen input.
+	millefeuillePrepHoursAt25: number;
 	millefeuillePrepHoursAt50: number;
 	millefeuillePrepHoursAt100: number;
+	millefeuillePriceAt25: number;
 	millefeuillePriceAt50: number;
 	millefeuillePriceAt100: number;
 }
 
 export const DEFAULT_CONFIG: PricingConfig = {
 	mixSharedDeduction: 125,
-	hourlyRate: 75,
+	driveHourlyRate: 75,
+	includedDriveHours: 1.5,
 	extraPersonDriveHours: 1.5,
 	mandatoryExtraPersonAt: 125,
 	extraPersonMinPortions2: 250,
@@ -123,20 +128,19 @@ export const DEFAULT_CONFIG: PricingConfig = {
 	volumeDiscountThreshold: 300,
 	volumeDiscountPercent: 0,
 	portionsPerHour: 50,
-	// +€1 dekt de dubbele portie net niet bij 2× prep — €1,50 landt rond ons doeltarief.
-	cakeSurchargePerPortion: 1.5,
-	towerSurchargePerPortion: 2.5,
-	glassDepreciationPerPortion: 1.0,
 	cakeboardPrice: 2.5,
 	cakeboardPerPersons: 12,
 	cakeBuildHoursAt50: 0.75, // 45 min
 	cakeBuildHoursAt100: 1.25, // 1u15
-	towerBuildHoursAt50: 1.25, // 1u15
-	towerBuildHoursAt100: 2.0, // 2u
-	millefeuillePrepHoursAt50: 3,
-	millefeuillePrepHoursAt100: 6,
-	millefeuillePriceAt50: 550,
-	millefeuillePriceAt100: 1075
+	tiramisuCakePriceAt30: 375,
+	tiramisuCakePriceAt50: 475,
+	tiramisuCakePriceAt100: 795,
+	millefeuillePrepHoursAt25: 1.5,
+	millefeuillePrepHoursAt50: 2.5,
+	millefeuillePrepHoursAt100: 5,
+	millefeuillePriceAt25: 395,
+	millefeuillePriceAt50: 575,
+	millefeuillePriceAt100: 995
 };
 
 export const SOLO_PORTIONS_PER_HOUR = 50;
@@ -161,6 +165,22 @@ function linAnchor(n: number, at50: number, at100: number): number {
 	return at50 + ((n - 50) * (at100 - at50)) / 50;
 }
 
+function linAnchors3(
+	n: number,
+	x0: number,
+	y0: number,
+	x1: number,
+	y1: number,
+	x2: number,
+	y2: number
+): number {
+	if (n <= x0) return y0;
+	if (n <= x1) return interp(n, x0, x1, y0, y1);
+	if (n <= x2) return interp(n, x1, x2, y1, y2);
+	const slope = (y2 - y1) / (x2 - x1);
+	return y2 + (n - x2) * slope;
+}
+
 export function purePrice(product: Product, portions: number): number {
 	if (portions <= 0) return 0;
 	return piecewise(PRICE_TIERS[product], portions);
@@ -180,7 +200,7 @@ export interface ProductLine {
 	product: Product;
 	portions: number;
 	price: number;
-	label?: string; // overschrijft PRODUCT_LABELS bij speciale varianten (taart/toren/millefeuille)
+	label?: string; // overschrijft PRODUCT_LABELS bij speciale varianten (taart/millefeuille)
 }
 
 export interface PriceBreakdown {
@@ -189,6 +209,8 @@ export interface PriceBreakdown {
 	mixDeduction: number;
 	volumeDiscount: number;
 	volumeDiscountPercent: number;
+	includedDriveFee: number;
+	includedDriveHours: number;
 	extraPersonFee: number;
 	extraPersonDriveHours: number;
 	extraPersonMandatory: boolean;
@@ -201,9 +223,9 @@ export interface PriceBreakdown {
 	warnings: string[];
 	// Alleen gevuld bij speciale varianten (calculateSpecialPrice):
 	variant?: SpecialVariant;
-	baseLinePrice?: number; // hapjestarief vóór toeslag (taart/toren)
-	surchargePerPortion?: number; // toeslag per persoon (taart/toren)
-	surchargeTotal?: number; // toeslag × porties (taart/toren)
+	baseLinePrice?: number; // hapjestarief vóór toeslag (taart)
+	surchargePerPortion?: number; // toeslag per persoon (taart)
+	surchargeTotal?: number; // toeslag × porties (taart)
 	fruitCostPerPortion?: number; // millefeuille: gebruikte fruitkostprijs per portie
 }
 
@@ -235,7 +257,7 @@ function extraPersonResult(
 	}
 	const driveHoursPerPerson = config.extraPersonDriveHours;
 	const extraPersonFee =
-		cappedExtra > 0 ? round2(cappedExtra * driveHoursPerPerson * config.hourlyRate) : 0;
+		cappedExtra > 0 ? round2(cappedExtra * driveHoursPerPerson * config.driveHourlyRate) : 0;
 	return { mandatory, allowedExtra, cappedExtra, driveHoursPerPerson, extraPersonFee, warnings };
 }
 
@@ -261,7 +283,7 @@ export function calculatePrice(input: {
 	const warnings: string[] = [];
 
 	const isMix = tiraPortions > 0 && burrPortions > 0;
-	const isPure = (tiraPortions > 0) !== (burrPortions > 0);
+	const isPure = tiraPortions > 0 !== burrPortions > 0;
 
 	if (isMix) {
 		if (tiraPortions < MIN_PORTIONS_PER_PRODUCT)
@@ -307,6 +329,8 @@ export function calculatePrice(input: {
 		config.volumeDiscountPercent > 0 && totalPortions >= config.volumeDiscountThreshold;
 	const volumeDiscount = discountApplies ? round2((base * config.volumeDiscountPercent) / 100) : 0;
 	const effectiveDiscountPercent = discountApplies ? config.volumeDiscountPercent : 0;
+	const includedDriveFee =
+		totalPortions > 0 ? round2(config.includedDriveHours * config.driveHourlyRate) : 0;
 
 	const total = round2(base - volumeDiscount + extraPersonFee + travelFee);
 	const perPortion = totalPortions > 0 ? round2(total / totalPortions) : 0;
@@ -317,6 +341,8 @@ export function calculatePrice(input: {
 		mixDeduction,
 		volumeDiscount,
 		volumeDiscountPercent: effectiveDiscountPercent,
+		includedDriveFee,
+		includedDriveHours: totalPortions > 0 ? config.includedDriveHours : 0,
 		extraPersonFee,
 		extraPersonDriveHours: cappedExtra > 0 ? driveHoursPerPerson : 0,
 		extraPersonMandatory: mandatory,
@@ -338,7 +364,7 @@ export interface InternalBreakdown {
 	hours: {
 		prep: number;
 		walking: number; // hapjesconcept: rondlopen en ter plekke maken
-		build: number; // taart/toren: op locatie opbouwen (0 bij hapjes)
+		build: number; // taart: op locatie opbouwen (0 bij hapjes)
 		cleanup: number;
 		drive: number;
 		total: number;
@@ -376,7 +402,7 @@ export function calculateInternals(
 
 	const walking = total / config.portionsPerHour;
 	const cleanup = cleanupHours(total);
-	const drive = config.extraPersonDriveHours * people;
+	const drive = config.includedDriveHours * people;
 	const totalPersonHours = prep + walking + cleanup + drive;
 
 	const ingredientsTira = tiraPortions * INGREDIENT_COST_PER_PORTION.tiramisu;
@@ -417,37 +443,47 @@ export function calculateInternals(
 // Worden voorlopig niet gemengd met de hapjesconcepten in één bestelling.
 // ---------------------------------------------------------------------------
 
-export type SpecialVariant = 'tiramisu-taart' | 'tiramisu-toren' | 'millefeuille-taart';
+export type SpecialVariant = 'tiramisu-taart' | 'millefeuille-taart';
 
 export const VARIANT_LABELS: Record<SpecialVariant, string> = {
 	'tiramisu-taart': 'Tiramisu-taart (op locatie gebouwd)',
-	'tiramisu-toren': 'Tiramisu-toren (champagneglazen)',
 	'millefeuille-taart': 'Millefeuille-taart (vers fruit)'
 };
+
+export const SPECIAL_MIN_PORTIONS: Record<SpecialVariant, number> = {
+	'tiramisu-taart': 30,
+	'millefeuille-taart': 25
+};
+
+export function minPortionsForSpecialVariant(variant: SpecialVariant): number {
+	return SPECIAL_MIN_PORTIONS[variant];
+}
 
 // Portiegrootte t.o.v. één hapje — stuurt de ingrediëntkost van de tiramisu-varianten
 // (een 2×-portie = 2× ingrediënten) en is ook de basis voor de footprint later.
 // Millefeuille heeft een eigen kostprijs, dus de factor raakt daar alleen de spec.
 export const PORTION_SIZE_FACTOR: Record<SpecialVariant, number> = {
 	'tiramisu-taart': 2,
-	'tiramisu-toren': 1.5,
 	'millefeuille-taart': 2
 };
 
-// Prep voor tiramisu-taart/-toren = de standaard hapjesprep, geschaald met de
-// portiegrootte (ze maken letterlijk 2×/1,5× het volume tiramisu). Zie PORTION_SIZE_FACTOR.
+// Ingredientfactor voor tiramisu-taart: de taart gebruikt wel 2× lange vingers/koffie/
+// amaretto, maar ongeveer 1,35× crème. Als gewogen midden houden we 1,65× aan.
+export const TIRAMISU_CAKE_INGREDIENT_FACTOR = 1.65;
+
+// Prep voor tiramisu-taart = de standaard hapjesprep, geschaald met de
+// portiegrootte (ze maken letterlijk 2× het volume tiramisu). Zie PORTION_SIZE_FACTOR.
 // Millefeuille erft die schaal NIET — die heeft een eigen prep-curve (config-ankers).
 
-// Opbouwtijd op locatie staat in de config (cake/tower ankers @50 en @100), lineair
-// ertussen en erbuiten via linAnchor — zo zijn de tijden per offerte fijn te tunen.
-// Millefeuille gebruikt dezelfde opbouw-ankers als de tiramisu-taart.
+// Opbouwtijd op locatie staat in de config (cake ankers @50 en @100), lineair ertussen
+// en erbuiten via linAnchor — zo zijn de tijden per offerte fijn te tunen.
 
 // Millefeuille kostprijs per portie (excl. btw):
 //   bladerdeeg €9,60 + crème €20,04 = €29,64 over 40 porties → €0,74 p.p. (stabiel)
-//   fruit: 4 kg @ €18,90/kg = €75,60 voor 50 porties → 80 g p.p. → €1,51 p.p.
+//   fruit: 2,4 kg @ €18,90/kg = €45,36 voor 50 porties → 48 g p.p. → €0,91 p.p.
 //   (fruit varieert per seizoen → losse input in de calculator)
 export const MILLEFEUILLE_BASE_COST_PER_PORTION = 0.74;
-export const MILLEFEUILLE_DEFAULT_FRUIT_COST_PER_PORTION = 1.51;
+export const MILLEFEUILLE_DEFAULT_FRUIT_COST_PER_PORTION = 0.91;
 
 // Portie-spec (voor latere footprint-/formaatberekeningen — nu niet in de prijs).
 export interface PortionSpec {
@@ -462,13 +498,13 @@ export const PORTION_SPECS: Partial<Record<SpecialVariant, PortionSpec>> = {
 	'millefeuille-taart': {
 		puffPastryRawGrams: 40,
 		creamMl: 150,
-		fruitGrams: 80,
+		fruitGrams: 48,
 		heightCm: 7.5,
 		footprintCm: '6×6'
 	}
 };
 
-// Tiramisu-taart/-toren: standaard hapjesprep, geschaald met de portiegrootte.
+// Tiramisu-taart: standaard hapjesprep, geschaald met de portiegrootte.
 // Millefeuille: eigen, zwaardere curve via config-ankers (50/100 personen).
 export function specialPrepHours(
 	variant: SpecialVariant,
@@ -477,23 +513,27 @@ export function specialPrepHours(
 ): number {
 	if (portions <= 0) return 0;
 	if (variant === 'millefeuille-taart') {
-		return linAnchor(portions, config.millefeuillePrepHoursAt50, config.millefeuillePrepHoursAt100);
+		return linAnchors3(
+			portions,
+			25,
+			config.millefeuillePrepHoursAt25,
+			50,
+			config.millefeuillePrepHoursAt50,
+			100,
+			config.millefeuillePrepHoursAt100
+		);
 	}
 	return prepHours('tiramisu', portions * PORTION_SIZE_FACTOR[variant]);
 }
 
-// Opbouwtijd op locatie uit de config-ankers. Toren heeft eigen ankers; taart en
-// millefeuille delen de cake-ankers.
+// Opbouwtijd op locatie uit de config-ankers. Taart en millefeuille delen de cake-ankers.
 export function buildHours(
 	variant: SpecialVariant,
 	portions: number,
 	config: PricingConfig
 ): number {
 	if (portions <= 0) return 0;
-	const at50 = variant === 'tiramisu-toren' ? config.towerBuildHoursAt50 : config.cakeBuildHoursAt50;
-	const at100 =
-		variant === 'tiramisu-toren' ? config.towerBuildHoursAt100 : config.cakeBuildHoursAt100;
-	return linAnchor(portions, at50, at100);
+	return linAnchor(portions, config.cakeBuildHoursAt50, config.cakeBuildHoursAt100);
 }
 
 function cakeboardCostPerPortion(config: PricingConfig): number {
@@ -509,13 +549,11 @@ export function specialIngredientCostPerPortion(
 	if (variant === 'millefeuille-taart') {
 		return round2(MILLEFEUILLE_BASE_COST_PER_PORTION + fruitCostPerPortion);
 	}
-	return round2(INGREDIENT_COST_PER_PORTION.tiramisu * PORTION_SIZE_FACTOR[variant]);
+	return round2(INGREDIENT_COST_PER_PORTION.tiramisu * TIRAMISU_CAKE_INGREDIENT_FACTOR);
 }
 
-function specialPackagingCostPerPortion(variant: SpecialVariant, config: PricingConfig): number {
-	return variant === 'tiramisu-toren'
-		? config.glassDepreciationPerPortion
-		: cakeboardCostPerPortion(config);
+function specialPackagingCostPerPortion(_variant: SpecialVariant, config: PricingConfig): number {
+	return cakeboardCostPerPortion(config);
 }
 
 export function calculateSpecialPrice(input: {
@@ -530,28 +568,47 @@ export function calculateSpecialPrice(input: {
 	const n = Math.max(0, Math.round(input.portions));
 	const fruitCost = input.fruitCostPerPortion ?? MILLEFEUILLE_DEFAULT_FRUIT_COST_PER_PORTION;
 	const warnings: string[] = [];
+	const minPortions = minPortionsForSpecialVariant(variant);
 
-	if (n > 0 && n < MIN_TOTAL_PORTIONS) {
-		warnings.push(`Minimaal ${MIN_TOTAL_PORTIONS} porties.`);
+	if (n > 0 && n < minPortions) {
+		warnings.push(`Minimaal ${minPortions} porties.`);
 	}
 
 	let baseLinePrice = 0;
 	let surchargePerPortion = 0;
 	let linePrice = 0;
 
-	if (variant === 'millefeuille-taart') {
-		// Portie-anchoring: vaste prijsankers op 50 en 100 personen, lineair ertussen en
+	if (n <= 0) {
+		linePrice = 0;
+	} else if (variant === 'millefeuille-taart') {
+		// Portie-anchoring: vaste prijsankers op 25, 50 en 100 personen, lineair ertussen en
 		// erbuiten. Fruit zit NIET in de prijs — het drukt op onze marge (zie intern),
 		// dus bij een duur seizoen verhogen we het anker zelf.
-		linePrice = round2(linAnchor(n, config.millefeuillePriceAt50, config.millefeuillePriceAt100));
-	} else {
-		// Tiramisu-taart/-toren: hapjestarief voor hetzelfde aantal personen + toeslag.
+		linePrice = round2(
+			linAnchors3(
+				n,
+				25,
+				config.millefeuillePriceAt25,
+				50,
+				config.millefeuillePriceAt50,
+				100,
+				config.millefeuillePriceAt100
+			)
+		);
+	} else if (variant === 'tiramisu-taart') {
 		baseLinePrice = round2(purePrice('tiramisu', n));
-		surchargePerPortion =
-			variant === 'tiramisu-toren'
-				? config.towerSurchargePerPortion
-				: config.cakeSurchargePerPortion;
-		linePrice = round2(baseLinePrice + surchargePerPortion * n);
+		linePrice = round2(
+			linAnchors3(
+				n,
+				30,
+				config.tiramisuCakePriceAt30,
+				50,
+				config.tiramisuCakePriceAt50,
+				100,
+				config.tiramisuCakePriceAt100
+			)
+		);
+		surchargePerPortion = n > 0 ? round2((linePrice - baseLinePrice) / n) : 0;
 	}
 
 	const productLines: ProductLine[] =
@@ -564,10 +621,10 @@ export function calculateSpecialPrice(input: {
 	const { travelChargedKm, travelFee } = travelResult(oneWayKm, config);
 
 	const base = linePrice;
-	const discountApplies =
-		config.volumeDiscountPercent > 0 && n >= config.volumeDiscountThreshold;
+	const discountApplies = config.volumeDiscountPercent > 0 && n >= config.volumeDiscountThreshold;
 	const volumeDiscount = discountApplies ? round2((base * config.volumeDiscountPercent) / 100) : 0;
 	const effectiveDiscountPercent = discountApplies ? config.volumeDiscountPercent : 0;
+	const includedDriveFee = n > 0 ? round2(config.includedDriveHours * config.driveHourlyRate) : 0;
 
 	const total = round2(base - volumeDiscount + ep.extraPersonFee + travelFee);
 	const perPortion = n > 0 ? round2(total / n) : 0;
@@ -578,6 +635,8 @@ export function calculateSpecialPrice(input: {
 		mixDeduction: 0,
 		volumeDiscount,
 		volumeDiscountPercent: effectiveDiscountPercent,
+		includedDriveFee,
+		includedDriveHours: n > 0 ? config.includedDriveHours : 0,
 		extraPersonFee: ep.extraPersonFee,
 		extraPersonDriveHours: ep.cappedExtra > 0 ? ep.driveHoursPerPerson : 0,
 		extraPersonMandatory: ep.mandatory,
@@ -591,7 +650,7 @@ export function calculateSpecialPrice(input: {
 		variant,
 		baseLinePrice,
 		surchargePerPortion,
-		surchargeTotal: round2(surchargePerPortion * n),
+		surchargeTotal: variant === 'millefeuille-taart' ? 0 : round2(linePrice - baseLinePrice),
 		fruitCostPerPortion: variant === 'millefeuille-taart' ? fruitCost : undefined
 	};
 }
@@ -611,7 +670,7 @@ export function calculateSpecialInternals(
 	const prep = specialPrepHours(variant, n, config);
 	const build = buildHours(variant, n, config);
 	const cleanup = cleanupHours(n);
-	const drive = config.extraPersonDriveHours * people;
+	const drive = config.includedDriveHours * people;
 	const totalPersonHours = prep + build + cleanup + drive;
 
 	const ingredients = n * specialIngredientCostPerPortion(variant, input.fruitCostPerPortion);

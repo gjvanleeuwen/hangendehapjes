@@ -5,11 +5,7 @@ import type { RequestHandler } from './$types';
 
 // RFC 5545 text escaping for property values.
 const esc = (s: string) =>
-	s
-		.replace(/\\/g, '\\\\')
-		.replace(/;/g, '\\;')
-		.replace(/,/g, '\\,')
-		.replace(/\n/g, '\\n');
+	s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
 
 // YYYY-MM-DD -> YYYYMMDD (all-day DATE value).
 const icsDate = (iso: string) => iso.replace(/-/g, '');
@@ -24,7 +20,10 @@ const nextDay = (iso: string) => {
 const icsStamp = (iso: string) => {
 	const d = new Date(iso);
 	if (Number.isNaN(d.getTime())) return '19700101T000000Z';
-	return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+	return d
+		.toISOString()
+		.replace(/[-:]/g, '')
+		.replace(/\.\d{3}/, '');
 };
 
 // Long lines must be folded at 75 octets (we fold a bit conservatively on chars).
@@ -88,7 +87,10 @@ export const GET: RequestHandler = async ({ url }) => {
 	}
 
 	const deals = await listEventDeals();
-	const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+	const stamp = new Date()
+		.toISOString()
+		.replace(/[-:]/g, '')
+		.replace(/\.\d{3}/, '');
 
 	const lines = [
 		'BEGIN:VCALENDAR',

@@ -21,9 +21,7 @@
 		decoding = 'async'
 	}: Props = $props();
 
-	const baseName = $derived(
-		src.replace(/^.*\//, '').replace(/\.[^.]+$/, '') as OptimizedImageName
-	);
+	const baseName = $derived(src.replace(/^.*\//, '').replace(/\.[^.]+$/, '') as OptimizedImageName);
 	const entry = $derived(IMAGE_MANIFEST[baseName]);
 
 	const avifSrcset = $derived(buildSrcset(baseName, entry?.widths ?? [], 'avif'));

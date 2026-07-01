@@ -24,6 +24,7 @@ export type Translations = {
 	nav: {
 		about: string;
 		products: string;
+		cakes?: string;
 		photos: string;
 		contact: string;
 		homeHref: string;
@@ -48,6 +49,12 @@ export type Translations = {
 		heading: string;
 		intro: string;
 		items: Product[];
+		cakeBanner?: {
+			kicker: string;
+			heading: string;
+			body: string;
+			links: { label: string; href: string; image: string; imageAlt: string }[];
+		};
 		priceFooter: string;
 		priceCta: string;
 	};
@@ -122,7 +129,31 @@ export type Translations = {
 			cta: string;
 			or: string;
 		};
+		steps: {
+			choice: string;
+			event: string;
+		};
+		nav: {
+			next: string;
+			back: string;
+		};
+		modes: {
+			form: string;
+			direct: string;
+		};
+		callback: {
+			heading: string;
+			intro: string;
+			label: string;
+			placeholder: string;
+			submit: string;
+		};
 		placeholders: {
+			name: string;
+			email: string;
+			phone: string;
+			guests: string;
+			location: string;
 			message: string;
 			referral: string;
 			choice: string;
@@ -145,7 +176,7 @@ export type Translations = {
 		whatsapp: string;
 		emailLabel: string;
 		photoCredit: string;
-		readingHeading?: string;
 		readingLinks?: { label: string; href: string }[];
+		resourceLinks?: { label: string; href: string }[];
 	};
 };

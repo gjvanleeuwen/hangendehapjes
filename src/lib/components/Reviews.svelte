@@ -11,9 +11,7 @@
 
 	let reviews = $derived(t.reviews.items ?? []);
 	let count = $derived(reviews.length);
-	let average = $derived(
-		count > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / count : 0
-	);
+	let average = $derived(count > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / count : 0);
 	let averageDisplay = $derived(
 		average.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
 	);
@@ -28,10 +26,12 @@
 
 			{#if count > 0}
 				<div class="flex items-center gap-3 sm:shrink-0">
-					<span class="text-3xl font-semibold tabular-nums text-foreground">{averageDisplay}</span>
+					<span class="text-3xl font-semibold text-foreground tabular-nums">{averageDisplay}</span>
 					<div class="flex items-center gap-0.5 text-amber-500" aria-hidden="true">
 						{#each { length: 5 } as _, i (i)}
-							<StarIcon class="size-5 {i < rounded ? 'fill-current' : 'text-muted-foreground/30'}" />
+							<StarIcon
+								class="size-5 {i < rounded ? 'fill-current' : 'text-muted-foreground/30'}"
+							/>
 						{/each}
 					</div>
 					<span class="text-sm text-muted-foreground">{count} {noun}</span>

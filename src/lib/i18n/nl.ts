@@ -13,6 +13,7 @@ export const nl: Translations = {
 	nav: {
 		about: 'Over ons',
 		products: 'Concepten',
+		cakes: 'Bruidstaarten',
 		photos: 'Foto’s',
 		contact: 'Contact',
 		homeHref: '/',
@@ -50,7 +51,7 @@ export const nl: Translations = {
 				id: 'toetjes',
 				kicker: 'Zoet · klassiek',
 				name: 'Tiramisu',
-				pitch: 'Verse tiramisu die we als een toren opbouwen bij het serveren.',
+				pitch: 'Verse tiramisu die we per gast live opbouwen bij het serveren.',
 				priceFrom: 'Vanaf €425',
 				priceNote: 'voor 50 personen',
 				bullets: [
@@ -98,10 +99,36 @@ export const nl: Translations = {
 					'Vanaf €450 voor 50 porties · €700 voor 100 · grotere events op aanvraag'
 				],
 				image: BORREL_IMAGE,
-				imageAlt: 'Een vers opgemaakte burrata-bowl met crispy prosciutto, pijnboompitten en scrocchi-toastjes',
+				imageAlt:
+					'Een vers opgemaakte burrata-bowl met crispy prosciutto, pijnboompitten en scrocchi-toastjes',
 				article: { href: '/blog/burrata-catering', label: 'Lees meer over onze burrata bar' }
 			}
 		],
+		cakeBanner: {
+			kicker: 'Showstoppers door Charlotte',
+			heading: 'Wij maken ook bruidstaarten',
+			body: 'Van een klassieke hoge bruidstaart tot een Italiaanse millefoglie of tiramisu bij het trouwen: hetzelfde huisgemaakte karakter, maar dan als taartmoment voor jouw trouwerij.',
+			links: [
+				{
+					label: 'Klassieke bruidstaart',
+					href: '/blog/bruidstaart',
+					image: '/images/bruitstaart_120_pers.jpeg',
+					imageAlt: 'Bruidspaar snijdt een hoge klassieke bruidstaart aan'
+				},
+				{
+					label: 'Italiaanse bruidstaart',
+					href: '/blog/italiaanse-bruidstaart',
+					image: '/images/millefoglie_aansnijden.jpeg',
+					imageAlt: 'Bruidspaar snijdt samen een Italiaanse millefoglie bruidstaart aan'
+				},
+				{
+					label: 'Tiramisu op je bruiloft',
+					href: '/blog/tiramisu-bruiloft',
+					image: '/images/tiramisutaart_cacao.jpg',
+					imageAlt: 'Tiramisu-taart met cacao als bruidstaart alternatief'
+				}
+			]
+		},
 		priceFooter: 'Prijzen excl. BTW · Reiskosten gratis tot 50 km vanaf Hilversum.',
 		priceCta: 'Vraag een offerte aan'
 	},
@@ -129,7 +156,7 @@ export const nl: Translations = {
 				id: 'booking',
 				question: 'Hoe werkt boeken en moet dat snel?',
 				answer:
-					'Vul het contactformulier in met je datum, locatie en aantal gasten. We komen binnen 1–2 dagen bij je terug met een voorstel op maat. Akkoord? Dan staat de boeking. Wij kunnen snel schakelen, soms zelfs op de dag zelf, maar voor zekerheid raden we aan om minstens 2 á 3 maanden van tevoren te boeken.'
+					'Vul het contactformulier in met je datum, locatie en aantal gasten. We komen binnen 1–2 dagen bij je terug met een voorstel op maat. Akkoord? Dan staat de boeking. Wij kunnen snel schakelen, soms zelfs op de dag zelf, maar voor zekerheid raden we aan om minstens 2 à 3 maanden van tevoren te boeken.'
 			},
 			{
 				id: 'travel',
@@ -141,13 +168,13 @@ export const nl: Translations = {
 				id: 'combine',
 				question: 'Kan ik beide concepten boeken, en wie komt er serveren?',
 				answer:
-					'Zeker, je kan beide concepten los of samen op één feest boeken. Sommige hosts kiezen voor de burrata tijdens de borrel/receptie en de tiramisu als dessert. Een richtprijs voor een combi van beide concepten is onze standaard vanaf prijs voor beide concepten met ~€125 korting. Zowel Gijs als Charlotte maken heerlijke tiramisu en burrata-bowls, wie er komt is afhankelijk van de beschikbaarheid en is niet verbonden met de conceptkeuze.'
+					'Zeker, je kan beide concepten los of samen op één feest boeken. Sommige hosts kiezen voor de burrata tijdens de borrel/receptie en de tiramisu als dessert. Een richtprijs voor een combi is de standaard vanafprijs voor beide concepten samen, met ongeveer €125 korting. Zowel Gijs als Charlotte maken heerlijke tiramisu en burrata-bowls; wie er komt is afhankelijk van de beschikbaarheid en is niet verbonden met de conceptkeuze.'
 			},
 			{
 				id: 'portion',
 				question: 'Hoe groot is een portie?',
 				answer:
-					'Een portie is ongeveer even groot als 2 á 3 standaard hapjes (crostinis, bittergarnituur etc.). Gasten krijgen een net bakje dat goed gevuld is met lekkers. Wij gaan voor kwaliteit en dat zie je terug in hoe wij de hapjes presenteren en de smaak daarvan.'
+					'Een portie is ongeveer even groot als 2 à 3 standaard hapjes (crostini, bittergarnituur etc.). Gasten krijgen een net bakje dat goed gevuld is met lekkers. Wij gaan voor kwaliteit en dat zie je terug in de presentatie en smaak.'
 			},
 			{
 				id: 'diet',
@@ -206,7 +233,7 @@ export const nl: Translations = {
 	contact: {
 		heading: 'Boek ons voor jouw feest',
 		intro:
-			'Vertel ons kort wat je plant dan komen we binnen 1–2 dagen bij je terug met een voorstel.',
+			'Vertel ons kort wat je van plan bent dan komen we binnen 1–2 dagen bij je terug met een voorstel.',
 		labels: {
 			name: 'Naam',
 			email: 'E-mailadres',
@@ -214,10 +241,10 @@ export const nl: Translations = {
 			eventDate: 'Datum evenement',
 			location: 'Locatie evenement',
 			guests: 'Aantal gasten',
-			serviceType: 'Waar ben je in geïnteresseerd?',
-			choice: 'En welke?',
+			serviceType: 'Welke catering zoek je?',
+			choice: 'Welk product past het best?',
 			dagdeel: 'Als welk onderdeel van je evenement?',
-			servingTime: 'En hoelaat ongeveer?',
+			servingTime: 'En hoe laat ongeveer?',
 			referral: 'Hoe heb je over ons gehoord?',
 			message: 'Bericht'
 		},
@@ -228,7 +255,8 @@ export const nl: Translations = {
 			},
 			taart: {
 				title: 'Een bruidstaart',
-				description: 'Een custom bruidstaart of grote italiaanse milefeuille/tiramisu gemaakt door Charlotte.'
+				description:
+					'Een bruidstaart op maat of grote Italiaanse millefeuille/tiramisu gemaakt door Charlotte.'
 			}
 		},
 		options: {
@@ -241,7 +269,7 @@ export const nl: Translations = {
 		dagdelen: {
 			placeholder: 'Kies een onderdeel',
 			taartmoment: 'Taartmoment',
-      receptie: 'Receptie/borrel',
+			receptie: 'Receptie/borrel',
 			voorgerecht: 'Voorgerecht/walking dinner',
 			dessert: 'Dessert',
 			feest: 'Feest'
@@ -250,7 +278,31 @@ export const nl: Translations = {
 			cta: 'Stuur een WhatsApp',
 			or: 'of'
 		},
+		steps: {
+			choice: 'Basisinformatie',
+			event: 'Over je feest'
+		},
+		nav: {
+			next: 'Volgende',
+			back: 'Terug'
+		},
+		modes: {
+			form: 'Stuur een aanvraag',
+			direct: 'WhatsApp of wordt teruggebeld'
+		},
+		callback: {
+			heading: 'Het snelst: even appen of bellen',
+			intro: 'App ons direct of laat je nummer achter, dan bellen we je terug.',
+			label: 'Telefoonnummer',
+			placeholder: '06…',
+			submit: 'Bel mij terug'
+		},
 		placeholders: {
+			name: 'Bijv. Charlotte de Vries',
+			email: 'bijv. jij@email.nl',
+			phone: 'bijv. 06 12 34 56 78',
+			guests: 'bijv. 75',
+			location: 'Bijv. De Vorstin, Hilversum',
 			message: 'Vertel ons over je feest, sfeer, locatie, eventuele wensen en meer.',
 			referral: 'Bijv. via Instagram, een vriend, Google…',
 			choice: 'Maak een keuze…'
@@ -274,12 +326,7 @@ export const nl: Translations = {
 		whatsapp: 'WhatsApp',
 		emailLabel: 'E-mail',
 		photoCredit: 'Foto’s door',
-		readingHeading: 'Goed om te weten',
 		readingLinks: [
-			{
-				label: 'Hoeveel hapjes per persoon',
-				href: '/blog/hoeveel-hapjes-per-persoon'
-			},
 			{
 				label: 'Tiramisu op je bruiloft',
 				href: '/blog/tiramisu-bruiloft'
@@ -287,6 +334,24 @@ export const nl: Translations = {
 			{
 				label: 'Burrata bar op je feest',
 				href: '/blog/burrata-catering'
+			},
+			{
+				label: 'Italiaanse bruidstaart',
+				href: '/blog/italiaanse-bruidstaart'
+			},
+			{
+				label: 'Klassieke bruidstaart',
+				href: '/blog/bruidstaart'
+			}
+		],
+		resourceLinks: [
+			{
+				label: 'Catering in Hilversum',
+				href: '/catering/hilversum'
+			},
+			{
+				label: 'Hoeveel hapjes per persoon',
+				href: '/blog/hoeveel-hapjes-per-persoon'
 			}
 		]
 	}

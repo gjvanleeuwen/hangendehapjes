@@ -7,7 +7,7 @@
 	let { t }: Props = $props();
 </script>
 
-<section class="bg-foreground text-background relative isolate min-h-[80vh] overflow-hidden">
+<section class="relative isolate min-h-[80vh] overflow-hidden bg-foreground text-background">
 	<Picture
 		src={t.hero.image}
 		alt={t.hero.imageAlt}
@@ -17,17 +17,17 @@
 		fetchpriority="high"
 	/>
 	<div
-		class="from-foreground/40 via-foreground/30 to-foreground/85 absolute inset-0 -z-10 bg-linear-to-b"
+		class="absolute inset-0 -z-10 bg-linear-to-b from-foreground/40 via-foreground/30 to-foreground/85"
 	></div>
 
 	<div class="mx-auto flex min-h-[80vh] max-w-6xl flex-col justify-end px-6 py-24 md:py-32">
-		<p class="text-background/80 text-sm uppercase tracking-[0.2em]">{t.hero.eyebrow}</p>
+		<p class="text-sm tracking-[0.2em] text-background/80 uppercase">{t.hero.eyebrow}</p>
 		<h1
 			class="mt-4 max-w-3xl font-heading text-4xl leading-tight tracking-tight md:text-6xl lg:text-7xl"
 		>
 			{t.hero.title}
 		</h1>
-		<p class="text-background/85 mt-6 max-w-xl text-base md:text-lg">{t.hero.subtitle}</p>
+		<p class="mt-6 max-w-xl text-base text-background/85 md:text-lg">{t.hero.subtitle}</p>
 		<div class="mt-8 flex flex-wrap gap-3">
 			<Button href="#products" size="lg">
 				{t.hero.secondaryCta}

@@ -79,8 +79,7 @@ const cases: Case[] = [
 		name: 'phone CRLF replaced with space',
 		input: { name: 'G', email: 'g@x.com', phone: '06\n12345678', message: 'hi' },
 		shouldPass: true,
-		check: (o) =>
-			/[\r\n]/.test((o as { phone: string }).phone) ? `phone contains CRLF` : null
+		check: (o) => (/[\r\n]/.test((o as { phone: string }).phone) ? `phone contains CRLF` : null)
 	},
 	{
 		name: 'message preserves newlines',
@@ -229,7 +228,8 @@ const cases: Case[] = [
 		name: 'guests as number passes (HTML5 type=number ships as JSON number)',
 		input: { name: 'G', email: 'g@x.com', message: 'hi', guests: 100 },
 		shouldPass: true,
-		check: (o) => ((o as { guests: string }).guests === '100' ? null : 'guests not coerced to string')
+		check: (o) =>
+			(o as { guests: string }).guests === '100' ? null : 'guests not coerced to string'
 	},
 	{
 		name: 'guests as string still passes',
@@ -284,9 +284,9 @@ for (const c of cases) {
 		if (!result.success) {
 			const issues = result.issues.map(
 				(i) =>
-					`${(i.path ?? [])
-						.map((p) => String((p as { key: unknown }).key))
-						.join('.') || '(root)'}: ${i.message}`
+					`${
+						(i.path ?? []).map((p) => String((p as { key: unknown }).key)).join('.') || '(root)'
+					}: ${i.message}`
 			);
 			console.log(`    issues: ${issues.join('; ')}`);
 		}

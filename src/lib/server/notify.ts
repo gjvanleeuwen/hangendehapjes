@@ -16,8 +16,7 @@ export async function notifyError(error: unknown, context: NotifyContext): Promi
 	const token = env.TELEGRAM_BOT_TOKEN;
 	const chatId = env.TELEGRAM_CHAT_ID;
 
-	const message =
-		error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+	const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 	const stack = error instanceof Error && error.stack ? error.stack : null;
 
 	const lines = [
@@ -31,9 +30,7 @@ export async function notifyError(error: unknown, context: NotifyContext): Promi
 		'',
 		`<b>Error:</b> <code>${escapeHtml(message)}</code>`,
 		stack ? `<pre>${escapeHtml(stack.split('\n').slice(0, 8).join('\n'))}</pre>` : null,
-		context.extra
-			? `<pre>${escapeHtml(JSON.stringify(context.extra, null, 2))}</pre>`
-			: null
+		context.extra ? `<pre>${escapeHtml(JSON.stringify(context.extra, null, 2))}</pre>` : null
 	].filter((l): l is string => l !== null);
 
 	const text = lines.join('\n');

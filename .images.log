@@ -1,0 +1,14 @@
+$ bun scripts/optimize-images.ts
+Optimizing 30 images → static/images/optimized
+  burrata_closeup: 1.74 MB src → 369.3 KB for 5 widths (webp+avif)
+  WhatsApp Image 2026-06-27 at 17.04.02: 439.8 KB src → 846.3 KB for 4 widths (webp+avif)
+  millefoglie_aansnijden: 3.25 MB src → 702.9 KB for 5 widths (webp+avif)
+  charlotte_2: 1.25 MB src → 3.53 MB for 5 widths (webp+avif)
+  bruitstaart_120_pers: 1.21 MB src → 929.2 KB for 5 widths (webp+avif)
+  charlotte_3: 882.7 KB src → 2.22 MB for 5 widths (webp+avif)
+  charlotte_evenement: 1.22 MB src → 1.16 MB for 5 widths (webp+avif)
+  gijs_evenement: 1.60 MB src → 987.4 KB for 5 widths (webp+avif)
+  HH_burrata_T: 247.6 KB src → 427.0 KB for 5 widths (webp+avif)
+  HH_burrata_Peach: 265.5 KB src → 440.2 KB for 5 widths (webp+avif)
+  charlotte_main: 1.25 MB src → 3.53 MB for 5 widths (webp+avif)
+error: script "images" was terminated by signal SIGTERM (Polite quit request)

@@ -128,7 +128,7 @@
 	<div class="flex items-center justify-between">
 		<div>
 			<h1 class="font-heading text-2xl">Aanvragen & offertes</h1>
-			<p class="text-muted-foreground text-sm">{data.deals.length} aanvragen in de pijplijn.</p>
+			<p class="text-sm text-muted-foreground">{data.deals.length} aanvragen in de pijplijn.</p>
 		</div>
 		<Button onclick={() => (showAdd = !showAdd)}>
 			{showAdd ? 'Sluiten' : '+ Nieuwe aanvraag'}
@@ -136,14 +136,14 @@
 	</div>
 
 	{#if !data.dbConfigured}
-		<div class="border-destructive/40 bg-destructive/5 text-destructive border p-4 text-sm">
-			Geen database geconfigureerd. Zet <code>DATABASE_URL</code> in de omgeving (Dokploy Postgres)
-			om aanvragen op te slaan.
+		<div class="border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
+			Geen database geconfigureerd. Zet <code>DATABASE_URL</code> in de omgeving (Dokploy Postgres) om
+			aanvragen op te slaan.
 		</div>
 	{/if}
 
 	{#if form?.error}
-		<div class="border-destructive/40 bg-destructive/5 text-destructive border p-3 text-sm">
+		<div class="border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
 			{form.error}
 		</div>
 	{/if}
@@ -153,7 +153,7 @@
 		<form
 			method="POST"
 			action="?/create"
-			class="bg-card space-y-4 border p-5"
+			class="space-y-4 border bg-card p-5"
 			use:enhance={() => {
 				return async ({ result, update }) => {
 					await update();
@@ -163,7 +163,7 @@
 		>
 			<div>
 				<h2 class="font-heading text-lg">Aanvraag toevoegen</h2>
-				<p class="text-muted-foreground text-sm">
+				<p class="text-sm text-muted-foreground">
 					Handmatig of als backfill van eerdere aanvragen. Zet de
 					<strong>oorspronkelijke datum</strong> bij backfill zodat de cijfers in de juiste maand vallen,
 					en kies meteen de juiste status.
@@ -217,15 +217,30 @@
 				</div>
 				<div class="space-y-1">
 					<Label for="add-source">Hoe gevonden (bron, wat ze zeiden)</Label>
-					<Input id="add-source" name="source" maxlength={200} placeholder="Instagram, Google, mond-tot-mond…" />
+					<Input
+						id="add-source"
+						name="source"
+						maxlength={200}
+						placeholder="Instagram, Google, mond-tot-mond…"
+					/>
 				</div>
 				<div class="space-y-1">
 					<Label for="add-attribution">Attributie (echte bron, als je 't weet)</Label>
-					<Input id="add-attribution" name="attribution" maxlength={200} placeholder="overschrijft bron in de cijfers" />
+					<Input
+						id="add-attribution"
+						name="attribution"
+						maxlength={200}
+						placeholder="overschrijft bron in de cijfers"
+					/>
 				</div>
 				<div class="space-y-1">
 					<Label for="add-offerteAmount">Offertebedrag (€)</Label>
-					<Input id="add-offerteAmount" name="offerteAmount" inputmode="decimal" placeholder="0,00" />
+					<Input
+						id="add-offerteAmount"
+						name="offerteAmount"
+						inputmode="decimal"
+						placeholder="0,00"
+					/>
 				</div>
 				<div class="space-y-1">
 					<Label for="add-btwAmount">Btw-bedrag (€)</Label>
@@ -276,7 +291,7 @@
 				<h2 class="font-heading text-lg">📅 Agenda</h2>
 			</div>
 			<div class="grid gap-4 lg:grid-cols-[auto_1fr] lg:items-start">
-				<div class="bg-card border" bind:clientHeight={calHeight}>
+				<div class="border bg-card" bind:clientHeight={calHeight}>
 					<Calendar
 						type="single"
 						bind:placeholder
@@ -301,22 +316,17 @@
 					</Calendar>
 				</div>
 
-				<div class="bg-card flex flex-col border">
-					<div class="bg-muted border-b p-2 text-sm font-medium">
+				<div class="flex flex-col border bg-card">
+					<div class="border-b bg-muted p-2 text-sm font-medium">
 						Aankomende events · {upcomingEvents.length}
 					</div>
-					<div
-						class="overflow-y-auto"
-						style="max-height: {calHeight ? `${calHeight}px` : '22rem'}"
-					>
+					<div class="overflow-y-auto" style="max-height: {calHeight ? `${calHeight}px` : '22rem'}">
 						{#if shownByDate.length === 0}
-							<p class="text-muted-foreground p-4 text-sm">
-								Nog geen geboekte events.
-							</p>
+							<p class="p-4 text-sm text-muted-foreground">Nog geen geboekte events.</p>
 						{:else}
 							{#each shownByDate as [date, evs] (date)}
 								<div class="border-b last:border-b-0">
-									<div class="bg-muted/40 text-muted-foreground px-3 py-1 text-xs font-medium">
+									<div class="bg-muted/40 px-3 py-1 text-xs font-medium text-muted-foreground">
 										{formatDateNL(date)}
 									</div>
 									{#each evs as d (d.id)}
@@ -325,16 +335,19 @@
 												<span class="font-medium">{d.name}</span>
 												{#if d.status === 'in_optie'}
 													<span class="bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800">
-														optie{#if d.geldigTot} t/m {formatDateNL(d.geldigTot)}{/if}
+														optie{#if d.geldigTot}
+															t/m {formatDateNL(d.geldigTot)}{/if}
 													</span>
 												{/if}
 											</div>
-											<div class="text-muted-foreground text-xs">
+											<div class="text-xs text-muted-foreground">
 												{#if d.serviceType}{serviceLabel(d)}{/if}
 												{#if d.guests}· {d.guests} gasten{/if}
 												{#if d.location}· {d.location}{/if}
 											</div>
-											{#if d.notes}<div class="text-muted-foreground mt-0.5 text-xs italic">{d.notes}</div>{/if}
+											{#if d.notes}<div class="mt-0.5 text-xs text-muted-foreground italic">
+													{d.notes}
+												</div>{/if}
 										</div>
 									{/each}
 								</div>
@@ -348,9 +361,9 @@
 
 	<!-- Calendar subscription -->
 	{#if data.calendarUrl}
-		<details class="bg-muted/30 border p-4 text-sm">
+		<details class="border bg-muted/30 p-4 text-sm">
 			<summary class="cursor-pointer font-medium">📆 Agenda koppelen (ICS)</summary>
-			<p class="text-muted-foreground mt-2">
+			<p class="mt-2 text-muted-foreground">
 				Abonneer je agenda op deze link — geaccepteerde events verschijnen automatisch en blijven
 				bijgewerkt. In Google Agenda: <em>Andere agenda's → Via URL</em>. Op iPhone/Mac:
 				<em>open de webcal-link</em>. Houd de link geheim.
@@ -363,7 +376,7 @@
 				</div>
 				<input
 					readonly
-					class="border-input bg-background w-full rounded-md border px-2 py-1 font-mono text-xs"
+					class="w-full rounded-md border border-input bg-background px-2 py-1 font-mono text-xs"
 					value={data.calendarUrl}
 					onclick={(e) => e.currentTarget.select()}
 				/>
@@ -374,7 +387,7 @@
 	<!-- All deals -->
 	<div class="overflow-x-auto border">
 		<table class="w-full min-w-[760px] text-sm">
-			<thead class="bg-muted text-muted-foreground text-left">
+			<thead class="bg-muted text-left text-muted-foreground">
 				<tr>
 					<th class="p-2 font-medium">Binnen</th>
 					<th class="p-2 font-medium">Naam</th>
@@ -389,28 +402,33 @@
 			<tbody>
 				{#each data.deals as d (d.id)}
 					<tr class="border-t align-top">
-						<td class="text-muted-foreground p-2 whitespace-nowrap">
+						<td class="p-2 whitespace-nowrap text-muted-foreground">
 							{formatDateNL(d.createdAt)}
 						</td>
 						<td class="p-2">
 							<div class="font-medium">{d.name}</div>
-							{#if d.email}<div class="text-muted-foreground text-xs">{d.email}</div>{/if}
-							{#if d.phone}<div class="text-muted-foreground text-xs">{d.phone}</div>{/if}
-							{#if d.source}<div class="text-muted-foreground text-xs">via {d.source}</div>{/if}
+							{#if d.email}<div class="text-xs text-muted-foreground">{d.email}</div>{/if}
+							{#if d.phone}<div class="text-xs text-muted-foreground">{d.phone}</div>{/if}
+							{#if d.source}<div class="text-xs text-muted-foreground">via {d.source}</div>{/if}
 						</td>
 						<td class="p-2">
 							<div>{eventDisplay(d)}</div>
-							{#if d.guests}<div class="text-muted-foreground text-xs">{d.guests} gasten</div>{/if}
-							{#if d.location}<div class="text-muted-foreground text-xs">{d.location}</div>{/if}
+							{#if d.guests}<div class="text-xs text-muted-foreground">{d.guests} gasten</div>{/if}
+							{#if d.location}<div class="text-xs text-muted-foreground">{d.location}</div>{/if}
 						</td>
 						<td class="p-2">
 							{#if d.serviceType}{serviceLabel(d)}{/if}
-							{#if d.choice}<div class="text-muted-foreground text-xs">{d.choice}</div>{/if}
+							{#if d.choice}<div class="text-xs text-muted-foreground">{d.choice}</div>{/if}
 						</td>
 						<td class="p-2">
 							<form method="POST" action="?/update" use:enhance>
 								<input type="hidden" name="id" value={d.id} />
-								<select name="status" class={selectClass} value={d.status} onchange={submitOnChange}>
+								<select
+									name="status"
+									class={selectClass}
+									value={d.status}
+									onchange={submitOnChange}
+								>
 									{#each DEAL_STATUSES as s (s)}
 										<option value={s}>{STATUS_LABELS[s]}</option>
 									{/each}
@@ -446,7 +464,7 @@
 						</td>
 					</tr>
 					{#if editingId === d.id}
-						<tr class="bg-muted/30 border-t">
+						<tr class="border-t bg-muted/30">
 							<td colspan="8" class="p-4">
 								<form
 									method="POST"
@@ -484,7 +502,12 @@
 										</div>
 										<div class="space-y-1">
 											<Label for="e-location-{d.id}">Locatie</Label>
-											<Input id="e-location-{d.id}" name="location" value={d.location} maxlength={200} />
+											<Input
+												id="e-location-{d.id}"
+												name="location"
+												value={d.location}
+												maxlength={200}
+											/>
 										</div>
 										<div class="space-y-1">
 											<Label for="e-guests-{d.id}">Gasten</Label>
@@ -492,7 +515,12 @@
 										</div>
 										<div class="space-y-1">
 											<Label for="e-serviceType-{d.id}">Concept</Label>
-											<select id="e-serviceType-{d.id}" name="serviceType" class={selectClass} value={d.serviceType}>
+											<select
+												id="e-serviceType-{d.id}"
+												name="serviceType"
+												class={selectClass}
+												value={d.serviceType}
+											>
 												<option value="">—</option>
 												<option value="hapjes">Hapjes (live)</option>
 												<option value="taart">Taart / dessert</option>
@@ -539,7 +567,7 @@
 													bind:value={edit.btwAmount}
 												/>
 												<select
-													class="border-input bg-background h-9 shrink-0 rounded-md border px-1 text-sm"
+													class="h-9 shrink-0 rounded-md border border-input bg-background px-1 text-sm"
 													onchange={(e) => {
 														applyRate(Number(e.currentTarget.value));
 														e.currentTarget.selectedIndex = 0;
@@ -574,7 +602,12 @@
 										</div>
 										<div class="space-y-1">
 											<Label for="e-geldigTot-{d.id}">Geldig tot</Label>
-											<Input id="e-geldigTot-{d.id}" name="geldigTot" type="date" value={d.geldigTot ?? ''} />
+											<Input
+												id="e-geldigTot-{d.id}"
+												name="geldigTot"
+												type="date"
+												value={d.geldigTot ?? ''}
+											/>
 										</div>
 										<div class="space-y-1">
 											<Label for="e-geaccepteerdOp-{d.id}">Geaccepteerd op</Label>
@@ -604,15 +637,24 @@
 											{/each}
 										</div>
 									</div>
-									<div class="bg-muted/40 flex flex-wrap gap-x-4 gap-y-1 p-2 text-sm">
+									<div class="flex flex-wrap gap-x-4 gap-y-1 bg-muted/40 p-2 text-sm">
 										<span>Excl. btw: <strong>{formatEUR(editExcl)}</strong></span>
 										<span>Take-home: <strong>{formatEUR(editTakeHome)}</strong></span>
 										<span>Uren: <strong>{editHours}</strong></span>
-										<span>Per uur: <strong>{editHourly == null ? '—' : formatEUR(editHourly)}</strong></span>
+										<span
+											>Per uur: <strong>{editHourly == null ? '—' : formatEUR(editHourly)}</strong
+											></span
+										>
 									</div>
 									<div class="space-y-1">
 										<Label for="e-notes-{d.id}">Interne notitie</Label>
-										<Textarea id="e-notes-{d.id}" name="notes" rows={2} value={d.notes} maxlength={5000} />
+										<Textarea
+											id="e-notes-{d.id}"
+											name="notes"
+											rows={2}
+											value={d.notes}
+											maxlength={5000}
+										/>
 									</div>
 									<div class="flex gap-2">
 										<Button type="submit">Opslaan</Button>
@@ -627,9 +669,7 @@
 				{/each}
 				{#if data.deals.length === 0}
 					<tr>
-						<td colspan="8" class="text-muted-foreground p-6 text-center">
-							Nog geen aanvragen.
-						</td>
+						<td colspan="8" class="p-6 text-center text-muted-foreground"> Nog geen aanvragen. </td>
 					</tr>
 				{/if}
 			</tbody>

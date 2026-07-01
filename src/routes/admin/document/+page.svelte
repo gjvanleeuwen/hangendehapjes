@@ -72,7 +72,13 @@
 
 	function addLine() {
 		const fallbackRate: BtwRate = allNoVat ? 'none' : 9;
-		doc.lineItems.push({ description: '', qty: 1, unitPrice: 0, btwRate: fallbackRate, discountPct: 0 });
+		doc.lineItems.push({
+			description: '',
+			qty: 1,
+			unitPrice: 0,
+			btwRate: fallbackRate,
+			discountPct: 0
+		});
 	}
 
 	function removeLine(i: number) {
@@ -110,7 +116,7 @@
 						type="button"
 						onclick={() => (doc.kind = k)}
 						class="border px-3 py-1.5 text-sm capitalize transition {doc.kind === k
-							? 'bg-primary text-primary-foreground border-primary'
+							? 'border-primary bg-primary text-primary-foreground'
 							: 'hover:bg-muted'}"
 					>
 						{k}
@@ -168,15 +174,17 @@
 			<legend class="px-1 text-sm font-medium">Regels</legend>
 			<div class="space-y-3">
 				{#each doc.lineItems as item, i (i)}
-					<div class="bg-muted/40 space-y-2 border p-3">
+					<div class="space-y-2 border bg-muted/40 p-3">
 						<Input placeholder="Omschrijving" bind:value={item.description} />
 						<div class="flex flex-wrap items-end gap-2">
-							<div class="flex-1 min-w-[80px]">
-								<label class="text-muted-foreground mb-1 block text-xs" for="qty-{i}">Aantal</label>
+							<div class="min-w-[80px] flex-1">
+								<label class="mb-1 block text-xs text-muted-foreground" for="qty-{i}">Aantal</label>
 								<Input id="qty-{i}" type="number" min="0" step="1" bind:value={item.qty} />
 							</div>
-							<div class="flex-1 min-w-[100px]">
-								<label class="text-muted-foreground mb-1 block text-xs" for="price-{i}">Prijs p/s</label>
+							<div class="min-w-[100px] flex-1">
+								<label class="mb-1 block text-xs text-muted-foreground" for="price-{i}"
+									>Prijs p/s</label
+								>
 								<Input
 									id="price-{i}"
 									type="number"
@@ -185,8 +193,10 @@
 									bind:value={item.unitPrice}
 								/>
 							</div>
-							<div class="flex-1 min-w-[80px]">
-								<label class="text-muted-foreground mb-1 block text-xs" for="disc-{i}">Korting %</label>
+							<div class="min-w-[80px] flex-1">
+								<label class="mb-1 block text-xs text-muted-foreground" for="disc-{i}"
+									>Korting %</label
+								>
 								<Input
 									id="disc-{i}"
 									type="number"
@@ -196,13 +206,13 @@
 									bind:value={item.discountPct}
 								/>
 							</div>
-							<div class="flex-1 min-w-[110px]">
-								<label class="text-muted-foreground mb-1 block text-xs" for="btw-{i}">BTW</label>
+							<div class="min-w-[110px] flex-1">
+								<label class="mb-1 block text-xs text-muted-foreground" for="btw-{i}">BTW</label>
 								<select
 									id="btw-{i}"
 									bind:value={item.btwRate}
 									disabled={doc.kind === 'kwitantie'}
-									class="border-input bg-background h-9 w-full border px-2 text-sm disabled:opacity-50"
+									class="h-9 w-full border border-input bg-background px-2 text-sm disabled:opacity-50"
 								>
 									{#each btwOptions as opt}
 										<option value={opt.value}>{opt.label}</option>
@@ -214,22 +224,22 @@
 									type="button"
 									onclick={() => moveLine(i, -1)}
 									disabled={i === 0}
-									class="hover:bg-muted h-9 w-8 border text-xs disabled:opacity-30"
-									aria-label="Omhoog"
-								>↑</button>
+									class="h-9 w-8 border text-xs hover:bg-muted disabled:opacity-30"
+									aria-label="Omhoog">↑</button
+								>
 								<button
 									type="button"
 									onclick={() => moveLine(i, 1)}
 									disabled={i === doc.lineItems.length - 1}
-									class="hover:bg-muted h-9 w-8 border text-xs disabled:opacity-30"
-									aria-label="Omlaag"
-								>↓</button>
+									class="h-9 w-8 border text-xs hover:bg-muted disabled:opacity-30"
+									aria-label="Omlaag">↓</button
+								>
 								<button
 									type="button"
 									onclick={() => removeLine(i)}
-									class="hover:bg-destructive hover:text-primary-foreground h-9 w-8 border text-xs"
-									aria-label="Verwijderen"
-								>×</button>
+									class="h-9 w-8 border text-xs hover:bg-destructive hover:text-primary-foreground"
+									aria-label="Verwijderen">×</button
+								>
 							</div>
 						</div>
 					</div>
@@ -242,18 +252,18 @@
 			<legend class="px-1 text-sm font-medium">Korting op totaal</legend>
 			<div class="flex flex-wrap items-end gap-2">
 				<div class="min-w-[140px] flex-1">
-					<label class="text-muted-foreground mb-1 block text-xs" for="disc-mode">Type</label>
+					<label class="mb-1 block text-xs text-muted-foreground" for="disc-mode">Type</label>
 					<select
 						id="disc-mode"
 						bind:value={doc.discountMode}
-						class="border-input bg-background h-9 w-full border px-2 text-sm"
+						class="h-9 w-full border border-input bg-background px-2 text-sm"
 					>
 						<option value="pct">Percentage (%)</option>
 						<option value="amount">Vast bedrag (€)</option>
 					</select>
 				</div>
 				<div class="min-w-[120px] flex-1">
-					<label class="text-muted-foreground mb-1 block text-xs" for="disc-val">
+					<label class="mb-1 block text-xs text-muted-foreground" for="disc-val">
 						{doc.discountMode === 'pct' ? 'Korting %' : 'Korting €'}
 					</label>
 					<Input
@@ -267,7 +277,7 @@
 				</div>
 			</div>
 			{#if totals.totalDiscount > 0}
-				<p class="text-muted-foreground text-xs">
+				<p class="text-xs text-muted-foreground">
 					Korting op totaal: −{formatEUR(totals.totalDiscount)} (over {formatEUR(
 						totals.subtotal + totals.totalDiscount
 					)} na regelkortingen).
@@ -296,7 +306,7 @@
 			<header class="flex items-start justify-between gap-6">
 				<div>
 					<div
-						class="font-wordmark text-2xl font-bold uppercase tracking-[0.08em] whitespace-nowrap"
+						class="font-wordmark text-2xl font-bold tracking-[0.08em] whitespace-nowrap uppercase"
 						style="color: var(--brand-magenta);"
 					>
 						{BUSINESS.name}
@@ -385,7 +395,9 @@
 							{#if totals.lineDiscountTotal > 0}
 								<tr class="text-neutral-600">
 									<td class="py-1 pr-6">Korting op regels</td>
-									<td class="py-1 text-right tabular-nums">−{formatEUR(totals.lineDiscountTotal)}</td>
+									<td class="py-1 text-right tabular-nums"
+										>−{formatEUR(totals.lineDiscountTotal)}</td
+									>
 								</tr>
 							{/if}
 							{#if totals.totalDiscount > 0}
@@ -409,7 +421,9 @@
 								{/each}
 								{#if totals.noVatBase > 0}
 									<tr>
-										<td class="py-1 pr-6 text-neutral-600">Geen BTW over {formatEUR(totals.noVatBase)}</td>
+										<td class="py-1 pr-6 text-neutral-600"
+											>Geen BTW over {formatEUR(totals.noVatBase)}</td
+										>
 										<td class="py-1 text-right tabular-nums">—</td>
 									</tr>
 								{/if}
@@ -433,9 +447,7 @@
 			</div>
 
 			{#if doc.kind !== 'kwitantie' && allNoVat && doc.lineItems.length > 0}
-				<div class="mt-3 text-right text-xs text-neutral-600">
-					Geen BTW van toepassing.
-				</div>
+				<div class="mt-3 text-right text-xs text-neutral-600">Geen BTW van toepassing.</div>
 			{/if}
 
 			{#if doc.notes}
@@ -445,7 +457,9 @@
 				</div>
 			{/if}
 
-			<footer class="mt-12 border-t border-neutral-300 pt-4 text-xs leading-relaxed text-neutral-600">
+			<footer
+				class="mt-12 border-t border-neutral-300 pt-4 text-xs leading-relaxed text-neutral-600"
+			>
 				{#if doc.kind === 'factuur'}
 					<div>
 						Gelieve het bedrag van <span class="font-medium">{formatEUR(totals.total)}</span> binnen

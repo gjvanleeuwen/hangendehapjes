@@ -11,8 +11,8 @@
 {#if isLogin}
 	{@render children()}
 {:else}
-	<div class="bg-background min-h-screen">
-		<header class="bg-card border-b print:hidden">
+	<div class="min-h-screen bg-background">
+		<header class="border-b bg-card print:hidden">
 			<div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
 				<a href="/admin" class="font-heading text-lg">Hangende Hapjes — admin</a>
 				<nav class="flex items-center gap-4 text-sm">

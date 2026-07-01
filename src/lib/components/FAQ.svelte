@@ -10,7 +10,7 @@
 	<div class="mx-auto max-w-6xl px-6">
 		<div class="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:gap-16">
 			<div class="space-y-10">
-				<p class="text-(--brand-magenta) text-sm font-semibold uppercase tracking-wider">
+				<p class="text-sm font-semibold tracking-wider text-(--brand-magenta) uppercase">
 					{t.faq.eyebrow}
 				</p>
 

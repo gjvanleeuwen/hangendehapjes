@@ -30,7 +30,7 @@
 		<a
 			href="/#contact"
 			data-umami-event="blog_{event}_offerte"
-			class="bg-(--brand-magenta) inline-flex h-10 items-center justify-center rounded-md px-5 text-sm font-medium text-white transition-colors hover:opacity-90"
+			class="inline-flex h-10 items-center justify-center rounded-md bg-(--brand-magenta) px-5 text-sm font-medium text-white transition-colors hover:opacity-90"
 		>
 			Vraag een voorstel aan
 		</a>

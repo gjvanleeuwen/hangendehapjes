@@ -1,14 +1,52 @@
 <script lang="ts">
 	import { formatEUR } from '$lib/admin/calc';
-	import { STATUS_LABELS } from '$lib/deals';
+	import { STATUS_LABELS, type LeadTrend } from '$lib/deals';
 
 	let { data } = $props();
 	const m = $derived(data.metrics);
+	const trend = $derived(data.trend);
 
 	const monthLabel = (ym: string) => {
 		const [y, mo] = ym.split('-');
-		const names = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+		const names = [
+			'jan',
+			'feb',
+			'mrt',
+			'apr',
+			'mei',
+			'jun',
+			'jul',
+			'aug',
+			'sep',
+			'okt',
+			'nov',
+			'dec'
+		];
 		return `${names[Number(mo) - 1] ?? mo} ${y}`;
+	};
+
+	const trendText = (t: LeadTrend): string => {
+		const dir = t.direction === 'drop' ? 'daling' : t.direction === 'rise' ? 'stijging' : 'gelijk';
+		const p = `p=${t.pValue.toFixed(3).replace('.', ',')}`;
+		switch (t.verdict) {
+			case 'insufficient':
+				return `Te weinig data (${t.total} leads in ${2 * t.windowDays} dgn) — vul oude aanvragen aan of wacht op meer data.`;
+			case 'significant':
+				return t.direction === 'drop'
+					? `⚠️ Significante daling (${p}) — waarschijnlijk géén toeval; de moeite waard om op te acteren.`
+					: `Significante stijging (${p}) — mooi, waarschijnlijk echt.`;
+			case 'suggestive':
+				return `Mogelijke ${dir} (${p}) — let op, nog geen zekerheid.`;
+			default:
+				return `Binnen normale ruis (${p}) — nog geen signaal.`;
+		}
+	};
+
+	const trendClass = (t: LeadTrend): string => {
+		if (t.verdict === 'significant')
+			return t.direction === 'drop' ? 'font-medium text-red-600' : 'font-medium text-green-700';
+		if (t.verdict === 'suggestive') return 'text-amber-600';
+		return 'text-muted-foreground';
 	};
 </script>
 
@@ -16,29 +54,50 @@
 	<h1 class="font-heading text-2xl">Admin</h1>
 	<p class="text-muted-foreground">Tools voor offertes en facturen.</p>
 
+	{#if data.dbConfigured}
+		<section class="space-y-2">
+			<h2 class="font-heading text-lg">Lead-trend</h2>
+			<div class="border bg-card p-4">
+				<div class="flex items-baseline gap-3">
+					<span class="text-2xl font-semibold">{trend.recent}</span>
+					<span class="text-xs text-muted-foreground">laatste {trend.windowDays} dgn</span>
+					<span class="text-muted-foreground">vs</span>
+					<span class="text-2xl font-semibold">{trend.prior}</span>
+					<span class="text-xs text-muted-foreground">{trend.windowDays} dgn daarvoor</span>
+				</div>
+				<p class="mt-2 text-sm {trendClass(trend)}">{trendText(trend)}</p>
+				<p class="mt-1 text-xs text-muted-foreground">
+					Exacte binomiaaltoets (p=0,5): de kans dat deze verdeling toeval is als de lead-frequentie
+					gelijk bleef. Spam-verdachte aanvragen tellen niet mee.
+				</p>
+			</div>
+		</section>
+	{/if}
+
 	{#if data.dbConfigured && m.total > 0}
 		<section class="space-y-4">
 			<h2 class="font-heading text-lg">Funnel</h2>
 			<div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-2xl font-semibold">{m.total}</div>
-					<div class="text-muted-foreground text-xs">Aanvragen</div>
+					<div class="text-xs text-muted-foreground">Aanvragen</div>
 				</div>
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-2xl font-semibold">{m.offertes}</div>
-					<div class="text-muted-foreground text-xs">Offertes verstuurd</div>
+					<div class="text-xs text-muted-foreground">Offertes verstuurd</div>
 				</div>
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-2xl font-semibold">{m.won}</div>
-					<div class="text-muted-foreground text-xs">Geboekt</div>
+					<div class="text-xs text-muted-foreground">Geboekt</div>
 				</div>
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-2xl font-semibold">{m.conversionPct}%</div>
-					<div class="text-muted-foreground text-xs">Offerte → geboekt</div>
+					<div class="text-xs text-muted-foreground">Offerte → geboekt</div>
 				</div>
 			</div>
-			<p class="text-muted-foreground text-sm">
-				{m.open} open · {m.lost} {STATUS_LABELS.afgewezen.toLowerCase()} · {m.declinedByUs}
+			<p class="text-sm text-muted-foreground">
+				{m.open} open · {m.lost}
+				{STATUS_LABELS.afgewezen.toLowerCase()} · {m.declinedByUs}
 				{STATUS_LABELS.afgewezen_intern.toLowerCase()} · {formatEUR(m.wonValue)} geboekte waarde · {formatEUR(
 					m.pendingValue
 				)} openstaand (offerte/optie)
@@ -49,7 +108,7 @@
 					<div class="border">
 						<div class="bg-muted p-2 text-sm font-medium">Per maand (cohort)</div>
 						<table class="w-full text-sm">
-							<thead class="text-muted-foreground text-left text-xs">
+							<thead class="text-left text-xs text-muted-foreground">
 								<tr>
 									<th class="p-2 font-medium">Maand</th>
 									<th class="p-2 font-medium">Aanvragen</th>
@@ -75,7 +134,7 @@
 					<div class="border">
 						<div class="bg-muted p-2 text-sm font-medium">Per bron</div>
 						<table class="w-full text-sm">
-							<thead class="text-muted-foreground text-left text-xs">
+							<thead class="text-left text-xs text-muted-foreground">
 								<tr>
 									<th class="p-2 font-medium">Bron</th>
 									<th class="p-2 font-medium">Aanvragen</th>
@@ -96,47 +155,51 @@
 				{/if}
 			</div>
 			<div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-lg font-semibold">{formatEUR(m.takeHome)}</div>
-					<div class="text-muted-foreground text-xs">Take-home (geboekt)</div>
+					<div class="text-xs text-muted-foreground">Take-home (geboekt)</div>
 				</div>
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-lg font-semibold">{m.hourly == null ? '—' : formatEUR(m.hourly)}</div>
-					<div class="text-muted-foreground text-xs">Per uur (take-home)</div>
+					<div class="text-xs text-muted-foreground">Per uur (take-home)</div>
 				</div>
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-lg font-semibold">{formatEUR(m.vat)}</div>
-					<div class="text-muted-foreground text-xs">Btw op verkoop</div>
+					<div class="text-xs text-muted-foreground">Btw op verkoop</div>
 				</div>
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-lg font-semibold">{formatEUR(m.costs)}</div>
-					<div class="text-muted-foreground text-xs">Kosten</div>
+					<div class="text-xs text-muted-foreground">Kosten</div>
 				</div>
 			</div>
-			<div class="text-sm font-medium">Nog te winnen — als openstaande offertes &amp; opties doorgaan</div>
+			<div class="text-sm font-medium">
+				Nog te winnen — als openstaande offertes &amp; opties doorgaan
+			</div>
 			<div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-lg font-semibold">{formatEUR(m.pendingValue)}</div>
-					<div class="text-muted-foreground text-xs">Potentiële omzet (incl. btw)</div>
+					<div class="text-xs text-muted-foreground">Potentiële omzet (incl. btw)</div>
 				</div>
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-lg font-semibold">{formatEUR(m.pendingTakeHome)}</div>
-					<div class="text-muted-foreground text-xs">Potentiële take-home</div>
+					<div class="text-xs text-muted-foreground">Potentiële take-home</div>
 				</div>
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-lg font-semibold">{formatEUR(m.optieValue)}</div>
-					<div class="text-muted-foreground text-xs">Waarvan in optie (omzet)</div>
+					<div class="text-xs text-muted-foreground">Waarvan in optie (omzet)</div>
 				</div>
-				<div class="bg-card border p-4">
+				<div class="border bg-card p-4">
 					<div class="text-lg font-semibold">{formatEUR(m.optieTakeHome)}</div>
-					<div class="text-muted-foreground text-xs">Waarvan in optie (take-home)</div>
+					<div class="text-xs text-muted-foreground">Waarvan in optie (take-home)</div>
 				</div>
 			</div>
 			{#if m.hours > 0}
 				<div class="border">
-					<div class="bg-muted p-2 text-sm font-medium">Tijd per fase (geboekte klussen) · {m.hours} uur totaal</div>
+					<div class="bg-muted p-2 text-sm font-medium">
+						Tijd per fase (geboekte klussen) · {m.hours} uur totaal
+					</div>
 					<table class="w-full text-sm">
-						<thead class="text-muted-foreground text-left text-xs">
+						<thead class="text-left text-xs text-muted-foreground">
 							<tr>
 								<th class="p-2 font-medium">Fase</th>
 								<th class="p-2 font-medium">Totaal uren</th>
@@ -157,32 +220,41 @@
 					</table>
 				</div>
 			{/if}
-			<p class="text-muted-foreground text-xs">
+			<p class="text-xs text-muted-foreground">
 				Later te vergelijken met Search Console & Instagram om te zien waar leads vandaan komen.
 			</p>
 		</section>
 	{/if}
 
 	<div class="grid gap-3 sm:grid-cols-2">
-		<a href="/admin/aanvragen" class="bg-card hover:bg-muted block border p-5 transition">
+		<a href="/admin/aanvragen" class="block border bg-card p-5 transition hover:bg-muted">
 			<h2 class="font-heading text-lg">Aanvragen & offertes</h2>
-			<p class="text-muted-foreground text-sm">Pijplijn, agenda en de funnel-cijfers.</p>
+			<p class="text-sm text-muted-foreground">Pijplijn, agenda en de funnel-cijfers.</p>
 		</a>
-		<a href="/admin/document?kind=offerte" class="bg-card hover:bg-muted block border p-5 transition">
+		<a
+			href="/admin/document?kind=offerte"
+			class="block border bg-card p-5 transition hover:bg-muted"
+		>
 			<h2 class="font-heading text-lg">Offerte</h2>
-			<p class="text-muted-foreground text-sm">Prijsindicatie zonder factuurnummer.</p>
+			<p class="text-sm text-muted-foreground">Prijsindicatie zonder factuurnummer.</p>
 		</a>
-		<a href="/admin/document?kind=factuur" class="bg-card hover:bg-muted block border p-5 transition">
+		<a
+			href="/admin/document?kind=factuur"
+			class="block border bg-card p-5 transition hover:bg-muted"
+		>
 			<h2 class="font-heading text-lg">Factuur</h2>
-			<p class="text-muted-foreground text-sm">Met factuurnummer en betaalinstructies.</p>
+			<p class="text-sm text-muted-foreground">Met factuurnummer en betaalinstructies.</p>
 		</a>
-		<a href="/admin/document?kind=kwitantie" class="bg-card hover:bg-muted block border p-5 transition">
+		<a
+			href="/admin/document?kind=kwitantie"
+			class="block border bg-card p-5 transition hover:bg-muted"
+		>
 			<h2 class="font-heading text-lg">Kwitantie</h2>
-			<p class="text-muted-foreground text-sm">Bewijs van betaling, geen BTW.</p>
+			<p class="text-sm text-muted-foreground">Bewijs van betaling, geen BTW.</p>
 		</a>
-		<a href="/admin/calculator" class="bg-card hover:bg-muted block border p-5 transition">
+		<a href="/admin/calculator" class="block border bg-card p-5 transition hover:bg-muted">
 			<h2 class="font-heading text-lg">Calculator</h2>
-			<p class="text-muted-foreground text-sm">Bereken een offerteprijs met sliders.</p>
+			<p class="text-sm text-muted-foreground">Bereken een offerteprijs met sliders.</p>
 		</a>
 	</div>
 </div>

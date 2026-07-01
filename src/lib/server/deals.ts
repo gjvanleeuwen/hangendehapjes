@@ -140,10 +140,7 @@ export async function getDeal(id: string): Promise<Deal | null> {
 	return row ? rowToDeal(row) : null;
 }
 
-export async function updateDeal(
-	id: string,
-	fields: Partial<DealInput>
-): Promise<Deal | null> {
+export async function updateDeal(id: string, fields: Partial<DealInput>): Promise<Deal | null> {
 	const sql = await ensureSchema();
 	if (!sql) return null;
 
