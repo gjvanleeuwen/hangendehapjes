@@ -352,6 +352,10 @@ export const nl: Translations = {
 			{
 				label: 'Hoeveel hapjes per persoon',
 				href: '/blog/hoeveel-hapjes-per-persoon'
+			},
+			{
+				label: 'Algemene voorwaarden',
+				href: '/terms'
 			}
 		]
 	}

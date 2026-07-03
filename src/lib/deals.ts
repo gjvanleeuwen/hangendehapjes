@@ -1,6 +1,7 @@
 // Client-safe deal types, constants and pure helpers. No DB imports here so it
 // can be used from both server code and Svelte components. The actual database
 // access lives in $lib/server/deals.ts.
+import { calcTotals, round2 } from '$lib/admin/calc';
 
 export const DEAL_STATUSES = [
 	'nieuw',
@@ -49,6 +50,29 @@ export type Deal = {
 	offerteVerstuurdOp: string | null; // YYYY-MM-DD
 	geldigTot: string | null; // YYYY-MM-DD
 	geaccepteerdOp: string | null; // YYYY-MM-DD
+	acceptanceToken: string;
+	acceptanceEnabled: boolean;
+	acceptanceExpiresAt: string | null; // ISO timestamp
+	acceptedTermsAt: string | null; // ISO timestamp
+	acceptedTermsVersion: string;
+	acceptedByName: string;
+	acceptedAtLocation: string;
+	acceptanceSnapshot: Record<string, unknown>;
+	prepaymentAmount: number | null;
+	prepaymentLink: string;
+	prepaymentStatus: string;
+	depositAmount: number | null;
+	depositLink: string;
+	depositStatus: string;
+	finalPaymentAmount: number | null;
+	finalPaymentLink: string;
+	finalPaymentStatus: string;
+	quoteVersions: QuoteVersion[];
+	activeQuoteId: string;
+	portalQuestionsEnabled: boolean;
+	opsQuestions: OpsQuestion[];
+	opsJson: Record<string, string>;
+	opsCompletedAt: string | null; // ISO timestamp
 	message: string;
 	notes: string;
 	origin: string; // 'contact_form' | 'manual'
@@ -76,11 +100,271 @@ export type DealInput = {
 	offerteVerstuurdOp?: string | null;
 	geldigTot?: string | null;
 	geaccepteerdOp?: string | null;
+	acceptanceToken?: string;
+	acceptanceEnabled?: boolean;
+	acceptanceExpiresAt?: string | null;
+	acceptedTermsAt?: string | null;
+	acceptedTermsVersion?: string;
+	acceptedByName?: string;
+	acceptedAtLocation?: string;
+	acceptanceSnapshot?: Record<string, unknown>;
+	prepaymentAmount?: number | null;
+	prepaymentLink?: string;
+	prepaymentStatus?: string;
+	depositAmount?: number | null;
+	depositLink?: string;
+	depositStatus?: string;
+	finalPaymentAmount?: number | null;
+	finalPaymentLink?: string;
+	finalPaymentStatus?: string;
+	quoteVersions?: QuoteVersion[];
+	activeQuoteId?: string;
+	portalQuestionsEnabled?: boolean;
+	opsQuestions?: OpsQuestion[];
+	opsJson?: Record<string, string>;
+	opsCompletedAt?: string | null;
 	message?: string;
 	notes?: string;
 	origin?: string;
 	createdAt?: string | null; // backfill override for past aanvragen
 };
+
+export const TERMS_VERSION = '2026-07-02-v1';
+
+export type QuoteLineItem = {
+	description: string;
+	qty: number;
+	unitPrice: number;
+	btwRate: 0 | 9 | 21 | 'none';
+	discountPct: number;
+};
+
+export type QuoteVersion = {
+	id: string;
+	version: string;
+	label: string;
+	kind: 'offerte';
+	active: boolean;
+	createdAt: string;
+	date: string;
+	eventDate: string;
+	validUntil: string;
+	amount: number | null;
+	recipient: {
+		name: string;
+		company: string;
+		address: string;
+	};
+	lineItems: QuoteLineItem[];
+	discountMode: 'pct' | 'amount';
+	discountValue: number;
+	costs: number | null;
+	timeSpent: Record<string, number>;
+	notes: string;
+	terms: string;
+	footerNote: string;
+};
+
+export function normalizeQuoteVersions(value: unknown): QuoteVersion[] {
+	if (!Array.isArray(value)) return [];
+	const out: QuoteVersion[] = [];
+	const seen = new Set<string>();
+
+	for (const raw of value) {
+		if (!raw || typeof raw !== 'object') continue;
+		const r = raw as Record<string, unknown>;
+		const id = String(r.id ?? '')
+			.trim()
+			.slice(0, 80);
+		if (!id || seen.has(id)) continue;
+		const lineItems = Array.isArray(r.lineItems)
+			? r.lineItems
+					.map((item) => {
+						const i = item as Record<string, unknown>;
+						const rate: QuoteLineItem['btwRate'] =
+							i.btwRate === 0 || i.btwRate === 9 || i.btwRate === 21 ? i.btwRate : 'none';
+						return {
+							description: String(i.description ?? '').slice(0, 500),
+							qty: Number(i.qty) || 0,
+							unitPrice: Number(i.unitPrice) || 0,
+							btwRate: rate,
+							discountPct: Number(i.discountPct) || 0
+						};
+					})
+					.filter((item) => item.description || item.qty || item.unitPrice)
+			: [];
+
+		out.push({
+			id,
+			version:
+				String(r.version ?? '')
+					.trim()
+					.slice(0, 40) || `v${out.length + 1}`,
+			label:
+				String(r.label ?? '')
+					.trim()
+					.slice(0, 120) || 'Offerte',
+			kind: 'offerte',
+			active: Boolean(r.active),
+			createdAt: String(r.createdAt ?? new Date().toISOString()),
+			date: String(r.date ?? '').slice(0, 10),
+			eventDate: String(r.eventDate ?? '').slice(0, 10),
+			validUntil: String(r.validUntil ?? '').slice(0, 10),
+			amount: r.amount == null ? null : Number(r.amount),
+			recipient: {
+				name: String((r.recipient as Record<string, unknown> | undefined)?.name ?? '').slice(
+					0,
+					160
+				),
+				company: String((r.recipient as Record<string, unknown> | undefined)?.company ?? '').slice(
+					0,
+					160
+				),
+				address: String((r.recipient as Record<string, unknown> | undefined)?.address ?? '').slice(
+					0,
+					1000
+				)
+			},
+			lineItems,
+			discountMode: r.discountMode === 'amount' ? 'amount' : 'pct',
+			discountValue: Number(r.discountValue) || 0,
+			costs: r.costs == null ? null : Number(r.costs),
+			timeSpent:
+				r.timeSpent && typeof r.timeSpent === 'object'
+					? Object.fromEntries(
+							Object.entries(r.timeSpent as Record<string, unknown>)
+								.map(([key, value]): [string, number] => [key, Number(value) || 0])
+								.filter(([, value]) => value > 0)
+						)
+					: {},
+			notes: String(r.notes ?? '').slice(0, 5000),
+			terms: String(r.terms ?? '').slice(0, 5000),
+			footerNote: String(r.footerNote ?? '').slice(0, 1000)
+		});
+		seen.add(id);
+	}
+
+	return out;
+}
+
+export function activeQuoteOf(
+	deal: Pick<Deal, 'quoteVersions' | 'activeQuoteId'>
+): QuoteVersion | null {
+	return (
+		deal.quoteVersions.find((q) => q.id === deal.activeQuoteId) ??
+		deal.quoteVersions.find((q) => q.active) ??
+		null
+	);
+}
+
+/**
+ * Client-facing view of a quote: strips the internal-only fields (our cost
+ * basis and logged hours) that must never reach a customer. Everything a
+ * SvelteKit `load` returns is serialized into the page payload, so the filter
+ * has to happen server-side before the quote leaves the endpoint. Only ever
+ * hand a `PublicQuoteVersion` to the public `/offerte/[token]` routes.
+ */
+export type PublicQuoteVersion = Omit<QuoteVersion, 'costs' | 'timeSpent'>;
+
+export function toPublicQuote(quote: QuoteVersion): PublicQuoteVersion {
+	const { costs, timeSpent, ...pub } = quote;
+	return pub;
+}
+
+export function quoteDealFields(quote: QuoteVersion): Partial<DealInput> {
+	const totals = calcTotals(quote.lineItems, {
+		mode: quote.discountMode,
+		value: quote.discountValue
+	});
+	const btwAmount = round2(totals.btwGroups.reduce((sum, group) => sum + group.tax, 0));
+	const depositAmount = round2(totals.total * 0.5);
+	const fields: Partial<DealInput> = {
+		offerteAmount: totals.total,
+		btwAmount,
+		prepaymentAmount: depositAmount,
+		depositAmount,
+		finalPaymentAmount: round2(totals.total - depositAmount)
+	};
+
+	if (quote.costs != null && Number.isFinite(quote.costs)) fields.costs = quote.costs;
+	if (Object.keys(quote.timeSpent).length > 0) fields.timeSpent = quote.timeSpent;
+	if (quote.eventDate) fields.eventDate = quote.eventDate;
+	if (quote.validUntil) fields.geldigTot = quote.validUntil;
+
+	return fields;
+}
+
+export const PREPAYMENT_STATUSES = ['not_sent', 'sent', 'paid', 'waived'] as const;
+
+export type PrepaymentStatus = (typeof PREPAYMENT_STATUSES)[number];
+
+export const PREPAYMENT_STATUS_LABELS: Record<PrepaymentStatus, string> = {
+	not_sent: 'Niet verstuurd',
+	sent: 'Verstuurd',
+	paid: 'Betaald',
+	waived: 'Niet nodig'
+};
+
+export type OpsQuestion = {
+	key: string;
+	label: string;
+	enabled: boolean;
+};
+
+export const OPS_QUESTIONS = [
+	{ key: 'dayContact', label: 'Contactpersoon op de dag + telefoonnummer' },
+	{ key: 'ceremonyContact', label: 'Ceremoniemeester/planner + telefoonnummer/e-mail' },
+	{ key: 'venueContact', label: 'Contactpersoon locatie + telefoonnummer/e-mail' },
+	{ key: 'venueAddress', label: 'Volledig adres van de locatie' },
+	{ key: 'arrivalTime', label: 'Vanaf hoe laat kunnen wij terecht?' },
+	{ key: 'loadingParking', label: 'Laden/lossen en parkeren' },
+	{ key: 'accessNotes', label: 'Trappen, lift, grind, gras, loopafstand of andere toegangspunten' },
+	{ key: 'setupSpot', label: 'Werk-/setupplek en beschikbare tafel' },
+	{ key: 'powerWaterCooling', label: 'Stroom, water/spoelbak en koele plek/koeling' },
+	{ key: 'timeline', label: 'Dagplanning en gewenst service-/taart-/dessertmoment' },
+	{ key: 'servingTimeslot', label: 'Gewenste serveertijd of timeslot' },
+	{ key: 'startSignal', label: 'Wie geeft het startsein voor ons moment?' },
+	{ key: 'finalGuests', label: 'Definitief aantal gasten en deadline' },
+	{ key: 'dietary', label: 'Allergieën en dieetwensen' },
+	{ key: 'serviceMaterials', label: 'Borden, bestek, servetten, glaswerk: locatie/klant of wij?' },
+	{ key: 'weatherPlan', label: 'Bij buitenlocatie: slechtweerplan' },
+	{ key: 'venueRules', label: 'Locatieregels, externe catering, schotelgeld of leveranciers-eisen' }
+] as const;
+
+export const DEFAULT_OPS_QUESTIONS: OpsQuestion[] = OPS_QUESTIONS.map((q) => ({
+	...q,
+	enabled: true
+}));
+
+export function normalizeOpsQuestions(value: unknown): OpsQuestion[] {
+	const source = Array.isArray(value) && value.length > 0 ? value : DEFAULT_OPS_QUESTIONS;
+	const out: OpsQuestion[] = [];
+	const seen = new Set<string>();
+
+	for (const raw of source) {
+		if (!raw || typeof raw !== 'object') continue;
+		const r = raw as Record<string, unknown>;
+		const key = String(r.key ?? '')
+			.trim()
+			.replace(/[^a-zA-Z0-9_-]/g, '')
+			.slice(0, 60);
+		const label = String(r.label ?? '')
+			.trim()
+			.slice(0, 240);
+		if (!key || !label || seen.has(key)) continue;
+		out.push({ key, label, enabled: r.enabled !== false });
+		seen.add(key);
+	}
+
+	for (const q of DEFAULT_OPS_QUESTIONS) {
+		if (!seen.has(q.key)) {
+			out.push(q);
+			seen.add(q.key);
+		}
+	}
+
+	return out.length > 0 ? out : DEFAULT_OPS_QUESTIONS;
+}
 
 export const isOfferteSent = (d: Pick<Deal, 'status' | 'offerteVerstuurdOp'>) =>
 	// Deals we declined ourselves don't belong in the conversion funnel — losing

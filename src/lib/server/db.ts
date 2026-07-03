@@ -88,6 +88,31 @@ export async function ensureSchema(): Promise<Sql | null> {
 					geldig_tot           date,
 					geaccepteerd_op      date,
 
+					-- quote acceptance / client portal
+					acceptance_token     text NOT NULL DEFAULT '',
+					acceptance_enabled   boolean NOT NULL DEFAULT false,
+					acceptance_expires_at timestamptz,
+					accepted_terms_at    timestamptz,
+					accepted_terms_version text NOT NULL DEFAULT '',
+					accepted_by_name     text NOT NULL DEFAULT '',
+					accepted_at_location text NOT NULL DEFAULT '',
+					acceptance_snapshot  text NOT NULL DEFAULT '{}',
+					prepayment_amount    numeric(10,2),
+					prepayment_link      text NOT NULL DEFAULT '',
+					prepayment_status    text NOT NULL DEFAULT 'not_sent',
+					deposit_amount       numeric(10,2),
+					deposit_link         text NOT NULL DEFAULT '',
+					deposit_status       text NOT NULL DEFAULT 'not_sent',
+					final_payment_amount numeric(10,2),
+					final_payment_link   text NOT NULL DEFAULT '',
+					final_payment_status text NOT NULL DEFAULT 'not_sent',
+					quote_versions      text NOT NULL DEFAULT '[]',
+					active_quote_id      text NOT NULL DEFAULT '',
+					portal_questions_enabled boolean NOT NULL DEFAULT true,
+					ops_questions        text NOT NULL DEFAULT '[]',
+					ops_json             text NOT NULL DEFAULT '{}',
+					ops_completed_at     timestamptz,
+
 					-- effort: JSON object of phase key -> hours, e.g. {"inkoop": 2}
 					time_spent           text NOT NULL DEFAULT '{}',
 
@@ -103,6 +128,30 @@ export async function ensureSchema(): Promise<Sql | null> {
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS btw_amount numeric(10,2)`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS costs numeric(10,2)`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS time_spent text NOT NULL DEFAULT '{}'`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS acceptance_token text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS acceptance_enabled boolean NOT NULL DEFAULT false`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS acceptance_expires_at timestamptz`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS accepted_terms_at timestamptz`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS accepted_terms_version text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS accepted_by_name text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS accepted_at_location text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS acceptance_snapshot text NOT NULL DEFAULT '{}'`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS prepayment_amount numeric(10,2)`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS prepayment_link text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS prepayment_status text NOT NULL DEFAULT 'not_sent'`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS deposit_amount numeric(10,2)`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS deposit_link text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS deposit_status text NOT NULL DEFAULT 'not_sent'`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS final_payment_amount numeric(10,2)`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS final_payment_link text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS final_payment_status text NOT NULL DEFAULT 'not_sent'`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS quote_versions text NOT NULL DEFAULT '[]'`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS active_quote_id text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS portal_questions_enabled boolean NOT NULL DEFAULT true`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_questions text NOT NULL DEFAULT '[]'`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_json text NOT NULL DEFAULT '{}'`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_completed_at timestamptz`;
+			await sql`CREATE UNIQUE INDEX IF NOT EXISTS deals_acceptance_token_unique ON deals (acceptance_token) WHERE acceptance_token <> ''`;
 
 			// Keep the status whitelist in sync with DEAL_STATUSES (e.g. adds
 			// 'in_optie'). Drop + re-add so new statuses are always accepted.

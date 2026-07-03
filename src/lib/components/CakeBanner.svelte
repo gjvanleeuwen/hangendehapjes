@@ -10,9 +10,7 @@
 {#if t.products.cakeBanner}
 	<section id="bruidstaarten" class="scroll-mt-20 bg-background pb-20 md:pb-28">
 		<div class="mx-auto max-w-6xl px-6">
-			<div
-				class="rounded-lg border border-(--brand-amaranth)/20 bg-muted/35 p-5 shadow-sm md:p-6"
-			>
+			<div class="rounded-lg border border-(--brand-amaranth)/20 bg-muted/35 p-5 shadow-sm md:p-6">
 				<div class="max-w-2xl">
 					<p class="text-xs font-medium tracking-[0.15em] text-(--brand-magenta) uppercase">
 						{t.products.cakeBanner.kicker}
@@ -40,7 +38,7 @@
 								/>
 							</div>
 							<div class="flex min-w-0 items-center justify-between gap-2 p-3">
-								<span class="text-sm font-medium leading-snug">{link.label}</span>
+								<span class="text-sm leading-snug font-medium">{link.label}</span>
 								<ChevronRight class="size-4 shrink-0 text-(--brand-magenta)" />
 							</div>
 						</a>

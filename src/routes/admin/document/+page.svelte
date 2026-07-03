@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { untrack } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -15,21 +16,92 @@
 	} from '$lib/admin/calc';
 	import type { BtwRate, DocumentKind, DocumentState } from '$lib/admin/types';
 
+	let { data, form } = $props();
+
 	const today = new Date().toISOString().slice(0, 10);
 	const initialKind = (page.url.searchParams.get('kind') as DocumentKind) || 'offerte';
+	const deal = untrack(() => data.deal);
+
+	const defaultTerms = (kind: DocumentKind) => {
+		if (kind === 'offerte') {
+			return [
+				'Voor deze offerte houden wij de evenementdatum vast tot de verloopdatum (14 dagen na verzenden). Bij akkoord vragen wij een aanbetaling van 50% van het totaalbedrag. De boeking is definitief zodra de aanbetaling is ontvangen. De aanbetaling wordt verrekend met de eindfactuur. Het resterende bedrag kan voldaan worden binnen 14 dagen na het evenement.',
+				'Definitieve aantallen, dieetwensen en praktische locatiegegevens ontvangen wij graag uiterlijk 14 dagen voor het evenement. Op deze offerte zijn onze algemene voorwaarden van toepassing.'
+			].join('\n');
+		}
+		if (kind === 'factuur') {
+			return [
+				'Voor deze boeking vragen wij een aanbetaling van 50% van het totaalbedrag. De boeking is definitief zodra de aanbetaling is ontvangen. De aanbetaling wordt verrekend met de eindfactuur. Het resterende bedrag kan voldaan worden binnen 14 dagen na het evenement.',
+				'Definitieve aantallen, dieetwensen en praktische locatiegegevens ontvangen wij graag uiterlijk 14 dagen voor het evenement. Op deze factuur zijn onze algemene voorwaarden van toepassing.'
+			].join('\n');
+		}
+		return '';
+	};
+
+	const defaultFooterNote = (kind: DocumentKind) => {
+		if (kind === 'offerte') return `Vragen over deze offerte? Mail ons op ${BUSINESS.email}.`;
+		if (kind === 'factuur') return `Vragen over deze factuur? Mail ons op ${BUSINESS.email}.`;
+		return '';
+	};
+
+	const isDefaultTerms = (value: string) =>
+		value === '' || value === defaultTerms('offerte') || value === defaultTerms('factuur');
+
+	const isDefaultFooterNote = (value: string) =>
+		value === '' ||
+		value === defaultFooterNote('offerte') ||
+		value === defaultFooterNote('factuur');
 
 	const doc = $state<DocumentState>({
 		kind: initialKind,
 		number: initialKind === 'factuur' ? `${new Date().getFullYear()}-` : '',
 		date: today,
+		eventDate: deal?.eventDate ?? '',
 		validUntil: '',
 		paidOn: today,
-		recipient: { name: '', company: '', address: '' },
+		recipient: { name: deal?.name ?? '', company: '', address: '' },
 		lineItems: [{ description: '', qty: 50, unitPrice: 2.5, btwRate: 'none', discountPct: 0 }],
 		discountMode: 'pct',
 		discountValue: 0,
-		notes: ''
+		notes: '',
+		terms: defaultTerms(initialKind),
+		footerNote: defaultFooterNote(initialKind)
 	});
+	const calculatorMeta = $state<{
+		costs: number | null;
+		timeSpent: Record<string, number>;
+	}>({
+		costs: null,
+		timeSpent: {}
+	});
+
+	let quoteMeta = $state({
+		id: crypto.randomUUID(),
+		version: `v${(deal?.quoteVersions.length ?? 0) + 1}`,
+		label: deal?.choice || 'Offerte'
+	});
+
+	const termsParts = $derived(
+		doc.terms.split('\n').map((line) => {
+			const phrase = 'algemene voorwaarden';
+			const index = line.toLowerCase().indexOf(phrase);
+			return {
+				before: index >= 0 ? line.slice(0, index) : line,
+				link: index >= 0 ? line.slice(index, index + phrase.length) : '',
+				after: index >= 0 ? line.slice(index + phrase.length) : ''
+			};
+		})
+	);
+
+	function setKind(kind: DocumentKind) {
+		if (doc.kind === kind) return;
+		const shouldReplaceTerms = isDefaultTerms(doc.terms);
+		const shouldReplaceFooterNote = isDefaultFooterNote(doc.footerNote);
+		doc.kind = kind;
+		if (doc.kind === 'factuur' && !doc.number) doc.number = `${new Date().getFullYear()}-`;
+		if (shouldReplaceTerms) doc.terms = defaultTerms(kind);
+		if (shouldReplaceFooterNote) doc.footerNote = defaultFooterNote(kind);
+	}
 
 	$effect(() => {
 		if (page.url.searchParams.get('from') !== 'calc') return;
@@ -41,8 +113,13 @@
 				qty: number;
 				unitPrice: number;
 				btwRate: BtwRate;
+				costs?: number | null;
+				timeSpent?: Record<string, number>;
 			};
-			doc.lineItems = [{ ...data, discountPct: 0 }];
+			const { costs, timeSpent, ...lineItem } = data;
+			doc.lineItems = [{ ...lineItem, discountPct: 0 }];
+			calculatorMeta.costs = costs ?? null;
+			calculatorMeta.timeSpent = timeSpent ?? {};
 			sessionStorage.removeItem('hh_calculator_prefill');
 		} catch {
 			// ignore
@@ -59,6 +136,7 @@
 	const headingLabel = $derived(
 		doc.kind === 'offerte' ? 'Offerte' : doc.kind === 'factuur' ? 'Factuur' : 'Kwitantie'
 	);
+	const calculatorHref = $derived(`/admin/calculator${deal ? `?deal=${deal.id}` : ''}`);
 
 	const allNoVat = $derived(doc.lineItems.every((l) => l.btwRate === 'none'));
 	const showBtwColumn = $derived(doc.kind !== 'kwitantie' && !allNoVat);
@@ -99,6 +177,30 @@
 		{ value: 9, label: '9%' },
 		{ value: 21, label: '21%' }
 	];
+
+	const quotePayload = $derived(
+		JSON.stringify({
+			id: quoteMeta.id,
+			version: quoteMeta.version,
+			label: quoteMeta.label,
+			kind: 'offerte',
+			active: true,
+			createdAt: new Date().toISOString(),
+			date: doc.date,
+			eventDate: doc.eventDate,
+			validUntil: doc.validUntil,
+			amount: totals.total,
+			recipient: doc.recipient,
+			lineItems: $state.snapshot(doc).lineItems,
+			discountMode: doc.discountMode,
+			discountValue: doc.discountValue,
+			costs: calculatorMeta.costs,
+			timeSpent: $state.snapshot(calculatorMeta).timeSpent,
+			notes: doc.notes,
+			terms: doc.terms,
+			footerNote: doc.footerNote
+		})
+	);
 </script>
 
 <svelte:head>
@@ -110,11 +212,16 @@
 	<section class="space-y-6 print:hidden">
 		<div>
 			<h1 class="font-heading text-2xl">{headingLabel}</h1>
+			{#if deal}
+				<p class="mt-1 text-sm text-muted-foreground">
+					Opslaan op aanvraag van <strong>{deal.name}</strong>.
+				</p>
+			{/if}
 			<div class="mt-3 flex flex-wrap gap-2">
 				{#each ['offerte', 'factuur', 'kwitantie'] as const as k}
 					<button
 						type="button"
-						onclick={() => (doc.kind = k)}
+						onclick={() => setKind(k)}
 						class="border px-3 py-1.5 text-sm capitalize transition {doc.kind === k
 							? 'border-primary bg-primary text-primary-foreground'
 							: 'hover:bg-muted'}"
@@ -124,6 +231,37 @@
 				{/each}
 			</div>
 		</div>
+
+		{#if form?.error}
+			<div class="border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+				{form.error}
+			</div>
+		{/if}
+		{#if form?.savedQuote}
+			<div class="border border-primary/30 bg-primary/5 p-3 text-sm">
+				Offerteversie opgeslagen op de aanvraag.
+			</div>
+		{/if}
+
+		{#if deal && doc.kind === 'offerte'}
+			<fieldset class="space-y-3 border p-4">
+				<legend class="px-1 text-sm font-medium">Portalversie</legend>
+				<div class="grid gap-3 sm:grid-cols-2">
+					<div class="space-y-1.5">
+						<Label for="quoteLabel">Label</Label>
+						<Input
+							id="quoteLabel"
+							bind:value={quoteMeta.label}
+							placeholder="Bijv. Taart + hapjes"
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="quoteVersion">Versie</Label>
+						<Input id="quoteVersion" bind:value={quoteMeta.version} placeholder="v1" />
+					</div>
+				</div>
+			</fieldset>
+		{/if}
 
 		<div class="grid gap-3 sm:grid-cols-2">
 			<div class="space-y-1.5">
@@ -139,6 +277,10 @@
 			<div class="space-y-1.5">
 				<Label for="date">Datum</Label>
 				<Input id="date" type="date" bind:value={doc.date} />
+			</div>
+			<div class="space-y-1.5">
+				<Label for="eventDate">Eventdatum</Label>
+				<Input id="eventDate" type="date" bind:value={doc.eventDate} />
 			</div>
 			{#if doc.kind === 'offerte'}
 				<div class="space-y-1.5">
@@ -291,12 +433,37 @@
 				id="notes"
 				rows={3}
 				bind:value={doc.notes}
-				placeholder="Bijv. afspraken, betalingstermijn, locatie…"
+				placeholder="Bijv. afspraak over locatie, speciale service, afwijkende planning…"
 			/>
 		</div>
 
-		<div class="flex gap-2">
+		{#if doc.kind !== 'kwitantie'}
+			<div class="space-y-1.5">
+				<Label for="terms">Betaling & voorwaarden</Label>
+				<Textarea id="terms" rows={6} bind:value={doc.terms} />
+			</div>
+		{/if}
+
+		<div class="space-y-1.5">
+			<Label for="footerNote">Voettekst</Label>
+			<Textarea id="footerNote" rows={2} bind:value={doc.footerNote} />
+		</div>
+
+		<div class="flex flex-wrap gap-2">
 			<Button type="button" onclick={() => window.print()}>Print / Opslaan als PDF</Button>
+			<a
+				class="inline-flex h-10 items-center justify-center rounded-lg border px-4 text-sm font-medium hover:bg-muted"
+				href={calculatorHref}
+			>
+				Bereken met calculator
+			</a>
+			{#if doc.kind === 'offerte'}
+				<form method="POST" action="?/saveQuote">
+					<input type="hidden" name="dealId" value={deal.id} />
+					<input type="hidden" name="quote" value={quotePayload} />
+					<Button type="submit" variant="outline">Opslaan als actieve offerte op portal</Button>
+				</form>
+			{/if}
 		</div>
 	</section>
 
@@ -327,6 +494,9 @@
 						<div class="text-sm">Ref: <span class="font-medium">{doc.number}</span></div>
 					{/if}
 					<div class="text-sm">Datum: {formatDateNL(doc.date) || '—'}</div>
+					{#if doc.eventDate}
+						<div class="text-sm">Eventdatum: {formatDateNL(doc.eventDate)}</div>
+					{/if}
 					{#if doc.kind === 'offerte' && doc.validUntil}
 						<div class="text-sm">Geldig t/m: {formatDateNL(doc.validUntil)}</div>
 					{/if}
@@ -457,6 +627,20 @@
 				</div>
 			{/if}
 
+			{#if doc.kind !== 'kwitantie' && doc.terms}
+				<div class="mt-8 text-[10px] leading-relaxed text-neutral-600">
+					<div class="tracking-wide text-neutral-500 uppercase">Betaling & voorwaarden</div>
+					<div class="mt-1">
+						{#each termsParts as part}
+							<p>
+								{part.before}{#if part.link}<a class="underline" href="/terms">{part.link}</a
+									>{/if}{part.after}
+							</p>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
 			<footer
 				class="mt-12 border-t border-neutral-300 pt-4 text-xs leading-relaxed text-neutral-600"
 			>
@@ -466,6 +650,9 @@
 						14 dagen over te maken op {BUSINESS.iban} t.n.v. {BUSINESS.name} o.v.v. factuurnummer {doc.number ||
 							'—'}.
 					</div>
+					{#if doc.footerNote}
+						<div class="mt-2">{doc.footerNote}</div>
+					{/if}
 					<div class="mt-2 flex flex-wrap gap-x-4">
 						<span>{BUSINESS.name}</span>
 						<span>{BUSINESS.email}</span>
@@ -474,10 +661,11 @@
 						{#if BUSINESS.btwId}<span>BTW {BUSINESS.btwId}</span>{/if}
 					</div>
 				{:else if doc.kind === 'offerte'}
-					<div>Vragen over deze offerte? Mail ons op {BUSINESS.email}.</div>
+					<div>{doc.footerNote}</div>
 				{:else}
 					<div>
-						Bedankt! Deze kwitantie bevestigt ontvangst van {formatEUR(totals.total)}.
+						{doc.footerNote ||
+							`Bedankt! Deze kwitantie bevestigt ontvangst van ${formatEUR(totals.total)}.`}
 					</div>
 				{/if}
 			</footer>

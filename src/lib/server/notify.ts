@@ -15,6 +15,8 @@ const escapeHtml = (s: string) =>
 export async function notifyError(error: unknown, context: NotifyContext): Promise<void> {
 	const token = env.TELEGRAM_BOT_TOKEN;
 	const chatId = env.TELEGRAM_CHAT_ID;
+	const telegramConfigured =
+		!!token && !!chatId && !token.startsWith('replace-with') && !chatId.startsWith('replace-with');
 
 	const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
 	const stack = error instanceof Error && error.stack ? error.stack : null;
@@ -35,7 +37,7 @@ export async function notifyError(error: unknown, context: NotifyContext): Promi
 
 	const text = lines.join('\n');
 
-	if (!token || !chatId) {
+	if (!telegramConfigured) {
 		if (dev) {
 			console.log('[notify] dev mode, no Telegram creds — would have sent:\n', text);
 		} else {

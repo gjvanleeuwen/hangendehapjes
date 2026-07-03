@@ -2,7 +2,6 @@ really good cake website to model after: https://welovecakes.nl/trouwen/bruidsta
 
 reference for prices: https://welovecakes.nl/trouwen/prijzen
 
-
 ### DNS / hosting sanity
 
 - [ ] Decide what to do with the alt domains in [site-config.ts](src/lib/site-config.ts) (`detoetjesvrouw.nl`, `deborrelbaas.nl`): 301 to the main site, or park

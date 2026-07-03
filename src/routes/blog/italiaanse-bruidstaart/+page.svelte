@@ -187,8 +187,8 @@
 					Een Italiaanse bruidstaart, ook wel een millefoglie (of de Franse millefeuille) genoemd,
 					is een gelaagde taart van dunne, knapperige lagen bladerdeeg met luchtige Zwitserse room
 					en een flinke berg vers rood fruit. Zelf hadden wij deze taart op onze bruiloft en het was
-					een enorm succes. Niet alleen hadden wij zelf de tijd van ons leven met het leggen van
-					het fruit, ook de gasten vonden het fantastisch om naar het opbouwen te kijken. Het was
+					een enorm succes. Niet alleen hadden wij zelf de tijd van ons leven met het leggen van het
+					fruit, ook de gasten vonden het fantastisch om naar het opbouwen te kijken. Het was
 					feestelijk, super lekker en net even anders dan een klassieke hoge bruidstaart.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">

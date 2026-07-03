@@ -9,10 +9,18 @@ import {
 	toDateOrNull,
 	updateDeal,
 	DEAL_STATUSES,
+	quoteDealFields,
 	type DealInput,
 	type DealStatus
 } from '$lib/server/deals';
-import { TIME_PHASES } from '$lib/deals';
+import {
+	normalizeOpsQuestions,
+	PREPAYMENT_STATUSES,
+	TIME_PHASES,
+	computeMetrics,
+	periodLeadTrend,
+	type OpsQuestion
+} from '$lib/deals';
 import type { Actions, PageServerLoad } from './$types';
 
 const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -34,7 +42,16 @@ export const load: PageServerLoad = async ({ url }) => {
 		? `${url.origin}/admin/calendar.ics?token=${encodeURIComponent(calToken)}`
 		: null;
 
-	return { deals, today, soon, dbConfigured, calendarUrl };
+	return {
+		deals,
+		today,
+		soon,
+		dbConfigured,
+		calendarUrl,
+		origin: url.origin,
+		metrics: computeMetrics(deals),
+		trend: periodLeadTrend(deals, 14, new Date().toISOString())
+	};
 };
 
 const str = (fd: FormData, key: string, max = 1000): string =>
@@ -51,9 +68,27 @@ const amountOrNull = (fd: FormData, key: string): number | null => {
 	return Number.isFinite(n) && n >= 0 ? n : null;
 };
 
+const optionalDateTime = (fd: FormData, key: string): string | null => {
+	const value = str(fd, key, 25);
+	if (!value) return null;
+	const d = new Date(`${value}T23:59:59.999Z`);
+	return Number.isNaN(d.getTime()) ? null : d.toISOString();
+};
+
 const statusOf = (fd: FormData): DealStatus => {
 	const s = String(fd.get('status') ?? 'nieuw');
 	return (DEAL_STATUSES as readonly string[]).includes(s) ? (s as DealStatus) : 'nieuw';
+};
+
+const paymentStatusOf = (fd: FormData, key: string): string => {
+	const s = String(fd.get(key) ?? 'not_sent');
+	return (PREPAYMENT_STATUSES as readonly string[]).includes(s) ? s : 'not_sent';
+};
+
+const makeToken = () => {
+	const bytes = new Uint8Array(24);
+	crypto.getRandomValues(bytes);
+	return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 };
 
 const hoursOrZero = (raw: string): number => {
@@ -69,6 +104,40 @@ const parseTimeSpent = (fd: FormData): Record<string, number> => {
 		if (h > 0) out[p.key] = h;
 	}
 	return out;
+};
+
+const cleanQuestionKey = (value: string): string =>
+	value
+		.trim()
+		.replace(/[^a-zA-Z0-9_-]/g, '')
+		.slice(0, 60);
+
+const parseOpsQuestionsConfig = (fd: FormData): OpsQuestion[] => {
+	const questions: OpsQuestion[] = [];
+	const keys = fd.getAll('opsQuestionKey').map((v) => cleanQuestionKey(String(v)));
+
+	for (const key of keys) {
+		if (!key) continue;
+		const label = str(fd, `opsQuestionLabel_${key}`, 240);
+		if (!label) continue;
+		questions.push({
+			key,
+			label,
+			enabled: fd.get(`opsQuestionEnabled_${key}`) === 'yes'
+		});
+	}
+
+	for (let i = 1; i <= 3; i += 1) {
+		const label = str(fd, `opsQuestionNewLabel_${i}`, 240);
+		if (!label) continue;
+		questions.push({
+			key: `custom_${Date.now()}_${i}`,
+			label,
+			enabled: true
+		});
+	}
+
+	return normalizeOpsQuestions(questions);
 };
 
 export const actions: Actions = {
@@ -155,6 +224,30 @@ export const actions: Actions = {
 		if (fd.has('geldigTot')) fields.geldigTot = toDateOrNull(str(fd, 'geldigTot', 25));
 		if (fd.has('geaccepteerdOp'))
 			fields.geaccepteerdOp = toDateOrNull(str(fd, 'geaccepteerdOp', 25));
+		if (fd.has('acceptanceEnabled'))
+			fields.acceptanceEnabled = str(fd, 'acceptanceEnabled', 10) === 'true';
+		if (fd.has('acceptanceExpiresAt'))
+			fields.acceptanceExpiresAt = optionalDateTime(fd, 'acceptanceExpiresAt');
+		if (fd.has('prepaymentAmount')) fields.depositAmount = amountOrNull(fd, 'prepaymentAmount');
+		if (fd.has('prepaymentLink')) fields.depositLink = str(fd, 'prepaymentLink', 500);
+		if (fd.has('prepaymentStatus')) fields.depositStatus = paymentStatusOf(fd, 'prepaymentStatus');
+		if (fd.has('depositAmount')) fields.depositAmount = amountOrNull(fd, 'depositAmount');
+		if (fd.has('depositLink')) fields.depositLink = str(fd, 'depositLink', 500);
+		if (fd.has('depositStatus')) fields.depositStatus = paymentStatusOf(fd, 'depositStatus');
+		if (fd.has('finalPaymentAmount'))
+			fields.finalPaymentAmount = amountOrNull(fd, 'finalPaymentAmount');
+		if (fd.has('finalPaymentLink')) fields.finalPaymentLink = str(fd, 'finalPaymentLink', 500);
+		if (fd.has('finalPaymentStatus'))
+			fields.finalPaymentStatus = paymentStatusOf(fd, 'finalPaymentStatus');
+		if (fd.has('activeQuoteId')) {
+			const activeQuoteId = str(fd, 'activeQuoteId', 80);
+			fields.activeQuoteId = activeQuoteId;
+			const activeQuote = existing.quoteVersions.find((q) => q.id === activeQuoteId);
+			if (activeQuote) Object.assign(fields, quoteDealFields(activeQuote));
+		}
+		if (fd.has('portalQuestionsEnabled'))
+			fields.portalQuestionsEnabled = str(fd, 'portalQuestionsEnabled', 10) === 'true';
+		if (fd.has('opsQuestionsConfig')) fields.opsQuestions = parseOpsQuestionsConfig(fd);
 		if (fd.has('notes')) fields.notes = str(fd, 'notes', 5000);
 
 		// Convenience auto-stamps when advancing the pipeline and the date wasn't
@@ -181,6 +274,32 @@ export const actions: Actions = {
 			return fail(500, { error: `Bijwerken mislukt: ${(err as Error).message}` });
 		}
 		return { updated: true };
+	},
+
+	generateAcceptance: async ({ request }) => {
+		if (!isDbConfigured()) return fail(503, { error: 'Geen database geconfigureerd.' });
+
+		const fd = await request.formData();
+		const id = str(fd, 'id', 64);
+		if (!id) return fail(400, { error: 'id ontbreekt.' });
+
+		const existing = await getDeal(id);
+		if (!existing) return fail(404, { error: 'Aanvraag niet gevonden.' });
+
+		const expires = new Date();
+		expires.setUTCDate(expires.getUTCDate() + 30);
+		expires.setUTCHours(23, 59, 59, 999);
+
+		try {
+			await updateDeal(id, {
+				acceptanceToken: makeToken(),
+				acceptanceEnabled: true,
+				acceptanceExpiresAt: expires.toISOString()
+			});
+		} catch (err) {
+			return fail(500, { error: `Acceptatielink maken mislukt: ${(err as Error).message}` });
+		}
+		return { generatedAcceptance: true };
 	},
 
 	delete: async ({ request }) => {

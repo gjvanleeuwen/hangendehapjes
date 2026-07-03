@@ -22,6 +22,7 @@ export interface DocumentState {
 	kind: DocumentKind;
 	number: string;
 	date: string;
+	eventDate: string;
 	validUntil: string;
 	paidOn: string;
 	recipient: Recipient;
@@ -29,4 +30,6 @@ export interface DocumentState {
 	discountMode: DiscountMode;
 	discountValue: number;
 	notes: string;
+	terms: string;
+	footerNote: string;
 }

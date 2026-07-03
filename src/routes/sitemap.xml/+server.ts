@@ -26,7 +26,9 @@ const urls: UrlEntry[] = [
 	{ loc: SITE_URL + '/blog/hoeveel-hapjes-per-persoon', priority: '0.7' },
 	{ loc: SITE_URL + '/blog/tiramisu-bruiloft', priority: '0.7' },
 	{ loc: SITE_URL + '/blog/burrata-catering', priority: '0.7' },
-	{ loc: SITE_URL + '/blog/italiaanse-bruidstaart', priority: '0.7' }
+	{ loc: SITE_URL + '/blog/italiaanse-bruidstaart', priority: '0.7' },
+	{ loc: SITE_URL + '/blog/bruidstaart', priority: '0.7' },
+	{ loc: SITE_URL + '/terms', priority: '0.3' }
 ];
 
 export const GET: RequestHandler = async () => {

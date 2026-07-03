@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -37,6 +38,7 @@
 	let extraPeople = $state(0);
 	let oneWayKm = $state(0);
 	let burrToppings = $state<string[]>([...DEFAULT_BURRATA_TOPPINGS]);
+	const dealId = page.url.searchParams.get('deal') ?? '';
 
 	const config = $state<PricingConfig>({ ...DEFAULT_CONFIG });
 
@@ -261,25 +263,32 @@
 		const burrSuffix = toppingLabels.length ? ` met ${toppingLabels.join(', ')}` : '';
 
 		const description = isSpecial
-			? `Hangende Hapjes — ${portions}× ${VARIANT_LABELS[mode as SpecialVariant]}`
+			? `${VARIANT_LABELS[mode as SpecialVariant]} (${portions} personen)`
 			: isMix
-				? `Hangende Hapjes — ${tiraPortions}× tiramisu + ${burrPortions}× burrata${burrSuffix}`
+				? `Hangende Hapjes (${totalPortions} personen) — tiramisu + burrata${burrSuffix}`
 				: tiraPortions > 0
-					? `Hangende Hapjes — ${tiraPortions}× tiramisu`
-					: `Hangende Hapjes — ${burrPortions}× burrata${burrSuffix}`;
+					? `Hangende Hapjes (${tiraPortions} personen) — tiramisu`
+					: `Hangende Hapjes (${burrPortions} personen) — burrata${burrSuffix}`;
 
 		const payload = {
 			description,
-			qty: totalPortions,
-			unitPrice: result.perPortion,
-			btwRate: 'none' as const
+			qty: 1,
+			unitPrice: result.total,
+			btwRate: 'none' as const,
+			costs: internals.costs.total,
+			timeSpent: {
+				voorbereiding: internals.hours.prep,
+				reizen: internals.hours.drive,
+				event: isSpecial ? internals.hours.build : internals.hours.walking,
+				afhandeling: internals.hours.cleanup
+			}
 		};
 		try {
 			sessionStorage.setItem('hh_calculator_prefill', JSON.stringify(payload));
 		} catch {
 			// ignore
 		}
-		goto('/admin/document?kind=offerte&from=calc');
+		goto(`/admin/document?kind=offerte&from=calc${dealId ? `&deal=${dealId}` : ''}`);
 	}
 </script>
 
@@ -293,6 +302,12 @@
 		<p class="text-sm text-muted-foreground">
 			Bereken een offerteprijs op basis van porties, mix en extra personen.
 		</p>
+		{#if dealId}
+			<p class="text-xs text-muted-foreground">
+				Gekoppeld aan aanvraag. Gebruik “Gebruik in offerte” om prijs, kosten en uren door te
+				zetten.
+			</p>
+		{/if}
 		<details class="text-xs text-muted-foreground">
 			<summary class="cursor-pointer hover:text-foreground">Hoe werkt de prijsopbouw?</summary>
 			<div class="mt-2 space-y-1.5 leading-relaxed">
@@ -482,9 +497,8 @@
 						</div>
 					</div>
 					<p class="text-xs text-muted-foreground">
-						Minimaal {minPortionsForSpecialVariant('tiramisu-taart')} personen. Prep = standaard
-						hapjesprep × 2 (dubbele portie). Prijs = premium all-in anker voor opbouw en
-						entertainment op locatie.
+						Minimaal {minPortionsForSpecialVariant('tiramisu-taart')} personen. Prep = standaard hapjesprep
+						× 2 (dubbele portie). Prijs = premium all-in anker voor opbouw en entertainment op locatie.
 					</p>
 				{:else if mode === 'millefeuille-taart'}
 					<div class="grid gap-3 sm:grid-cols-2">
@@ -574,9 +588,9 @@
 						</div>
 					</div>
 					<p class="text-xs text-muted-foreground">
-						Minimaal {minPortionsForSpecialVariant('millefeuille-taart')} personen. Prijs is
-						portie-verankerd (uurtarief is een uitkomst, geen input). Opbouw = zelfde als
-						tiramisu-taart. Fruit drukt op de marge, niet op de prijs.
+						Minimaal {minPortionsForSpecialVariant('millefeuille-taart')} personen. Prijs is portie-verankerd
+						(uurtarief is een uitkomst, geen input). Opbouw = zelfde als tiramisu-taart. Fruit drukt op
+						de marge, niet op de prijs.
 					</p>
 				{/if}
 			</fieldset>
@@ -669,8 +683,7 @@
 						Per extra persoon: {config.extraPersonDriveHours.toString().replace('.', ',')}u rijden ×
 						€{config.driveHourlyRate} = {formatEUR(
 							config.extraPersonDriveHours * config.driveHourlyRate
-						)}.
-						Looptijd is al gedekt in het basistarief van de hapjes.
+						)}. Looptijd is al gedekt in het basistarief van de hapjes.
 					</p>
 				{/if}
 			</fieldset>
@@ -795,8 +808,8 @@
 					</div>
 				</div>
 				<p class="mt-2 text-xs text-muted-foreground">
-					Opbouwtijden, tiramisu-taart prijsankers, millefeuille-prep en -prijsankers en
-					porties/uur staan onder “Fijn-afstemmen (deze variant)”.
+					Opbouwtijden, tiramisu-taart prijsankers, millefeuille-prep en -prijsankers en porties/uur
+					staan onder “Fijn-afstemmen (deze variant)”.
 				</p>
 			</details>
 		</section>
@@ -1155,14 +1168,23 @@
 				</p>
 			</div>
 
-			<Button
-				type="button"
-				class="w-full"
-				disabled={totalPortions === 0 || result.warnings.length > 0}
-				onclick={useInOfferte}
-			>
-				Gebruik in offerte
-			</Button>
+			{#if dealId}
+				<Button
+					type="button"
+					class="w-full"
+					disabled={totalPortions === 0 || result.warnings.length > 0}
+					onclick={useInOfferte}
+				>
+					Gebruik in offerte
+				</Button>
+			{:else}
+				<a
+					class="inline-flex h-10 w-full items-center justify-center rounded-lg border px-4 text-sm font-medium hover:bg-muted"
+					href="/admin/aanvragen?add=1"
+				>
+					Maak eerst een prospect of open een aanvraag
+				</a>
+			{/if}
 		</section>
 	</div>
 </div>
