@@ -249,6 +249,7 @@ export const actions: Actions = {
 			fields.portalQuestionsEnabled = str(fd, 'portalQuestionsEnabled', 10) === 'true';
 		if (fd.has('opsQuestionsConfig')) fields.opsQuestions = parseOpsQuestionsConfig(fd);
 		if (fd.has('notes')) fields.notes = str(fd, 'notes', 5000);
+		if (fd.has('portalNote')) fields.portalNote = str(fd, 'portalNote', 2000);
 
 		// Convenience auto-stamps when advancing the pipeline and the date wasn't
 		// part of this form (so we never overwrite a value the user just cleared).

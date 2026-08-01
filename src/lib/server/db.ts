@@ -109,6 +109,7 @@ export async function ensureSchema(): Promise<Sql | null> {
 					quote_versions      text NOT NULL DEFAULT '[]',
 					active_quote_id      text NOT NULL DEFAULT '',
 					portal_questions_enabled boolean NOT NULL DEFAULT true,
+					portal_note          text NOT NULL DEFAULT '',
 					ops_questions        text NOT NULL DEFAULT '[]',
 					ops_json             text NOT NULL DEFAULT '{}',
 					ops_completed_at     timestamptz,
@@ -148,6 +149,7 @@ export async function ensureSchema(): Promise<Sql | null> {
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS quote_versions text NOT NULL DEFAULT '[]'`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS active_quote_id text NOT NULL DEFAULT ''`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS portal_questions_enabled boolean NOT NULL DEFAULT true`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS portal_note text NOT NULL DEFAULT ''`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_questions text NOT NULL DEFAULT '[]'`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_json text NOT NULL DEFAULT '{}'`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_completed_at timestamptz`;

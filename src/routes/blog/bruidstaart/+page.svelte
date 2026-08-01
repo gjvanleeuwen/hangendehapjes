@@ -18,10 +18,10 @@
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
 	import BlogCta from '$lib/blog/BlogCta.svelte';
 
-	const headline = 'Bruidstaart op maat: klassiek, persoonlijk en enorm lekker';
+	const headline = 'Bruidstaart op maat: Perfect voor jullie dag';
 	const title = 'Bruidstaart op maat: inclusief proeven';
 	const description =
-		'Een klassieke bruidstaart op maat? Charlotte bakt botercrèmetaarten in 8 verschillende smaken, afwerking naar keuze en proef vooraf';
+		'Een klassieke bruidstaart op maat? Charlotte bakt botercrèmetaarten in 8 smaken, afwerking naar keuze en je kan gratis komen proeven.';
 	const slug = '/blog/bruidstaart';
 	const canonical = SITE_URL + slug;
 	const ogImage = SITE_URL + '/og-blog-bruidstaart.jpg';
@@ -111,7 +111,7 @@
 			id: 'bruidstaart-bezorgen',
 			question: 'Bezorgen jullie de taart, of moeten we hem ophalen?',
 			answer:
-				'Wij leveren de klassieke bruidstaart volledig opgebouwd af op jullie locatie, zodat hij daar in de koeling kan tot het taartmoment. Het bezorgen zit bij de prijs in, vanaf Hilversum tot 50 km. Daarboven rekenen we €0,45 per kilometer. De locatie kan de taart serveren op het moment dat jullie kiezen. Wil je een meer entertainende full-service optie, eventueel zonder schotelgeld? Kijk dan naar onze millefoglie of tiramisu, of vraag naar de optie dat wij de taart serveren.'
+				'Wij bezorgen de taart en zetten hem op locatie in elkaar, zodat hij daar in de koeling kan tot het taartmoment. Het bezorgen zit bij de prijs in, vanaf Hilversum tot 50 km. Daarboven rekenen we €0,45 per kilometer. Het aansnijden en serveren doen jullie zelf of je locatie. Wil je liever dat wij tussen je gasten door serveren? Kijk dan naar onze millefoglie of live tiramisu, of vraag ernaar in je aanvraag.'
 		},
 		{
 			id: 'bruidstaart-allergies',
@@ -166,18 +166,17 @@
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
 			<header class="space-y-4">
 				<p class="text-sm font-semibold tracking-wider text-(--brand-magenta) uppercase">
-					Jouw eigen showstopper
+				Klassiek en persoonlijk
 				</p>
 				<h1 class="font-heading text-3xl tracking-tight md:text-5xl">
 					{headline}
 				</h1>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Een klassieke bruidstaart is niet alleen om aan een verwachting te voldoen, het is een
-					persoonlijk moment, dus maak er een feestje van. Charlotte bakt een botercrèmetaart op
-					maat: elke laag in de perfecte smaak, een matchende kleur of bloemen en de afwerking
-					precies zoals je in gedachten had. Van rustig en strak tot passend met je jurk, het kan
-					allemaal. Alles huisgemaakt met onze eigen top smaken en recepten en volledig passend bij
-					jullie sfeer en wensen.
+					persoonlijk moment, dus maak er een feestje van. Charlotte bakt een taart
+					op maat: elke laag in de smaak die jullie kiezen, een matchende kleur of
+					bloemen en de afwerking precies zoals je hem voor je ziet. Van rustig en strak tot perfect passend
+					bij de jurk, versiering of bloemen, het kan allemaal.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Liever een ander soort bruidstaart? Lees dan over onze
@@ -202,10 +201,13 @@
 				<ul
 					class="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground marker:text-(--brand-magenta)"
 				>
-					<li>Botercrèmetaart op maat gebakken door Charlotte</li>
+					<li>Botercrème-taart op maat gebakken en afgewerkt door Charlotte</li>
 					<li>Keuze uit 8 smaken per laag, kleur en afwerking helemaal naar keuze</li>
-					<li>Proefdoosje inbegrepen (€30, verrekend bij je bestelling)</li>
-					<li>Vanaf 50 personen, twee etages tot zo'n 80, drie tot rond de 120</li>
+					<li>
+						Neem een proefdoosje mee naar huis (€30, verrekend bij je bestelling)
+					</li>
+					<li>Vanaf 25 personen, twee etages tot zo'n 80, drie tot rond de 150</li>
+					<li>Richtprijs €11,50 per persoon, excl. btw</li>
 					<li>Bezorgen en opbouwen op locatie inbegrepen, boven 50 km €0,45 per kilometer</li>
 				</ul>
 			</section>
@@ -227,26 +229,26 @@
 					Wat je kiest bij een bruidstaart op maat
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Wanneer je met Charlotte aan het process voor de bruidstaart begint is er eerst een kort
-					gesprek (online) om goed te begrijpen hoe jullie dag er uit ziet, welke styling je mooi
-					vindt en welke andere wensen jullie hebben voor de taart. Met wat inspiratie foto's of een
-					moodboard maakt Charlotte dan een plan en uiteindelijke offerte. Zo is helemaal duidelijk
-					welke vulling past bij jullie smaak, welke kleuren terug komen in de bloemen of styling,
-					en of de taart strak, rustiek of juist uitbundig moet worden.
+					Het begint met een kort gesprek online, om goed te snappen hoe jullie dag eruitziet, welke
+					styling je mooi vindt en welke wensen jullie hebben voor de taart. Stuur wat
+					inspiratiefoto's of een moodboard mee, dan maakt Charlotte daar een plan en een offerte
+					van. Zo is helemaal duidelijk welke vulling julie lekker vinden, welke kleuren
+					terugkomen in de bloemen of styling, en of de taart strak, rustiek of juist uitbundig
+					wordt.
 				</p>
 				<ul
 					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
 				>
 					<li>
 						<strong>De smaak, per laag:</strong> bij meerdere etages mag elke laag een eigen smaak hebben,
-						van klassiek met rood fruit of chocolade tot gezouten karamel en thee smaak.
+						van klassiek met rood fruit of chocolade tot gezouten karamel en thee.
 					</li>
 					<li>
-						<strong>De afwerking:</strong> elke kleur en stijl kan, strak afgesmeerd of juist rustiek
-						of zelfs naakt. Jij bepaalt de look.
+						<strong>De afwerking:</strong> botercrème in elke kleur die je wilt, strak afgesmeerd of juist
+						rustiek geveegd. Jij bepaalt de look.
 					</li>
 					<li>
-						<strong>De details, als je wilt:</strong> verse bloemen, parels, een drip, een bepaalde pipingtechniek
+						<strong>De details, als je wilt:</strong> verse bloemen, vers fruit, parels, een pipingtechniek
 						of een topper met jullie namen. Alles kan, niets moet.
 					</li>
 					<li>
@@ -256,10 +258,10 @@
 					</li>
 				</ul>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Charlotte bakt de taart in lagen en zet hem op locatie in elkaar, zodat hij mooi
-					klaarstaat voor het aansnijmoment. Kort voor de bruiloft hebben wij altijd nog even
-					contact om de bezorging en laatste dingen kort te sluiten. Zo hebben jullie geen stress
-					over dit cruciale deel van jullie dag.
+					Charlotte bakt de taart in lagen en zet hem op locatie in elkaar, zodat hij recht en strak
+					klaarstaat voor het aansnijmoment. Kort voor de bruiloft hebben we altijd nog even contact
+					om de bezorging en de laatste dingen kort te sluiten. Zo hebben jullie geen stress over
+					dit cruciale deel van jullie dag.
 				</p>
 				<div class="mt-6 grid gap-4 sm:grid-cols-2">
 					<figure class="overflow-hidden rounded-xl bg-muted">
@@ -288,49 +290,12 @@
 			</section>
 
 			<section class="mt-12 space-y-4">
-				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">De stijlen die we maken</h2>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Geen idee waar je moet beginnen? Dit zijn de stijlen die we het vaakst maken. Combineren
-					mag, en als je iets anders voor je ziet, maken we samen een eigen ontwerp.
-				</p>
-				<ul
-					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
-				>
-					<li>
-						<strong>Strak afgesmeerd:</strong> egale, gladde botercrème of ganache in jullie kleur. De
-						klassieke, tijdloze look.
-					</li>
-					<li>
-						<strong>Naked of semi-naked:</strong> dunne laag crème waar de cakelagen nog doorschemeren.
-						Rustiek en luchtig, mooi met vers fruit.
-					</li>
-					<li>
-						<strong>Rustiek geveegd of textuur:</strong> de geveegde, ambachtelijke afwerking die je op
-						onze foto's ziet. Warm en handgemaakt.
-					</li>
-					<li>
-						<strong>Met bloemen of parels:</strong> verse bloemen, eetbare parels of een drip in goud
-						of chocolade. Subtiel of uitbundig, jij kiest.
-					</li>
-					<li>
-						<strong>Met piping:</strong> klassieke spuittechnieken in de crème, van fijne randjes tot
-						een rijk versierde taart.
-					</li>
-				</ul>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Eén ding vooraf, zodat je weet wat je krijgt: wij werken met echte botercrème en ganache,
-					afgewerkt met bloemen, fruit, parels en piping. Geen fondant en geen suikerbloemen of
-					ander suikerwerk.
-				</p>
-			</section>
-
-			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Bestel een proefdoosje</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Voordat je iets vastlegt, sturen we je een proefdoosje mee naar huis. Zo beslis je samen
-					op je gemak welke smaak het wordt. Een proefdoosje kost €30, en dat bedrag halen we af van
-					de eindfactuur zodra je de taart bij ons bestelt. Dit zijn de smaken waar je uit kunt
-					kiezen:
+					Voordat je iets vastlegt wil je natuurlijk weten hoe het smaakt. Kom gratis proeven bij
+					ons in Hilversum, dan drinken we meteen een kop koffie en praten we de taart door. Kom je
+					liever niet langs? Dan kan je een proefdoosje meeneemen naar huis voor €30, en dat bedrag
+					halen we er weer af zodra je de taart bestelt. Dit zijn de acht smaken:
 				</p>
 				<ul
 					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
@@ -346,6 +311,9 @@
 					<li>
 						<strong>Citroen aardbei:</strong> frisse citroencake gevuld met een vanille-mascarpone crème
 						en verse aardbeien.
+					</li>
+					<li>
+						<strong>Vanille bosbes:</strong> vanillecake met bosbessen, gevuld met lemoncurd.
 					</li>
 					<li>
 						<strong>Banaan karamel:</strong> smeuïge bananencake gevuld met een gezouten karamel en pecannoten.
@@ -367,8 +335,7 @@
 					</li>
 				</ul>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Mooie combinaties of een eigen idee? We denken graag mee. Liever ter plekke proeven? Je
-					kan ook langskomen in Hilversum.
+					Mooie combinaties of een eigen idee? We denken graag mee.
 				</p>
 			</section>
 
@@ -377,14 +344,14 @@
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Een klassieke bruidstaart maken we helemaal op maat, dus de prijs hangt af van het aantal
 					etages, de smaken, de afwerking en de bloemen. Als richtprijs kun je uitgaan van zo'n
-					€11,50 per persoon (excl. BTW). Het precieze bedrag stemmen we samen af in een belletje,
+					€11,50 per persoon (excl. btw). Het precieze bedrag stemmen we samen af in een belletje,
 					op basis van jullie moodboard en wat je voor ogen hebt.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Het bezorgen en het opbouwen op locatie zit erbij in, vanaf Hilversum tot 50 km. Daarboven
-					rekenen we €0,45 per kilometer. Daarna is de taart van jullie: het aansnijden en serveren
-					doen jullie zelf of je locatie. Wil je dat wij wél tussen je gasten door serveren? Dat kan
-					met onze live tiramisu of een burrata bar, die we dan in hetzelfde voorstel meenemen.
+					Bezorgen en opbouwen op locatie zit erbij in, vanaf Hilversum tot 50 km. Daarboven rekenen
+					we €0,45 per kilometer. Daarna is de taart van jullie: het aansnijden en serveren doen
+					jullie zelf of je locatie. Wil je dat wij wél tussen je gasten door serveren? Dat kan met
+					live tiramisu of een burrata bar, die nemen we dan in hetzelfde voorstel mee.
 				</p>
 			</section>
 

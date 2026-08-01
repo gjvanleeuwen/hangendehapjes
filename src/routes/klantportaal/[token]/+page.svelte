@@ -71,7 +71,11 @@
 
 	{#if form?.saved}
 		<div class="mt-5 border border-primary/30 bg-primary/5 p-3 text-sm">
-			Dankjewel, je akkoord en praktische gegevens zijn opgeslagen.
+			{#if form.accepted}
+				Dankjewel, je akkoord is binnen. Je krijgt een bevestiging per mail.
+			{:else}
+				Dankjewel, je gegevens zijn opgeslagen.
+			{/if}
 		</div>
 	{/if}
 
@@ -193,82 +197,140 @@
 		</aside>
 	</section>
 
-	<form method="POST" action="?/save" class="mt-6 space-y-6" use:enhance>
+	<!--
+		`update({ reset: false })` is load-bearing. SvelteKit's default enhance
+		resets the form on success, which snaps every textarea back to its
+		mount-time defaultValue (empty) even though the answers saved fine. The
+		client then sees blank fields and the next save posts those blanks over
+		the stored answers.
+	-->
+	<form
+		method="POST"
+		action="?/save"
+		class="mt-6 space-y-6"
+		use:enhance={() =>
+			async ({ update }) => {
+				await update({ reset: false });
+			}}
+	>
 		<section class="border bg-card p-5">
-			<h2 class="font-heading text-xl">Akkoord & digitale handtekening</h2>
-			<div class="mt-4 grid gap-4 sm:grid-cols-2">
-				<div class="space-y-1.5">
-					<Label for="acceptedByName">Volledige naam</Label>
-					<Input
-						id="acceptedByName"
-						name="acceptedByName"
-						required
-						readonly={signed}
-						maxlength={160}
-						value={d.acceptedByName || d.name}
-					/>
+			{#if signed}
+				<!-- Signed once, a receipt from here on. The inputs are removed rather
+				     than disabled, so there is no second akkoord left to give. -->
+				<div class="flex items-start gap-3">
+					<span
+						class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary"
+						aria-hidden="true"
+					>
+						<svg viewBox="0 0 20 20" fill="currentColor" class="size-4">
+							<path
+								fill-rule="evenodd"
+								d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 0 1 1.4-1.4l3.8 3.8 6.8-6.8a1 1 0 0 1 1.4 0Z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+					</span>
+					<div>
+						<h2 class="font-heading text-xl">Akkoord gegeven</h2>
+						<p class="mt-1 text-sm text-muted-foreground">
+							Getekend door {d.acceptedByName} te {d.acceptedAtLocation} op {formatDateNL(
+								d.acceptedTermsAt ?? ''
+							)}.
+						</p>
+						<p class="mt-2 text-sm text-muted-foreground">
+							De gegevens hieronder kun je nog steeds aanvullen of aanpassen.
+						</p>
+					</div>
 				</div>
-				<div class="space-y-1.5">
-					<Label for="acceptedAtLocation">Plaats van ondertekening</Label>
-					<Input
-						id="acceptedAtLocation"
-						name="acceptedAtLocation"
-						required
-						readonly={signed}
-						maxlength={160}
-						value={d.acceptedAtLocation}
-						placeholder="Bijv. Hilversum"
-					/>
+			{:else}
+				<h2 class="font-heading text-xl">Akkoord & digitale handtekening</h2>
+				<div class="mt-4 grid gap-4 sm:grid-cols-2">
+					<div class="min-w-0 space-y-1.5">
+						<Label for="acceptedByName" class="text-sm">Volledige naam</Label>
+						<Input
+							id="acceptedByName"
+							name="acceptedByName"
+							required
+							maxlength={160}
+							value={d.acceptedByName || d.name}
+							class="w-full max-w-full text-sm"
+						/>
+					</div>
+					<div class="min-w-0 space-y-1.5">
+						<Label for="acceptedAtLocation" class="text-sm">Plaats van ondertekening</Label>
+						<Input
+							id="acceptedAtLocation"
+							name="acceptedAtLocation"
+							required
+							maxlength={160}
+							value={d.acceptedAtLocation}
+							placeholder="Bijv. Hilversum"
+							class="w-full max-w-full text-sm"
+						/>
+					</div>
 				</div>
-			</div>
-			<label class="mt-4 flex gap-3 text-sm">
-				<input
-					type="checkbox"
-					name="terms"
-					value="yes"
-					required
-					checked={!!d.acceptedTermsAt}
-					class="mt-1 size-4"
-				/>
-				<span>
-					Door dit formulier te verzenden en dit vakje aan te vinken plaats ik een digitale
-					handtekening. Ik ga akkoord met de offerte, de
-					<a href="/terms" class="underline" target="_blank" rel="noreferrer"
-						>algemene voorwaarden</a
-					>, de praktische afspraken en de aanbetaling. Ik begrijp dat de boeking pas definitief is
-					nadat Hangende Hapjes de aanbetaling heeft ontvangen. De aanbetaling wordt verrekend met
-					de eindfactuur.
-				</span>
-			</label>
-			<p class="mt-3 text-xs text-muted-foreground">
-				De datum en tijd van ondertekening worden automatisch vastgelegd bij verzenden.
-			</p>
-			<input type="hidden" name="termsVersion" value={data.termsVersion} />
+				<label class="mt-4 flex gap-3 text-sm">
+					<input type="checkbox" name="terms" value="yes" required class="mt-1 size-4" />
+					<span>
+						Door dit formulier te verzenden en dit vakje aan te vinken plaats ik een digitale
+						handtekening. Ik ga akkoord met de offerte, de
+						<a href="/terms" class="underline" target="_blank" rel="noreferrer"
+							>algemene voorwaarden</a
+						>, de praktische afspraken en de aanbetaling. Ik begrijp dat de boeking pas definitief
+						is nadat Hangende Hapjes de aanbetaling heeft ontvangen. De aanbetaling wordt verrekend
+						met de eindfactuur.
+					</span>
+				</label>
+				<p class="mt-3 text-xs text-muted-foreground">
+					De datum en tijd van ondertekening worden automatisch vastgelegd bij verzenden.
+				</p>
+				<input type="hidden" name="termsVersion" value={data.termsVersion} />
+			{/if}
 		</section>
 
-		{#if d.portalQuestionsEnabled}
+		{#if d.portalQuestionsEnabled || d.portalNote}
 			<section class="border bg-card p-5">
 				<h2 class="font-heading text-xl">Praktische gegevens</h2>
-				<p class="mt-1 text-sm text-muted-foreground">
-					Vul in wat je al weet. Ontbrekende details kunnen later nog worden afgestemd.
-				</p>
-				<div class="mt-4 grid gap-4">
-					{#each d.opsQuestions as q (q.key)}
-						<div class="space-y-1.5">
-							<Label for={q.key}>{q.label}</Label>
-							{#if q.key === 'finalGuests'}
-								<Input id={q.key} name={q.key} value={d.opsJson[q.key] ?? ''} />
-							{:else}
-								<Textarea id={q.key} name={q.key} rows={2} value={d.opsJson[q.key] ?? ''} />
-							{/if}
+				{#if d.portalNote}
+					<div class="mt-3 border bg-muted/40 p-3">
+						<p class="text-sm whitespace-pre-line">{d.portalNote}</p>
+					</div>
+				{/if}
+				{#if d.portalQuestionsEnabled}
+					<div class="mt-6">
+						<h3 class="font-heading text-lg">Vragen</h3>
+						<p class="mt-1 text-sm text-muted-foreground">
+							Vul in wat je al weet. Ontbrekende details kunnen later nog worden afgestemd.
+						</p>
+						<div class="mt-4 grid gap-4">
+							{#each d.opsQuestions as q (q.key)}
+								<!--
+									`min-w-0` is required: the textarea uses `field-sizing: content`, and a
+									grid item defaults to `min-width: auto`, so one long unbroken token (an
+									email address, a URL) makes the field grow past the viewport and drags
+									the whole page wide with it.
+								-->
+								<div class="min-w-0 space-y-1.5">
+									<Label for={q.key} class="text-sm leading-snug">{q.label}</Label>
+									<Textarea
+										id={q.key}
+										name={q.key}
+										rows={2}
+										value={d.opsJson[q.key] ?? ''}
+										class="w-full max-w-full text-sm break-words"
+									/>
+								</div>
+							{/each}
 						</div>
-					{/each}
-				</div>
+					</div>
+				{/if}
 			</section>
 		{/if}
 
 		<div class="flex flex-wrap items-center gap-3">
-			<Button type="submit">Akkoord + gegevens opslaan</Button>
+			<Button type="submit">
+				{signed ? 'Gegevens opslaan' : 'Akkoord geven + gegevens opslaan'}
+			</Button>
 			{#if d.opsCompletedAt}
 				<span class="text-sm text-muted-foreground"
 					>Laatst opgeslagen: {formatDateNL(d.opsCompletedAt)}</span

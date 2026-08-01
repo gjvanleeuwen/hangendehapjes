@@ -70,11 +70,12 @@ export type Deal = {
 	quoteVersions: QuoteVersion[];
 	activeQuoteId: string;
 	portalQuestionsEnabled: boolean;
+	portalNote: string; // free note shown to the client in the portal
 	opsQuestions: OpsQuestion[];
 	opsJson: Record<string, string>;
 	opsCompletedAt: string | null; // ISO timestamp
 	message: string;
-	notes: string;
+	notes: string; // internal only — never leaves the admin
 	origin: string; // 'contact_form' | 'manual'
 };
 
@@ -120,6 +121,7 @@ export type DealInput = {
 	quoteVersions?: QuoteVersion[];
 	activeQuoteId?: string;
 	portalQuestionsEnabled?: boolean;
+	portalNote?: string;
 	opsQuestions?: OpsQuestion[];
 	opsJson?: Record<string, string>;
 	opsCompletedAt?: string | null;
@@ -311,24 +313,34 @@ export type OpsQuestion = {
 	enabled: boolean;
 };
 
+// Five questions, in our own voice. This is the starting point for a new deal,
+// not a checklist to work through: per deal you can disable, reword or add
+// questions in admin. Keep it short — a portal with seventeen open text fields
+// reads like homework and gets abandoned halfway.
 export const OPS_QUESTIONS = [
-	{ key: 'dayContact', label: 'Contactpersoon op de dag + telefoonnummer' },
-	{ key: 'ceremonyContact', label: 'Ceremoniemeester/planner + telefoonnummer/e-mail' },
-	{ key: 'venueContact', label: 'Contactpersoon locatie + telefoonnummer/e-mail' },
-	{ key: 'venueAddress', label: 'Volledig adres van de locatie' },
-	{ key: 'arrivalTime', label: 'Vanaf hoe laat kunnen wij terecht?' },
-	{ key: 'loadingParking', label: 'Laden/lossen en parkeren' },
-	{ key: 'accessNotes', label: 'Trappen, lift, grind, gras, loopafstand of andere toegangspunten' },
-	{ key: 'setupSpot', label: 'Werk-/setupplek en beschikbare tafel' },
-	{ key: 'powerWaterCooling', label: 'Stroom, water/spoelbak en koele plek/koeling' },
-	{ key: 'timeline', label: 'Dagplanning en gewenst service-/taart-/dessertmoment' },
-	{ key: 'servingTimeslot', label: 'Gewenste serveertijd of timeslot' },
-	{ key: 'startSignal', label: 'Wie geeft het startsein voor ons moment?' },
-	{ key: 'finalGuests', label: 'Definitief aantal gasten en deadline' },
-	{ key: 'dietary', label: 'Allergieën en dieetwensen' },
-	{ key: 'serviceMaterials', label: 'Borden, bestek, servetten, glaswerk: locatie/klant of wij?' },
-	{ key: 'weatherPlan', label: 'Bij buitenlocatie: slechtweerplan' },
-	{ key: 'venueRules', label: 'Locatieregels, externe catering, schotelgeld of leveranciers-eisen' }
+	{
+		key: 'dayContact',
+		label:
+			'Wat zijn de contactgegevens van de ceremoniemeester of contactpersoon voor op de dag zelf?'
+	},
+	{
+		key: 'venueAccess',
+		label:
+			'Wat is het adres van de locatie en vanaf hoe laat kunnen wij er terecht om op te bouwen?'
+	},
+	{
+		key: 'setupSpot',
+		label: 'Is er een plekje en een stroompunt waar wij gebruik van kunnen maken?'
+	},
+	{
+		key: 'servingMoment',
+		label:
+			'Wat is de gewenste serveertijd en moeten wij ergens rekening mee houden, zoals wachten op een specifieke gast of opbouwen buiten zicht?'
+	},
+	{
+		key: 'guestsDietary',
+		label: 'Weet je het definitieve aantal gasten al en zijn er allergieën of dieetwensen?'
+	}
 ] as const;
 
 export const DEFAULT_OPS_QUESTIONS: OpsQuestion[] = OPS_QUESTIONS.map((q) => ({
@@ -336,12 +348,20 @@ export const DEFAULT_OPS_QUESTIONS: OpsQuestion[] = OPS_QUESTIONS.map((q) => ({
 	enabled: true
 }));
 
+/**
+ * A stored per-deal question list wins outright — we never merge the defaults
+ * back in. Merging would silently push newly added default questions into
+ * portals that are already live (and re-add ones that were deliberately
+ * removed), so a deal's configured list is treated as the complete list. The
+ * defaults are only a starting point for deals that have none yet.
+ */
 export function normalizeOpsQuestions(value: unknown): OpsQuestion[] {
-	const source = Array.isArray(value) && value.length > 0 ? value : DEFAULT_OPS_QUESTIONS;
+	if (!Array.isArray(value) || value.length === 0) return DEFAULT_OPS_QUESTIONS;
+
 	const out: OpsQuestion[] = [];
 	const seen = new Set<string>();
 
-	for (const raw of source) {
+	for (const raw of value) {
 		if (!raw || typeof raw !== 'object') continue;
 		const r = raw as Record<string, unknown>;
 		const key = String(r.key ?? '')
@@ -354,13 +374,6 @@ export function normalizeOpsQuestions(value: unknown): OpsQuestion[] {
 		if (!key || !label || seen.has(key)) continue;
 		out.push({ key, label, enabled: r.enabled !== false });
 		seen.add(key);
-	}
-
-	for (const q of DEFAULT_OPS_QUESTIONS) {
-		if (!seen.has(q.key)) {
-			out.push(q);
-			seen.add(q.key);
-		}
 	}
 
 	return out.length > 0 ? out : DEFAULT_OPS_QUESTIONS;

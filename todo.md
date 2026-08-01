@@ -39,6 +39,8 @@ reference for prices: https://welovecakes.nl/trouwen/prijzen
 
 - **http→https + www redirects verified correct** (2026-06-26): both 308-redirect to `https://hangendehapjes.nl`. The stray `http://` entry in GSC is Google re-checking legacy URLs — it'll consolidate, no action.
 
+- [ ] **Sitelinks: push the 3 product pages, not via the sitemap.** Goal is for a "Hangende Hapjes" brand search to show the 3 products (tiramisu / burrata / bruidstaart) as sitelinks. Sitemap `<priority>` does NOT control this (Google largely ignores the field, and `hoeveel-hapjes` is already at 0.7 like everything else, so deprioritising it changes nothing). Sitelinks are algorithmic, driven by internal-link prominence + clicks + distinct URLs/titles. Real blocker: [Nav.svelte](src/lib/components/Nav.svelte) points at homepage anchors (`#products`, `#bruidstaarten`), not 3 distinct product URLs, so Google's only product-page candidates are the blog posts, and `hoeveel-hapjes` surfaces because it gets the most impressions, not because of the sitemap. Levers: (a) give each product a prominent, distinctly-titled internal link (nav + footer) pointing at its canonical URL (`/blog/tiramisu-bruiloft`, `/blog/burrata-catering`, `/blog/bruidstaart`), (b) consistent descriptive anchor text across the site, (c) drive clicks (ads help). Can't hard-specify the set (the GSC sitelink-demotion tool was removed years ago) and a young low-authority site may get few/none for a while.
+
 ## AI / LLM visibility
 
 Goal: get cited by ChatGPT, Perplexity, Gemini, Claude when people ask "live catering Hilversum / Gooi" or "originele caterings bruiloft NL". They recommend what they've _read about elsewhere_ — so this is mostly off-site work.
@@ -104,20 +106,47 @@ After these four, the next batch (S4 live cooking, S5 wat kost catering, S6 /cat
 
 - [ ] **Calibrate mix surcharge in the admin calculator** — current model in [src/lib/admin/pricing.ts](src/lib/admin/pricing.ts) uses tiramisu's prep curve (the higher of the two) at the smaller-batch portion count, so 55/50 and 50/55 splits price symmetrically. Side effect: a 50/50 mix of 100 lands at €7.69/portion vs €6.50 for pure tira-100 (~+18%), which is on the high side for catering mix premiums (typical 10–15%). Three knobs to evaluate once real-world quotes come in: (1) drop default `mixPrepFactor` from 1.0 to 0.75, (2) switch to the average of tira+burr prep curves instead of using the max, (3) leave as-is and rely on the per-quote override in the calculator's advanced section. Revisit after the first ~5 real mixed-quote requests so we have actual data to calibrate against. Same review should sanity-check the extra-person tier formula (`setup + ceil(N/50) × per_50`) and the travel-cost defaults (€100 free retour, €0,45/km).
 
-## Paid acquisition (defer ~1–2 months)
+## Paid acquisition
 
-Hold ad spend until the funnel is measurable and organic has produced a baseline pulse. Right now (2026-05-10): ~60k Insta Reel views and the first contact-form lead just landed — too small a sample to know whether organic + word-of-mouth sustains a steady cadence. Ads on top of unmeasured organic confound attribution.
+Full strategy, campaign structure, creative sets and pixel/consent detail live in
+[docs/meta-ads-plan.md](docs/meta-ads-plan.md). This is the actionable checklist.
 
-Gates before turning ads on (all three must be true):
+**Direction change (2026-07):** the old note here said "skip Meta for now" — that assumed we'd
+optimise for conversions (which our lead volume can't feed) and that the pixel was a prerequisite.
+New plan sidesteps both: **Meta-first, optimised for engagement/video-views**, which needs no site
+pixel and builds warm audiences for free. Two campaigns split by audience (Consumer, Zakelijk),
+sequenced. Meta = demand generation for the novel concept; Google Search stays a narrow
+demand-capture play for the classic bruidstaart only (see below).
 
-1. **Funnel tracking is live** — UTM tagging on every external link, custom Umami events on contact submit + admin offerte/factuur generation, "Hoe heb je over ons gehoord?" field on the contact form. See "Funnel tracking" under _Today_ above.
-2. **Organic baseline established** — at minimum 3 contact-form leads in a 30-day window without ad spend, so we know the floor we're paying ads to lift above.
-3. **Durable assets shipped** — at least 3 location pages (`/catering/hilversum` + 2 others) and 2 more blog posts beyond `hoeveel-hapjes-per-persoon`, so ad clicks land somewhere with substance.
+### Phase 0 — tracking foundation (dev, optional-but-nice, does NOT block Phase 1)
 
-When activated, start narrow and measurable:
+- [ ] **Meta Pixel, consent-gated.** Install via [src/lib/components/SEO.svelte](src/lib/components/SEO.svelte) or a layout hook; loads only on consent. No GA4 ever (Umami covers analytics). See plan doc for why the early ads don't actually need this.
+- [ ] **Minimal cookie banner** — two buttons (accepteren/weigeren), localStorage flag, pixel off by default. Gates only the Meta pixel; Umami stays cookieless and consent-free. Protect the "we don't collect" advantage: add only what a live channel needs.
+- [ ] **Fire Meta `Lead` event on the existing `contact_submit`** Umami event, so future conversion campaigns/measurement have data.
+- [ ] **Build Custom Audiences** once data flows: video-viewers 50%+, IG/FB engagers (available with no pixel), and `/blog/tiramisu-bruiloft` visitors (needs pixel + volume).
 
-- [ ] **Google Search Ads — €15–25/day, 2-week test**. Geo-fence to Hilversum + Het Gooi only. 5–10 hand-picked high-intent keywords (e.g. "live catering Hilversum", "originele bruiloftscatering Gooi", "tiramisu bruiloft Nederland", "burrata bar bruiloft"). Single ad group, exact + phrase match only (no broad). Conversion goal in Google Ads = the `contact_submit` Umami event (mirror to GA4 if needed for the conversion bidding model, otherwise stick to Manual CPC). Kill any keyword with 0 conversions after 50 clicks; scale any with CAC < €100. Do NOT enable Performance Max — it's a black box and at this budget the bid system has nothing to optimise toward.
-- [ ] **Skip Meta Ads for now**. Insta Reels are doing brand-level top-of-funnel reach for free (60k organic views in the same window a paid campaign would burn through €500+ to match). Revisit only when organic IG reach plateaus AND we want retargeting on warm pixel audiences — at that point install the Meta pixel via [src/lib/components/SEO.svelte](src/lib/components/SEO.svelte) or hooks, with a privacy banner if needed.
+### Phase 1 — Consumer campaign (launch now)
+
+- [ ] **Re-cut the 2 existing tiramisu clips into 2–3 vertical 9:16 hooks** (<15s, hook in second 1, burned-in captions, sound-off legible). Organic underperformance is not a paid predictor — don't reshoot before testing paid.
+- [ ] **Produce statics** (9:16 master + 4:5 feed crop) for the Consumer set: product-beauty + offer (`tiramisutaart_hapje`), real-event proof (`charlotte_evenement`), optional "hartig of zoet" duo. See creative table in plan doc.
+- [ ] **Write ad copy** (primary text / headline / CTA) NL + EN per creative, in the brand voice.
+- [ ] **Set up the Consumer campaign**: objective = video views/engagement (NOT conversions — volume can't feed it); mixed video+static in one ad set; target engaged couples / party hosts (Gooi + Randstad); start ~€10/day, 2–3 week test. Land clicks on `/blog/tiramisu-bruiloft` (proven converter).
+- [ ] **Read results after 2–3 weeks**, double down on the winning creative/angle, prune the rest.
+
+### Phase 2 — Zakelijk campaign (gated on burrata video)
+
+- [ ] **Shoot burrata video** — Gijs making a bowl live + guest reaction, vertical. This is the bottleneck for the whole Zakelijk campaign; no motion = weak for a live concept.
+- [ ] **Produce Zakelijk statics + copy** (burrata bar op je borrel, Borrel Baas in actie).
+- [ ] **Launch Zakelijk**: objective engagement, target corporate / event planners. Until the video exists, at most run the two statics at a token budget just to seed the audience.
+
+### Ongoing
+
+- [ ] **Capture vertical burrata + tiramisu footage at every event.** Footage is the real constraint, not budget.
+- [ ] **Graduate to a lead objective + website retargeting** only once a warm audience pool + pixel history exist.
+
+### Google Search — narrow demand-capture (separate track, later)
+
+- [ ] **Classic bruidstaart search ads** — the one live search pond (real demand, we don't rank yet). Geo/intent-qualified keywords only: "bruidstaart op maat", "bruidstaart Hilversum / Het Gooi", "bruidstaart proeven", "botercrèmetaart bruiloft". NOT generic "bruidstaart" (national ocean). Do NOT bid on `tiramisu-bruiloft` terms — we already rank organically. Land on [/blog/bruidstaart](src/routes/blog/bruidstaart/+page.svelte), use the page to upsell the live concept. Conversion goal = `contact_submit`. No Performance Max at this budget. Only worth adding the Google Ads tag (not GA4) when this launches. Supersedes the earlier broad "live catering Hilversum" Search Ads idea.
 
 Mental model for spend timing: ads buy _speed_ when the calendar has gaps and you need a booking _this month_, not as a permanent line item. Treat them as a faucet, not a foundation.
 

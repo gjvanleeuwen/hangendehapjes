@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hangendehapjes-postgres-local
+    environment:
+      POSTGRES_USER: hangendehapjes
+      POSTGRES_PASSWORD: hangendehapjes
+      POSTGRES_DB: hangendehapjes
+    ports:
+      - '54329:5432'
+    volumes:
+      - hh_postgres_local:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U hangendehapjes -d hangendehapjes']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  hh_postgres_local:

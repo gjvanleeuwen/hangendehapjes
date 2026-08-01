@@ -1079,11 +1079,16 @@
 										</div>
 										<div class="space-y-1">
 											<Label for="e-costs-{d.id}">Kosten (excl. btw, €)</Label>
+											<!--
+												`step="any"`: unlike offerteAmount/btwAmount, costs is read back
+												straight from the quote JSON without round2, so it can carry more
+												than two decimals and would otherwise block the whole form.
+											-->
 											<Input
 												id="e-costs-{d.id}"
 												name="costs"
 												type="number"
-												step="0.01"
+												step="any"
 												min="0"
 												bind:value={edit.costs}
 											/>
@@ -1116,13 +1121,28 @@
 											/>
 										</div>
 									</div>
+									<div class="space-y-1">
+										<Label for="e-portalNote-{d.id}">Notitie voor de klant</Label>
+										<Textarea
+											id="e-portalNote-{d.id}"
+											name="portalNote"
+											rows={3}
+											value={d.portalNote}
+											maxlength={2000}
+											placeholder="Zichtbaar in het klantportaal, bijv. een persoonlijk bericht of een aandachtspunt."
+										/>
+										<p class="text-xs text-muted-foreground">
+											Deze tekst ziet de klant in het portaal. Gebruik hiervoor niet de
+											portalvragen.
+										</p>
+									</div>
 									<div class="space-y-2 border bg-background p-3">
 										<input type="hidden" name="opsQuestionsConfig" value="yes" />
 										<div>
 											<div class="text-sm font-medium">Portalvragen</div>
 											<p class="text-xs text-muted-foreground">
 												Vink vragen uit die niet nodig zijn, pas tekst aan of voeg losse extra
-												vragen toe.
+												vragen toe. Houd het kort, dit is geen vragenlijst om af te werken.
 											</p>
 										</div>
 										<div class="grid gap-2">
@@ -1166,6 +1186,14 @@
 									</div>
 									<div class="space-y-1">
 										<span class="text-sm font-medium">Tijd per fase (uren)</span>
+										<!--
+											`step="any"`, not a quarter-hour grid. Hours live in free-form JSON
+											(unlike the money columns, which are numeric(10,2)), so a quote can
+											hand us 1.3 or 0.7. With a 0.25 step the browser marks those fields
+											invalid and blocks the whole form, meaning an unrelated edit such as
+											the portal questions could not be saved without first nudging every
+											hours field onto the grid.
+										-->
 										<div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
 											{#each TIME_PHASES as p (p.key)}
 												<div class="space-y-1">
@@ -1174,7 +1202,7 @@
 														id="e-time-{p.key}-{d.id}"
 														name="time_{p.key}"
 														type="number"
-														step="0.25"
+														step="any"
 														min="0"
 														bind:value={edit.time[p.key]}
 													/>
