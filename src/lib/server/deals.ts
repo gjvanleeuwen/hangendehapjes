@@ -1,12 +1,15 @@
 import { ensureSchema } from '$lib/server/db';
 import {
 	activeQuoteOf,
+	normalizeOpsAudit,
 	normalizeOpsQuestions,
+	normalizePaymentTerm,
 	normalizeQuoteVersions,
 	quoteDealFields,
 	type Deal,
 	type DealInput,
 	type DealStatus,
+	type OpsAuditEntry,
 	type OpsQuestion,
 	type QuoteVersion
 } from '$lib/deals';
@@ -22,6 +25,7 @@ export {
 	type Deal,
 	type DealInput,
 	type DealStatus,
+	type OpsAuditEntry,
 	type OpsQuestion,
 	type QuoteVersion
 } from '$lib/deals';
@@ -79,6 +83,15 @@ const parseOpsQuestions = (v: unknown): OpsQuestion[] => {
 		return normalizeOpsQuestions(JSON.parse(v));
 	} catch {
 		return normalizeOpsQuestions(null);
+	}
+};
+
+const parseOpsAudit = (v: unknown): OpsAuditEntry[] => {
+	if (typeof v !== 'string' || !v) return [];
+	try {
+		return normalizeOpsAudit(JSON.parse(v));
+	} catch {
+		return [];
 	}
 };
 
@@ -151,7 +164,10 @@ function rowToDeal(r: Record<string, unknown>): Deal {
 		acceptedTermsVersion: (r.accepted_terms_version as string) ?? '',
 		acceptedByName: (r.accepted_by_name as string) ?? '',
 		acceptedAtLocation: (r.accepted_at_location as string) ?? '',
+		acceptedIp: (r.accepted_ip as string) ?? '',
+		acceptedUserAgent: (r.accepted_user_agent as string) ?? '',
 		acceptanceSnapshot: parseJsonObject(r.acceptance_snapshot),
+		paymentTerm: normalizePaymentTerm(r.payment_term),
 		prepaymentAmount: quoteFields.prepaymentAmount ?? prepaymentAmount,
 		prepaymentLink,
 		prepaymentStatus,
@@ -168,6 +184,7 @@ function rowToDeal(r: Record<string, unknown>): Deal {
 		opsQuestions: parseOpsQuestions(r.ops_questions),
 		opsJson: parseStringRecord(r.ops_json),
 		opsCompletedAt: asIsoOrNull(r.ops_completed_at),
+		opsAudit: parseOpsAudit(r.ops_audit),
 		message: (r.message as string) ?? '',
 		notes: (r.notes as string) ?? '',
 		origin: (r.origin as string) ?? 'manual'
@@ -207,7 +224,10 @@ export async function createDeal(input: DealInput): Promise<Deal | null> {
 		accepted_terms_version: input.acceptedTermsVersion ?? '',
 		accepted_by_name: input.acceptedByName ?? '',
 		accepted_at_location: input.acceptedAtLocation ?? '',
+		accepted_ip: input.acceptedIp ?? '',
+		accepted_user_agent: input.acceptedUserAgent ?? '',
 		acceptance_snapshot: JSON.stringify(input.acceptanceSnapshot ?? {}),
+		payment_term: normalizePaymentTerm(input.paymentTerm),
 		prepayment_amount: input.prepaymentAmount ?? null,
 		prepayment_link: input.prepaymentLink ?? '',
 		prepayment_status: input.prepaymentStatus ?? 'not_sent',
@@ -224,6 +244,7 @@ export async function createDeal(input: DealInput): Promise<Deal | null> {
 		ops_questions: JSON.stringify(normalizeOpsQuestions(input.opsQuestions)),
 		ops_json: JSON.stringify(input.opsJson ?? {}),
 		ops_completed_at: input.opsCompletedAt ?? null,
+		ops_audit: JSON.stringify(normalizeOpsAudit(input.opsAudit)),
 		message: input.message ?? '',
 		notes: input.notes ?? '',
 		origin: input.origin ?? 'manual'
@@ -311,7 +332,10 @@ export async function updateDeal(id: string, fields: Partial<DealInput>): Promis
 		acceptedTermsVersion: 'accepted_terms_version',
 		acceptedByName: 'accepted_by_name',
 		acceptedAtLocation: 'accepted_at_location',
+		acceptedIp: 'accepted_ip',
+		acceptedUserAgent: 'accepted_user_agent',
 		acceptanceSnapshot: 'acceptance_snapshot',
+		paymentTerm: 'payment_term',
 		prepaymentAmount: 'prepayment_amount',
 		prepaymentLink: 'prepayment_link',
 		prepaymentStatus: 'prepayment_status',
@@ -328,6 +352,7 @@ export async function updateDeal(id: string, fields: Partial<DealInput>): Promis
 		opsQuestions: 'ops_questions',
 		opsJson: 'ops_json',
 		opsCompletedAt: 'ops_completed_at',
+		opsAudit: 'ops_audit',
 		message: 'message',
 		notes: 'notes',
 		origin: 'origin',
@@ -341,10 +366,14 @@ export async function updateDeal(id: string, fields: Partial<DealInput>): Promis
 		if (!col) continue;
 		// JSON-encoded text columns.
 		row[col] =
-			key === 'timeSpent' || key === 'opsJson' || key === 'opsQuestions' || key === 'quoteVersions'
+			key === 'timeSpent' ||
+			key === 'opsJson' ||
+			key === 'opsQuestions' ||
+			key === 'quoteVersions' ||
+			key === 'acceptanceSnapshot'
 				? JSON.stringify(value)
-				: key === 'acceptanceSnapshot'
-					? JSON.stringify(value)
+				: key === 'opsAudit'
+					? JSON.stringify(normalizeOpsAudit(value))
 					: value;
 	}
 
@@ -366,15 +395,59 @@ export async function saveQuoteVersion(
 	const deal = await getDeal(id);
 	if (!deal) return null;
 
+	// Visibility is managed in /admin/aanvragen, not in the document builder, so
+	// the incoming quote never carries the flag. Re-saving a revision from the
+	// builder must not quietly republish one we hid.
+	const previous = deal.quoteVersions.find((q) => q.id === quote.id);
+
 	const quoteVersions = normalizeQuoteVersions([
 		...deal.quoteVersions.filter((q) => q.id !== quote.id),
-		{ ...quote, active: setActive }
+		{ ...quote, active: setActive, hiddenForClient: previous?.hiddenForClient ?? false }
 	]).map((q) => ({ ...q, active: setActive ? q.id === quote.id : q.active }));
 
 	return updateDeal(id, {
 		quoteVersions,
 		activeQuoteId: setActive ? quote.id : deal.activeQuoteId,
 		...(setActive ? quoteDealFields(quote) : {})
+	});
+}
+
+/** Show or hide a single version in the client portal. */
+export async function setQuoteVisibility(
+	id: string,
+	quoteId: string,
+	hidden: boolean
+): Promise<Deal | null> {
+	const deal = await getDeal(id);
+	if (!deal) return null;
+	if (!deal.quoteVersions.some((q) => q.id === quoteId)) return null;
+
+	return updateDeal(id, {
+		quoteVersions: deal.quoteVersions.map((q) =>
+			q.id === quoteId ? { ...q, hiddenForClient: hidden } : q
+		)
+	});
+}
+
+/**
+ * Drop a version for good. The signed evidence lives in `acceptance_snapshot`
+ * (which freezes its own copy of the versions at signing time), so deleting
+ * here never destroys the record of what a client actually agreed to.
+ */
+export async function deleteQuoteVersion(id: string, quoteId: string): Promise<Deal | null> {
+	const deal = await getDeal(id);
+	if (!deal) return null;
+
+	const remaining = deal.quoteVersions.filter((q) => q.id !== quoteId);
+	if (remaining.length === deal.quoteVersions.length) return null;
+
+	// Deleting the version currently on the table would leave the portal with a
+	// dangling activeQuoteId and no offer to show, so clear the pointer too.
+	const wasActive = activeQuoteOf(deal)?.id === quoteId;
+
+	return updateDeal(id, {
+		quoteVersions: remaining,
+		...(wasActive ? { activeQuoteId: '' } : {})
 	});
 }
 

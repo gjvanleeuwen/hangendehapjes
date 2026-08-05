@@ -96,7 +96,14 @@ export async function ensureSchema(): Promise<Sql | null> {
 					accepted_terms_version text NOT NULL DEFAULT '',
 					accepted_by_name     text NOT NULL DEFAULT '',
 					accepted_at_location text NOT NULL DEFAULT '',
+					-- Session of the signer, frozen at acceptance. Separate from
+					-- ops_audit below, which logs every later practical-info edit.
+					accepted_ip          text NOT NULL DEFAULT '',
+					accepted_user_agent  text NOT NULL DEFAULT '',
 					acceptance_snapshot  text NOT NULL DEFAULT '{}',
+					-- 'aanbetaling' (50% vooraf) or 'achteraf' (invoice after the
+					-- event). Drives the akkoord wording the client signs.
+					payment_term         text NOT NULL DEFAULT 'aanbetaling',
 					prepayment_amount    numeric(10,2),
 					prepayment_link      text NOT NULL DEFAULT '',
 					prepayment_status    text NOT NULL DEFAULT 'not_sent',
@@ -113,6 +120,9 @@ export async function ensureSchema(): Promise<Sql | null> {
 					ops_questions        text NOT NULL DEFAULT '[]',
 					ops_json             text NOT NULL DEFAULT '{}',
 					ops_completed_at     timestamptz,
+					-- JSON array of {savedAt, ip, userAgent, keys}: one entry per
+					-- practical-info save, independent of the acceptance record.
+					ops_audit            text NOT NULL DEFAULT '[]',
 
 					-- effort: JSON object of phase key -> hours, e.g. {"inkoop": 2}
 					time_spent           text NOT NULL DEFAULT '{}',
@@ -136,7 +146,10 @@ export async function ensureSchema(): Promise<Sql | null> {
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS accepted_terms_version text NOT NULL DEFAULT ''`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS accepted_by_name text NOT NULL DEFAULT ''`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS accepted_at_location text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS accepted_ip text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS accepted_user_agent text NOT NULL DEFAULT ''`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS acceptance_snapshot text NOT NULL DEFAULT '{}'`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS payment_term text NOT NULL DEFAULT 'aanbetaling'`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS prepayment_amount numeric(10,2)`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS prepayment_link text NOT NULL DEFAULT ''`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS prepayment_status text NOT NULL DEFAULT 'not_sent'`;
@@ -153,6 +166,7 @@ export async function ensureSchema(): Promise<Sql | null> {
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_questions text NOT NULL DEFAULT '[]'`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_json text NOT NULL DEFAULT '{}'`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_completed_at timestamptz`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_audit text NOT NULL DEFAULT '[]'`;
 			await sql`CREATE UNIQUE INDEX IF NOT EXISTS deals_acceptance_token_unique ON deals (acceptance_token) WHERE acceptance_token <> ''`;
 
 			// Keep the status whitelist in sync with DEAL_STATUSES (e.g. adds

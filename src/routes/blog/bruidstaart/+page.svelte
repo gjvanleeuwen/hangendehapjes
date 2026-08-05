@@ -166,17 +166,17 @@
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
 			<header class="space-y-4">
 				<p class="text-sm font-semibold tracking-wider text-(--brand-magenta) uppercase">
-				Klassiek en persoonlijk
+					Klassiek en persoonlijk
 				</p>
 				<h1 class="font-heading text-3xl tracking-tight md:text-5xl">
 					{headline}
 				</h1>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Een klassieke bruidstaart is niet alleen om aan een verwachting te voldoen, het is een
-					persoonlijk moment, dus maak er een feestje van. Charlotte bakt een taart
-					op maat: elke laag in de smaak die jullie kiezen, een matchende kleur of
-					bloemen en de afwerking precies zoals je hem voor je ziet. Van rustig en strak tot perfect passend
-					bij de jurk, versiering of bloemen, het kan allemaal.
+					persoonlijk moment, dus maak er een feestje van. Charlotte bakt een taart op maat: elke
+					laag in de smaak die jullie kiezen, een matchende kleur of bloemen en de afwerking precies
+					zoals je hem voor je ziet. Van rustig en strak tot perfect passend bij de jurk, versiering
+					of bloemen, het kan allemaal.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Liever een ander soort bruidstaart? Lees dan over onze
@@ -203,9 +203,7 @@
 				>
 					<li>Botercrème-taart op maat gebakken en afgewerkt door Charlotte</li>
 					<li>Keuze uit 8 smaken per laag, kleur en afwerking helemaal naar keuze</li>
-					<li>
-						Neem een proefdoosje mee naar huis (€30, verrekend bij je bestelling)
-					</li>
+					<li>Neem een proefdoosje mee naar huis (€30, verrekend bij je bestelling)</li>
 					<li>Vanaf 25 personen, twee etages tot zo'n 80, drie tot rond de 150</li>
 					<li>Richtprijs €11,50 per persoon, excl. btw</li>
 					<li>Bezorgen en opbouwen op locatie inbegrepen, boven 50 km €0,45 per kilometer</li>
@@ -232,9 +230,8 @@
 					Het begint met een kort gesprek online, om goed te snappen hoe jullie dag eruitziet, welke
 					styling je mooi vindt en welke wensen jullie hebben voor de taart. Stuur wat
 					inspiratiefoto's of een moodboard mee, dan maakt Charlotte daar een plan en een offerte
-					van. Zo is helemaal duidelijk welke vulling julie lekker vinden, welke kleuren
-					terugkomen in de bloemen of styling, en of de taart strak, rustiek of juist uitbundig
-					wordt.
+					van. Zo is helemaal duidelijk welke vulling julie lekker vinden, welke kleuren terugkomen
+					in de bloemen of styling, en of de taart strak, rustiek of juist uitbundig wordt.
 				</p>
 				<ul
 					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"

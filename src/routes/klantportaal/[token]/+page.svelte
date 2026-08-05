@@ -5,10 +5,23 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { formatDateNL, formatEUR } from '$lib/admin/calc';
+	import { TERMS_LINK_PHRASE, termsSummaryFor } from '$lib/deals';
 
 	let { data, form } = $props();
 
 	const d = $derived(data.deal);
+	// No aanbetaling on this deal: the client still commits, they just pay after
+	// the event instead of half up front.
+	const payAfterwards = $derived(d.paymentTerm === 'achteraf');
+	// One flowing paragraph, split around "algemene voorwaarden" so that phrase
+	// can be a link without the copy living in two places. Joining the summary
+	// keeps the rendered text identical to what the acceptance snapshot stores.
+	const termsText = $derived(termsSummaryFor(d.paymentTerm).join(' '));
+	const termsLinkAt = $derived(termsText.indexOf(TERMS_LINK_PHRASE));
+	const termsBefore = $derived(termsLinkAt < 0 ? termsText : termsText.slice(0, termsLinkAt));
+	const termsAfter = $derived(
+		termsLinkAt < 0 ? '' : termsText.slice(termsLinkAt + TERMS_LINK_PHRASE.length)
+	);
 	// Once signed, the name + place of signature are frozen server-side, so show
 	// them as read-only rather than letting someone edit a field that won't save.
 	const signed = $derived(Boolean(d.acceptedTermsAt));
@@ -22,8 +35,14 @@
 				? 'Hangende hapjes'
 				: d.serviceType || 'Offerte'
 	);
-	const canPayDeposit = $derived(Boolean(d.acceptedTermsAt || form?.saved) && !!d.depositLink);
-	const canPayFinal = $derived(Boolean(d.acceptedTermsAt || form?.saved) && !!d.finalPaymentLink);
+	// Payment unlocks on the akkoord, not on a practical-info save — those are
+	// separate submits now, and saving venue details is not an agreement to pay.
+	const canPayDeposit = $derived(
+		!payAfterwards && Boolean(d.acceptedTermsAt || form?.accepted) && !!d.depositLink
+	);
+	const canPayFinal = $derived(
+		Boolean(d.acceptedTermsAt || form?.accepted) && !!d.finalPaymentLink
+	);
 	const activeQuote = $derived(
 		d.quoteVersions.find((q) => q.id === d.activeQuoteId) ?? d.quoteVersions.find((q) => q.active)
 	);
@@ -58,8 +77,13 @@
 		</div>
 		<h1 class="mt-4 font-heading text-3xl">Offerte accepteren</h1>
 		<p class="mt-2 text-muted-foreground">
-			Controleer de samenvatting, vul de praktische gegevens in en ga daarna direct door naar de
-			aanbetaling.
+			{#if payAfterwards}
+				Controleer de samenvatting, geef je akkoord en vul de praktische gegevens in. Betalen doe je
+				achteraf.
+			{:else}
+				Controleer de samenvatting, vul de praktische gegevens in en ga daarna direct door naar de
+				aanbetaling.
+			{/if}
 		</p>
 	</header>
 
@@ -69,13 +93,13 @@
 		</div>
 	{/if}
 
-	{#if form?.saved}
+	{#if form?.accepted}
 		<div class="mt-5 border border-primary/30 bg-primary/5 p-3 text-sm">
-			{#if form.accepted}
-				Dankjewel, je akkoord is binnen. Je krijgt een bevestiging per mail.
-			{:else}
-				Dankjewel, je gegevens zijn opgeslagen.
-			{/if}
+			Dankjewel, je akkoord is binnen. Je krijgt een bevestiging per mail.
+		</div>
+	{:else if form?.savedOps}
+		<div class="mt-5 border border-primary/30 bg-primary/5 p-3 text-sm">
+			Dankjewel, je gegevens zijn opgeslagen.
 		</div>
 	{/if}
 
@@ -145,24 +169,32 @@
 			<div class="border-t pt-4">
 				<h3 class="text-sm font-medium">Betalingen</h3>
 				<div class="mt-3 space-y-3 text-sm">
-					<div class="flex items-start justify-between gap-3">
-						<div>
-							<div class="font-medium">Aanbetaling</div>
-							{#if d.depositStatus === 'paid' && d.depositAmount != null}
-								<div class="text-muted-foreground">{formatEUR(d.depositAmount)}</div>
-							{:else if d.depositAmount != null}
-								<div class="text-muted-foreground">50% na akkoord</div>
-							{/if}
+					{#if payAfterwards}
+						<p class="text-muted-foreground">Je betaalt achteraf, er is geen aanbetaling.</p>
+					{:else}
+						<div class="flex items-start justify-between gap-3">
+							<div>
+								<div class="font-medium">Aanbetaling</div>
+								{#if d.depositStatus === 'paid' && d.depositAmount != null}
+									<div class="text-muted-foreground">{formatEUR(d.depositAmount)}</div>
+								{:else if d.depositAmount != null}
+									<div class="text-muted-foreground">50% na akkoord</div>
+								{/if}
+							</div>
+							<span class="shrink-0 border px-2 py-0.5 text-xs {depositBadge.className}">
+								{depositBadge.label}
+							</span>
 						</div>
-						<span class="shrink-0 border px-2 py-0.5 text-xs {depositBadge.className}">
-							{depositBadge.label}
-						</span>
-					</div>
+					{/if}
 					<div class="flex items-start justify-between gap-3">
 						<div>
-							<div class="font-medium">Eindbetaling</div>
+							<div class="font-medium">{payAfterwards ? 'Factuur achteraf' : 'Eindbetaling'}</div>
 							{#if d.finalPaymentStatus === 'paid' && d.finalPaymentAmount != null}
 								<div class="text-muted-foreground">{formatEUR(d.finalPaymentAmount)}</div>
+							{:else if payAfterwards}
+								<div class="text-muted-foreground">
+									{d.offerteAmount == null ? 'Het volledige bedrag' : formatEUR(d.offerteAmount)} na afloop
+								</div>
 							{:else if d.finalPaymentAmount != null}
 								<div class="text-muted-foreground">Na verrekening aanbetaling</div>
 							{/if}
@@ -198,51 +230,43 @@
 	</section>
 
 	<!--
-		`update({ reset: false })` is load-bearing. SvelteKit's default enhance
-		resets the form on success, which snaps every textarea back to its
-		mount-time defaultValue (empty) even though the answers saved fine. The
-		client then sees blank fields and the next save posts those blanks over
-		the stored answers.
+		Akkoord and praktische gegevens post separately. They are different acts
+		with different lifetimes: signing happens once and is frozen, the details
+		stay editable for as long as the link lives. One shared submit also meant
+		the akkoord button sat below the questions, far from what it was agreeing
+		to.
 	-->
-	<form
-		method="POST"
-		action="?/save"
-		class="mt-6 space-y-6"
-		use:enhance={() =>
-			async ({ update }) => {
-				await update({ reset: false });
-			}}
-	>
-		<section class="border bg-card p-5">
-			{#if signed}
-				<!-- Signed once, a receipt from here on. The inputs are removed rather
+	<section class="mt-6 border bg-card p-5">
+		{#if signed}
+			<!-- Signed once, a receipt from here on. The inputs are removed rather
 				     than disabled, so there is no second akkoord left to give. -->
-				<div class="flex items-start gap-3">
-					<span
-						class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary"
-						aria-hidden="true"
-					>
-						<svg viewBox="0 0 20 20" fill="currentColor" class="size-4">
-							<path
-								fill-rule="evenodd"
-								d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 0 1 1.4-1.4l3.8 3.8 6.8-6.8a1 1 0 0 1 1.4 0Z"
-								clip-rule="evenodd"
-							/>
-						</svg>
-					</span>
-					<div>
-						<h2 class="font-heading text-xl">Akkoord gegeven</h2>
-						<p class="mt-1 text-sm text-muted-foreground">
-							Getekend door {d.acceptedByName} te {d.acceptedAtLocation} op {formatDateNL(
-								d.acceptedTermsAt ?? ''
-							)}.
-						</p>
-						<p class="mt-2 text-sm text-muted-foreground">
-							De gegevens hieronder kun je nog steeds aanvullen of aanpassen.
-						</p>
-					</div>
+			<div class="flex items-start gap-3">
+				<span
+					class="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary"
+					aria-hidden="true"
+				>
+					<svg viewBox="0 0 20 20" fill="currentColor" class="size-4">
+						<path
+							fill-rule="evenodd"
+							d="M16.7 5.3a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0L3.3 9.7a1 1 0 0 1 1.4-1.4l3.8 3.8 6.8-6.8a1 1 0 0 1 1.4 0Z"
+							clip-rule="evenodd"
+						/>
+					</svg>
+				</span>
+				<div>
+					<h2 class="font-heading text-xl">Akkoord gegeven</h2>
+					<p class="mt-1 text-sm text-muted-foreground">
+						Getekend door {d.acceptedByName} te {d.acceptedAtLocation} op {formatDateNL(
+							d.acceptedTermsAt ?? ''
+						)}.
+					</p>
+					<p class="mt-2 text-sm text-muted-foreground">
+						De gegevens hieronder kun je nog steeds aanvullen of aanpassen.
+					</p>
 				</div>
-			{:else}
+			</div>
+		{:else}
+			<form method="POST" action="?/accept" use:enhance>
 				<h2 class="font-heading text-xl">Akkoord & digitale handtekening</h2>
 				<div class="mt-4 grid gap-4 sm:grid-cols-2">
 					<div class="min-w-0 space-y-1.5">
@@ -269,34 +293,56 @@
 						/>
 					</div>
 				</div>
+				<!--
+					Rendered from termsSummaryFor(), the same helper the acceptance
+					snapshot freezes. Whatever a client reads here is literally what
+					gets stored as the thing they agreed to.
+				-->
 				<label class="mt-4 flex gap-3 text-sm">
 					<input type="checkbox" name="terms" value="yes" required class="mt-1 size-4" />
 					<span>
-						Door dit formulier te verzenden en dit vakje aan te vinken plaats ik een digitale
-						handtekening. Ik ga akkoord met de offerte, de
-						<a href="/terms" class="underline" target="_blank" rel="noreferrer"
-							>algemene voorwaarden</a
-						>, de praktische afspraken en de aanbetaling. Ik begrijp dat de boeking pas definitief
-						is nadat Hangende Hapjes de aanbetaling heeft ontvangen. De aanbetaling wordt verrekend
-						met de eindfactuur.
+						{termsBefore}<a href="/terms" class="underline" target="_blank" rel="noreferrer"
+							>{TERMS_LINK_PHRASE}</a
+						>{termsAfter}
 					</span>
 				</label>
 				<p class="mt-3 text-xs text-muted-foreground">
 					De datum en tijd van ondertekening worden automatisch vastgelegd bij verzenden.
 				</p>
 				<input type="hidden" name="termsVersion" value={data.termsVersion} />
-			{/if}
-		</section>
+				<!-- Directly under the akkoord card: this button agrees to the terms
+				     above it and nothing else. -->
+				<div class="mt-5 border-t pt-4">
+					<Button type="submit">Akkoord geven</Button>
+				</div>
+			</form>
+		{/if}
+	</section>
 
-		{#if d.portalQuestionsEnabled || d.portalNote}
-			<section class="border bg-card p-5">
-				<h2 class="font-heading text-xl">Praktische gegevens</h2>
-				{#if d.portalNote}
-					<div class="mt-3 border bg-muted/40 p-3">
-						<p class="text-sm whitespace-pre-line">{d.portalNote}</p>
-					</div>
-				{/if}
-				{#if d.portalQuestionsEnabled}
+	{#if d.portalQuestionsEnabled || d.portalNote}
+		<section class="mt-6 border bg-card p-5">
+			<h2 class="font-heading text-xl">Praktische gegevens</h2>
+			{#if d.portalNote}
+				<div class="mt-3 border bg-muted/40 p-3">
+					<p class="text-sm whitespace-pre-line">{d.portalNote}</p>
+				</div>
+			{/if}
+			{#if d.portalQuestionsEnabled}
+				<!--
+					`update({ reset: false })` is load-bearing. SvelteKit's default enhance
+					resets the form on success, which snaps every textarea back to its
+					mount-time defaultValue (empty) even though the answers saved fine. The
+					client then sees blank fields and the next save posts those blanks over
+					the stored answers.
+				-->
+				<form
+					method="POST"
+					action="?/saveOps"
+					use:enhance={() =>
+						async ({ update }) => {
+							await update({ reset: false });
+						}}
+				>
 					<div class="mt-6">
 						<h3 class="font-heading text-lg">Vragen</h3>
 						<p class="mt-1 text-sm text-muted-foreground">
@@ -323,67 +369,80 @@
 							{/each}
 						</div>
 					</div>
-				{/if}
-			</section>
-		{/if}
-
-		<div class="flex flex-wrap items-center gap-3">
-			<Button type="submit">
-				{signed ? 'Gegevens opslaan' : 'Akkoord geven + gegevens opslaan'}
-			</Button>
-			{#if d.opsCompletedAt}
-				<span class="text-sm text-muted-foreground"
-					>Laatst opgeslagen: {formatDateNL(d.opsCompletedAt)}</span
-				>
+					<div class="mt-5 flex flex-wrap items-center gap-3">
+						<Button type="submit">Gegevens opslaan</Button>
+						{#if d.opsCompletedAt}
+							<span class="text-sm text-muted-foreground">
+								Laatst opgeslagen: {formatDateNL(d.opsCompletedAt)}
+							</span>
+						{/if}
+					</div>
+				</form>
 			{/if}
-		</div>
-	</form>
+		</section>
+	{/if}
 
-	<section class="mt-6 border bg-card p-5">
-		<h2 class="font-heading text-xl">Aanbetaling</h2>
-		{#if d.depositStatus === 'paid'}
-			<p class="mt-2 text-sm">De aanbetaling staat bij ons op betaald. Dankjewel.</p>
-		{:else if canPayDeposit}
+	{#if payAfterwards}
+		<section class="mt-6 border bg-card p-5">
+			<h2 class="font-heading text-xl">Betaling</h2>
 			<p class="mt-2 text-sm text-muted-foreground">
-				Ga na het opslaan direct door naar de betaalpagina voor de aanbetaling.
+				Voor dit feest hoef je vooraf niets over te maken. Je krijgt de factuur na afloop, en die
+				kun je dan in een keer voldoen.
 			</p>
-			<a
-				class="mt-4 inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-				href={d.depositLink}
-				rel="noreferrer"
-			>
-				Aanbetaling betalen
-			</a>
-		{:else if d.depositLink}
-			<p class="mt-2 text-sm text-muted-foreground">
-				De betaallink verschijnt nadat je akkoord en praktische gegevens zijn opgeslagen.
-			</p>
-		{:else}
-			<p class="mt-2 text-sm text-muted-foreground">
-				We sturen de betaallink apart of zetten die hier klaar zodra deze beschikbaar is.
-			</p>
-		{/if}
-	</section>
+		</section>
+	{:else}
+		<section class="mt-6 border bg-card p-5">
+			<h2 class="font-heading text-xl">Aanbetaling</h2>
+			{#if d.depositStatus === 'paid'}
+				<p class="mt-2 text-sm">De aanbetaling staat bij ons op betaald. Dankjewel.</p>
+			{:else if canPayDeposit}
+				<p class="mt-2 text-sm text-muted-foreground">
+					Ga na het opslaan direct door naar de betaalpagina voor de aanbetaling.
+				</p>
+				<a
+					class="mt-4 inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+					href={d.depositLink}
+					rel="noreferrer"
+				>
+					Aanbetaling betalen
+				</a>
+			{:else if d.depositLink}
+				<p class="mt-2 text-sm text-muted-foreground">
+					De betaallink verschijnt zodra je akkoord is gegeven.
+				</p>
+			{:else}
+				<p class="mt-2 text-sm text-muted-foreground">
+					We sturen de betaallink apart of zetten die hier klaar zodra deze beschikbaar is.
+				</p>
+			{/if}
+		</section>
+	{/if}
 
 	{#if d.finalPaymentLink || d.finalPaymentStatus === 'paid'}
 		<section class="mt-6 border bg-card p-5">
-			<h2 class="font-heading text-xl">Eindbetaling</h2>
+			<h2 class="font-heading text-xl">{payAfterwards ? 'Factuur' : 'Eindbetaling'}</h2>
 			{#if d.finalPaymentStatus === 'paid'}
-				<p class="mt-2 text-sm">De eindbetaling staat bij ons op betaald. Dankjewel.</p>
+				<p class="mt-2 text-sm">
+					{payAfterwards ? 'De factuur' : 'De eindbetaling'} staat bij ons op betaald. Dankjewel.
+				</p>
 			{:else if canPayFinal}
 				<p class="mt-2 text-sm text-muted-foreground">
-					De aanbetaling wordt verrekend met de eindfactuur. Betaal hier het resterende bedrag.
+					{#if payAfterwards}
+						Je betaalt achteraf, dus hier reken je het volledige bedrag in een keer af.
+					{:else}
+						De aanbetaling wordt verrekend met de eindfactuur. Betaal hier het resterende bedrag.
+					{/if}
 				</p>
 				<a
 					class="mt-4 inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
 					href={d.finalPaymentLink}
 					rel="noreferrer"
 				>
-					Eindbetaling betalen
+					{payAfterwards ? 'Factuur betalen' : 'Eindbetaling betalen'}
 				</a>
 			{:else}
 				<p class="mt-2 text-sm text-muted-foreground">
-					De eindbetaallink verschijnt nadat je akkoord en praktische gegevens zijn opgeslagen.
+					De betaallink verschijnt zodra je akkoord is gegeven.
 				</p>
 			{/if}
 		</section>

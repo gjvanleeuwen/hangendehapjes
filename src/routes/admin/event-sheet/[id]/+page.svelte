@@ -13,6 +13,67 @@
 	const today = new Date().toISOString().slice(0, 10);
 
 	const pick = (...keys: string[]) => keys.map((k) => ops[k]).find((v) => v && v.trim()) ?? '';
+
+	/**
+	 * Keys the curated fields below already pull in. Two generations of question
+	 * sets live here: the fine-grained keys this sheet was originally written
+	 * against (venueAddress, arrivalTime, ...) and the five broader questions in
+	 * OPS_QUESTIONS that the portal actually asks today (venueAccess,
+	 * servingMoment, guestsDietary, ...). Both are matched so a sheet prefills
+	 * whichever set a given deal was filled in with.
+	 */
+	const CURATED_KEYS = new Set([
+		'accessNotes',
+		'arrivalTime',
+		'ceremonyContact',
+		'dayContact',
+		'dietary',
+		'finalGuests',
+		'guestsDietary',
+		'loadingParking',
+		'powerWaterCooling',
+		'serviceMaterials',
+		'servingMoment',
+		'servingTimeslot',
+		'setupSpot',
+		'startSignal',
+		'timeline',
+		'venueAccess',
+		'venueAddress',
+		'venueContact',
+		'venueRules',
+		'weatherPlan'
+	]);
+
+	// Everything the client actually answered, labelled by the question they were
+	// asked. Built from the deal's own question list rather than a hardcoded set,
+	// so questions we added or reworded per deal show up here too.
+	const answers = [
+		...deal.opsQuestions.map((q) => ({
+			key: q.key,
+			label: q.label,
+			value: (ops[q.key] ?? '').trim()
+		})),
+		// Answers whose question was later reworded away or removed: the text is
+		// still stored, and silently dropping it is how details get lost. No label
+		// survives for these, so fall back to the raw key.
+		...Object.entries(ops)
+			.filter(([key]) => !deal.opsQuestions.some((q) => q.key === key))
+			.map(([key, value]) => ({ key, label: key, value: (value ?? '').trim() }))
+	].filter((a) => a.value);
+
+	// Curated answers are already prefilled into the fields above, so they start
+	// unticked to avoid printing the same thing twice. Anything we have no field
+	// for starts ticked — otherwise it would be invisible on the sheet.
+	let include = $state(
+		Object.fromEntries(answers.map((a) => [a.key, !CURATED_KEYS.has(a.key)])) as Record<
+			string,
+			boolean
+		>
+	);
+
+	const includedAnswers = $derived(answers.filter((a) => include[a.key]));
+
 	const serviceLabel =
 		deal.serviceType === 'taart'
 			? 'Taart / dessert'
@@ -33,14 +94,16 @@
 		venueContact: pick('venueContact'),
 		arrivalTime: pick('arrivalTime'),
 		loadingParking: pick('loadingParking'),
-		accessNotes: pick('accessNotes'),
+		// `venueAccess` is one broad question covering address plus opbouwtijd, so
+		// it lands here rather than in the single-line Locatie field.
+		accessNotes: pick('accessNotes', 'venueAccess'),
 		setupSpot: pick('setupSpot'),
 		facilities: pick('powerWaterCooling'),
 		timeline: pick('timeline'),
-		servingTimeslot: pick('servingTimeslot'),
+		servingTimeslot: pick('servingTimeslot', 'servingMoment'),
 		startSignal: pick('startSignal'),
 		materials: pick('serviceMaterials'),
-		dietary: pick('dietary'),
+		dietary: pick('dietary', 'guestsDietary'),
 		weatherPlan: pick('weatherPlan'),
 		venueRules: pick('venueRules'),
 		openPoints: '',
@@ -185,6 +248,33 @@
 			/>
 		</fieldset>
 
+		<fieldset class="space-y-3 border p-4">
+			<legend class="px-1 text-sm font-medium">Antwoorden uit het klantportaal</legend>
+			{#if answers.length === 0}
+				<p class="text-sm text-muted-foreground">
+					{deal.opsCompletedAt
+						? 'De klant heeft het formulier opgeslagen maar geen vragen ingevuld.'
+						: 'Nog niets binnen. De klant heeft de praktische vragen nog niet opgeslagen.'}
+				</p>
+			{:else}
+				<p class="text-xs text-muted-foreground">
+					Alles wat de klant heeft ingevuld{deal.opsCompletedAt
+						? `, laatst opgeslagen op ${formatDateNL(deal.opsCompletedAt)}`
+						: ''}. Vink aan wat je ook op de sheet wilt printen. Antwoorden die hierboven al in een
+					veld staan, staan standaard uit.
+				</p>
+				{#each answers as answer (answer.key)}
+					<label class="flex gap-2 text-sm">
+						<input type="checkbox" class="mt-1 shrink-0" bind:checked={include[answer.key]} />
+						<span class="min-w-0">
+							<span class="block text-xs text-muted-foreground">{answer.label}</span>
+							<span class="block whitespace-pre-line">{answer.value}</span>
+						</span>
+					</label>
+				{/each}
+			{/if}
+		</fieldset>
+
 		<div class="space-y-1">
 			<Label for="footer">Voettekst</Label>
 			<Textarea id="footer" rows={2} bind:value={sheet.footer} />
@@ -237,6 +327,26 @@
 					</section>
 				{/if}
 			{/each}
+
+			{#if includedAnswers.length > 0}
+				<!--
+					Question labels are full sentences, so these get label-above-value
+					instead of the two-column layout the other sections use.
+				-->
+				<section class="mt-6">
+					<h2 class="border-b border-neutral-300 pb-1 font-heading text-lg">
+						Uit het klantportaal
+					</h2>
+					<div class="mt-3 space-y-3 text-sm">
+						{#each includedAnswers as answer (answer.key)}
+							<div>
+								<div class="text-neutral-500">{answer.label}</div>
+								<div class="whitespace-pre-line">{answer.value}</div>
+							</div>
+						{/each}
+					</div>
+				</section>
+			{/if}
 
 			<footer
 				class="mt-8 border-t border-neutral-300 pt-3 text-[10px] leading-relaxed text-neutral-600"

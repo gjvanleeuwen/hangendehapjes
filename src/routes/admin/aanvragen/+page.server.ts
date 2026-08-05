@@ -4,8 +4,10 @@ import { isDbConfigured } from '$lib/server/db';
 import {
 	createDeal,
 	deleteDeal,
+	deleteQuoteVersion,
 	getDeal,
 	listDeals,
+	setQuoteVisibility,
 	toDateOrNull,
 	updateDeal,
 	DEAL_STATUSES,
@@ -14,7 +16,9 @@ import {
 	type DealStatus
 } from '$lib/server/deals';
 import {
+	activeQuoteOf,
 	normalizeOpsQuestions,
+	normalizePaymentTerm,
 	PREPAYMENT_STATUSES,
 	TIME_PHASES,
 	computeMetrics,
@@ -162,6 +166,7 @@ export const actions: Actions = {
 			serviceType: str(fd, 'serviceType', 20),
 			choice: str(fd, 'choice', 120),
 			status: statusOf(fd),
+			paymentTerm: normalizePaymentTerm(fd.get('paymentTerm')),
 			offerteAmount: amountOrNull(fd, 'offerteAmount'),
 			btwAmount: amountOrNull(fd, 'btwAmount'),
 			costs: amountOrNull(fd, 'costs'),
@@ -224,6 +229,7 @@ export const actions: Actions = {
 		if (fd.has('geldigTot')) fields.geldigTot = toDateOrNull(str(fd, 'geldigTot', 25));
 		if (fd.has('geaccepteerdOp'))
 			fields.geaccepteerdOp = toDateOrNull(str(fd, 'geaccepteerdOp', 25));
+		if (fd.has('paymentTerm')) fields.paymentTerm = normalizePaymentTerm(fd.get('paymentTerm'));
 		if (fd.has('acceptanceEnabled'))
 			fields.acceptanceEnabled = str(fd, 'acceptanceEnabled', 10) === 'true';
 		if (fd.has('acceptanceExpiresAt'))
@@ -301,6 +307,57 @@ export const actions: Actions = {
 			return fail(500, { error: `Acceptatielink maken mislukt: ${(err as Error).message}` });
 		}
 		return { generatedAcceptance: true };
+	},
+
+	// Keep an older revision out of the client portal without losing it here.
+	setQuoteVisibility: async ({ request }) => {
+		if (!isDbConfigured()) return fail(503, { error: 'Geen database geconfigureerd.' });
+
+		const fd = await request.formData();
+		const id = str(fd, 'id', 64);
+		const quoteId = str(fd, 'quoteId', 80);
+		if (!id || !quoteId) return fail(400, { error: 'id of quoteId ontbreekt.' });
+
+		const hidden = str(fd, 'hidden', 10) === 'true';
+
+		try {
+			const updated = await setQuoteVisibility(id, quoteId, hidden);
+			if (!updated) return fail(404, { error: 'Offerte niet gevonden.' });
+		} catch (err) {
+			return fail(500, { error: `Zichtbaarheid aanpassen mislukt: ${(err as Error).message}` });
+		}
+		return { quoteVisibilityChanged: true };
+	},
+
+	deleteQuote: async ({ request }) => {
+		if (!isDbConfigured()) return fail(503, { error: 'Geen database geconfigureerd.' });
+
+		const fd = await request.formData();
+		const id = str(fd, 'id', 64);
+		const quoteId = str(fd, 'quoteId', 80);
+		if (!id || !quoteId) return fail(400, { error: 'id of quoteId ontbreekt.' });
+
+		const existing = await getDeal(id);
+		if (!existing) return fail(404, { error: 'Aanvraag niet gevonden.' });
+
+		// Once a client has signed, the active quote is what they signed for.
+		// Verbergen is still fine; weggooien is not. Resolved the same way the
+		// portal resolves it, so a deal with an empty activeQuoteId but an
+		// `active`-flagged version is still protected.
+		if (existing.acceptedTermsAt && activeQuoteOf(existing)?.id === quoteId) {
+			return fail(400, {
+				error:
+					'Deze offerte is al geaccepteerd door de klant en kan niet verwijderd worden. Verberg hem in plaats daarvan.'
+			});
+		}
+
+		try {
+			const updated = await deleteQuoteVersion(id, quoteId);
+			if (!updated) return fail(404, { error: 'Offerte niet gevonden.' });
+		} catch (err) {
+			return fail(500, { error: `Offerte verwijderen mislukt: ${(err as Error).message}` });
+		}
+		return { quoteDeleted: true };
 	},
 
 	delete: async ({ request }) => {

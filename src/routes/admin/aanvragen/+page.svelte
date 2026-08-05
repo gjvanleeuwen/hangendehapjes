@@ -10,13 +10,18 @@
 	import {
 		DEAL_STATUSES,
 		DEFAULT_OPS_QUESTIONS,
+		OPS_AUDIT_LIMIT,
+		PAYMENT_TERMS,
+		PAYMENT_TERM_LABELS,
 		PREPAYMENT_STATUSES,
 		PREPAYMENT_STATUS_LABELS,
 		STATUS_LABELS,
 		TIME_PHASES,
+		activeQuoteOf,
 		isWon,
 		isCalendarEvent,
 		isPending,
+		normalizePaymentTerm,
 		type Deal,
 		type LeadTrend
 	} from '$lib/deals';
@@ -91,6 +96,18 @@
 		d.opsQuestions.length > 0 ? d.opsQuestions : DEFAULT_OPS_QUESTIONS;
 
 	const hasAcceptanceSnapshot = (d: Deal) => Object.keys(d.acceptanceSnapshot ?? {}).length > 0;
+
+	// What the client actually signed under, which is not necessarily the deal's
+	// current setting: changing the betaalafspraak after an akkoord must not
+	// rewrite the evidence box to claim they agreed to something else.
+	const signedPaymentTerm = (d: Deal) => {
+		const fromSnapshot = d.acceptanceSnapshot?.paymentTerm;
+		return typeof fromSnapshot === 'string' ? normalizePaymentTerm(fromSnapshot) : d.paymentTerm;
+	};
+
+	// Mirrors the server's resolution (activeQuoteId, else the `active` flag), so
+	// the badge can't disagree with what the portal actually serves.
+	const activeQuoteId = (d: Deal) => activeQuoteOf(d)?.id ?? '';
 
 	const serviceLabel = (d: Deal) =>
 		d.serviceType === 'taart' ? 'Taart' : d.serviceType === 'hapjes' ? 'Hapjes' : d.serviceType;
@@ -804,32 +821,34 @@
 													id="quick-activeQuoteId-{d.id}"
 													name="activeQuoteId"
 													class={selectClass}
-													value={d.activeQuoteId}
+													value={activeQuoteId(d)}
 												>
 													<option value="">Geen actieve offerte</option>
 													{#each d.quoteVersions as q (q.id)}
 														<option value={q.id}>{q.version} - {q.label}</option>
 													{/each}
 												</select>
-												{#if d.quoteVersions.length > 0 && d.acceptanceToken}
-													<div class="flex flex-wrap gap-2 pt-1 text-xs">
-														{#each d.quoteVersions as q (q.id)}
-															<a
-																class="underline"
-																href="/klantportaal/{d.acceptanceToken}/offerte/{q.id}"
-																target="_blank"
-																rel="noreferrer"
-															>
-																{q.version}
-																{q.label}
-															</a>
-														{/each}
-													</div>
-												{:else if d.quoteVersions.length > 0}
+												{#if d.quoteVersions.length > 0 && !d.acceptanceToken}
 													<p class="pt-1 text-xs text-muted-foreground">
 														Genereer eerst een klantlink om portaloffertes te openen.
 													</p>
 												{/if}
+											</div>
+											<div class="space-y-1">
+												<Label for="quick-paymentTerm-{d.id}">Betaalafspraak</Label>
+												<select
+													id="quick-paymentTerm-{d.id}"
+													name="paymentTerm"
+													class={selectClass}
+													value={d.paymentTerm}
+												>
+													{#each PAYMENT_TERMS as term (term)}
+														<option value={term}>{PAYMENT_TERM_LABELS[term]}</option>
+													{/each}
+												</select>
+												<p class="pt-1 text-xs text-muted-foreground">
+													Bepaalt de akkoordtekst die de klant ondertekent.
+												</p>
 											</div>
 											<div class="space-y-1">
 												<Label for="quick-portalQuestionsEnabled-{d.id}">Praktische vragen</Label>
@@ -939,26 +958,165 @@
 											</div>
 										</div>
 									</form>
+									{#if d.quoteVersions.length > 0}
+										<!--
+											Deliberately outside the ?/update form above: each row posts its own
+											action, and nesting forms is invalid HTML.
+										-->
+										<div class="mt-3 space-y-2 border-t pt-3">
+											<div class="text-sm font-medium">Offerteversies</div>
+											<p class="text-xs text-muted-foreground">
+												Verborgen versies verdwijnen uit het klantportaal, ook voor iemand die de
+												directe link nog heeft. De actieve offerte tonen we altijd.
+											</p>
+											<ul class="space-y-2">
+												{#each d.quoteVersions as q (q.id)}
+													{@const isActive = q.id === activeQuoteId(d)}
+													<li
+														class="flex flex-wrap items-center gap-2 rounded-lg border p-2 text-sm"
+													>
+														<span class="font-medium">{q.version}</span>
+														<span class="text-muted-foreground">{q.label}</span>
+														{#if isActive}
+															<span
+																class="rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-xs"
+															>
+																Actief
+															</span>
+														{:else if q.hiddenForClient}
+															<span
+																class="rounded border px-1.5 py-0.5 text-xs text-muted-foreground"
+															>
+																Verborgen
+															</span>
+														{:else}
+															<span
+																class="rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-xs"
+															>
+																Zichtbaar
+															</span>
+														{/if}
+														<div class="ms-auto flex flex-wrap items-center gap-3">
+															{#if d.acceptanceToken}
+																<a
+																	class="text-xs underline"
+																	href="/klantportaal/{d.acceptanceToken}/offerte/{q.id}"
+																	target="_blank"
+																	rel="noreferrer"
+																>
+																	Bekijken
+																</a>
+															{/if}
+															{#if !isActive}
+																<form method="POST" action="?/setQuoteVisibility" use:enhance>
+																	<input type="hidden" name="id" value={d.id} />
+																	<input type="hidden" name="quoteId" value={q.id} />
+																	<input
+																		type="hidden"
+																		name="hidden"
+																		value={q.hiddenForClient ? 'false' : 'true'}
+																	/>
+																	<button type="submit" class="text-xs underline">
+																		{q.hiddenForClient ? 'Tonen' : 'Verbergen'}
+																	</button>
+																</form>
+															{/if}
+															<form method="POST" action="?/deleteQuote" use:enhance>
+																<input type="hidden" name="id" value={d.id} />
+																<input type="hidden" name="quoteId" value={q.id} />
+																<button
+																	type="submit"
+																	class="text-xs text-destructive underline"
+																	onclick={(e) => {
+																		if (
+																			!confirm(
+																				`Offerte ${q.version} (${q.label}) definitief verwijderen?`
+																			)
+																		)
+																			e.preventDefault();
+																	}}
+																>
+																	Verwijder
+																</button>
+															</form>
+														</div>
+													</li>
+												{/each}
+											</ul>
+										</div>
+									{/if}
+									<!--
+										Two boxes, not one line: the akkoord is frozen evidence of a
+										one-off legal act, the praktische gegevens are a running log of
+										edits by whoever happened to hold the link. Showing them apart
+										is the whole point of storing them apart.
+									-->
+									<div class="mt-3 grid gap-3 md:grid-cols-2">
+										<div class="border p-3 text-xs">
+											<div class="font-medium text-foreground">Akkoord (eenmalig vastgelegd)</div>
+											<div class="mt-1 space-y-0.5 text-muted-foreground">
+												<div title={d.acceptedTermsAt ?? ''}>
+													Getekend: {d.acceptedTermsAt
+														? formatDateNL(d.acceptedTermsAt)
+														: 'nog niet'}
+												</div>
+												{#if d.acceptedByName}
+													<div>
+														Door: {d.acceptedByName}{d.acceptedAtLocation
+															? ` te ${d.acceptedAtLocation}`
+															: ''}
+													</div>
+												{/if}
+												{#if d.acceptedTermsVersion}
+													<div>Voorwaarden: {d.acceptedTermsVersion}</div>
+												{/if}
+												<div>
+													Betaalafspraak: {PAYMENT_TERM_LABELS[signedPaymentTerm(d)]}
+													{#if d.acceptedTermsAt && signedPaymentTerm(d) !== d.paymentTerm}
+														<span class="text-destructive">
+															(nu ingesteld op {PAYMENT_TERM_LABELS[d.paymentTerm]})
+														</span>
+													{/if}
+												</div>
+												{#if d.acceptedIp}
+													<div>IP: {d.acceptedIp}</div>
+												{/if}
+												{#if d.acceptedUserAgent}
+													<div class="truncate" title={d.acceptedUserAgent}>
+														Browser: {d.acceptedUserAgent}
+													</div>
+												{/if}
+												<div>
+													{hasAcceptanceSnapshot(d)
+														? 'Contractsnapshot opgeslagen'
+														: 'Geen contractsnapshot'}
+												</div>
+											</div>
+										</div>
+										<div class="border p-3 text-xs">
+											<div class="font-medium text-foreground">
+												Praktische gegevens (los bewerkbaar)
+											</div>
+											<div class="mt-1 space-y-0.5 text-muted-foreground">
+												<div title={d.opsCompletedAt ?? ''}>
+													Laatst opgeslagen: {d.opsCompletedAt
+														? formatDateNL(d.opsCompletedAt)
+														: 'nog niet'}
+												</div>
+												{#if d.opsAudit.length > 0}
+													<div>{d.opsAudit.length}x opgeslagen (laatste {OPS_AUDIT_LIMIT})</div>
+													{#each d.opsAudit.slice(-3).reverse() as entry (entry.savedAt)}
+														<div class="truncate" title={entry.userAgent}>
+															{formatDateNL(entry.savedAt)} — {entry.ip || 'onbekend IP'}
+														</div>
+													{/each}
+												{:else}
+													<div>Nog geen bewerkingen vastgelegd.</div>
+												{/if}
+											</div>
+										</div>
+									</div>
 									<div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-										<span
-											>Terms: {d.acceptedTermsAt
-												? formatDateNL(d.acceptedTermsAt)
-												: 'nog niet'}</span
-										>
-										{#if d.acceptedByName}
-											<span>Ondertekend door: {d.acceptedByName}</span>
-										{/if}
-										{#if d.acceptedAtLocation}
-											<span>Te: {d.acceptedAtLocation}</span>
-										{/if}
-										<span
-											>Gegevens: {d.opsCompletedAt
-												? formatDateNL(d.opsCompletedAt)
-												: 'nog niet'}</span
-										>
-										{#if hasAcceptanceSnapshot(d)}
-											<span>Snapshot opgeslagen</span>
-										{/if}
 										<span>Aanbetaling: {paymentLabel(d.depositStatus)}</span>
 										<span>Eindbetaling: {paymentLabel(d.finalPaymentStatus)}</span>
 									</div>

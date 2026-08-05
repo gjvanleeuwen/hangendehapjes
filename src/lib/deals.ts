@@ -57,7 +57,14 @@ export type Deal = {
 	acceptedTermsVersion: string;
 	acceptedByName: string;
 	acceptedAtLocation: string;
+	// Session of the person who actually signed, captured once and frozen with
+	// the rest of the acceptance evidence. Deliberately not shared with the
+	// practical-info trail below: that one changes every time someone edits a
+	// detail, and overwriting it would destroy the record of who signed.
+	acceptedIp: string;
+	acceptedUserAgent: string;
 	acceptanceSnapshot: Record<string, unknown>;
+	paymentTerm: PaymentTerm;
 	prepaymentAmount: number | null;
 	prepaymentLink: string;
 	prepaymentStatus: string;
@@ -73,7 +80,8 @@ export type Deal = {
 	portalNote: string; // free note shown to the client in the portal
 	opsQuestions: OpsQuestion[];
 	opsJson: Record<string, string>;
-	opsCompletedAt: string | null; // ISO timestamp
+	opsCompletedAt: string | null; // ISO timestamp of the last practical-info save
+	opsAudit: OpsAuditEntry[];
 	message: string;
 	notes: string; // internal only — never leaves the admin
 	origin: string; // 'contact_form' | 'manual'
@@ -108,7 +116,10 @@ export type DealInput = {
 	acceptedTermsVersion?: string;
 	acceptedByName?: string;
 	acceptedAtLocation?: string;
+	acceptedIp?: string;
+	acceptedUserAgent?: string;
 	acceptanceSnapshot?: Record<string, unknown>;
+	paymentTerm?: PaymentTerm;
 	prepaymentAmount?: number | null;
 	prepaymentLink?: string;
 	prepaymentStatus?: string;
@@ -125,6 +136,7 @@ export type DealInput = {
 	opsQuestions?: OpsQuestion[];
 	opsJson?: Record<string, string>;
 	opsCompletedAt?: string | null;
+	opsAudit?: OpsAuditEntry[];
 	message?: string;
 	notes?: string;
 	origin?: string;
@@ -147,6 +159,10 @@ export type QuoteVersion = {
 	label: string;
 	kind: 'offerte';
 	active: boolean;
+	// Keeps an older revision out of the client portal without deleting it, so
+	// we retain our own history. Never applies to the active quote — that one is
+	// the offer being accepted and is always shown.
+	hiddenForClient: boolean;
 	createdAt: string;
 	date: string;
 	eventDate: string;
@@ -208,6 +224,9 @@ export function normalizeQuoteVersions(value: unknown): QuoteVersion[] {
 					.slice(0, 120) || 'Offerte',
 			kind: 'offerte',
 			active: Boolean(r.active),
+			// Absent on versions stored before this field existed → visible, so
+			// migrating never silently pulls a quote out from under a client.
+			hiddenForClient: r.hiddenForClient === true,
 			createdAt: String(r.createdAt ?? new Date().toISOString()),
 			date: String(r.date ?? '').slice(0, 10),
 			eventDate: String(r.eventDate ?? '').slice(0, 10),
@@ -260,6 +279,22 @@ export function activeQuoteOf(
 }
 
 /**
+ * The versions a client is allowed to see. The active quote always survives the
+ * filter — hiding the offer that is being accepted would leave the portal with
+ * nothing to accept. Everything else obeys its `hiddenForClient` flag.
+ *
+ * This has to run server-side: `load` serializes whatever it returns into the
+ * page payload, so a version filtered out only in the template would still sit
+ * in the HTML with its line items and amounts readable.
+ */
+export function clientVisibleQuotes(
+	deal: Pick<Deal, 'quoteVersions' | 'activeQuoteId'>
+): QuoteVersion[] {
+	const active = activeQuoteOf(deal);
+	return deal.quoteVersions.filter((q) => q.id === active?.id || !q.hiddenForClient);
+}
+
+/**
  * Client-facing view of a quote: strips the internal-only fields (our cost
  * basis and logged hours) that must never reach a customer. Everything a
  * SvelteKit `load` returns is serialized into the page payload, so the filter
@@ -307,11 +342,109 @@ export const PREPAYMENT_STATUS_LABELS: Record<PrepaymentStatus, string> = {
 	waived: 'Niet nodig'
 };
 
+/**
+ * How the client pays. `aanbetaling` is the default: 50% up front and the
+ * booking only becomes definitive once we have it. `achteraf` is for the deals
+ * where we skip the vooruitbetaling entirely and invoice after the event; the
+ * commitment is identical, only the moment of paying moves.
+ */
+export const PAYMENT_TERMS = ['aanbetaling', 'achteraf'] as const;
+export type PaymentTerm = (typeof PAYMENT_TERMS)[number];
+
+export const PAYMENT_TERM_LABELS: Record<PaymentTerm, string> = {
+	aanbetaling: 'Aanbetaling vooraf (50%)',
+	achteraf: 'Achteraf betalen (geen aanbetaling)'
+};
+
+export function normalizePaymentTerm(value: unknown): PaymentTerm {
+	const s = String(value ?? '');
+	return (PAYMENT_TERMS as readonly string[]).includes(s) ? (s as PaymentTerm) : 'aanbetaling';
+}
+
+/**
+ * The lines a client ticks the akkoord box for.
+ *
+ * Single source of truth on purpose: the portal renders exactly these lines and
+ * the acceptance snapshot freezes exactly these lines. If the two could drift,
+ * our evidence of what someone agreed to would stop matching what they were
+ * actually shown, which is the one thing a signature record must never do.
+ */
+export function termsSummaryFor(paymentTerm: PaymentTerm): string[] {
+	const signature =
+		'Door dit formulier te verzenden en dit vakje aan te vinken plaats ik een digitale handtekening.';
+
+	if (paymentTerm === 'achteraf') {
+		return [
+			signature,
+			'Ik ga akkoord met de offerte, de algemene voorwaarden en de praktische afspraken.',
+			'De boeking staat hiermee vast. Het totaalbedrag op de eindfactuur is afhankelijk van het aantal gasten en eventuele aanpassingen maar is tenminste 50% van de geaccordeerde offerte.'
+		];
+	}
+
+	return [
+		signature,
+		'Ik ga akkoord met de offerte, de algemene voorwaarden, de praktische afspraken en de aanbetaling.',
+		'Ik begrijp dat de boeking pas definitief is nadat Hangende Hapjes de aanbetaling heeft ontvangen.',
+		'De aanbetaling wordt verrekend met de eindfactuur.'
+	];
+}
+
+/**
+ * The phrase inside the summary that the portal turns into a link to /terms.
+ * Both variants contain it exactly once, which lets the checkbox render as one
+ * flowing paragraph with an inline link while still being, character for
+ * character, the text `termsSummaryFor` hands the snapshot.
+ */
+export const TERMS_LINK_PHRASE = 'algemene voorwaarden';
+
 export type OpsQuestion = {
 	key: string;
 	label: string;
 	enabled: boolean;
 };
+
+/**
+ * One practical-info save from the portal.
+ *
+ * This is a running log, not a signature. The akkoord is a single legal event
+ * with one timestamp, one snapshot and one IP; the practical details behind it
+ * stay editable and get touched repeatedly, often by someone else entirely (a
+ * ceremoniemeester filling in the venue details weeks later). Keeping the two
+ * apart means a later edit can never overwrite, backdate or muddy the evidence
+ * of who agreed to what.
+ */
+export type OpsAuditEntry = {
+	savedAt: string; // ISO timestamp
+	ip: string;
+	userAgent: string;
+	keys: string[]; // which questions that particular save submitted
+};
+
+// Bounded: the portal link stays live for the whole run-up to an event, and an
+// unbounded log would grow the row every time someone tweaks a detail.
+export const OPS_AUDIT_LIMIT = 20;
+
+export function normalizeOpsAudit(value: unknown): OpsAuditEntry[] {
+	if (!Array.isArray(value)) return [];
+
+	const out: OpsAuditEntry[] = [];
+	for (const raw of value) {
+		if (!raw || typeof raw !== 'object') continue;
+		const r = raw as Record<string, unknown>;
+		const savedAt = String(r.savedAt ?? '').slice(0, 40);
+		if (!savedAt) continue;
+		out.push({
+			savedAt,
+			ip: String(r.ip ?? '').slice(0, 60),
+			userAgent: String(r.userAgent ?? '').slice(0, 400),
+			keys: Array.isArray(r.keys) ? r.keys.slice(0, 60).map((k) => String(k).slice(0, 60)) : []
+		});
+	}
+
+	// Oldest entries fall off the front, so the most recent saves are the ones
+	// we keep.
+	return out.slice(-OPS_AUDIT_LIMIT);
+}
 
 // Five questions, in our own voice. This is the starting point for a new deal,
 // not a checklist to work through: per deal you can disable, reword or add
