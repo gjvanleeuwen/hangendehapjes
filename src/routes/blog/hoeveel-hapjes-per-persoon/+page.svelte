@@ -220,8 +220,10 @@
 					</table>
 				</div>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Reiskosten: vanaf Hilversum tot 50 km zit het bij de prijs in. Daarboven rekenen we €0,45
-					per kilometer.
+					De prijzen hierboven zijn all-in: het maken, het serveren tussen je gasten door, servies
+					en servetten en de afwas achteraf zitten erin. Reiskosten: in het Gooi, Amsterdam en
+					Utrecht zitten ze gewoon in de prijs. Verder weg rekenen we de reis mee in je offerte,
+					zodat je één totaalbedrag ziet.
 				</p>
 			</section>
 

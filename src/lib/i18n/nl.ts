@@ -129,7 +129,8 @@ export const nl: Translations = {
 				}
 			]
 		},
-		priceFooter: 'Prijzen excl. BTW · Reiskosten gratis tot 50 km vanaf Hilversum.',
+		priceFooter:
+			'Prijzen excl. BTW · Reiskosten zitten in de prijs in het Gooi, Amsterdam en Utrecht.',
 		priceCta: 'Vraag een offerte aan'
 	},
 	faq: {
@@ -162,7 +163,7 @@ export const nl: Translations = {
 				id: 'travel',
 				question: 'Vragen jullie ook reiskosten?',
 				answer:
-					'Voor feesten tot 50 km vanaf Hilversum rekenen we geen extra reiskosten. Daarboven rekenen we €0,45 per km.'
+					'In het Gooi, Amsterdam, Utrecht, Amersfoort en Almere zitten de reiskosten gewoon in de prijs. Zit je feest verder weg? Dan rekenen we de reis mee in je offerte, zodat je altijd één totaalbedrag ziet en er achteraf niks bijkomt.'
 			},
 			{
 				id: 'combine',
@@ -193,6 +194,18 @@ export const nl: Translations = {
 				question: 'Wat trekken jullie aan?',
 				answer:
 					'We stemmen onze kleding af op het thema of de dresscode van jouw feest. Laat het ons gewoon weten in je aanvraag.'
+			},
+			{
+				id: 'guests-change',
+				question: 'Wat als het aantal gasten nog verandert?',
+				answer:
+					'Dat is geen probleem, tot 14 dagen voor je feest passen we het aantal porties gewoon aan. Ook zorgen wij er voor dat we altijd genoeg hebben, zelfs als er een paar extra gasten bij zijn gekomen.'
+			},
+			{
+				id: 'space',
+				question: 'Hoeveel ruimte hebben jullie nodig?',
+				answer:
+					'Met een klein hoekje voor onze koelkast zijn wij al tevreden, mocht er ook stroom en water beschikbaar zijn dan is dat helemaal fijn. Wij nemen eigenlijk alles mee (zelfs een tafel als nodig) dus de locatie hoeft met weinig rekening te houden.'
 			}
 		]
 	},
@@ -216,6 +229,8 @@ export const nl: Translations = {
 			}
 		],
 		reviewNoun: { one: 'review', other: 'reviews' },
+		sourceLabel: 'op Google',
+		readAll: 'Lees al onze reviews',
 		cta: {
 			text: 'Heb jij onze hapjes geproefd? Laat ons weten hoe lekker ze waren.',
 			button: 'Schrijf een review',

@@ -16,6 +16,12 @@ export type LocationSection = {
 	/** Paragraphs. May contain inline `<a>` markup (first-party, static). */
 	body: string[];
 	bullets?: string[];
+	/**
+	 * Render the review teaser for this product directly above the section
+	 * heading. Only reviews tagged with this `productId` are shown, so the proof
+	 * sits next to the concept it actually belongs to.
+	 */
+	reviewProductId?: 'toetjes' | 'borrel';
 };
 
 export type LocationContent = {
@@ -51,7 +57,7 @@ const HILVERSUM_NL: LocationContent = {
 		'Catering in Hilversum nodig? Wij maken verse tiramisu en burrata-bowls, voor iedere gast uniek. Vanaf 50 porties, geen reiskosten en vaste prijzen.',
 	ogImage: 'https://hangendehapjes.nl/images/owners.jpeg',
 	kicker: 'Entertainend eten · lokale catering uit Hilversum',
-	h1: 'Heerlijke hapjes ter plekke gemaakt voor elke gast',
+	h1: 'Live catering in Hilversum: heerlijke hapjes ter plekke gemaakt voor elke gast',
 	intro: [
 		'Zoek je catering in Hilversum die er ook echt een leuk moment van maakt? Wij maken verse hapjes ter plekke, lopend tussen jouw gasten door. Kies voor zoet, hartig of allebei, hieronder zie je wat we maken. Altijd geleverd met een glimlach!'
 	],
@@ -73,12 +79,26 @@ const HILVERSUM_NL: LocationContent = {
 		{
 			heading: 'Voor welke feesten in Hilversum en het Gooi',
 			body: [
-				'We doen bruiloften, recepties, borrels, verjaardagen en bedrijfsfeesten, van een intieme borrel thuis tot een groot personeelsfeest of congres. Of je nu een dessertmoment, een midnight snack of gewoon iets leuks tijdens de borrel zoekt, we passen ons aan jouw feest aan.'
+				'We doen bruiloften, recepties, verjaardagen en jubilea, van een intieme borrel thuis tot een groot feest in een zaal. Of je nu een dessertmoment, een midnight snack of gewoon iets leuks tijdens de borrel zoekt, we passen ons aan jouw feest aan. Zakelijke borrels en bedrijfsfeesten doen we ook, daar lees je hieronder meer over.'
 			],
 			bullets: [
 				'Bruiloften en recepties in het Gooi',
-				'Bedrijfsfeesten en borrels in en rond Hilversum',
-				'Verjaardagen en feesten thuis of in een feestzaal'
+				'Verjaardagen en jubilea, thuis of in een feestzaal',
+				'Walking dinners, dessertmomenten en midnight snacks'
+			]
+		},
+		{
+			heading: 'Bedrijfsfeest of zakelijke borrel in Hilversum',
+			reviewProductId: 'borrel',
+			body: [
+				'Of je nou een event hebt op het Mediapark, op de bedrijfscampus bij Nike of gewoon in het centrum van Hilversum, voor een zakelijke borrel of een bedrijfsfeest zijn wij altijd dichtbij. Wij wonen hier, dus een vrijdagmiddagborrel, een kantooropening of een personeelsfeest is voor ons zo geregeld.',
+				'Live catering werkt op een zakelijk event net even anders. Omdat we rondlopen en per gast een portie opmaken, komen mensen vanzelf met elkaar in gesprek. Je hoeft niemand aan te sporen om te mengen, dat gebeurt gewoon rond het dienblad. Bij een borrel met collega’s of relaties die elkaar nog niet kennen is dat precies wat je wil.',
+				'Voor de opening van hun nieuwe bureau in Hilversum liepen wij een middag rond met burrata-bowls voor <strong>Stip</strong>. Volop keuze in toppings en sauzen, zodat elke gast zijn eigen combinatie kon samenstellen. Meer over dat concept lees je op onze <strong><a href="/blog/burrata-catering">pagina over burrata catering</a></strong>.'
+			],
+			bullets: [
+				'Kantooropeningen, jubilea en relatie-events',
+				'Personeelsfeesten en vrijdagmiddagborrels',
+				'Recepties en zakelijke bijeenkomsten in het Gooi'
 			]
 		},
 		{
@@ -111,13 +131,19 @@ const HILVERSUM_NL: LocationContent = {
 			id: 'hilversum-omgeving',
 			question: 'Komen jullie ook buiten Hilversum, in de rest van het Gooi?',
 			answer:
-				'Zeker. Hilversum is onze thuisbasis, maar we komen net zo makkelijk in Bussum, Laren, Blaricum, Naarden en de rest van het Gooi. Tot 50 km vanaf Hilversum zitten de reiskosten in de prijs, en het Gooi valt daar ruim binnen. Ook in Amsterdam en Utrecht zijn we te boeken; daarvoor rekenen we €0,45 per kilometer boven die 50 km.'
+				'Zeker. Hilversum is onze thuisbasis, maar we komen net zo makkelijk in Bussum, Laren, Blaricum, Naarden en de rest van het Gooi. Daar zitten de reiskosten gewoon in de prijs, net als in Amsterdam, Utrecht, Amersfoort en Almere. Wil je ons ergens verder weg hebben? Dat kan ook, dan rekenen we de reis mee in je offerte zodat je één totaalbedrag ziet.'
 		},
 		{
 			id: 'hilversum-prijs',
 			question: 'Wat kost catering in Hilversum?',
 			answer:
-				'We werken vanaf 50 porties (1 portie = 1 gast). De live tiramisu start vanaf €425 voor 50 porties, de burrata-bowls vanaf €450. Binnen Hilversum en het Gooi zijn de reiskosten meestal nul, omdat we tot 50 km vanaf Hilversum geen reiskosten rekenen. Stuur je datum en aantal gasten, dan maken we een voorstel op maat.'
+				'We werken vanaf 50 porties (1 portie = 1 gast). De live tiramisu start vanaf €425 voor 50 porties, de burrata-bowls vanaf €450. Binnen Hilversum en het Gooi zitten de reiskosten in die prijs, dus wat je in de offerte ziet is wat je betaalt. Stuur je datum en aantal gasten, dan maken we een voorstel op maat.'
+		},
+		{
+			id: 'hilversum-zakelijk',
+			question: 'Doen jullie ook bedrijfsfeesten en zakelijke borrels?',
+			answer:
+				'Ja, regelmatig. Je stuurt ons de datum, het aantal gasten en het tijdslot, en binnen 1 à 2 dagen ligt er een offerte met een vaste prijs. Onze prijzen zijn exclusief btw en voor bedrijven vragen we geen aanbetaling: je krijgt de factuur gewoon achteraf. Op locatie hebben we alleen een hoekje, een stopcontact en een kraan nodig, en we stemmen de tijden af op jullie programma, zodat het precies tijdens de borrel of receptie loopt.'
 		},
 		BLOG_FAQS_NL.allergies,
 		BLOG_FAQS_NL.leadtime
@@ -153,12 +179,26 @@ const HILVERSUM_EN: LocationContent = {
 		{
 			heading: 'For which parties in Hilversum and Het Gooi',
 			body: [
-				'We do weddings, receptions, drinks, birthdays and company parties, from an intimate get-together at home to a big staff party. Whether you want a dessert moment, a midnight snack or just something fun during drinks, we adapt to your party.'
+				'We do weddings, receptions, birthdays and anniversaries, from an intimate get-together at home to a big party in a venue. Whether you want a dessert moment, a midnight snack or just something fun during drinks, we adapt to your party. We do business drinks and company parties too, there’s more on those just below.'
 			],
 			bullets: [
 				'Weddings and receptions in Het Gooi',
-				'Company parties and drinks in and around Hilversum',
-				'Birthdays and parties at home or in a venue'
+				'Birthdays and anniversaries, at home or in a venue',
+				'Walking dinners, dessert moments and midnight snacks'
+			]
+		},
+		{
+			heading: 'Company parties and business drinks in Hilversum',
+			reviewProductId: 'borrel',
+			body: [
+				'Whether your event is at the Mediapark, on the business campus at Nike or right in the centre of Hilversum, we’re always close by for a business drinks or a company party. We live here, so Friday afternoon drinks, an office opening or a staff party is easy for us to fit in.',
+				'Live catering works a little differently at a business event. Because we walk around and finish a portion per guest, people end up talking to each other on their own. You don’t have to nudge anyone to mingle, it just happens around the tray. For drinks with colleagues or clients who haven’t met yet, that’s usually exactly what you want.',
+				'For the opening of their new office in Hilversum we spent an afternoon walking around with burrata bowls for <strong>Stip</strong>. Plenty of choice in toppings and sauces, so every guest could put together their own combination.'
+			],
+			bullets: [
+				'Office openings, anniversaries and client events',
+				'Staff parties and Friday afternoon drinks',
+				'Receptions and business gatherings across Het Gooi'
 			]
 		},
 		{
@@ -191,13 +231,19 @@ const HILVERSUM_EN: LocationContent = {
 			id: 'hilversum-omgeving',
 			question: 'Do you also come outside Hilversum, to the rest of Het Gooi?',
 			answer:
-				'Absolutely. Hilversum is our home base, but we just as easily come to Bussum, Laren, Blaricum, Naarden and the rest of Het Gooi. Up to 50 km from Hilversum travel costs are included, and Het Gooi falls well within that. We can also be booked in Amsterdam and Utrecht; for those we charge €0.45 per kilometre beyond 50 km.'
+				'Absolutely. Hilversum is our home base, but we just as easily come to Bussum, Laren, Blaricum, Naarden and the rest of Het Gooi. Travel is included there, and the same goes for Amsterdam, Utrecht, Amersfoort and Almere. Want us somewhere further out? That works too, we just build the travel into your quote so you see one total.'
 		},
 		{
 			id: 'hilversum-prijs',
 			question: 'What does catering in Hilversum cost?',
 			answer:
-				'We work from 50 portions (1 portion = 1 guest). The live tiramisu starts from €425 for 50 portions, the burrata bowls from €450. Within Hilversum and Het Gooi travel costs are usually zero, because we charge none up to 50 km from Hilversum. Send your date and guest count and we’ll make a tailored proposal.'
+				'We work from 50 portions (1 portion = 1 guest). The live tiramisu starts from €425 for 50 portions, the burrata bowls from €450. Within Hilversum and Het Gooi travel is part of that price, so what you see in the quote is what you pay. Send your date and guest count and we’ll make a tailored proposal.'
+		},
+		{
+			id: 'hilversum-zakelijk',
+			question: 'Do you also do company parties and business drinks?',
+			answer:
+				'Yes, regularly. Send us the date, the guest count and the time slot, and within 1 to 2 days you’ll have a quote with a fixed price. Our prices are excluding VAT, and for companies we don’t ask for a deposit: you simply get the invoice after the event. On location we only need a corner, a power socket and a tap, and we fit our timing around your programme so it runs exactly during the drinks or reception.'
 		},
 		{
 			id: 'allergies',

@@ -5,24 +5,35 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { formatEUR } from '$lib/admin/calc';
+	import type { BtwRate } from '$lib/admin/types';
 	import {
 		BURRATA_TOPPINGS,
 		DEFAULT_BURRATA_TOPPINGS,
 		DEFAULT_CONFIG,
+		HOUR_CURVE_KEYS,
+		HOUR_CURVE_LABELS,
+		HOUR_TIER_POINTS,
 		INGREDIENT_COST_PER_PORTION,
 		MILLEFEUILLE_DEFAULT_FRUIT_COST_PER_PORTION,
 		MIN_PORTIONS_PER_PRODUCT,
 		PACKAGING_COST_PER_PORTION,
 		PRODUCT_LABELS,
+		STAGES,
+		STAGE_LABELS,
+		STAGE_SOURCE,
 		VARIANT_LABELS,
 		burrataIngredientCost,
 		calculateInternals,
 		calculatePrice,
-		calculateSpecialInternals,
 		calculateSpecialPrice,
+		cloneConfig,
+		derivedCostPerKm,
+		effectiveCostPerKm,
+		effectiveEventBaseFee,
+		hourCurveAt,
+		smallOrderRelief,
 		minPortionsForSpecialVariant,
 		specialIngredientCostPerPortion,
-		validationCurve,
 		type PricingConfig,
 		type SpecialVariant
 	} from '$lib/admin/pricing';
@@ -36,11 +47,20 @@
 	let tiraSharePct = $state(50); // verdeling tiramisu/burrata bij een mix
 	let fruitCost = $state(MILLEFEUILLE_DEFAULT_FRUIT_COST_PER_PORTION);
 	let extraPeople = $state(0);
-	let oneWayKm = $state(0);
+	// Niet 0: er is geen klus om de hoek. 20 km is een doorsnee rit binnen het Gooi
+	// of naar Amsterdam/Utrecht, en zorgt dat het blended uurtarief meteen klopt in
+	// plaats van te vleien met reistijd die er niet is.
+	let oneWayKm = $state(20);
+	// Wachttijd op locatie verschilt per klus, dus per offerte in te vullen.
+	let standbyHours = $state(DEFAULT_CONFIG.defaultStandbyHours);
+	// Kleine-klus-korting: null = volg de curve, een getal = handmatig voor deze offerte.
+	let reliefOverride = $state<number | null>(null);
 	let burrToppings = $state<string[]>([...DEFAULT_BURRATA_TOPPINGS]);
 	const dealId = page.url.searchParams.get('deal') ?? '';
 
-	const config = $state<PricingConfig>({ ...DEFAULT_CONFIG });
+	// Diep kopiëren: hourlyRates en de urencurves zijn geneste objecten, een
+	// shallow spread zou DEFAULT_CONFIG zelf laten muteren.
+	const config = $state<PricingConfig>(cloneConfig(DEFAULT_CONFIG));
 
 	const isSpecial = $derived(mode !== 'hapjes');
 	const isMix = $derived(mode === 'hapjes' && hapjesKind === 'mix');
@@ -77,181 +97,139 @@
 			? calculateSpecialPrice({
 					variant: mode,
 					portions,
-					extraPeople,
 					oneWayKm,
 					config: $state.snapshot(config),
-					fruitCostPerPortion: fruitCost
+					fruitCostPerPortion: fruitCost,
+					standbyHours,
+					smallOrderReliefOverride: reliefOverride ?? undefined
 				})
 			: calculatePrice({
 					tiraPortions,
 					burrPortions,
 					extraPeople,
 					oneWayKm,
-					config: $state.snapshot(config)
+					config: $state.snapshot(config),
+					burrataIngredientCost: burrCostPerPortion,
+					standbyHours,
+					smallOrderReliefOverride: reliefOverride ?? undefined
 				})
 	);
 
-	const internals = $derived(
-		mode !== 'hapjes'
-			? calculateSpecialInternals(result, {
-					variant: mode,
-					config: $state.snapshot(config),
-					fruitCostPerPortion: fruitCost
-				})
-			: calculateInternals(result, {
-					tiraPortions,
-					burrPortions,
-					config: $state.snapshot(config),
-					burrataIngredientCost: burrCostPerPortion
-				})
-	);
+	// Uren en materiaal zitten nu in het prijsresultaat zelf — internals rekent
+	// alleen de controlegetallen terug (gerealiseerd arbeids- en reistarief).
+	const internals = $derived(calculateInternals(result, $state.snapshot(config)));
 
 	function fmtHours(h: number): string {
 		return h.toFixed(2).replace('.', ',') + 'u';
 	}
 
+	function round2(n: number): number {
+		return Math.round(n * 100) / 100;
+	}
+
 	const totalPortions = $derived(portions);
-	const minChartPortions = $derived(
-		mode !== 'hapjes' ? minPortionsForSpecialVariant(mode as SpecialVariant) : 50
-	);
-	const customerBaseBeforeDriveExtras = $derived(
-		Math.max(0, result.total - result.extraPersonFee - result.travelFee)
-	);
-	const portionRelatedRevenue = $derived(
-		Math.max(0, customerBaseBeforeDriveExtras - result.includedDriveFee)
+	// Wat de curve zelf zou voorstellen, als ijkpunt naast een handmatige korting.
+	const curveRelief = $derived(smallOrderRelief(totalPortions, $state.snapshot(config)));
+
+	// Materiaal uitgesplitst naar de posten waar het vandaan komt. De laatste regel
+	// vangt het afrondingsverschil op, zodat de kolom exact optelt tot materialsFee.
+	const materialLines = $derived.by(() => {
+		if (result.totalPortions <= 0) return [];
+		const mk = config.materialsMarkup;
+		const lines: { label: string; amount: number }[] = [];
+		if (isSpecial) {
+			const per = specialIngredientCostPerPortion(mode as SpecialVariant, fruitCost);
+			const fruit = mode === 'millefeuille-taart' ? ` (waarvan ${formatEUR(fruitCost)} fruit)` : '';
+			lines.push({
+				label: `Ingrediënten — ${result.totalPortions} × ${formatEUR(per)}${fruit}`,
+				amount: round2(result.materials.ingredients * mk)
+			});
+			lines.push({
+				label: `Cakeboards — ${formatEUR(config.cakeboardPrice)} per ${config.cakeboardPerPersons} pers.`,
+				amount: 0
+			});
+		} else {
+			if (tiraPortions > 0)
+				lines.push({
+					label: `Ingrediënten tiramisu — ${tiraPortions} × ${formatEUR(INGREDIENT_COST_PER_PORTION.tiramisu)}`,
+					amount: round2(result.materials.ingredientsTira * mk)
+				});
+			if (burrPortions > 0)
+				lines.push({
+					label: `Ingrediënten burrata — ${burrPortions} × ${formatEUR(burrCostPerPortion)} (${burrToppings.length} toppings)`,
+					amount: round2(result.materials.ingredientsBurr * mk)
+				});
+			lines.push({
+				label: `Verpakking — ${result.totalPortions} × ${formatEUR(PACKAGING_COST_PER_PORTION)}`,
+				amount: 0
+			});
+		}
+		const others = lines.slice(0, -1).reduce((s, l) => s + l.amount, 0);
+		lines[lines.length - 1].amount = round2(result.materialsFee - others);
+		return lines;
+	});
+	// Wat je feitelijk op locatie bent: opbouwen + werken + wachten (mensuren).
+	const onLocationHours = $derived(
+		round2(result.hours.setup + result.hours.service + result.hours.standby)
 	);
 
-	const tiraShare = $derived(
-		mode !== 'hapjes'
-			? 1
-			: hapjesKind === 'tira'
-				? 1
-				: hapjesKind === 'burr'
-					? 0
-					: tiraSharePct / 100
-	);
+	// Alles in het model rekent excl. btw. Catering valt in NL onder het lage
+	// tarief, dus 9% is de normale stand — dit is puur de weergave van wat de
+	// klant uiteindelijk op de offerte ziet staan.
+	let btwPercent = $state<0 | 9 | 21>(9);
+	const btwAmount = $derived(round2((result.total * btwPercent) / 100));
+	const totalIncl = $derived(round2(result.total + btwAmount));
+	const perPortionIncl = $derived(totalPortions > 0 ? round2(totalIncl / totalPortions) : 0);
 
-	// Validatiecurve: constante lijnen voor het actieve type, alleen afhankelijk van het
-	// type + de aannames (niet van het gekozen aantal porties). De marker volgt de porties.
-	const curve = $derived(
-		validationCurve({
-			mode,
-			tiraShare,
-			config: $state.snapshot(config),
-			fruitCostPerPortion: fruitCost,
-			from: minChartPortions,
-			to: 150,
-			step: 5
-		})
-	);
-	const curvePoint = $derived(
-		totalPortions >= minChartPortions && totalPortions <= 150
-			? validationCurve({
-					mode,
-					tiraShare,
-					config: $state.snapshot(config),
-					fruitCostPerPortion: fruitCost,
-					from: totalPortions,
-					to: totalPortions,
-					step: 1
-				})[0]
-			: null
-	);
-	const locationLabel = $derived(isSpecial ? 'opbouw' : 'lopen');
-
-	// Mini-grafiek-geometrie (x = porties 50→150).
-	const CW = 320;
-	const CH = 104;
-	const CPL = 38;
-	const CPR = 10;
-	const CPT = 12;
-	const CPB = 18;
-	const VX_MAX = 150;
-	const VX_STEP = 5;
-	const xTicks = $derived(
-		Array.from(new Set([minChartPortions, 50, 100, 150])).filter(
-			(n) => n >= minChartPortions && n <= VX_MAX
+	// Wijkt de opbrengst af van wat de fase-tarieven voorschrijven? Kortingen die we
+	// bewust geven verklaren dat gat, dus die tellen we terug. Wat dan nog overblijft
+	// hoort 0 te zijn; is het dat niet, dan lekt er ergens geld weg.
+	const unexplainedGap = $derived(
+		round2(
+			internals.labourGap + result.smallOrderRelief + result.mixDeduction + result.volumeDiscount
 		)
 	);
-	function vx(x: number) {
-		return CPL + ((x - minChartPortions) / (VX_MAX - minChartPortions)) * (CW - CPL - CPR);
-	}
-	function vy(y: number, lo: number, hi: number) {
-		const span = hi - lo || 1;
-		return CH - CPB - ((y - lo) / span) * (CH - CPT - CPB);
-	}
-	function vpath(pts: { x: number; y: number }[], lo: number, hi: number) {
-		return pts.length ? 'M' + pts.map((p) => `${vx(p.x)},${vy(p.y, lo, hi)}`).join(' L') : '';
-	}
-	function padRange(vals: number[]): { lo: number; hi: number } {
-		const min = Math.min(...vals);
-		const max = Math.max(...vals);
-		const pad = (max - min) * 0.15 || max * 0.1 || 1;
-		return { lo: Math.max(0, min - pad), hi: max + pad };
-	}
-	function yTicks(lo: number, hi: number): number[] {
-		return [lo, (lo + hi) / 2, hi];
-	}
-	function valAt(pts: { x: number; y: number }[], x: number): number | null {
-		return pts.find((p) => p.x === x)?.y ?? null;
-	}
-
-	// Gedeelde hover-porties over alle drie de grafieken.
-	let hoverN = $state<number | null>(null);
-	function handleHover(e: MouseEvent) {
-		const svg = e.currentTarget as SVGSVGElement;
-		const rect = svg.getBoundingClientRect();
-		const vbX = ((e.clientX - rect.left) / rect.width) * CW;
-		const frac = (vbX - CPL) / (CW - CPL - CPR);
-		const raw = minChartPortions + frac * (VX_MAX - minChartPortions);
-		const snapped = Math.round(raw / VX_STEP) * VX_STEP;
-		hoverN = Math.max(minChartPortions, Math.min(VX_MAX, snapped));
-	}
-
-	// Per-grafiek lijn-data, afgeleid van de constante curve.
-	const hoursLines = $derived([
-		{
-			label: 'prep',
-			color: 'var(--brand-magenta)',
-			pts: curve.map((p) => ({ x: p.x, y: p.prepHours })),
-			dot: curvePoint?.prepHours ?? null
-		},
-		{
-			label: locationLabel,
-			color: '#0ea5e9',
-			pts: curve.map((p) => ({ x: p.x, y: p.locationHours })),
-			dot: curvePoint?.locationHours ?? null
-		}
-	]);
-	const hoursRange = $derived(
-		padRange(curve.flatMap((p) => [p.prepHours, p.locationHours]).concat(0))
+	const rateDrift = $derived(Math.abs(unexplainedGap) > 0.5);
+	// Dekt de reisopbrengst (basisbedrag + km-vergoeding, min benzine) de reisuren
+	// tegen het ingestelde reistarief? Zo niet, dan drukt dat het blended tarief.
+	const travelDrift = $derived(result.hours.travel > 0 && internals.travelGap < -1);
+	const kmDrift = $derived(
+		!config.autoCostPerKm && Math.abs(derivedCostPerKm(config) - config.costPerKm) > 0.1
 	);
-	const ppLine = $derived([
-		{
-			label: '€/portie',
-			color: 'var(--brand-magenta)',
-			pts: curve.map((p) => ({ x: p.x, y: p.perPortion })),
-			dot: curvePoint?.perPortion ?? null
-		}
-	]);
-	const ppRange = $derived(padRange(curve.map((p) => p.perPortion)));
-	const phLine = $derived([
-		{
-			label: '€/uur p.p.',
-			color: '#0ea5e9',
-			pts: curve.map((p) => ({ x: p.x, y: p.perHour })),
-			dot: curvePoint?.perHour ?? null
-		}
-	]);
-	const phRange = $derived(padRange(curve.map((p) => p.perHour)));
+	// Hoe zwaar weegt de reis in het totaal? Onder de 10% verdwijnt hij in de
+	// productregels (all-in prijs), daarboven verklaart een losse regel hem beter
+	// dan een portieprijs die ineens nergens op slaat.
+	const travelSharePct = $derived(result.total > 0 ? (result.travelFee / result.total) * 100 : 0);
+	// Productkeuze in twee stappen: eerst de categorie, dan de variant daarbinnen.
+	type Category = 'hapjes' | 'taart';
+	type Choice = 'tira' | 'burr' | 'mix' | SpecialVariant;
 
-	function setSplit(kind: 'tira' | 'burr' | 'mix') {
-		mode = 'hapjes';
-		hapjesKind = kind;
+	const CHOICES: Record<Category, { value: Choice; label: string }[]> = {
+		hapjes: [
+			{ value: 'tira', label: 'Alleen tiramisu' },
+			{ value: 'burr', label: 'Alleen burrata' },
+			{ value: 'mix', label: 'Mix tiramisu + burrata' }
+		],
+		taart: SPECIAL_VARIANTS.map((v) => ({ value: v, label: VARIANT_LABELS[v] }))
+	};
+
+	const category = $derived<Category>(isSpecial ? 'taart' : 'hapjes');
+	const choice = $derived<Choice>(mode === 'hapjes' ? hapjesKind : mode);
+
+	function setChoice(v: Choice) {
+		if (v === 'tira' || v === 'burr' || v === 'mix') {
+			mode = 'hapjes';
+			hapjesKind = v;
+		} else {
+			mode = v;
+		}
 	}
 
-	function setVariant(v: SpecialVariant) {
-		mode = v;
+	// Wisselen van categorie valt terug op de eerste variant daarbinnen, tenzij we
+	// er al een hadden gekozen — dan houden we die vast.
+	function setCategory(cat: Category) {
+		if (cat === category) return;
+		setChoice(cat === 'hapjes' ? hapjesKind : SPECIAL_VARIANTS[0]);
 	}
 
 	function useInOfferte() {
@@ -274,13 +252,16 @@
 			description,
 			qty: 1,
 			unitPrice: result.total,
-			btwRate: 'none' as const,
+			// unitPrice is excl. btw; het gekozen tarief gaat mee zodat de offerte
+			// dezelfde stickerprijs laat zien als de calculator. Zet op 0% als we
+			// (nog) geen btw in rekening brengen.
+			btwRate: btwPercent as BtwRate,
 			costs: internals.costs.total,
 			timeSpent: {
-				voorbereiding: internals.hours.prep,
-				reizen: internals.hours.drive,
-				event: isSpecial ? internals.hours.build : internals.hours.walking,
-				afhandeling: internals.hours.cleanup
+				voorbereiding: result.hours.prep,
+				reizen: result.hours.travel,
+				event: round2(result.hours.setup + result.hours.service + result.hours.standby),
+				afhandeling: result.hours.cleanup
 			}
 		};
 		try {
@@ -312,24 +293,41 @@
 			<summary class="cursor-pointer hover:text-foreground">Hoe werkt de prijsopbouw?</summary>
 			<div class="mt-2 space-y-1.5 leading-relaxed">
 				<p>
-					<strong>Basistarief per portie</strong> komt uit de tiers (50/100/200) — bevat alle eten, lopen,
-					schoonmaak en de eerste rit. Boven 200 wordt lineair geëxtrapoleerd op basis van de 100→200
-					helling.
+					<strong>Uren zijn de bron.</strong> De prijs is geen tabel meer maar een optelsom over vijf
+					fasen: prep, opbouw, lopen/bouwen, nazorg en reizen. Elke fase heeft een eigen urencurve én
+					een eigen uurtarief, allebei instelbaar onder “Uren &amp; tarieven”. Daarbovenop komt de kostprijs
+					van het materiaal.
 				</p>
 				<p>
-					<strong>Mix (twee soorten)</strong> = beide producten op hun eigen prijs voor het bestelde aantal,
-					opgeteld, minus een vaste aftrek voor gedeelde overhead (1 rit en 1 schoonmaak in plaats van
-					2). Symmetrisch — meer porties betekent altijd een hogere prijs, los van welk product groter
-					is.
+					<strong>Opbouw op locatie</strong> ({DEFAULT_CONFIG.setupHours
+						.toString()
+						.replace('.', ',')}u per persoon) is nieuw. Aankomen, uitpakken, opbouwen en weer
+					inpakken kost evenveel tijd bij 50 als bij 400 porties, en werd voorheen helemaal niet
+					gerekend. Dat drukte vooral op kleine klussen.
+				</p>
+				<p>
+					<strong>Reis: vrije straal, daarboven per km.</strong> Voorheen zat er een vaste 1,5u
+					rijtijd in het basistarief, ongeacht afstand. Nu zit er een basisbedrag van €{DEFAULT_CONFIG.eventBaseFee}
+					per klus in de prijs dat de eerste {DEFAULT_CONFIG.freeRoundTripKm} retour-km betaalt ({DEFAULT_CONFIG.freeRoundTripKm /
+						2} km enkele reis, dus het hele Gooi, Amsterdam, Utrecht, Amersfoort en Almere). Daarboven
+					telt €{DEFAULT_CONFIG.costPerKm.toFixed(2).replace('.', ',')} per retour-km, wat zowel de auto
+					(€{DEFAULT_CONFIG.vehicleCostPerKm.toFixed(2).replace('.', ',')}/km) als de rijtijd (€{DEFAULT_CONFIG
+						.hourlyRates.travel}/u bij {DEFAULT_CONFIG.travelSpeedKmh} km/u) dekt.
+				</p>
+				<p>
+					Binnen de straal noemen we dus altijd één all-in prijs. Aan de rand ervan leggen we een
+					euro of 24 toe; dat is de prijs van die belofte en is bewust zo gekozen. Ver weg betaalt
+					zichzelf: 250 km enkele reis levert een reisregel van ruim €500 op in plaats van de €90
+					die de oude regeling opleverde.
+				</p>
+				<p>
+					<strong>Mix (twee soorten)</strong> deelt automatisch de opbouw, de reis en de nazorg — dat
+					is één event, dus dat rekenen we één keer. De losse mix-aftrek staat daarom standaard op 0.
 				</p>
 				<p>
 					<strong>Extra persoon</strong> wordt verplicht vanaf {DEFAULT_CONFIG.mandatoryExtraPersonAt}
-					porties (één persoon kan niet meer dan ±2u lopen). Fee dekt alleen de rituren — looptijd zit
-					al in het basistarief, dus we rekenen niet dubbel.
-				</p>
-				<p>
-					<strong>Reiskosten</strong>: eerste {DEFAULT_CONFIG.freeRoundTripKm} km retour gratis, daarna
-					€{DEFAULT_CONFIG.costPerKm.toFixed(2).replace('.', ',')}/km.
+					porties (één persoon kan niet meer dan ±2u lopen). Kost alleen zijn eigen opbouw en eigen reistijd
+					— prep, lopen en nazorg zijn totaal werk dat verdeeld wordt, dus niet dubbel.
 				</p>
 				<p>
 					<strong>Volumekorting</strong> (uit in standaard, 0%) trekt een percentage van het eten + service
@@ -344,8 +342,43 @@
 		<!-- Inputs -->
 		<section class="space-y-6">
 			<fieldset class="space-y-3 border p-4">
-				<legend class="px-1 text-sm font-medium">Aantal</legend>
-				<div class="grid gap-4 sm:grid-cols-2">
+				<legend class="px-1 text-sm font-medium">Wat &amp; hoeveel</legend>
+
+				<div class="grid grid-cols-2 gap-2">
+					<button
+						type="button"
+						onclick={() => setCategory('hapjes')}
+						class="border px-3 py-2 text-sm transition {category === 'hapjes'
+							? 'border-primary bg-primary text-primary-foreground'
+							: 'hover:bg-muted'}"
+					>
+						Hangende hapjes
+					</button>
+					<button
+						type="button"
+						onclick={() => setCategory('taart')}
+						class="border px-3 py-2 text-sm transition {category === 'taart'
+							? 'border-primary bg-primary text-primary-foreground'
+							: 'hover:bg-muted'}"
+					>
+						Bruidstaart
+					</button>
+				</div>
+
+				<div class="grid gap-3 sm:grid-cols-2">
+					<div class="space-y-1.5">
+						<Label for="choice">Variant</Label>
+						<select
+							id="choice"
+							value={choice}
+							onchange={(e) => setChoice(e.currentTarget.value as Choice)}
+							class="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+						>
+							{#each CHOICES[category] as opt (opt.value)}
+								<option value={opt.value}>{opt.label}</option>
+							{/each}
+						</select>
+					</div>
 					<div class="space-y-1.5">
 						<Label for="portions">Porties (personen)</Label>
 						<Input id="portions" type="number" min="0" step="5" bind:value={portions} />
@@ -363,236 +396,70 @@
 							/>
 						</div>
 					{/if}
-				</div>
-				<p class="text-xs text-muted-foreground">
-					Gedeeld over alle varianten — schakel hieronder van type en vergelijk bij hetzelfde
-					aantal.
-					{#if isMix}
-						· {tiraPortions} tiramisu + {burrPortions} burrata (min. {MIN_PORTIONS_PER_PRODUCT} per soort)
-					{/if}
-				</p>
-			</fieldset>
-
-			<fieldset class="space-y-3 border p-4">
-				<legend class="px-1 text-sm font-medium">Wat</legend>
-				<div class="flex flex-wrap gap-2">
-					<button
-						type="button"
-						onclick={() => setSplit('tira')}
-						class="border px-3 py-1.5 text-sm transition {mode === 'hapjes' && hapjesKind === 'tira'
-							? 'border-primary bg-primary text-primary-foreground'
-							: 'hover:bg-muted'}"
-					>
-						Alleen tiramisu
-					</button>
-					<button
-						type="button"
-						onclick={() => setSplit('burr')}
-						class="border px-3 py-1.5 text-sm transition {mode === 'hapjes' && hapjesKind === 'burr'
-							? 'border-primary bg-primary text-primary-foreground'
-							: 'hover:bg-muted'}"
-					>
-						Alleen burrata
-					</button>
-					<button
-						type="button"
-						onclick={() => setSplit('mix')}
-						class="border px-3 py-1.5 text-sm transition {isMix
-							? 'border-primary bg-primary text-primary-foreground'
-							: 'hover:bg-muted'}"
-					>
-						Mix
-					</button>
-				</div>
-				<div class="flex flex-wrap gap-2 border-t pt-3">
-					{#each SPECIAL_VARIANTS as v (v)}
-						<button
-							type="button"
-							onclick={() => setVariant(v)}
-							class="border px-3 py-1.5 text-sm transition {mode === v
-								? 'border-primary bg-primary text-primary-foreground'
-								: 'hover:bg-muted'}"
-						>
-							{VARIANT_LABELS[v]}
-						</button>
-					{/each}
-				</div>
-
-				<p class="text-xs text-muted-foreground">
-					{#if isMix}
-						Mix — beide producten op eigen tarief, minus gedeelde overhead.
-					{:else if mode === 'millefeuille-taart'}
-						Portie-anker €{config.millefeuillePriceAt25} @25 → €{config.millefeuillePriceAt50}
-						@50 → €{config.millefeuillePriceAt100} @100.
-					{:else if mode === 'tiramisu-taart'}
-						Portie-anker €{config.tiramisuCakePriceAt30} @30 → €{config.tiramisuCakePriceAt50}
-						@50 → €{config.tiramisuCakePriceAt100} @100.
-					{:else}
-						Basistarief per portie uit de tiers.
-					{/if}
-				</p>
-			</fieldset>
-
-			<fieldset class="space-y-3 border p-4">
-				<legend class="px-1 text-sm font-medium">Fijn-afstemmen (deze variant)</legend>
-				{#if !isSpecial}
-					<div class="grid gap-3 sm:grid-cols-2">
-						<div class="space-y-1.5">
-							<Label for="pph">Porties per uur (lopen)</Label>
-							<Input id="pph" type="number" min="1" step="5" bind:value={config.portionsPerHour} />
-						</div>
-					</div>
-					<p class="text-xs text-muted-foreground">Looptijd = porties ÷ porties-per-uur.</p>
-				{:else if mode === 'tiramisu-taart'}
-					<div class="grid gap-3 sm:grid-cols-2">
-						<div class="space-y-1.5">
-							<Label for="tcpr30">Prijs @30 pers. (€)</Label>
-							<Input
-								id="tcpr30"
-								type="number"
-								min="0"
-								step="25"
-								bind:value={config.tiramisuCakePriceAt30}
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<Label for="tcpr50">Prijs @50 pers. (€)</Label>
-							<Input
-								id="tcpr50"
-								type="number"
-								min="0"
-								step="25"
-								bind:value={config.tiramisuCakePriceAt50}
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<Label for="tcpr100">Prijs @100 pers. (€)</Label>
-							<Input
-								id="tcpr100"
-								type="number"
-								min="0"
-								step="25"
-								bind:value={config.tiramisuCakePriceAt100}
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<Label for="cb50">Opbouw @50 pers. (u)</Label>
-							<Input
-								id="cb50"
-								type="number"
-								min="0"
-								step="0.05"
-								bind:value={config.cakeBuildHoursAt50}
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<Label for="cb100">Opbouw @100 pers. (u)</Label>
-							<Input
-								id="cb100"
-								type="number"
-								min="0"
-								step="0.05"
-								bind:value={config.cakeBuildHoursAt100}
-							/>
-						</div>
-					</div>
-					<p class="text-xs text-muted-foreground">
-						Minimaal {minPortionsForSpecialVariant('tiramisu-taart')} personen. Prep = standaard hapjesprep
-						× 2 (dubbele portie). Prijs = premium all-in anker voor opbouw en entertainment op locatie.
-					</p>
-				{:else if mode === 'millefeuille-taart'}
-					<div class="grid gap-3 sm:grid-cols-2">
-						<div class="space-y-1.5">
-							<Label for="mp25">Prep @25 pers. (u)</Label>
-							<Input
-								id="mp25"
-								type="number"
-								min="0"
-								step="0.25"
-								bind:value={config.millefeuillePrepHoursAt25}
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<Label for="mp50">Prep @50 pers. (u)</Label>
-							<Input
-								id="mp50"
-								type="number"
-								min="0"
-								step="0.25"
-								bind:value={config.millefeuillePrepHoursAt50}
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<Label for="mp100">Prep @100 pers. (u)</Label>
-							<Input
-								id="mp100"
-								type="number"
-								min="0"
-								step="0.25"
-								bind:value={config.millefeuillePrepHoursAt100}
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<Label for="mpr25">Prijs @25 pers. (€)</Label>
-							<Input
-								id="mpr25"
-								type="number"
-								min="0"
-								step="25"
-								bind:value={config.millefeuillePriceAt25}
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<Label for="mpr50">Prijs @50 pers. (€)</Label>
-							<Input
-								id="mpr50"
-								type="number"
-								min="0"
-								step="25"
-								bind:value={config.millefeuillePriceAt50}
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<Label for="mpr100">Prijs @100 pers. (€)</Label>
-							<Input
-								id="mpr100"
-								type="number"
-								min="0"
-								step="25"
-								bind:value={config.millefeuillePriceAt100}
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<Label for="mcb50">Opbouw @50 pers. (u)</Label>
-							<Input
-								id="mcb50"
-								type="number"
-								min="0"
-								step="0.05"
-								bind:value={config.cakeBuildHoursAt50}
-							/>
-						</div>
-						<div class="space-y-1.5">
-							<Label for="mcb100">Opbouw @100 pers. (u)</Label>
-							<Input
-								id="mcb100"
-								type="number"
-								min="0"
-								step="0.05"
-								bind:value={config.cakeBuildHoursAt100}
-							/>
-						</div>
+					{#if mode === 'millefeuille-taart'}
 						<div class="space-y-1.5">
 							<Label for="fruit">Fruitkostprijs per portie (€)</Label>
 							<Input id="fruit" type="number" min="0" step="0.05" bind:value={fruitCost} />
 						</div>
+					{/if}
+				</div>
+
+				<p class="text-xs text-muted-foreground">
+					Op locatie in totaal <span class="text-foreground tabular-nums"
+						>{fmtHours(onLocationHours)}</span
+					>
+					mensuren: {fmtHours(result.hours.setup)} opbouwen + {fmtHours(result.hours.service)}
+					{isSpecial ? 'bouwen' : 'lopen'} + {fmtHours(result.hours.standby)} wachten. De wachttijd stel
+					je in bij “Uren &amp; tarieven”: op 0 als je de plaat neerzet en meteen weg bent, hoger als
+					je moet blijven tot er aangesneden wordt.
+				</p>
+
+				{#if !isSpecial}
+					<!-- Alleen bij hapjes: één persoon kan niet uren achter elkaar rondlopen.
+					     Een taart bouw je alleen, dus daar speelt dit niet. -->
+					<div class="flex flex-wrap items-center gap-2 border-t pt-3">
+						<span class="text-sm">Extra persoon</span>
+						{#each [0, 1, 2] as n}
+							<button
+								type="button"
+								onclick={() => (extraPeople = n)}
+								disabled={n > result.allowedExtraPeople || (n === 0 && result.extraPersonMandatory)}
+								class="border px-2.5 py-1 text-sm transition disabled:opacity-30 {result.effectiveExtraPeople ===
+								n
+									? 'border-primary bg-primary text-primary-foreground'
+									: 'hover:bg-muted'}"
+							>
+								{n === 0 ? 'Geen' : `+${n}`}
+							</button>
+						{/each}
+						<span
+							class="text-xs {result.extraPersonMandatory
+								? 'text-amber-700'
+								: 'text-muted-foreground'}"
+						>
+							verplicht vanaf {config.mandatoryExtraPersonAt} · +2 vanaf {config.extraPersonMinPortions2}
+						</span>
 					</div>
-					<p class="text-xs text-muted-foreground">
-						Minimaal {minPortionsForSpecialVariant('millefeuille-taart')} personen. Prijs is portie-verankerd
-						(uurtarief is een uitkomst, geen input). Opbouw = zelfde als tiramisu-taart. Fruit drukt op
-						de marge, niet op de prijs.
-					</p>
 				{/if}
+
+				<p class="text-xs text-muted-foreground">
+					{#if isMix}
+						{tiraPortions} tiramisu + {burrPortions} burrata (min. {MIN_PORTIONS_PER_PRODUCT} per soort)
+						· één event, dus opbouw, reis en nazorg tellen één keer.
+					{:else if mode === 'millefeuille-taart'}
+						Min. {minPortionsForSpecialVariant('millefeuille-taart')} personen · prep-ankers en opbouwtijd
+						staan onder “Uren &amp; tarieven”. Fruit drukt op de marge, niet op de prijs.
+					{:else if mode === 'tiramisu-taart'}
+						Min. {minPortionsForSpecialVariant('tiramisu-taart')} personen · prep = hapjesprep op {config.tiramisuCakePrepFactor}×
+						portiegrootte.
+					{:else}
+						Prep uit de ankers, looptijd uit porties-per-uur.
+					{/if}
+					{#if result.effectiveExtraPeople > 0}
+						Extra persoon kost {formatEUR(result.extraPersonFee / result.effectiveExtraPeople)} p.p. (eigen
+						opbouw + eigen reistijd).
+					{/if}
+				</p>
 			</fieldset>
 
 			{#if !isSpecial && burrPortions > 0}
@@ -636,191 +503,105 @@
 						<Input id="oneway" type="number" min="0" step="1" bind:value={oneWayKm} />
 					</div>
 					<div class="text-xs text-muted-foreground sm:pb-2">
-						Heen + terug: <span class="text-foreground tabular-nums">{oneWayKm * 2} km</span>
-						{#if oneWayKm * 2 > config.freeRoundTripKm}
-							· {result.travelChargedKm} km × {config.costPerKm.toFixed(2).replace('.', ',')} €
+						Heen + terug: <span class="text-foreground tabular-nums">{result.roundTripKm} km</span>
+						{#if result.travelChargedKm > 0}
+							· {result.travelChargedKm} km × €{effectiveCostPerKm(config)
+								.toFixed(2)
+								.replace('.', ',')}
 						{:else}
 							· binnen vrij gebied
 						{/if}
 					</div>
 				</div>
 				<p class="text-xs text-muted-foreground">
-					Eerste {config.freeRoundTripKm} km retour is inbegrepen. Daarboven €{config.costPerKm
-						.toFixed(2)
-						.replace('.', ',')} per km.
+					Reistijd: <span class="text-foreground tabular-nums">{fmtHours(result.hours.travel)}</span
+					>
+					mensuren ({internals.people}× persoon, {config.travelSpeedKmh} km/u).
+					{#if config.freeRoundTripKm > 0}
+						Eerste {config.freeRoundTripKm} km retour ({config.freeRoundTripKm / 2} km enkele reis) zit
+						in het basisbedrag van €{effectiveEventBaseFee(config).toFixed(2).replace('.', ',')}.
+					{/if}
+					Daarboven €{effectiveCostPerKm(config).toFixed(2).replace('.', ',')} per retour-km, dat dekt
+					auto én rijtijd.
 				</p>
-			</fieldset>
-
-			<fieldset class="space-y-3 border p-4">
-				<legend class="px-1 text-sm font-medium">Extra persoon</legend>
-				<div class="flex flex-wrap gap-2">
-					{#each [0, 1, 2] as n}
-						<button
-							type="button"
-							onclick={() => (extraPeople = n)}
-							disabled={n > result.allowedExtraPeople || (n === 0 && result.extraPersonMandatory)}
-							class="border px-3 py-1.5 text-sm transition disabled:opacity-30 {result.effectiveExtraPeople ===
-							n
-								? 'border-primary bg-primary text-primary-foreground'
-								: 'hover:bg-muted'}"
-						>
-							{n === 0 ? 'Geen' : `+${n}`}
-						</button>
-					{/each}
-				</div>
-				{#if result.extraPersonMandatory}
+				{#if kmDrift}
 					<p class="text-xs text-amber-700">
-						Vanaf {config.mandatoryExtraPersonAt} porties is een tweede persoon vereist (één persoon kan
-						niet langer dan ±2 uur lopen).
-					</p>
-				{/if}
-				<p class="text-xs text-muted-foreground">
-					Verplicht vanaf {config.mandatoryExtraPersonAt} porties · +2 toegestaan vanaf {config.extraPersonMinPortions2}
-					porties.
-				</p>
-				{#if result.effectiveExtraPeople > 0}
-					<p class="text-xs text-muted-foreground">
-						Per extra persoon: {config.extraPersonDriveHours.toString().replace('.', ',')}u rijden ×
-						€{config.driveHourlyRate} = {formatEUR(
-							config.extraPersonDriveHours * config.driveHourlyRate
-						)}. Looptijd is al gedekt in het basistarief van de hapjes.
+						Let op: uit de aannames volgt €{derivedCostPerKm(config)
+							.toFixed(2)
+							.replace('.', ',')}/km, ingesteld staat €{effectiveCostPerKm(config)
+							.toFixed(2)
+							.replace('.', ',')}. Reistijd wordt dan niet volledig gedekt.
 					</p>
 				{/if}
 			</fieldset>
-
-			<details class="border p-4">
-				<summary class="cursor-pointer text-sm font-medium">Pricing-aannames (geavanceerd)</summary>
-				<div class="mt-3 grid gap-3 sm:grid-cols-2">
-					<div class="space-y-1.5">
-						<Label for="drivehourly">Rij-uur tarief (€)</Label>
-						<Input
-							id="drivehourly"
-							type="number"
-							min="0"
-							step="1"
-							bind:value={config.driveHourlyRate}
-						/>
-					</div>
-					<div class="space-y-1.5">
-						<Label for="includeddrive">Standaardrit inbegrepen (u)</Label>
-						<Input
-							id="includeddrive"
-							type="number"
-							min="0"
-							step="0.1"
-							bind:value={config.includedDriveHours}
-						/>
-					</div>
-					<div class="space-y-1.5">
-						<Label for="mixded">Mix gedeelde aftrek (€)</Label>
-						<Input
-							id="mixded"
-							type="number"
-							min="0"
-							step="5"
-							bind:value={config.mixSharedDeduction}
-						/>
-					</div>
-					<div class="space-y-1.5">
-						<Label for="epdrive">Extra persoon — rijuren</Label>
-						<Input
-							id="epdrive"
-							type="number"
-							min="0"
-							step="0.1"
-							bind:value={config.extraPersonDriveHours}
-						/>
-					</div>
-					<div class="space-y-1.5">
-						<Label for="epmand">2e persoon verplicht vanaf (porties)</Label>
-						<Input
-							id="epmand"
-							type="number"
-							min="0"
-							step="5"
-							bind:value={config.mandatoryExtraPersonAt}
-						/>
-					</div>
-					<div class="space-y-1.5">
-						<Label for="epmax2">+2 toegestaan vanaf (porties)</Label>
-						<Input
-							id="epmax2"
-							type="number"
-							min="0"
-							step="5"
-							bind:value={config.extraPersonMinPortions2}
-						/>
-					</div>
-					<div class="space-y-1.5">
-						<Label for="freekm">Vrije retour-km</Label>
-						<Input id="freekm" type="number" min="0" step="1" bind:value={config.freeRoundTripKm} />
-					</div>
-					<div class="space-y-1.5">
-						<Label for="kmcost">Prijs per km (€)</Label>
-						<Input id="kmcost" type="number" min="0" step="0.01" bind:value={config.costPerKm} />
-					</div>
-					<div class="space-y-1.5">
-						<Label for="voldisc">Volumekorting (%)</Label>
-						<Input
-							id="voldisc"
-							type="number"
-							min="0"
-							max="100"
-							step="1"
-							bind:value={config.volumeDiscountPercent}
-						/>
-					</div>
-					<div class="space-y-1.5">
-						<Label for="voldiscthr">Volumekorting vanaf (porties)</Label>
-						<Input
-							id="voldiscthr"
-							type="number"
-							min="0"
-							step="50"
-							bind:value={config.volumeDiscountThreshold}
-						/>
-					</div>
-				</div>
-
-				<div class="mt-4 mb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-					Taarten op locatie
-				</div>
-				<div class="grid gap-3 sm:grid-cols-2">
-					<div class="space-y-1.5">
-						<Label for="cbprice">Cakeboard prijs (€)</Label>
-						<Input
-							id="cbprice"
-							type="number"
-							min="0"
-							step="0.25"
-							bind:value={config.cakeboardPrice}
-						/>
-					</div>
-					<div class="space-y-1.5">
-						<Label for="cbper">Cakeboard per (personen)</Label>
-						<Input
-							id="cbper"
-							type="number"
-							min="1"
-							step="1"
-							bind:value={config.cakeboardPerPersons}
-						/>
-					</div>
-				</div>
-				<p class="mt-2 text-xs text-muted-foreground">
-					Opbouwtijden, tiramisu-taart prijsankers, millefeuille-prep en -prijsankers en porties/uur
-					staan onder “Fijn-afstemmen (deze variant)”.
-				</p>
-			</details>
 		</section>
 
 		<!-- Output -->
 		<section class="space-y-4">
 			<div class="border bg-card p-5">
-				<div class="text-xs tracking-wide text-muted-foreground uppercase">Totaal</div>
-				<div class="mt-1 font-heading text-4xl tabular-nums">{formatEUR(result.total)}</div>
+				<div class="text-xs tracking-wide text-muted-foreground uppercase">
+					Stickerprijs — wat de klant ziet
+				</div>
+				<div class="mt-1 font-heading text-4xl tabular-nums">{formatEUR(totalIncl)}</div>
 				<div class="mt-1 text-sm text-muted-foreground">
-					{formatEUR(result.perPortion)} per portie · {totalPortions} porties
+					{formatEUR(perPortionIncl)} per portie · {totalPortions} porties · incl. {btwPercent}% btw
+				</div>
+				<div class="mt-3 flex items-center gap-2 border-t pt-3 text-sm">
+					<span class="text-muted-foreground">Excl. btw</span>
+					<span class="tabular-nums">{formatEUR(result.total)}</span>
+					<span class="text-muted-foreground">+ btw</span>
+					<span class="tabular-nums">{formatEUR(btwAmount)}</span>
+					<select
+						aria-label="BTW-tarief"
+						bind:value={btwPercent}
+						class="ml-auto h-8 rounded-md border border-input bg-background px-2 text-xs"
+					>
+						{#each [0, 9, 21] as r (r)}
+							<option value={r}>{r}%</option>
+						{/each}
+					</select>
+				</div>
+
+				<div class="mt-3 border-t pt-3">
+					<div class="flex items-center gap-2 text-sm">
+						<Label for="reliefnow" class="text-muted-foreground">Kleine-klus-korting</Label>
+						<Input
+							id="reliefnow"
+							type="number"
+							min="0"
+							step="5"
+							class="h-8 w-24 text-right"
+							value={result.smallOrderRelief}
+							oninput={(e) => {
+								const v = e.currentTarget.value;
+								reliefOverride = v === '' ? null : Number(v);
+							}}
+						/>
+						{#if reliefOverride !== null}
+							<button
+								type="button"
+								class="text-xs text-muted-foreground underline hover:text-foreground"
+								onclick={() => (reliefOverride = null)}
+							>
+								terug naar curve ({formatEUR(curveRelief)})
+							</button>
+						{:else}
+							<span class="text-xs text-muted-foreground">volgt de curve</span>
+						{/if}
+					</div>
+					<div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs tabular-nums">
+						<span>
+							<span class="text-muted-foreground">Uurtarief deze offerte</span>
+							<span class="font-medium">{formatEUR(internals.blendedRatePerPerson)}/u</span>
+						</span>
+						<span>
+							<span class="text-muted-foreground">Werkuren</span>
+							{formatEUR(internals.labourRateRealisedAfterDiscounts)}/u
+						</span>
+						<span class="text-muted-foreground">
+							{fmtHours(internals.hours.total)} mensuren · bruto {formatEUR(internals.grossProfit)}
+						</span>
+					</div>
 				</div>
 			</div>
 
@@ -840,34 +621,57 @@
 					<tbody>
 						{#each result.productLines as line}
 							<tr>
-								<td class="py-1">
+								<td class="py-1 font-medium" colspan="2">
 									{line.label ?? PRODUCT_LABELS[line.product]} · {line.portions} porties
 								</td>
-								<td class="py-1 text-right tabular-nums">{formatEUR(line.price)}</td>
 							</tr>
 						{/each}
-						{#if isSpecial && result.surchargeTotal}
+						{#if result.totalPortions > 0}
 							<tr>
 								<td class="py-1 pl-4 text-muted-foreground">
-									Basis (hapjestarief {result.totalPortions} pers.)
+									Werk — {fmtHours(result.hours.billable - result.extraPersonSetupHours)} over {STAGES.length -
+										1} fasen
 								</td>
-								<td class="py-1 text-right tabular-nums">{formatEUR(result.baseLinePrice ?? 0)}</td>
+								<td class="py-1 text-right tabular-nums">{formatEUR(result.labourFee)}</td>
 							</tr>
 							<tr>
-								<td class="py-1 pl-4 text-muted-foreground">
-									Toeslag — {result.totalPortions} × €{(result.surchargePerPortion ?? 0)
-										.toFixed(2)
-										.replace('.', ',')}
+								<td class="py-1 pl-4 text-muted-foreground" colspan="2">
+									Materiaal{config.materialsMarkup !== 1
+										? ` (${config.materialsMarkup.toString().replace('.', ',')}× kostprijs)`
+										: ' (kostprijs)'} — totaal {formatEUR(result.materialsFee)}
 								</td>
-								<td class="py-1 text-right tabular-nums">+{formatEUR(result.surchargeTotal)}</td>
 							</tr>
+							{#each materialLines as m (m.label)}
+								<tr>
+									<td class="py-1 pl-8 text-xs text-muted-foreground">{m.label}</td>
+									<td class="py-1 text-right text-xs text-muted-foreground tabular-nums">
+										{formatEUR(m.amount)}
+									</td>
+								</tr>
+							{/each}
+							{#if result.baseFee > 0}
+								<tr>
+									<td class="py-1 pl-4 text-muted-foreground">
+										Basisbedrag (dekt de vrije {config.freeRoundTripKm} km retour)
+									</td>
+									<td class="py-1 text-right tabular-nums">{formatEUR(result.baseFee)}</td>
+								</tr>
+							{/if}
 						{/if}
 						{#if result.mixDeduction > 0}
 							<tr>
-								<td class="py-1 text-muted-foreground">
-									Gedeelde overhead (1 rit + schoonmaak ipv 2)
-								</td>
+								<td class="py-1 text-muted-foreground">Extra mix-korting (verkoop-dial)</td>
 								<td class="py-1 text-right tabular-nums">−{formatEUR(result.mixDeduction)}</td>
+							</tr>
+						{/if}
+						{#if result.smallOrderRelief > 0}
+							<tr>
+								<td class="py-1 text-muted-foreground">
+									Kleine-klus-korting (vol t/m {config.smallOrderReliefFullAt}, weg vanaf {config.smallOrderReliefZeroAt})
+								</td>
+								<td class="py-1 text-right tabular-nums">
+									−{formatEUR(result.smallOrderRelief)}
+								</td>
 							</tr>
 						{/if}
 						{#if result.volumeDiscount > 0}
@@ -882,9 +686,9 @@
 						{#if result.extraPersonFee > 0}
 							<tr>
 								<td class="py-1 text-muted-foreground">
-									Extra persoon ({result.effectiveExtraPeople}×) — {result.extraPersonDriveHours
-										.toString()
-										.replace('.', ',')}u rijden
+									Extra persoon ({result.effectiveExtraPeople}×) — {fmtHours(
+										result.extraPersonSetupHours
+									)} opbouw + {fmtHours(result.extraPersonTravelHours)} reizen
 								</td>
 								<td class="py-1 text-right tabular-nums">{formatEUR(result.extraPersonFee)}</td>
 							</tr>
@@ -892,14 +696,43 @@
 						{#if result.travelFee > 0}
 							<tr>
 								<td class="py-1 text-muted-foreground">
-									Reiskosten ({result.travelChargedKm} km)
+									Reiskosten ({result.travelChargedKm} km retour × €{effectiveCostPerKm(config)
+										.toFixed(2)
+										.replace('.', ',')})
 								</td>
 								<td class="py-1 text-right tabular-nums">{formatEUR(result.travelFee)}</td>
 							</tr>
+							<tr>
+								<td class="pb-1 pl-4 text-xs text-muted-foreground" colspan="2">
+									{#if travelSharePct < 10}
+										{travelSharePct.toFixed(0)}% van het totaal — verwerk dit in de productregels,
+										geen losse reisregel op de offerte.
+									{:else}
+										{travelSharePct.toFixed(0)}% van het totaal — zet dit wél als losse regel op de
+										offerte, anders lijkt de portieprijs nergens op.
+									{/if}
+								</td>
+							</tr>
+						{/if}
+						<tr class="border-t">
+							<td class="py-2">Subtotaal excl. btw</td>
+							<td class="py-2 text-right tabular-nums">{formatEUR(result.total)}</td>
+						</tr>
+						{#if btwPercent > 0}
+							<tr>
+								<td class="py-1 text-muted-foreground">BTW {btwPercent}%</td>
+								<td class="py-1 text-right tabular-nums">{formatEUR(btwAmount)}</td>
+							</tr>
 						{/if}
 						<tr class="border-t font-medium">
-							<td class="py-2">Totaal</td>
-							<td class="py-2 text-right tabular-nums">{formatEUR(result.total)}</td>
+							<td class="py-2">Totaal incl. btw</td>
+							<td class="py-2 text-right tabular-nums">{formatEUR(totalIncl)}</td>
+						</tr>
+						<tr>
+							<td class="py-1 text-xs text-muted-foreground">Per portie incl. btw</td>
+							<td class="py-1 text-right text-xs text-muted-foreground tabular-nums">
+								{formatEUR(perPortionIncl)}
+							</td>
 						</tr>
 					</tbody>
 				</table>
@@ -916,20 +749,12 @@
 							<td class="py-1">Klant betaalt</td>
 							<td class="py-1 text-right tabular-nums">{formatEUR(result.total)}</td>
 						</tr>
-						{#if result.includedDriveFee > 0}
+						{#if result.materials.vehicle > 0}
 							<tr>
 								<td class="py-1 text-muted-foreground">
-									Waarvan product/service na korting excl. standaardrit
+									Auto — {result.roundTripKm} km × {formatEUR(config.vehicleCostPerKm)}
 								</td>
-								<td class="py-1 text-right tabular-nums">{formatEUR(portionRelatedRevenue)}</td>
-							</tr>
-							<tr>
-								<td class="py-1 text-muted-foreground">
-									Waarvan standaardrit inbegrepen — {result.includedDriveHours
-										.toString()
-										.replace('.', ',')}u × €{config.driveHourlyRate}
-								</td>
-								<td class="py-1 text-right tabular-nums">{formatEUR(result.includedDriveFee)}</td>
+								<td class="py-1 text-right tabular-nums">−{formatEUR(result.materials.vehicle)}</td>
 							</tr>
 						{/if}
 						{#if isSpecial && mode !== 'hapjes'}
@@ -1004,12 +829,13 @@
 						<div class="font-heading text-2xl tabular-nums">{fmtHours(internals.hours.total)}</div>
 						<div class="mt-0.5 text-xs text-muted-foreground">
 							{fmtHours(internals.hours.prep)} prep ·
-							{#if isSpecial}
-								{fmtHours(internals.hours.build)} opbouw ·
-							{:else}
-								{fmtHours(internals.hours.walking)} lopen ·
-							{/if}
-							{fmtHours(internals.hours.cleanup)} schoonmaak · {fmtHours(internals.hours.drive)} rijden
+							{fmtHours(internals.hours.setup)} opbouw ·
+							{fmtHours(internals.hours.service)}
+							{isSpecial ? 'bouwen' : 'lopen'} ·
+							{fmtHours(internals.hours.standby)} wachten ·
+							{fmtHours(internals.hours.cleanup)} nazorg ·
+							{fmtHours(internals.hours.travel)} reizen{#if result.travelChargedKm === 0 && result.roundTripKm > 0}
+								(in basisbedrag){/if}
 						</div>
 					</div>
 					<div>
@@ -1021,151 +847,70 @@
 						</div>
 						<div class="mt-0.5 text-xs text-muted-foreground">
 							~{fmtHours(internals.hours.total / internals.people)} werk ·
-							{formatEUR(internals.hourlyRatePerPerson)}/uur
+							{formatEUR(internals.blendedRatePerPerson)}/uur blended
 						</div>
 					</div>
 				</div>
-			</div>
 
-			{#snippet miniChart(
-				title: string,
-				lines: {
-					label: string;
-					color: string;
-					pts: { x: number; y: number }[];
-					dot: number | null;
-				}[],
-				lo: number,
-				hi: number,
-				fmt: (n: number) => string
-			)}
-				<div>
-					<div class="mb-1 flex items-center justify-between text-xs">
-						<span class="text-muted-foreground">{title}</span>
-						<span class="flex gap-2">
-							{#each lines as l (l.label)}
-								<span class="tabular-nums" style="color:{l.color}"
-									>{l.label}{l.dot != null ? ' ' + fmt(l.dot) : ''}</span
-								>
-							{/each}
-						</span>
-					</div>
-					<svg
-						viewBox="0 0 {CW} {CH}"
-						class="h-auto w-full"
-						role="img"
-						aria-label={title}
-						onmousemove={handleHover}
-						onmouseleave={() => (hoverN = null)}
-					>
-						{#each yTicks(lo, hi) as t (t)}
-							<line
-								x1={CPL}
-								x2={CW - CPR}
-								y1={vy(t, lo, hi)}
-								y2={vy(t, lo, hi)}
-								stroke="currentColor"
-								stroke-opacity="0.1"
-							/>
-							<text
-								x={CPL - 4}
-								y={vy(t, lo, hi)}
-								font-size="7"
-								text-anchor="end"
-								dominant-baseline="middle"
-								fill="currentColor"
-								opacity="0.55"
-							>
-								{fmt(t)}
-							</text>
-						{/each}
-						{#each xTicks as t (t)}
-							<text
-								x={vx(t)}
-								y={CH - 4}
-								font-size="7"
-								text-anchor="middle"
-								fill="currentColor"
-								opacity="0.45"
-							>
-								{t}
-							</text>
-						{/each}
-						{#if curvePoint}
-							<line
-								x1={vx(curvePoint.x)}
-								x2={vx(curvePoint.x)}
-								y1={CPT}
-								y2={CH - CPB}
-								stroke="currentColor"
-								stroke-opacity="0.25"
-								stroke-dasharray="3 3"
-							/>
-						{/if}
-						{#each lines as l (l.label)}
-							<path d={vpath(l.pts, lo, hi)} fill="none" stroke={l.color} stroke-width="1.5" />
-							{#if curvePoint && l.dot != null}
-								<circle cx={vx(curvePoint.x)} cy={vy(l.dot, lo, hi)} r="3" fill={l.color} />
+				<div class="mt-3 border-t pt-3 text-xs">
+					<div class="mb-1 text-muted-foreground">Controle: opbrengst versus fase-tarieven</div>
+					<div class="space-y-1 tabular-nums">
+						<div class={rateDrift ? 'text-amber-700' : 'text-muted-foreground'}>
+							Werk levert {formatEUR(internals.labourRevenue)} op, de fase-tarieven vragen
+							{formatEUR(internals.labourValue)}
+							{#if result.smallOrderRelief > 0 || result.mixDeduction > 0 || result.volumeDiscount > 0}
+								· {formatEUR(result.smallOrderRelief + result.mixDeduction + result.volumeDiscount)} bewust
+								weggegeven
 							{/if}
-						{/each}
-						{#if hoverN != null}
-							<line
-								x1={vx(hoverN)}
-								x2={vx(hoverN)}
-								y1={CPT}
-								y2={CH - CPB}
-								stroke="currentColor"
-								stroke-opacity="0.5"
-							/>
-							<text
-								x={hoverN > 110 ? vx(hoverN) - 4 : vx(hoverN) + 4}
-								y={CPT + 2}
-								font-size="7"
-								text-anchor={hoverN > 110 ? 'end' : 'start'}
-								fill="currentColor"
-								opacity="0.7"
-							>
-								{hoverN}p
-							</text>
-							{#each lines as l (l.label)}
-								{@const hv = valAt(l.pts, hoverN)}
-								{#if hv != null}
-									<circle cx={vx(hoverN)} cy={vy(hv, lo, hi)} r="2.5" fill={l.color} />
-									<text
-										x={hoverN > 110 ? vx(hoverN) - 5 : vx(hoverN) + 5}
-										y={vy(hv, lo, hi) - 3}
-										font-size="7"
-										text-anchor={hoverN > 110 ? 'end' : 'start'}
-										fill={l.color}
-									>
-										{fmt(hv)}
-									</text>
+							{#if rateDrift}
+								· onverklaard gat {formatEUR(unexplainedGap)}
+							{:else}
+								· sluit
+							{/if}
+						</div>
+						{#if result.hours.travel > 0}
+							<div class={travelDrift ? 'text-amber-700' : 'text-muted-foreground'}>
+								Reis levert {formatEUR(internals.travelMargin)} op na autokosten, de reisuren vragen
+								{formatEUR(internals.travelValue)} · feitelijk {formatEUR(
+									internals.travelRateRealised
+								)}/u
+								{#if travelDrift}
+									· tekort {formatEUR(internals.travelGap)}
+								{:else}
+									· sluit
 								{/if}
-							{/each}
+							</div>
 						{/if}
-					</svg>
+					</div>
+					{#if result.hours.total > 0}
+						<p class="mt-2 text-muted-foreground">
+							Blended {formatEUR(internals.blendedRatePerPerson)}/u = (werk {formatEUR(
+								internals.labourRevenue
+							)} + reismarge {formatEUR(internals.travelMargin)}) ÷ {fmtHours(
+								internals.hours.total
+							)}. Reisuren tellen mee in het gemiddelde, dus zolang de reis zichzelf niet betaalt
+							ligt blended onder je werktarief.
+						</p>
+					{/if}
+					{#if travelDrift}
+						<p class="mt-1 text-amber-700">
+							De reis dekt zichzelf niet. Bij een reistarief van €{config.hourlyRates.travel} hoort €{derivedCostPerKm(
+								config
+							)
+								.toFixed(2)
+								.replace('.', ',')} per retour-km; ingesteld staat €{effectiveCostPerKm(config)
+								.toFixed(2)
+								.replace('.', ',')}.
+							{#if config.freeRoundTripKm > 0}
+								Daarnaast dekt het basisbedrag van €{effectiveEventBaseFee(config).toFixed(0)} de vrije
+								{config.freeRoundTripKm}
+								km retour maar deels: die rit kost alleen al {fmtHours(
+									config.freeRoundTripKm / config.travelSpeedKmh
+								)} rijtijd.
+							{/if}
+						</p>
+					{/if}
 				</div>
-			{/snippet}
-
-			<div class="border bg-card p-4">
-				<div class="mb-3 text-xs tracking-wide text-muted-foreground uppercase">
-					Schaling (ter validatie) — porties {minChartPortions}–150
-				</div>
-				<div class="space-y-3">
-					{@render miniChart(
-						`Werkuren (prep · ${locationLabel})`,
-						hoursLines,
-						hoursRange.lo,
-						hoursRange.hi,
-						fmtHours
-					)}
-					{@render miniChart('Prijs per portie', ppLine, ppRange.lo, ppRange.hi, formatEUR)}
-					{@render miniChart('Opbrengst per uur p.p.', phLine, phRange.lo, phRange.hi, formatEUR)}
-				</div>
-				<p class="mt-2 text-xs text-muted-foreground">
-					Lijnen hangen alleen af van het type en de aannames. De stip toont waar deze offerte ({totalPortions}
-					porties) op de lijn valt.
-				</p>
 			</div>
 
 			{#if dealId}
@@ -1187,4 +932,377 @@
 			{/if}
 		</section>
 	</div>
+
+	<details class="border p-4" open>
+		<summary class="cursor-pointer text-sm font-medium">Uren &amp; tarieven</summary>
+
+		<div class="mt-3 grid gap-x-8 gap-y-6 lg:grid-cols-2">
+			<div>
+				<table class="w-full text-sm">
+					<thead class="text-xs text-muted-foreground">
+						<tr>
+							<th class="pb-1 text-left font-normal">Fase</th>
+							<th class="pb-1 pl-2 text-right font-normal">Uren p.p. / totaal</th>
+							<th class="w-24 pb-1 text-right font-normal">Tarief €/u</th>
+							<th class="pb-1 text-right font-normal">Bedrag</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each internals.stages as s (s.stage)}
+							<tr class="border-t">
+								<td class="py-1.5">
+									<div>{STAGE_LABELS[s.stage]}</div>
+									<div class="text-xs text-muted-foreground">{STAGE_SOURCE[s.stage]}</div>
+								</td>
+								<td class="py-1.5 pl-2 text-right tabular-nums">
+									{#if s.stage === 'standby'}
+										<Input
+											type="number"
+											min="0"
+											step="0.25"
+											class="h-8 w-20 text-right"
+											aria-label="Wachttijd per persoon"
+											bind:value={standbyHours}
+										/>
+									{:else if s.stage === 'setup'}
+										<Input
+											type="number"
+											min="0"
+											step="0.25"
+											class="h-8 w-20 text-right"
+											aria-label="Opbouw per persoon"
+											bind:value={config.setupHours}
+										/>
+									{:else}
+										{fmtHours(s.hours)}
+									{/if}
+								</td>
+								<td class="py-1.5 pl-2">
+									<Input
+										type="number"
+										min="0"
+										step="5"
+										class="h-8 text-right"
+										aria-label="Tarief {STAGE_LABELS[s.stage]}"
+										bind:value={config.hourlyRates[s.stage]}
+									/>
+								</td>
+								<td class="py-1.5 text-right tabular-nums">{formatEUR(s.amount)}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+				<p class="mt-2 text-xs text-muted-foreground">
+					Opbouw en wachttijd vul je hier in (uren per persoon); de rest volgt uit de urenmatrix
+					rechts. Opbouw is een vaste aanname per klus, wachttijd zet je per offerte. Bij {internals.people}
+					persoon{internals.people > 1 ? 'en' : ''} telt dat {fmtHours(result.hours.standby)} mensuren.
+				</p>
+				<p class="mt-1 text-xs text-muted-foreground">
+					Reizen loopt via de km-prijs, niet via deze regel — het bedrag hier is wat de reisuren
+					waard zouden moeten zijn.
+					{#if result.travelChargedKm === 0 && result.roundTripKm > 0}
+						Deze rit valt binnen de vrije straal, dus de klant betaalt hem via het basisbedrag van €{effectiveEventBaseFee(
+							config
+						)
+							.toFixed(2)
+							.replace('.', ',')}.
+					{/if}
+					Zie de controle bij “Onze cijfers” of dat klopt.
+				</p>
+			</div>
+
+			<div>
+				<div class="mb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+					Urenmatrix — uren per curve, per aantal porties
+				</div>
+				<table class="w-full text-sm">
+					<thead class="text-xs text-muted-foreground">
+						<tr>
+							<th class="pb-1 text-left font-normal">Curve</th>
+							{#each HOUR_TIER_POINTS as pt (pt)}
+								<th class="pb-1 text-right font-normal">@{pt}</th>
+							{/each}
+							<th class="pb-1 pl-2 text-right font-normal">nu</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each HOUR_CURVE_KEYS as key (key)}
+							<tr class="border-t">
+								<td class="py-1 pr-2 text-xs">{HOUR_CURVE_LABELS[key]}</td>
+								{#each HOUR_TIER_POINTS as pt (pt)}
+									<td class="py-1 pl-1">
+										<Input
+											type="number"
+											min="0"
+											step="0.25"
+											class="h-8 text-right"
+											aria-label="{HOUR_CURVE_LABELS[key]} bij {pt} porties"
+											bind:value={config.hourCurves[key][pt]}
+										/>
+									</td>
+								{/each}
+								<td class="py-1 pl-2 text-right text-xs text-muted-foreground tabular-nums">
+									{fmtHours(hourCurveAt(config, key, totalPortions))}
+								</td>
+							</tr>
+						{/each}
+						<tr class="border-t text-muted-foreground">
+							<td class="py-1 pr-2 text-xs italic">
+								Prep tiramisu-taart
+								<span class="not-italic">({config.tiramisuCakePrepFactor}× portiegrootte)</span>
+							</td>
+							{#each HOUR_TIER_POINTS as pt (pt)}
+								<td class="py-1 pl-1 text-right text-xs tabular-nums">
+									{fmtHours(
+										hourCurveAt(config, 'prepTiramisu', pt * config.tiramisuCakePrepFactor)
+									)}
+								</td>
+							{/each}
+							<td class="py-1 pl-2 text-right text-xs tabular-nums">
+								{fmtHours(
+									hourCurveAt(config, 'prepTiramisu', totalPortions * config.tiramisuCakePrepFactor)
+								)}
+							</td>
+						</tr>
+						<tr class="text-muted-foreground">
+							<td class="py-1 pr-2 text-xs italic">
+								Lopen hapjes
+								<span class="not-italic">({config.portionsPerHour}/uur)</span>
+							</td>
+							{#each HOUR_TIER_POINTS as pt (pt)}
+								<td class="py-1 pl-1 text-right text-xs tabular-nums">
+									{fmtHours(config.portionsPerHour > 0 ? pt / config.portionsPerHour : 0)}
+								</td>
+							{/each}
+							<td class="py-1 pl-2 text-right text-xs tabular-nums">
+								{fmtHours(config.portionsPerHour > 0 ? totalPortions / config.portionsPerHour : 0)}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				<p class="mt-2 text-xs text-muted-foreground">
+					Daartussen lineair, onder 25 vlak, boven 400 doorgetrokken op de 200→400 helling. De
+					laatste kolom is deze offerte ({totalPortions} porties). De twee cursieve rijen zijn afgeleid,
+					niet instelbaar: de taart-prep volgt de tiramisu-curve en het lopen volgt porties-per-uur.
+				</p>
+			</div>
+
+			<div class="lg:col-span-2">
+				<div class="mb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+					Overige aannames
+				</div>
+				<div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+					<div class="space-y-1.5">
+						<Label for="pph2">Porties per uur (lopen)</Label>
+						<Input id="pph2" type="number" min="1" step="5" bind:value={config.portionsPerHour} />
+					</div>
+					<div class="space-y-1.5">
+						<Label for="cakeprepfactor">Taart-prep factor (×)</Label>
+						<Input
+							id="cakeprepfactor"
+							type="number"
+							min="0.5"
+							step="0.05"
+							bind:value={config.tiramisuCakePrepFactor}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="travelspeed">Gem. snelheid (km/u)</Label>
+						<Input
+							id="travelspeed"
+							type="number"
+							min="1"
+							step="5"
+							bind:value={config.travelSpeedKmh}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="vehiclekm">Autokosten per km (€)</Label>
+						<Input
+							id="vehiclekm"
+							type="number"
+							min="0"
+							step="0.01"
+							bind:value={config.vehicleCostPerKm}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="matmarkup">Materiaal-markup (×)</Label>
+						<Input
+							id="matmarkup"
+							type="number"
+							min="1"
+							step="0.05"
+							bind:value={config.materialsMarkup}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="mixded">Mix gedeelde aftrek (€)</Label>
+						<Input
+							id="mixded"
+							type="number"
+							min="0"
+							step="5"
+							bind:value={config.mixSharedDeduction}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="epmand">2e persoon verplicht vanaf (porties)</Label>
+						<Input
+							id="epmand"
+							type="number"
+							min="0"
+							step="5"
+							bind:value={config.mandatoryExtraPersonAt}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="epfactor">2e persoon doorbelasten (×)</Label>
+						<Input
+							id="epfactor"
+							type="number"
+							min="0"
+							max="1"
+							step="0.05"
+							bind:value={config.extraPersonChargeFactor}
+						/>
+						<p class="text-xs text-muted-foreground">
+							Onder 1 leg je bewust toe; vlakt de stap in de portieprijs af.
+						</p>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="epmax2">+2 toegestaan vanaf (porties)</Label>
+						<Input
+							id="epmax2"
+							type="number"
+							min="0"
+							step="5"
+							bind:value={config.extraPersonMinPortions2}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="freekm">Vrije retour-km</Label>
+						<Input id="freekm" type="number" min="0" step="1" bind:value={config.freeRoundTripKm} />
+						<p class="text-xs text-muted-foreground">
+							= {(config.freeRoundTripKm / 2).toFixed(0)} km enkele reis
+						</p>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="kmcost">Prijs per retour-km (€)</Label>
+						<Input
+							id="kmcost"
+							type="number"
+							min="0"
+							step="0.01"
+							disabled={config.autoCostPerKm}
+							value={effectiveCostPerKm(config)}
+							oninput={(e) => (config.costPerKm = Number(e.currentTarget.value))}
+						/>
+						<label class="flex items-center gap-1.5 text-xs text-muted-foreground">
+							<input type="checkbox" bind:checked={config.autoCostPerKm} />
+							volg reistarief (€{derivedCostPerKm(config).toFixed(2).replace('.', ',')})
+						</label>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="basefee">Basisbedrag per klus (€)</Label>
+						<Input
+							id="basefee"
+							type="number"
+							min="0"
+							step="5"
+							disabled={config.autoEventBaseFee}
+							value={effectiveEventBaseFee(config)}
+							oninput={(e) => (config.eventBaseFee = Number(e.currentTarget.value))}
+						/>
+						<label class="flex items-center gap-1.5 text-xs text-muted-foreground">
+							<input type="checkbox" bind:checked={config.autoEventBaseFee} />
+							dekt de vrije straal precies
+						</label>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="voldisc">Volumekorting (%)</Label>
+						<Input
+							id="voldisc"
+							type="number"
+							min="0"
+							max="100"
+							step="1"
+							bind:value={config.volumeDiscountPercent}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="voldiscthr">Volumekorting vanaf (porties)</Label>
+						<Input
+							id="voldiscthr"
+							type="number"
+							min="0"
+							step="50"
+							bind:value={config.volumeDiscountThreshold}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="relmax">Kleine-klus-korting (€)</Label>
+						<Input
+							id="relmax"
+							type="number"
+							min="0"
+							step="5"
+							bind:value={config.smallOrderReliefMax}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="relfull">Volle korting t/m (porties)</Label>
+						<Input
+							id="relfull"
+							type="number"
+							min="0"
+							step="5"
+							bind:value={config.smallOrderReliefFullAt}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="relzero">Korting weg vanaf (porties)</Label>
+						<Input
+							id="relzero"
+							type="number"
+							min="0"
+							step="5"
+							bind:value={config.smallOrderReliefZeroAt}
+						/>
+					</div>
+				</div>
+				<p class="mt-3 text-xs text-muted-foreground">
+					Duwt iemand op de prijs? Geef er dan liever iets bij dan eraf. Extra porties, een smaak
+					afgestemd op hun thema, of een schaaltje voor het bruidspaar later op de avond kosten ons
+					bijna niks en voelen als winst. Korting leert een klant alleen dat de prijs zacht is.
+				</p>
+
+				<div class="mt-4 mb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+					Cakeboards
+				</div>
+				<div class="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
+					<div class="space-y-1.5">
+						<Label for="cbprice">Cakeboard prijs (€)</Label>
+						<Input
+							id="cbprice"
+							type="number"
+							min="0"
+							step="0.25"
+							bind:value={config.cakeboardPrice}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="cbper">Cakeboard per (personen)</Label>
+						<Input
+							id="cbper"
+							type="number"
+							min="1"
+							step="1"
+							bind:value={config.cakeboardPerPersons}
+						/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</details>
 </div>

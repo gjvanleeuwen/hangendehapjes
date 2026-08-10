@@ -124,7 +124,13 @@
 			id: 'tiramisu-allergies',
 			question: 'Hebben jullie opties voor allergieën of dieetwensen?',
 			answer:
-				'Ja, geef allergieën en dieetwensen altijd vooraf door. Onze tiramisu bevat standaard gluten, lactose en ei. We kunnen losse alternatieven meenemen voor gasten die vegan eten of een complexe allergie hebben. De tiramisu of tiramisutaart zelf passen we alleen aan als iedereen dezelfde aangepaste receptuur krijgt. Alcoholvrij of cafeïnevrij kan wel per persoon bij live tiramisu. Voor strenge allergieën kunnen we geen volledig kruisbesmettingsvrije productie garanderen.'
+				'Ja, geef allergieën en dieetwensen altijd vooraf door. Daar rekenen we niets extra voor. Onze tiramisu bevat standaard gluten, lactose en ei. We kunnen losse alternatieven meenemen voor gasten die vegan eten of een complexe allergie hebben. De tiramisu of tiramisutaart zelf passen we alleen aan als iedereen dezelfde aangepaste receptuur krijgt. Alcoholvrij of cafeïnevrij kan wel per persoon bij live tiramisu. Voor strenge allergieën kunnen we geen volledig kruisbesmettingsvrije productie garanderen.'
+		},
+		{
+			id: 'tiramisu-sjabloon',
+			question: 'Kan er iets persoonlijks op de taart?',
+			answer:
+				'Op de tiramisutaart maken we aan de hand van een sjabloon een tekst in cacao. ‘Just Married’ hebben we standaard liggen en die zit bij de prijs in. Wil je jullie namen, de datum of iets anders eigens, dan laten we daar een sjabloon voor maken en rekenen we soms een klein bedrag door. Vraag het gerust in je aanvraag, dan zeggen we meteen of het meerkosten heeft.'
 		},
 		BLOG_FAQS_NL.leadtime
 	];
@@ -449,9 +455,9 @@
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					In de tabel hieronder zie je de pakketprijzen (excl. BTW) voor onze live tiramisu en
 					tiramisutaart. Deze prijs is inclusief bezorgen, opbouw op locatie, serveren of aanwezig
-					blijven tot het taartmoment, eetgerij, servetten, sjabloon en alle andere wensen. Een
-					portie per gast is groter bij de tiramisutaart, hier komt het prijsverschil vandaan voor
-					de opties.
+					blijven tot het taartmoment, eetgerij, servetten, dieetwensen, het sjabloon en alle andere
+					wensen. Een portie per gast is groter bij de tiramisutaart, hier komt het prijsverschil
+					vandaan voor de opties.
 				</p>
 				<div class="overflow-x-auto">
 					<table class="w-full border-collapse text-sm md:text-base">
@@ -492,8 +498,8 @@
 					</table>
 				</div>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Reiskosten: vanaf Hilversum tot 50 km zit het bij de prijs in. Daarboven rekenen we €0,45
-					per kilometer.
+					Reiskosten: in het Gooi, Amsterdam en Utrecht zitten ze gewoon in de prijs. Verder weg
+					rekenen we de reis mee in je offerte, zodat je één totaalbedrag ziet.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Tip van Hangende Hapjes: denk aan tiramisu, als midnight snack. Laat op de avond krijgen

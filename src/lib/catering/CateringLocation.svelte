@@ -6,6 +6,7 @@
 	import * as Card from '$lib/components/ui/card/index.js';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
+	import BlogReviewTeaser from '$lib/blog/BlogReviewTeaser.svelte';
 	import { buildFaqJsonLd } from '$lib/blog/faqs';
 	import { jsonLdScript } from '$lib/seo';
 	import {
@@ -109,6 +110,11 @@
 	const faqJsonLdHtml = $derived(jsonLdScript(faqJsonLd));
 
 	const umamiKey = $derived(`catering_${content.slug}`);
+
+	/** Reviews for a section's product, so proof sits next to the matching concept. */
+	const reviewsFor = $derived((productId: string) =>
+		t.reviews.items.filter((review) => review.productId === productId)
+	);
 
 	onMount(() => {
 		if (t.products.items.some((product) => product.video)) {
@@ -231,6 +237,16 @@
 			</section>
 
 			{#each content.sections as section (section.heading)}
+				{#if section.reviewProductId}
+					<BlogReviewTeaser
+						reviews={reviewsFor(section.reviewProductId)}
+						href={`${homeHref}#reviews`}
+						noun={t.reviews.reviewNoun}
+						sourceLabel={t.reviews.sourceLabel}
+						readAllLabel={t.reviews.readAll}
+						numberLocale={langTag}
+					/>
+				{/if}
 				<section class="mt-12 space-y-4">
 					<h2 class="font-heading text-2xl tracking-tight md:text-3xl">{section.heading}</h2>
 					{#each section.body as paragraph (paragraph)}

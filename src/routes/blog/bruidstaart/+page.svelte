@@ -111,7 +111,7 @@
 			id: 'bruidstaart-bezorgen',
 			question: 'Bezorgen jullie de taart, of moeten we hem ophalen?',
 			answer:
-				'Wij bezorgen de taart en zetten hem op locatie in elkaar, zodat hij daar in de koeling kan tot het taartmoment. Het bezorgen zit bij de prijs in, vanaf Hilversum tot 50 km. Daarboven rekenen we €0,45 per kilometer. Het aansnijden en serveren doen jullie zelf of je locatie. Wil je liever dat wij tussen je gasten door serveren? Kijk dan naar onze millefoglie of live tiramisu, of vraag ernaar in je aanvraag.'
+				'Wij bezorgen de taart en zetten hem op locatie in elkaar, zodat hij daar in de koeling kan tot het taartmoment. Het bezorgen zit bij de prijs in, in het Gooi, Amsterdam en Utrecht. Verder weg rekenen we de reis mee in je offerte. Het aansnijden en serveren doen jullie zelf of je locatie. Wil je liever dat wij tussen je gasten door serveren? Kijk dan naar onze millefoglie of live tiramisu, of vraag ernaar in je aanvraag.'
 		},
 		{
 			id: 'bruidstaart-allergies',
@@ -206,7 +206,7 @@
 					<li>Neem een proefdoosje mee naar huis (€30, verrekend bij je bestelling)</li>
 					<li>Vanaf 25 personen, twee etages tot zo'n 80, drie tot rond de 150</li>
 					<li>Richtprijs €11,50 per persoon, excl. btw</li>
-					<li>Bezorgen en opbouwen op locatie inbegrepen, boven 50 km €0,45 per kilometer</li>
+					<li>Bezorgen en opbouwen op locatie inbegrepen, in het Gooi, Amsterdam en Utrecht</li>
 				</ul>
 			</section>
 
@@ -345,10 +345,11 @@
 					op basis van jullie moodboard en wat je voor ogen hebt.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Bezorgen en opbouwen op locatie zit erbij in, vanaf Hilversum tot 50 km. Daarboven rekenen
-					we €0,45 per kilometer. Daarna is de taart van jullie: het aansnijden en serveren doen
-					jullie zelf of je locatie. Wil je dat wij wél tussen je gasten door serveren? Dat kan met
-					live tiramisu of een burrata bar, die nemen we dan in hetzelfde voorstel mee.
+					Bezorgen en opbouwen op locatie zit erbij in, in het Gooi, Amsterdam en Utrecht. Verder
+					weg rekenen we de reis mee in je offerte. Daarna is de taart van jullie: het aansnijden en
+					serveren doen jullie zelf of je locatie. Wil je dat wij wél tussen je gasten door
+					serveren? Dat kan met live tiramisu of een burrata bar, die nemen we dan in hetzelfde
+					voorstel mee.
 				</p>
 			</section>
 

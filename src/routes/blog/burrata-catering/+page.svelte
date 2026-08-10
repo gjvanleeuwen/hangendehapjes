@@ -369,7 +369,8 @@
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Wat een burrata bar kost</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					In de tabel hieronder zie je de vanaf-prijs (excl. BTW) voor onze live burrata bar; 1
-					portie = 1 gast.
+					portie = 1 gast. Dat bedrag is all-in: het maken, het rondlopen tussen je gasten, servies
+					en servetten en de afwas achteraf zitten er allemaal in.
 				</p>
 				<div class="overflow-x-auto">
 					<table class="w-full border-collapse text-sm md:text-base">
@@ -400,9 +401,10 @@
 					</table>
 				</div>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Reiskosten: vanaf Hilversum tot 50 km zit het bij de prijs in. Daarboven rekenen we €0,45
-					per kilometer. Wil je burrata en tiramisu samen op één feest? Dan krijg je ongeveer €125
-					korting op de gecombineerde vanafprijs.
+					Reiskosten: in het Gooi, Amsterdam en Utrecht zitten ze gewoon in de prijs. Verder weg
+					rekenen we de reis mee in je offerte, zodat je één totaalbedrag ziet. Wil je burrata en
+					tiramisu samen op één feest? Dan krijg je ongeveer €125 korting op de gecombineerde
+					vanafprijs.
 				</p>
 			</section>
 

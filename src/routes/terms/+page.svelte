@@ -21,6 +21,7 @@
 			title: '2. Betaling',
 			body: [
 				'Bij akkoord vragen wij standaard een aanbetaling van 50% van het totaalbedrag. De boeking is definitief zodra deze aanbetaling is ontvangen.',
+				'Voor zakelijke opdrachtgevers vragen wij geen aanbetaling. De boeking is dan definitief zodra de offerte schriftelijk is geaccordeerd en het volledige bedrag wordt achteraf gefactureerd. Het eindbedrag hangt af van het definitieve aantal gasten en eventuele aanpassingen, maar bedraagt altijd tenminste 50% van de geaccordeerde offerte.',
 				'De aanbetaling wordt altijd verrekend met de eindfactuur. Als het eindbedrag wijzigt door definitieve aantallen of schriftelijk afgesproken aanpassingen, trekken we de betaalde aanbetaling af van dat aangepaste eindbedrag.',
 				'Het resterende bedrag kan voldaan worden binnen 14 dagen na het evenement, tenzij schriftelijk anders afgesproken.',
 				'Bij facturen geldt de betaaltermijn die op de factuur staat. Blijft betaling uit, dan worden voorbereiding of uitvoering uitgesteld tot de betaling is voldaan.'

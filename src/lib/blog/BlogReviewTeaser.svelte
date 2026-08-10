@@ -4,16 +4,34 @@
 	import type { Translations } from '$lib/i18n/types';
 
 	type Review = Translations['reviews']['items'][number];
-	type Props = { reviews: Review[]; href?: string };
-	let { reviews, href = '/#reviews' }: Props = $props();
+	type Props = {
+		reviews: Review[];
+		href?: string;
+		/**
+		 * Label overrides. The blog is NL-only so the defaults are Dutch; the
+		 * catering location pages pass the locale's strings from `t.reviews`.
+		 */
+		noun?: { one: string; other: string };
+		sourceLabel?: string;
+		readAllLabel?: string;
+		numberLocale?: string;
+	};
+	let {
+		reviews,
+		href = '/#reviews',
+		noun = { one: 'review', other: 'reviews' },
+		sourceLabel = 'op Google',
+		readAllLabel = 'Lees al onze reviews',
+		numberLocale = 'nl-NL'
+	}: Props = $props();
 
 	let count = $derived(reviews.length);
 	let average = $derived(count > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / count : 0);
 	let averageDisplay = $derived(
-		average.toLocaleString('nl-NL', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+		average.toLocaleString(numberLocale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })
 	);
 	let rounded = $derived(Math.round(average));
-	let noun = $derived(count === 1 ? 'review' : 'reviews');
+	let nounDisplay = $derived(count === 1 ? noun.one : noun.other);
 	let featured = $derived(reviews[0]);
 	let snippet = $derived.by(() => {
 		if (!featured) return '';
@@ -34,14 +52,14 @@
 				{/each}
 			</div>
 			<span class="text-sm font-semibold text-foreground">{averageDisplay}</span>
-			<span class="text-sm text-muted-foreground">· {count} {noun} op Google</span>
+			<span class="text-sm text-muted-foreground">· {count} {nounDisplay} {sourceLabel}</span>
 		</div>
 		{#if featured}
 			<p class="mt-3 text-base leading-relaxed text-muted-foreground md:text-lg">
 				“{snippet}” <span class="text-sm text-muted-foreground/80">— {featured.name}</span>
 			</p>
 			<span class="mt-3 inline-flex items-center gap-1 text-sm font-medium text-(--brand-magenta)">
-				Lees al onze reviews
+				{readAllLabel}
 				<ArrowRight class="size-3.5" />
 			</span>
 		{/if}

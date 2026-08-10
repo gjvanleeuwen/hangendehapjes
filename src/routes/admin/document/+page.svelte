@@ -38,11 +38,30 @@
 		return '';
 	};
 
+	// Alles wat sowieso meekomt en ons weinig tot niets kost, maar wat een klant
+	// nergens ziet als we het niet opschrijven. Het staat er niet om te verkopen
+	// maar omdat "all-in" pas iets betekent als je benoemt wat erin zit.
+	const defaultNotes = (kind: DocumentKind) => {
+		if (kind !== 'offerte') return '';
+		return [
+			'Inbegrepen, zonder meerprijs:',
+			'· Wij nemen alles mee: tafel, koeling, servies en al het materiaal.',
+			'· Alternatieven voor allergieën en dieetwensen regelen we gewoon, laat het even weten.',
+			'· Een proeverij vooraf, zodat je weet wat je krijgt.',
+			'· Bij een taart een sjabloon met jullie datum of naam, en een mooi mes voor de foto.',
+			'· Reiskosten en opbouw op locatie.',
+			'· Na afloop gaat alles weer met ons mee, inclusief de afwas.'
+		].join('\n');
+	};
+
 	const defaultFooterNote = (kind: DocumentKind) => {
 		if (kind === 'offerte') return `Vragen over deze offerte? Mail ons op ${BUSINESS.email}.`;
 		if (kind === 'factuur') return `Vragen over deze factuur? Mail ons op ${BUSINESS.email}.`;
 		return '';
 	};
+
+	const isDefaultNotes = (value: string) =>
+		value === '' || value === defaultNotes('offerte') || value === defaultNotes('factuur');
 
 	const isDefaultTerms = (value: string) =>
 		value === '' || value === defaultTerms('offerte') || value === defaultTerms('factuur');
@@ -63,7 +82,7 @@
 		lineItems: [{ description: '', qty: 50, unitPrice: 2.5, btwRate: 'none', discountPct: 0 }],
 		discountMode: 'pct',
 		discountValue: 0,
-		notes: '',
+		notes: defaultNotes(initialKind),
 		terms: defaultTerms(initialKind),
 		footerNote: defaultFooterNote(initialKind)
 	});
@@ -95,10 +114,12 @@
 
 	function setKind(kind: DocumentKind) {
 		if (doc.kind === kind) return;
+		const shouldReplaceNotes = isDefaultNotes(doc.notes);
 		const shouldReplaceTerms = isDefaultTerms(doc.terms);
 		const shouldReplaceFooterNote = isDefaultFooterNote(doc.footerNote);
 		doc.kind = kind;
 		if (doc.kind === 'factuur' && !doc.number) doc.number = `${new Date().getFullYear()}-`;
+		if (shouldReplaceNotes) doc.notes = defaultNotes(kind);
 		if (shouldReplaceTerms) doc.terms = defaultTerms(kind);
 		if (shouldReplaceFooterNote) doc.footerNote = defaultFooterNote(kind);
 	}

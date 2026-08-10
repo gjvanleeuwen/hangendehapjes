@@ -76,6 +76,10 @@ export type Translations = {
 			quote: string[];
 		}[];
 		reviewNoun: { one: string; other: string };
+		/** Suffix after the review count, e.g. "op Google". */
+		sourceLabel: string;
+		/** Link label on the review teaser, e.g. "Lees al onze reviews". */
+		readAll: string;
 		cta: {
 			text: string;
 			button: string;

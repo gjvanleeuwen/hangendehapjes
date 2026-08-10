@@ -128,7 +128,7 @@ export const en: Translations = {
 				}
 			]
 		},
-		priceFooter: 'Prices exclude VAT · Travel costs free up to 50 km from Hilversum.',
+		priceFooter: 'Prices exclude VAT · Travel included across the Gooi, Amsterdam and Utrecht.',
 		priceCta: 'Request a quote'
 	},
 	faq: {
@@ -161,7 +161,7 @@ export const en: Translations = {
 				id: 'travel',
 				question: 'Do you charge travel costs?',
 				answer:
-					'For parties up to 50 km from Hilversum we don’t charge any extra travel costs. Beyond that, we charge €0.45 per km.'
+					'Travel is included for the Gooi region, Amsterdam, Utrecht, Amersfoort and Almere. Further afield we build the travel into your quote, so you always see one total and nothing gets added afterwards.'
 			},
 			{
 				id: 'combine',
@@ -192,6 +192,18 @@ export const en: Translations = {
 				question: 'What do you wear?',
 				answer:
 					'We match our clothing to the theme or dress code of your party. Just let us know in your request.'
+			},
+			{
+				id: 'guests-change',
+				question: 'What if the guest count still changes?',
+				answer:
+					'That’s fine, it almost always does. Up to 14 days before your party we simply adjust the number of portions and settle on the new count. We bring a bit extra anyway, so a few more guests on the day itself is no problem either.'
+			},
+			{
+				id: 'space',
+				question: 'How much space do you need?',
+				answer:
+					'A corner of about two by two metres, a socket and a tap nearby. We bring the table and cooling ourselves. Beyond that we walk around, so we don’t take up a fixed spot in the room.'
 			}
 		]
 	},
@@ -215,6 +227,8 @@ export const en: Translations = {
 			}
 		],
 		reviewNoun: { one: 'review', other: 'reviews' },
+		sourceLabel: 'on Google',
+		readAll: 'Read all our reviews',
 		cta: {
 			text: 'Tasted our bites? Tell us how good they were.',
 			button: 'Write a review',

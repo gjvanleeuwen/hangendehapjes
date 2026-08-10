@@ -17,9 +17,14 @@
 	import BlogCta from '$lib/blog/BlogCta.svelte';
 
 	const headline = 'Italiaanse bruidstaart: een millefoglie, vers afgemaakt op locatie';
-	const title = 'Italiaanse bruidstaart: vers op locatie';
+	// Title leads with "millefoglie": GSC (90d tot 2026-08-06) laat zien dat dat het
+	// grootste zoekwoord van deze pagina is (107 imp, pos 9.1) en dat 'wat is millefoglie'
+	// op pos 5.8 staat met 0 clicks. Het woord stond niet in de oude title, vandaar 3,43%
+	// CTR tegenover 15,57% op de tiramisu-post. De millefeuille-spelling blijft in de body
+	// en de FAQ staan voor de long tail.
+	const title = 'Millefoglie: de Italiaanse bruidstaart | Hangende Hapjes';
 	const description =
-		'Een Italiaanse bruidstaart voor je bruiloft? Wij maken een verse millefoglie: gelaagd bladerdeeg met luchtige Zwitserse room en vers rood fruit, ter plekke afgemaakt.';
+		'Millefoglie is de Italiaanse bruidstaart: dunne lagen bladerdeeg, luchtige Zwitserse room en vers rood fruit. Wij maken hem ter plekke af, Live voor jouw gasten.';
 	const slug = '/blog/italiaanse-bruidstaart';
 	const canonical = SITE_URL + slug;
 	const ogImage = SITE_URL + '/og-blog-italiaanse-bruidstaart.jpg';
@@ -129,7 +134,7 @@
 			id: 'millefoglie-allergies',
 			question: 'Hebben jullie opties voor allergieën of dieetwensen?',
 			answer:
-				'Ja, geef allergieën en dieetwensen altijd vooraf door. Een millefoglie bevat standaard gluten, lactose en ei door het bladerdeeg en de Zwitserse room. Het rode fruit kunnen we aanpassen op voorkeur of seizoen. We kunnen losse alternatieven meenemen voor gasten die vegan eten of een complexe allergie hebben. De millefoglie zelf passen we alleen aan als iedereen dezelfde aangepaste receptuur krijgt. Voor strenge allergieën kunnen we geen volledig kruisbesmettingsvrije productie garanderen.'
+				'Ja, geef allergieën en dieetwensen altijd vooraf door. Daar rekenen we niets extra voor. Een millefoglie bevat standaard gluten, lactose en ei door het bladerdeeg en de Zwitserse room. Het rode fruit kunnen we aanpassen op voorkeur of seizoen. We kunnen losse alternatieven meenemen voor gasten die vegan eten of een complexe allergie hebben. De millefoglie zelf passen we alleen aan als iedereen dezelfde aangepaste receptuur krijgt. Voor strenge allergieën kunnen we geen volledig kruisbesmettingsvrije productie garanderen.'
 		},
 		BLOG_FAQS_NL.leadtime
 	];
@@ -367,8 +372,8 @@
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					In de tabel hieronder zie je de pakketprijzen (excl. BTW) voor onze Italiaanse
 					bruidstaart. Dit is geen portieprijs maar volledig inclusief: bezorgen, live afmaken op
-					locatie, aanwezig blijven tot het aansnijmoment, eetgerij, servetten en het netjes
-					klaarzetten zijn allemaal inbegrepen.
+					locatie, aanwezig blijven tot het aansnijmoment, eetgerij, servetten, dieetwensen en het
+					netjes klaarzetten zijn allemaal inbegrepen.
 				</p>
 				<div class="overflow-x-auto">
 					<table class="w-full border-collapse text-sm md:text-base">
@@ -405,8 +410,8 @@
 					andere onverwachtse kosten zoals bij een klassieke bruidstaart.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Reiskosten: vanaf Hilversum tot 50 km zit het bij de prijs in. Daarboven rekenen we €0,45
-					per kilometer.
+					Reiskosten: in het Gooi, Amsterdam en Utrecht zitten ze gewoon in de prijs. Verder weg
+					rekenen we de reis mee in je offerte, zodat je één totaalbedrag ziet.
 				</p>
 			</section>
 
