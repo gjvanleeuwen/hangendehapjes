@@ -168,6 +168,12 @@
 		lines[lines.length - 1].amount = round2(result.materialsFee - others);
 		return lines;
 	});
+	// Reisopbrengst = basisbedrag + km-vergoeding. Omdat de km-prijs opgebouwd is uit
+	// autokosten + rijtijd, splitst dat bedrag exact in die twee: de auto is pure
+	// kostprijs, de rijtijd is wat je eraan verdient.
+	const travelRevenue = $derived(round2(result.baseFee + result.travelFee));
+	const travelTimeRevenue = $derived(round2(travelRevenue - result.materials.vehicle));
+
 	// Wat je feitelijk op locatie bent: opbouwen + werken + wachten (mensuren).
 	const onLocationHours = $derived(
 		round2(result.hours.setup + result.hours.service + result.hours.standby)
@@ -199,7 +205,7 @@
 	// Hoe zwaar weegt de reis in het totaal? Onder de 10% verdwijnt hij in de
 	// productregels (all-in prijs), daarboven verklaart een losse regel hem beter
 	// dan een portieprijs die ineens nergens op slaat.
-	const travelSharePct = $derived(result.total > 0 ? (result.travelFee / result.total) * 100 : 0);
+	const travelSharePct = $derived(result.total > 0 ? (travelRevenue / result.total) * 100 : 0);
 	// Productkeuze in twee stappen: eerst de categorie, dan de variant daarbinnen.
 	type Category = 'hapjes' | 'taart';
 	type Choice = 'tira' | 'burr' | 'mix' | SpecialVariant;
@@ -589,19 +595,6 @@
 							<span class="text-xs text-muted-foreground">volgt de curve</span>
 						{/if}
 					</div>
-					<div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs tabular-nums">
-						<span>
-							<span class="text-muted-foreground">Uurtarief deze offerte</span>
-							<span class="font-medium">{formatEUR(internals.blendedRatePerPerson)}/u</span>
-						</span>
-						<span>
-							<span class="text-muted-foreground">Werkuren</span>
-							{formatEUR(internals.labourRateRealisedAfterDiscounts)}/u
-						</span>
-						<span class="text-muted-foreground">
-							{fmtHours(internals.hours.total)} mensuren · bruto {formatEUR(internals.grossProfit)}
-						</span>
-					</div>
 				</div>
 			</div>
 
@@ -649,12 +642,39 @@
 									</td>
 								</tr>
 							{/each}
-							{#if result.baseFee > 0}
+							{#if travelRevenue > 0}
 								<tr>
-									<td class="py-1 pl-4 text-muted-foreground">
-										Basisbedrag (dekt de vrije {config.freeRoundTripKm} km retour)
+									<td class="py-1 pl-4 text-muted-foreground" colspan="2">
+										Reis — {result.roundTripKm} km retour ÷ {config.travelSpeedKmh} km/u = {fmtHours(
+											result.hours.travel
+										)} rijden — totaal {formatEUR(travelRevenue)}
 									</td>
-									<td class="py-1 text-right tabular-nums">{formatEUR(result.baseFee)}</td>
+								</tr>
+								<tr>
+									<td class="py-1 pl-8 text-xs text-muted-foreground">
+										Auto — {result.roundTripKm} km × {formatEUR(config.vehicleCostPerKm)} · kostprijs,
+										gaat naar de pomp
+									</td>
+									<td class="py-1 text-right text-xs text-muted-foreground tabular-nums">
+										{formatEUR(result.materials.vehicle)}
+									</td>
+								</tr>
+								<tr>
+									<td class="py-1 pl-8 text-xs text-muted-foreground">
+										Rijtijd — {fmtHours(result.hours.travel)} × {formatEUR(
+											config.hourlyRates.travel
+										)} · dit verdien je
+									</td>
+									<td class="py-1 text-right text-xs text-muted-foreground tabular-nums">
+										{formatEUR(travelTimeRevenue)}
+									</td>
+								</tr>
+								<tr>
+									<td class="pb-1 pl-8 text-xs text-muted-foreground" colspan="2">
+										Geïnd als {formatEUR(result.baseFee)} basisbedrag (eerste {config.freeRoundTripKm}
+										km retour){#if result.travelChargedKm > 0}{' '}+ {formatEUR(result.travelFee)} over
+											{result.travelChargedKm} km à {formatEUR(effectiveCostPerKm(config))}{/if}.
+									</td>
 								</tr>
 							{/if}
 						{/if}
@@ -693,23 +713,15 @@
 								<td class="py-1 text-right tabular-nums">{formatEUR(result.extraPersonFee)}</td>
 							</tr>
 						{/if}
-						{#if result.travelFee > 0}
-							<tr>
-								<td class="py-1 text-muted-foreground">
-									Reiskosten ({result.travelChargedKm} km retour × €{effectiveCostPerKm(config)
-										.toFixed(2)
-										.replace('.', ',')})
-								</td>
-								<td class="py-1 text-right tabular-nums">{formatEUR(result.travelFee)}</td>
-							</tr>
+						{#if travelRevenue > 0}
 							<tr>
 								<td class="pb-1 pl-4 text-xs text-muted-foreground" colspan="2">
+									Reis is {travelSharePct.toFixed(0)}% van het totaal —
 									{#if travelSharePct < 10}
-										{travelSharePct.toFixed(0)}% van het totaal — verwerk dit in de productregels,
-										geen losse reisregel op de offerte.
+										verwerk dit in de productregels, geen losse reisregel op de offerte.
 									{:else}
-										{travelSharePct.toFixed(0)}% van het totaal — zet dit wél als losse regel op de
-										offerte, anders lijkt de portieprijs nergens op.
+										zet dit wél als losse regel op de offerte, anders lijkt de portieprijs nergens
+										op.
 									{/if}
 								</td>
 							</tr>
@@ -722,6 +734,20 @@
 							<tr>
 								<td class="py-1 text-muted-foreground">BTW {btwPercent}%</td>
 								<td class="py-1 text-right tabular-nums">{formatEUR(btwAmount)}</td>
+							</tr>
+						{/if}
+						{#if result.totalPortions > 0}
+							<tr>
+								<td class="py-1 text-muted-foreground">
+									Kosten (auto {formatEUR(result.materials.vehicle)} + eten en verpakking {formatEUR(
+										internals.costs.ingredients + internals.costs.packaging
+									)})
+								</td>
+								<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.total)}</td>
+							</tr>
+							<tr>
+								<td class="py-1">Bruto voor ons</td>
+								<td class="py-1 text-right tabular-nums">{formatEUR(internals.grossProfit)}</td>
 							</tr>
 						{/if}
 						<tr class="border-t font-medium">
@@ -738,92 +764,8 @@
 				</table>
 			</div>
 
-			<!-- Bottomline / take-home -->
 			<div class="border bg-card p-4 text-sm">
-				<div class="mb-2 text-xs tracking-wide text-muted-foreground uppercase">
-					Onze cijfers (intern)
-				</div>
-				<table class="w-full">
-					<tbody>
-						<tr>
-							<td class="py-1">Klant betaalt</td>
-							<td class="py-1 text-right tabular-nums">{formatEUR(result.total)}</td>
-						</tr>
-						{#if result.materials.vehicle > 0}
-							<tr>
-								<td class="py-1 text-muted-foreground">
-									Auto — {result.roundTripKm} km × {formatEUR(config.vehicleCostPerKm)}
-								</td>
-								<td class="py-1 text-right tabular-nums">−{formatEUR(result.materials.vehicle)}</td>
-							</tr>
-						{/if}
-						{#if isSpecial && mode !== 'hapjes'}
-							{#if totalPortions > 0}
-								<tr>
-									<td class="py-1 text-muted-foreground">
-										Ingrediënten — {totalPortions} × {formatEUR(
-											specialIngredientCostPerPortion(mode, fruitCost)
-										)}
-										{#if mode === 'millefeuille-taart'}
-											(incl. {formatEUR(fruitCost)} fruit)
-										{/if}
-									</td>
-									<td class="py-1 text-right tabular-nums"
-										>−{formatEUR(internals.costs.ingredients)}</td
-									>
-								</tr>
-								<tr>
-									<td class="py-1 text-muted-foreground">
-										Cakeboards — {formatEUR(config.cakeboardPrice)} per {config.cakeboardPerPersons}
-										pers.
-									</td>
-									<td class="py-1 text-right tabular-nums"
-										>−{formatEUR(internals.costs.packaging)}</td
-									>
-								</tr>
-							{/if}
-						{:else}
-							{#if tiraPortions > 0}
-								<tr>
-									<td class="py-1 text-muted-foreground">
-										Ingrediënten tiramisu — {tiraPortions} × {formatEUR(
-											INGREDIENT_COST_PER_PORTION.tiramisu
-										)}
-									</td>
-									<td class="py-1 text-right tabular-nums"
-										>−{formatEUR(internals.costs.ingredientsTira)}</td
-									>
-								</tr>
-							{/if}
-							{#if burrPortions > 0}
-								<tr>
-									<td class="py-1 text-muted-foreground">
-										Ingrediënten burrata — {burrPortions} × {formatEUR(burrCostPerPortion)}
-									</td>
-									<td class="py-1 text-right tabular-nums"
-										>−{formatEUR(internals.costs.ingredientsBurr)}</td
-									>
-								</tr>
-							{/if}
-							{#if totalPortions > 0}
-								<tr>
-									<td class="py-1 text-muted-foreground">
-										Verpakking — {totalPortions} × {formatEUR(PACKAGING_COST_PER_PORTION)}
-									</td>
-									<td class="py-1 text-right tabular-nums"
-										>−{formatEUR(internals.costs.packaging)}</td
-									>
-								</tr>
-							{/if}
-						{/if}
-						<tr class="border-t font-medium">
-							<td class="py-2">Voor ons (bruto)</td>
-							<td class="py-2 text-right tabular-nums">{formatEUR(internals.grossProfit)}</td>
-						</tr>
-					</tbody>
-				</table>
-
-				<div class="mt-3 grid grid-cols-2 gap-3 border-t pt-3">
+				<div class="grid grid-cols-2 gap-3">
 					<div>
 						<div class="text-xs text-muted-foreground">Werkuren totaal (mensuren)</div>
 						<div class="font-heading text-2xl tabular-nums">{fmtHours(internals.hours.total)}</div>
@@ -852,63 +794,80 @@
 					</div>
 				</div>
 
-				<div class="mt-3 border-t pt-3 text-xs">
-					<div class="mb-1 text-muted-foreground">Controle: opbrengst versus fase-tarieven</div>
-					<div class="space-y-1 tabular-nums">
-						<div class={rateDrift ? 'text-amber-700' : 'text-muted-foreground'}>
-							Werk levert {formatEUR(internals.labourRevenue)} op, de fase-tarieven vragen
-							{formatEUR(internals.labourValue)}
-							{#if result.smallOrderRelief > 0 || result.mixDeduction > 0 || result.volumeDiscount > 0}
-								· {formatEUR(result.smallOrderRelief + result.mixDeduction + result.volumeDiscount)} bewust
-								weggegeven
-							{/if}
-							{#if rateDrift}
-								· onverklaard gat {formatEUR(unexplainedGap)}
-							{:else}
-								· sluit
-							{/if}
-						</div>
+				<div class="mt-3 space-y-2 border-t pt-3 text-xs">
+					<div class="text-muted-foreground uppercase">Klopt het?</div>
+
+					<!-- Elke regel: bedrag dat binnenkomt, bedrag dat het kost, verschil. -->
+					<div
+						class="grid grid-cols-[1fr_auto_auto_auto] items-baseline gap-x-3 gap-y-1 tabular-nums"
+					>
+						<span class="text-muted-foreground">Uren op de klus</span>
+						<span class="text-muted-foreground">binnen</span>
+						<span class="text-muted-foreground">nodig</span>
+						<span class="text-right text-muted-foreground">verschil</span>
+
+						<span>Werk ({fmtHours(internals.hours.billable)})</span>
+						<span>{formatEUR(internals.labourRevenue)}</span>
+						<span>{formatEUR(internals.labourValue)}</span>
+						<span
+							class="text-right {rateDrift ? 'font-medium text-amber-700' : 'text-emerald-700'}"
+						>
+							{rateDrift ? formatEUR(unexplainedGap) : '✓'}
+						</span>
+
 						{#if result.hours.travel > 0}
-							<div class={travelDrift ? 'text-amber-700' : 'text-muted-foreground'}>
-								Reis levert {formatEUR(internals.travelMargin)} op na autokosten, de reisuren vragen
-								{formatEUR(internals.travelValue)} · feitelijk {formatEUR(
-									internals.travelRateRealised
-								)}/u
-								{#if travelDrift}
-									· tekort {formatEUR(internals.travelGap)}
-								{:else}
-									· sluit
-								{/if}
-							</div>
+							<span>Reis ({fmtHours(internals.hours.travel)})</span>
+							<span>{formatEUR(internals.travelMargin)}</span>
+							<span>{formatEUR(internals.travelValue)}</span>
+							<span
+								class="text-right {travelDrift ? 'font-medium text-amber-700' : 'text-emerald-700'}"
+							>
+								{travelDrift ? formatEUR(internals.travelGap) : '✓'}
+							</span>
 						{/if}
 					</div>
-					{#if result.hours.total > 0}
-						<p class="mt-2 text-muted-foreground">
-							Blended {formatEUR(internals.blendedRatePerPerson)}/u = (werk {formatEUR(
-								internals.labourRevenue
-							)} + reismarge {formatEUR(internals.travelMargin)}) ÷ {fmtHours(
-								internals.hours.total
-							)}. Reisuren tellen mee in het gemiddelde, dus zolang de reis zichzelf niet betaalt
-							ligt blended onder je werktarief.
-						</p>
+
+					{#if result.smallOrderRelief > 0 || result.mixDeduction > 0 || result.volumeDiscount > 0}
+						<div class="text-muted-foreground">
+							Je geeft bewust {formatEUR(
+								result.smallOrderRelief + result.mixDeduction + result.volumeDiscount
+							)} weg; dat verschil is verrekend en telt niet als lek.
+						</div>
 					{/if}
+
+					{#if result.hours.total > 0}
+						<div class="border-t pt-2">
+							<div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+								<span class="text-muted-foreground">Blended</span>
+								<span class="font-heading text-base tabular-nums"
+									>{formatEUR(internals.blendedRatePerPerson)}/u</span
+								>
+								<span class="text-muted-foreground">
+									= ({formatEUR(internals.labourRevenue)} + {formatEUR(internals.travelMargin)}) ÷ {fmtHours(
+										internals.hours.total
+									)}
+								</span>
+							</div>
+							<div class="mt-0.5 text-muted-foreground">
+								Werkuren alleen: {formatEUR(internals.labourRateRealisedAfterDiscounts)}/u. Rijuren
+								drukken het gemiddelde omdat ze tegen {formatEUR(config.hourlyRates.travel)} gaan.
+							</div>
+						</div>
+					{/if}
+
 					{#if travelDrift}
-						<p class="mt-1 text-amber-700">
-							De reis dekt zichzelf niet. Bij een reistarief van €{config.hourlyRates.travel} hoort €{derivedCostPerKm(
-								config
-							)
-								.toFixed(2)
-								.replace('.', ',')} per retour-km; ingesteld staat €{effectiveCostPerKm(config)
-								.toFixed(2)
-								.replace('.', ',')}.
+						<div class="border-l-2 border-amber-500 pl-2 text-amber-700">
+							De reis dekt zichzelf niet. Bij {formatEUR(config.hourlyRates.travel)} reistarief hoort
+							{formatEUR(derivedCostPerKm(config))} per retour-km; ingesteld staat {formatEUR(
+								effectiveCostPerKm(config)
+							)}.
 							{#if config.freeRoundTripKm > 0}
-								Daarnaast dekt het basisbedrag van €{effectiveEventBaseFee(config).toFixed(0)} de vrije
-								{config.freeRoundTripKm}
-								km retour maar deels: die rit kost alleen al {fmtHours(
+								Ook dekt het basisbedrag van {formatEUR(effectiveEventBaseFee(config))} de vrije {config.freeRoundTripKm}
+								km retour maar deels: die rit is al {fmtHours(
 									config.freeRoundTripKm / config.travelSpeedKmh
 								)} rijtijd.
 							{/if}
-						</p>
+						</div>
 					{/if}
 				</div>
 			</div>
@@ -1007,7 +966,7 @@
 							.toFixed(2)
 							.replace('.', ',')}.
 					{/if}
-					Zie de controle bij “Onze cijfers” of dat klopt.
+					Zie “Klopt het?” of de reis zichzelf dekt.
 				</p>
 			</div>
 

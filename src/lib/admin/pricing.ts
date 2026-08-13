@@ -298,7 +298,12 @@ export const DEFAULT_CONFIG: PricingConfig = {
 	// rest was uitpakken/inpakken (setup) plus wachten (standby).
 	defaultStandbyHours: 0.75,
 	travelSpeedKmh: 70,
-	vehicleCostPerKm: 0.45,
+	// Brandstof: ~15 km per liter bij EUR 2,20 = EUR 0,147/km. Plus banden, olie en
+	// onderhoud kom je rond EUR 0,25. LET OP: dit is de variabele kilometerprijs,
+	// niet de volledige EUR 0,45 van de belastingvrije vergoeding — daar zitten ook
+	// afschrijving, verzekering en wegenbelasting in. Die kosten lopen door of we nu
+	// rijden of niet, dus we belasten ze niet per klus door.
+	vehicleCostPerKm: 0.25,
 	// 0,45 + 50/70 = 1,164 -> afgerond op een communiceerbare 1,15.
 	costPerKm: 1.15,
 	autoCostPerKm: true,
