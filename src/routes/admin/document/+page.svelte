@@ -229,7 +229,8 @@
 	const paymentInstructionsText = $derived(
 		doc.paymentInstructions
 			.replaceAll('{IBAN}', doc.issuer.iban || '—')
-			.replaceAll('{NAAM}', doc.issuer.name || '—')
+			.replaceAll('{NAAM}', doc.issuer.legalName || doc.issuer.name || '—')
+			.replaceAll('{MERK}', doc.issuer.name || '—')
 			.replaceAll('{NUMMER}', doc.number || '—')
 			.replaceAll('{BEDRAG}', formatEUR(amountDue))
 			.replaceAll('{DAGEN}', String(doc.paymentTermDays))
@@ -533,8 +534,12 @@
 			<legend class="px-1 text-sm font-medium">Onze gegevens</legend>
 			<div class="grid gap-3 sm:grid-cols-2">
 				<div class="space-y-1.5">
-					<Label for="isname">Bedrijfsnaam</Label>
+					<Label for="isname">Merknaam (bovenaan)</Label>
 					<Input id="isname" bind:value={doc.issuer.name} />
+				</div>
+				<div class="space-y-1.5">
+					<Label for="islegal">Statutaire naam</Label>
+					<Input id="islegal" bind:value={doc.issuer.legalName} />
 				</div>
 				<div class="space-y-1.5">
 					<Label for="isemail">E-mail</Label>
@@ -782,6 +787,7 @@
 						{doc.issuer.name}
 					</div>
 					<div class="mt-3 text-sm leading-tight">
+						{#if doc.issuer.legalName}<div>{doc.issuer.legalName}</div>{/if}
 						{#if doc.issuer.addressLine1}<div>{doc.issuer.addressLine1}</div>{/if}
 						{#if doc.issuer.addressLine2}<div>{doc.issuer.addressLine2}</div>{/if}
 						{#if doc.issuer.email}<div>{doc.issuer.email}</div>{/if}
@@ -958,7 +964,7 @@
 						<div class="mt-2">{doc.footerNote}</div>
 					{/if}
 					<div class="mt-2 flex flex-wrap gap-x-4">
-						<span>{doc.issuer.name}</span>
+						<span>{doc.issuer.legalName || doc.issuer.name}</span>
 						{#if doc.issuer.email}<span>{doc.issuer.email}</span>{/if}
 						{#if doc.issuer.iban}<span>IBAN {doc.issuer.iban}</span>{/if}
 						{#if doc.issuer.kvk}<span>KvK {doc.issuer.kvk}</span>{/if}

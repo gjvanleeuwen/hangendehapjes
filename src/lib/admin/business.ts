@@ -2,6 +2,7 @@ import type { Issuer } from './types';
 
 export const BUSINESS: Issuer = {
 	name: 'Hangende Hapjes',
+	legalName: 'His and Hers Entertainment B.V. IO',
 	addressLine1: 'Hilvertsweg 128',
 	addressLine2: '1214 JK Hilversum',
 	email: 'info@hangendehapjes.nl',

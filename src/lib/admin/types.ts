@@ -30,7 +30,11 @@ export interface Recipient {
 /** Onze eigen gegevens op het document. Per document aanpasbaar zodat een andere
  *  handelsnaam of adres geen codewijziging vraagt. */
 export interface Issuer {
+	/** Merknaam, staat als wordmark bovenaan het document. */
 	name: string;
+	/** Statutaire naam van de onderneming. Dit is de partij die factureert en die
+	 *  op een factuur vermeld moet staan; de merknaam alleen volstaat niet. */
+	legalName: string;
 	addressLine1: string;
 	addressLine2: string;
 	email: string;
