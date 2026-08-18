@@ -6,6 +6,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { BUSINESS } from '$lib/admin/business';
+	import { enhance } from '$app/forms';
 	import {
 		calcTotals,
 		formatBtw,
@@ -14,13 +15,16 @@
 		lineDiscountAmount,
 		lineSubtotal
 	} from '$lib/admin/calc';
-	import type { BtwRate, DocumentKind, DocumentState } from '$lib/admin/types';
+	import type { BtwRate, DocumentKind, DocumentState, InvoiceType } from '$lib/admin/types';
 
 	let { data, form } = $props();
 
 	const today = new Date().toISOString().slice(0, 10);
 	const initialKind = (page.url.searchParams.get('kind') as DocumentKind) || 'offerte';
 	const deal = untrack(() => data.deal);
+	const acceptedQuote = untrack(() => data.acceptedQuote);
+	let sequence = $state(untrack(() => data.sequence));
+	let invoicePrefix = $state(untrack(() => data.invoicePrefix));
 
 	const defaultTerms = (kind: DocumentKind) => {
 		if (kind === 'offerte') {
@@ -29,11 +33,10 @@
 				'Definitieve aantallen, dieetwensen en praktische locatiegegevens ontvangen wij graag uiterlijk 14 dagen voor het evenement. Op deze offerte zijn onze algemene voorwaarden van toepassing.'
 			].join('\n');
 		}
+		// Op de factuur herhalen we de betaalafspraak niet: die stond in de offerte
+		// en is bij akkoord al aanvaard. Alleen de verwijzing blijft staan.
 		if (kind === 'factuur') {
-			return [
-				'Voor deze boeking vragen wij een aanbetaling van 50% van het totaalbedrag. De boeking is definitief zodra de aanbetaling is ontvangen. De aanbetaling wordt verrekend met de eindfactuur. Het resterende bedrag kan voldaan worden binnen 14 dagen na het evenement.',
-				'Definitieve aantallen, dieetwensen en praktische locatiegegevens ontvangen wij graag uiterlijk 14 dagen voor het evenement. Op deze factuur zijn onze algemene voorwaarden van toepassing.'
-			].join('\n');
+			return 'Op deze factuur zijn onze algemene voorwaarden van toepassing.';
 		}
 		return '';
 	};
@@ -71,20 +74,64 @@
 		value === defaultFooterNote('offerte') ||
 		value === defaultFooterNote('factuur');
 
+	// Onze eigen gegevens onthouden we lokaal: pas je ze aan, dan staan ze bij het
+	// volgende document meteen goed zonder ze in de code te zetten.
+	const ISSUER_KEY = 'hh_issuer';
+	function storedIssuer() {
+		if (typeof localStorage === 'undefined') return null;
+		try {
+			const raw = localStorage.getItem(ISSUER_KEY);
+			return raw ? { ...BUSINESS, ...JSON.parse(raw) } : null;
+		} catch {
+			return null;
+		}
+	}
+
+	// Placeholders worden bij het renderen ingevuld, zodat de tekst blijft kloppen
+	// als het bedrag, de termijn of het factuurnummer nog verandert.
+	const DEFAULT_PAYMENT_INSTRUCTIONS =
+		'Graag {BEDRAG} binnen {DAGEN} dagen overmaken op {IBAN} t.n.v. {NAAM} o.v.v. factuurnummer {NUMMER}.';
+
+	// De eerste factuur komt uit de geaccepteerde offerte: dezelfde regels, dezelfde
+	// klantgegevens, dezelfde korting. Zo staat er nooit iets anders op de factuur
+	// dan waar de klant ja op gezegd heeft.
+	const fromQuote = acceptedQuote;
+
 	const doc = $state<DocumentState>({
 		kind: initialKind,
-		number: initialKind === 'factuur' ? `${new Date().getFullYear()}-` : '',
+		number: '',
 		date: today,
-		eventDate: deal?.eventDate ?? '',
+		eventDate: fromQuote?.eventDate || deal?.eventDate || '',
 		validUntil: '',
 		paidOn: today,
-		recipient: { name: deal?.name ?? '', company: '', address: '' },
-		lineItems: [{ description: '', qty: 50, unitPrice: 2.5, btwRate: 'none', discountPct: 0 }],
-		discountMode: 'pct',
-		discountValue: 0,
+		issuer: storedIssuer() ?? { ...BUSINESS },
+		recipient: fromQuote?.recipient
+			? { ...fromQuote.recipient }
+			: { name: deal?.name ?? '', company: '', address: '' },
+		lineItems: fromQuote?.lineItems?.length
+			? fromQuote.lineItems.map((l) => ({ ...l }))
+			: [{ description: '', qty: 50, unitPrice: 2.5, btwRate: 'none', discountPct: 0 }],
+		discountMode: fromQuote?.discountMode ?? 'pct',
+		discountValue: fromQuote?.discountValue ?? 0,
 		notes: defaultNotes(initialKind),
 		terms: defaultTerms(initialKind),
-		footerNote: defaultFooterNote(initialKind)
+		footerNote: defaultFooterNote(initialKind),
+		invoiceType: 'volledig',
+		prepaymentPct: 50,
+		priorInvoiceNumber: '',
+		priorInvoiceDate: '',
+		priorInvoiceAmount: 0,
+		paymentInstructions: DEFAULT_PAYMENT_INSTRUCTIONS,
+		paymentTermDays: 14
+	});
+
+	$effect(() => {
+		if (typeof localStorage === 'undefined') return;
+		try {
+			localStorage.setItem(ISSUER_KEY, JSON.stringify($state.snapshot(doc).issuer));
+		} catch {
+			// opslag kan vol of geblokkeerd zijn; dan gebruiken we gewoon de defaults
+		}
 	});
 	const calculatorMeta = $state<{
 		costs: number | null;
@@ -118,7 +165,6 @@
 		const shouldReplaceTerms = isDefaultTerms(doc.terms);
 		const shouldReplaceFooterNote = isDefaultFooterNote(doc.footerNote);
 		doc.kind = kind;
-		if (doc.kind === 'factuur' && !doc.number) doc.number = `${new Date().getFullYear()}-`;
 		if (shouldReplaceNotes) doc.notes = defaultNotes(kind);
 		if (shouldReplaceTerms) doc.terms = defaultTerms(kind);
 		if (shouldReplaceFooterNote) doc.footerNote = defaultFooterNote(kind);
@@ -152,6 +198,41 @@
 			mode: doc.discountMode,
 			value: doc.discountValue
 		})
+	);
+
+	// Wat er onder aan de factuur daadwerkelijk te betalen valt. Bij een
+	// aanbetalingsfactuur is dat een percentage van het totaal; bij een eindfactuur
+	// het totaal min wat er al gefactureerd is (inclusief btw, anders reken je de
+	// btw over dat deel twee keer).
+	const prepaymentAmount = $derived(
+		Math.round(totals.total * (Math.max(0, Math.min(100, doc.prepaymentPct)) / 100) * 100) / 100
+	);
+	const amountDue = $derived(
+		doc.kind !== 'factuur'
+			? totals.total
+			: doc.invoiceType === 'aanbetaling'
+				? prepaymentAmount
+				: doc.invoiceType === 'eind'
+					? Math.round((totals.total - Math.max(0, doc.priorInvoiceAmount)) * 100) / 100
+					: totals.total
+	);
+
+	const invoiceTypeLabel = $derived(
+		doc.invoiceType === 'aanbetaling'
+			? `Aanbetalingsfactuur (${doc.prepaymentPct}%)`
+			: doc.invoiceType === 'eind'
+				? 'Eindfactuur'
+				: 'Factuur'
+	);
+
+	/** Placeholders zodat de betaalinstructie meebeweegt met de gegevens. */
+	const paymentInstructionsText = $derived(
+		doc.paymentInstructions
+			.replaceAll('{IBAN}', doc.issuer.iban || '—')
+			.replaceAll('{NAAM}', doc.issuer.name || '—')
+			.replaceAll('{NUMMER}', doc.number || '—')
+			.replaceAll('{BEDRAG}', formatEUR(amountDue))
+			.replaceAll('{DAGEN}', String(doc.paymentTermDays))
 	);
 
 	const headingLabel = $derived(
@@ -292,8 +373,46 @@
 				<Input
 					id="number"
 					bind:value={doc.number}
-					placeholder={doc.kind === 'factuur' ? '2026-001' : 'Bijv. Bruiloft Jansen'}
+					placeholder={doc.kind === 'factuur'
+						? sequence?.nextPreview || 'HH-2026-0001'
+						: 'Bijv. Bruiloft Jansen'}
 				/>
+				{#if doc.kind === 'factuur'}
+					<div class="flex flex-wrap items-center gap-2">
+						<Input
+							class="h-8 w-20 uppercase"
+							aria-label="Letters van de reeks"
+							bind:value={invoicePrefix}
+						/>
+						<form
+							method="POST"
+							action="?/reserveNumber"
+							use:enhance={() =>
+								async ({ result, update }) => {
+									if (result.type === 'success' && result.data?.invoiceNumber) {
+										doc.number = String(result.data.invoiceNumber);
+										sequence = (result.data.sequence as typeof sequence) ?? sequence;
+									}
+									await update({ reset: false });
+								}}
+						>
+							<input type="hidden" name="prefix" value={invoicePrefix} />
+							<input type="hidden" name="dealId" value={deal?.id ?? ''} />
+							<Button type="submit" variant="outline" class="h-8">Volgend nummer</Button>
+						</form>
+						<span class="text-xs text-muted-foreground">
+							{#if sequence}
+								{#if sequence.lastIssued}
+									laatst uitgegeven {sequence.lastIssued} · volgende {sequence.nextPreview}
+								{:else}
+									nog geen nummer dit jaar · volgende {sequence.nextPreview}
+								{/if}
+							{:else}
+								reeks niet beschikbaar (geen database) — vul handmatig in
+							{/if}
+						</span>
+					</div>
+				{/if}
 			</div>
 			<div class="space-y-1.5">
 				<Label for="date">Datum</Label>
@@ -316,6 +435,137 @@
 				</div>
 			{/if}
 		</div>
+
+		{#if doc.kind === 'factuur'}
+			<fieldset class="space-y-3 border p-4">
+				<legend class="px-1 text-sm font-medium">Soort factuur</legend>
+				<div class="flex flex-wrap gap-2">
+					{#each [{ v: 'volledig', l: 'Volledig bedrag' }, { v: 'aanbetaling', l: 'Aanbetaling' }, { v: 'eind', l: 'Eindfactuur' }] as const as opt (opt.v)}
+						<button
+							type="button"
+							onclick={() => (doc.invoiceType = opt.v as InvoiceType)}
+							class="border px-3 py-1.5 text-sm transition {doc.invoiceType === opt.v
+								? 'border-primary bg-primary text-primary-foreground'
+								: 'hover:bg-muted'}"
+						>
+							{opt.l}
+						</button>
+					{/each}
+				</div>
+
+				{#if doc.invoiceType === 'aanbetaling'}
+					<div class="grid gap-3 sm:grid-cols-2">
+						<div class="space-y-1.5">
+							<Label for="prepct">Percentage van het totaal</Label>
+							<Input id="prepct" type="number" min="1" max="100" bind:value={doc.prepaymentPct} />
+						</div>
+						<div class="space-y-1.5">
+							<Label>Nu te factureren</Label>
+							<div class="flex h-10 items-center text-sm tabular-nums">
+								{formatEUR(prepaymentAmount)}
+							</div>
+						</div>
+					</div>
+					<p class="text-xs text-muted-foreground">
+						Een aanbetalingsfactuur is een gewone factuur: de btw over dit deel wordt nu al
+						verschuldigd. Bewaar het nummer, je verwijst er straks op de eindfactuur naar.
+					</p>
+				{:else if doc.invoiceType === 'eind'}
+					<div class="grid gap-3 sm:grid-cols-3">
+						<div class="space-y-1.5">
+							<Label for="prevnum">Eerdere factuur</Label>
+							<Input id="prevnum" bind:value={doc.priorInvoiceNumber} placeholder="HH-2026-0001" />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="prevdate">Datum daarvan</Label>
+							<Input id="prevdate" type="date" bind:value={doc.priorInvoiceDate} />
+						</div>
+						<div class="space-y-1.5">
+							<Label for="prevamt">Reeds gefactureerd (incl. btw)</Label>
+							<Input
+								id="prevamt"
+								type="number"
+								min="0"
+								step="0.01"
+								bind:value={doc.priorInvoiceAmount}
+							/>
+						</div>
+					</div>
+					<p class="text-xs text-muted-foreground">
+						Op de eindfactuur staat het volledige bedrag; de aanbetaling gaat er inclusief btw weer
+						vanaf. Zo draag je de btw over dat deel niet twee keer af. Nog te voldoen: {formatEUR(
+							amountDue
+						)}.
+					</p>
+				{/if}
+			</fieldset>
+
+			<fieldset class="space-y-3 border p-4">
+				<legend class="px-1 text-sm font-medium">Betaalinstructie</legend>
+				<div class="grid gap-3 sm:grid-cols-[1fr_auto]">
+					<div class="space-y-1.5">
+						<Label for="payinstr">Tekst onderaan de factuur</Label>
+						<Textarea id="payinstr" rows={2} bind:value={doc.paymentInstructions} />
+					</div>
+					<div class="space-y-1.5">
+						<Label for="paydays">Termijn (dagen)</Label>
+						<Input
+							id="paydays"
+							type="number"
+							min="0"
+							class="w-28"
+							bind:value={doc.paymentTermDays}
+						/>
+					</div>
+				</div>
+				<p class="text-xs text-muted-foreground">
+					Beschikbaar: {'{BEDRAG}'}
+					{'{DAGEN}'}
+					{'{IBAN}'}
+					{'{NAAM}'}
+					{'{NUMMER}'} — die vult hij zelf in. Nu:
+					<span class="text-foreground">{paymentInstructionsText}</span>
+				</p>
+			</fieldset>
+		{/if}
+
+		<fieldset class="space-y-3 border p-4">
+			<legend class="px-1 text-sm font-medium">Onze gegevens</legend>
+			<div class="grid gap-3 sm:grid-cols-2">
+				<div class="space-y-1.5">
+					<Label for="isname">Bedrijfsnaam</Label>
+					<Input id="isname" bind:value={doc.issuer.name} />
+				</div>
+				<div class="space-y-1.5">
+					<Label for="isemail">E-mail</Label>
+					<Input id="isemail" bind:value={doc.issuer.email} />
+				</div>
+				<div class="space-y-1.5">
+					<Label for="isaddr1">Adres</Label>
+					<Input id="isaddr1" bind:value={doc.issuer.addressLine1} />
+				</div>
+				<div class="space-y-1.5">
+					<Label for="isaddr2">Postcode en plaats</Label>
+					<Input id="isaddr2" bind:value={doc.issuer.addressLine2} />
+				</div>
+				<div class="space-y-1.5">
+					<Label for="isiban">IBAN</Label>
+					<Input id="isiban" bind:value={doc.issuer.iban} />
+				</div>
+				<div class="space-y-1.5">
+					<Label for="iskvk">KvK</Label>
+					<Input id="iskvk" bind:value={doc.issuer.kvk} />
+				</div>
+				<div class="space-y-1.5">
+					<Label for="isbtw">BTW-id</Label>
+					<Input id="isbtw" bind:value={doc.issuer.btwId} />
+				</div>
+			</div>
+			<p class="text-xs text-muted-foreground">
+				Wordt in je browser onthouden voor het volgende document. KvK en BTW-id zijn verplicht op
+				een factuur zodra je die hebt.
+			</p>
+		</fieldset>
 
 		<fieldset class="space-y-3 border p-4">
 			<legend class="px-1 text-sm font-medium">Klant</legend>
@@ -488,6 +738,38 @@
 		</div>
 	</section>
 
+	<!--
+		Afrekening onder het totaal. Bij een aanbetaling factureren we een deel van
+		het totaal; bij een eindfactuur trekken we de eerder gefactureerde aanbetaling
+		er inclusief btw weer af, met verwijzing naar dat factuurnummer. Zo klopt de
+		btw-afdracht over beide facturen samen precies één keer.
+	-->
+	{#snippet invoiceSettlement()}
+		{#if doc.kind === 'factuur' && doc.invoiceType === 'aanbetaling'}
+			<tr>
+				<td class="py-1 pr-6">Aanbetaling {doc.prepaymentPct}% van het totaal</td>
+				<td class="py-1 text-right tabular-nums">{formatEUR(prepaymentAmount)}</td>
+			</tr>
+			<tr class="border-t border-neutral-400 font-medium">
+				<td class="py-2 pr-6">Nu te voldoen</td>
+				<td class="py-2 text-right tabular-nums">{formatEUR(amountDue)}</td>
+			</tr>
+		{:else if doc.kind === 'factuur' && doc.invoiceType === 'eind'}
+			<tr>
+				<td class="py-1 pr-6">
+					Reeds gefactureerd{#if doc.priorInvoiceNumber}
+						— factuur {doc.priorInvoiceNumber}{/if}{#if doc.priorInvoiceDate}
+						d.d. {formatDateNL(doc.priorInvoiceDate)}{/if} (incl. btw)
+				</td>
+				<td class="py-1 text-right tabular-nums">−{formatEUR(doc.priorInvoiceAmount)}</td>
+			</tr>
+			<tr class="border-t border-neutral-400 font-medium">
+				<td class="py-2 pr-6">Nog te voldoen</td>
+				<td class="py-2 text-right tabular-nums">{formatEUR(amountDue)}</td>
+			</tr>
+		{/if}
+	{/snippet}
+
 	<!-- Preview / printable -->
 	<section class="bg-white text-black shadow-sm print:shadow-none">
 		<article class="doc mx-auto p-10 print:p-0">
@@ -497,16 +779,19 @@
 						class="font-wordmark text-2xl font-bold tracking-[0.08em] whitespace-nowrap uppercase"
 						style="color: var(--brand-magenta);"
 					>
-						{BUSINESS.name}
+						{doc.issuer.name}
 					</div>
 					<div class="mt-3 text-sm leading-tight">
-						<div>{BUSINESS.addressLine1}</div>
-						<div>{BUSINESS.addressLine2}</div>
-						<div>{BUSINESS.email}</div>
+						{#if doc.issuer.addressLine1}<div>{doc.issuer.addressLine1}</div>{/if}
+						{#if doc.issuer.addressLine2}<div>{doc.issuer.addressLine2}</div>{/if}
+						{#if doc.issuer.email}<div>{doc.issuer.email}</div>{/if}
 					</div>
 				</div>
 				<div class="text-right">
 					<div class="font-heading text-3xl uppercase">{headingLabel}</div>
+					{#if doc.kind === 'factuur' && doc.invoiceType !== 'volledig'}
+						<div class="text-sm font-medium">{invoiceTypeLabel}</div>
+					{/if}
 					{#if doc.kind === 'factuur'}
 						<div class="text-sm">
 							Factuurnummer: <span class="font-medium">{doc.number || '—'}</span>
@@ -625,6 +910,7 @@
 								</td>
 								<td class="py-2 text-right tabular-nums">{formatEUR(totals.total)}</td>
 							</tr>
+							{@render invoiceSettlement()}
 						{:else}
 							<tr class="border-t border-neutral-400 font-medium">
 								<td class="py-2 pr-6">
@@ -632,6 +918,7 @@
 								</td>
 								<td class="py-2 text-right tabular-nums">{formatEUR(totals.total)}</td>
 							</tr>
+							{@render invoiceSettlement()}
 						{/if}
 					</tbody>
 				</table>
@@ -666,20 +953,16 @@
 				class="mt-12 border-t border-neutral-300 pt-4 text-xs leading-relaxed text-neutral-600"
 			>
 				{#if doc.kind === 'factuur'}
-					<div>
-						Gelieve het bedrag van <span class="font-medium">{formatEUR(totals.total)}</span> binnen
-						14 dagen over te maken op {BUSINESS.iban} t.n.v. {BUSINESS.name} o.v.v. factuurnummer {doc.number ||
-							'—'}.
-					</div>
+					<div>{paymentInstructionsText}</div>
 					{#if doc.footerNote}
 						<div class="mt-2">{doc.footerNote}</div>
 					{/if}
 					<div class="mt-2 flex flex-wrap gap-x-4">
-						<span>{BUSINESS.name}</span>
-						<span>{BUSINESS.email}</span>
-						<span>IBAN {BUSINESS.iban}</span>
-						{#if BUSINESS.kvk}<span>KvK {BUSINESS.kvk}</span>{/if}
-						{#if BUSINESS.btwId}<span>BTW {BUSINESS.btwId}</span>{/if}
+						<span>{doc.issuer.name}</span>
+						{#if doc.issuer.email}<span>{doc.issuer.email}</span>{/if}
+						{#if doc.issuer.iban}<span>IBAN {doc.issuer.iban}</span>{/if}
+						{#if doc.issuer.kvk}<span>KvK {doc.issuer.kvk}</span>{/if}
+						{#if doc.issuer.btwId}<span>BTW {doc.issuer.btwId}</span>{/if}
 					</div>
 				{:else if doc.kind === 'offerte'}
 					<div>{doc.footerNote}</div>

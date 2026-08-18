@@ -169,6 +169,32 @@ export async function ensureSchema(): Promise<Sql | null> {
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_audit text NOT NULL DEFAULT '[]'`;
 			await sql`CREATE UNIQUE INDEX IF NOT EXISTS deals_acceptance_token_unique ON deals (acceptance_token) WHERE acceptance_token <> ''`;
 
+			// Doorlopende factuurnummers per handelsnaam en jaar. De teller staat
+			// apart van deals: een factuur hoort bij precies één reeks en die reeks
+			// moet ook kloppen als een deal later verwijderd wordt.
+			await sql`
+				CREATE TABLE IF NOT EXISTS invoice_sequences (
+					prefix       text NOT NULL,
+					year         int  NOT NULL,
+					last_number  int  NOT NULL DEFAULT 0,
+					updated_at   timestamptz NOT NULL DEFAULT now(),
+					PRIMARY KEY (prefix, year)
+				);
+			`;
+
+			// Uitgegeven nummers, zodat we achteraf kunnen zien welk nummer bij
+			// welke deal hoort en of er gaten in de reeks zitten.
+			await sql`
+				CREATE TABLE IF NOT EXISTS invoice_numbers (
+					number      text PRIMARY KEY,
+					prefix      text NOT NULL,
+					year        int  NOT NULL,
+					seq         int  NOT NULL,
+					deal_id     uuid,
+					issued_at   timestamptz NOT NULL DEFAULT now()
+				);
+			`;
+
 			// Keep the status whitelist in sync with DEAL_STATUSES (e.g. adds
 			// 'in_optie'). Drop + re-add so new statuses are always accepted.
 			await sql.unsafe('ALTER TABLE deals DROP CONSTRAINT IF EXISTS deals_status_check');
