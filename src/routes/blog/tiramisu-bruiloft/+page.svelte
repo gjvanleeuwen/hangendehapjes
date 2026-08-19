@@ -51,9 +51,9 @@
 		mentions: [{ '@id': serviceId }]
 	};
 
-	// Canonical commercial page for the tiramisu service. No tiramisu review exists yet,
-	// so aggregateRatingJsonLd([]) yields no rating markup — the aggregate + compact
-	// teaser below appear automatically once a review tagged productId 'toetjes' is added.
+	// Canonical commercial page for the tiramisu service. The full reviews live on the
+	// homepage; here we only surface the aggregate score + count (matching the compact
+	// teaser below) and link through, so the page stays light and policy-compliant.
 	const toetjesReviews = nl.reviews.items.filter((review) => review.productId === 'toetjes');
 
 	const productJsonLd = {

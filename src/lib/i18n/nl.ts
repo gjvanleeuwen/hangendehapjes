@@ -215,6 +215,15 @@ export const nl: Translations = {
 			'Hangende hapjes is net begonnen, quotes en reviews komen hier binnenkort. Heb jij de hapjes al wel geproefd? Stuur ons gerust een berichtje.',
 		items: [
 			{
+				name: 'Michael Demeulemeester',
+				rating: 5,
+				date: '2026-08-18',
+				productId: 'toetjes',
+				quote: [
+					'Super service! Snel geregeld mooie show en iedereen vond de tiramisu erg lekker. Ook mogelijk voor glutenvrij, lactosevrij en alcoholvrij! Geweldig!'
+				]
+			},
+			{
 				name: 'Stip Hilversum',
 				rating: 5,
 				date: '2026-06-11',

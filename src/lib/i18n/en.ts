@@ -213,6 +213,15 @@ export const en: Translations = {
 			'Hangende Hapjes has just started, quotes and reviews are coming here soon. Already tasted the bites? Feel free to send us a note.',
 		items: [
 			{
+				name: 'Michael Demeulemeester',
+				rating: 5,
+				date: '2026-08-18',
+				productId: 'toetjes',
+				quote: [
+					'Great service! Sorted out quickly, a lovely show, and everyone thought the tiramisu was really tasty. Gluten free, lactose free and alcohol free are all possible too! Brilliant!'
+				]
+			},
+			{
 				name: 'Stip Hilversum',
 				rating: 5,
 				date: '2026-06-11',

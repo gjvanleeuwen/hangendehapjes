@@ -51,8 +51,8 @@
 	};
 
 	// Canonical commercial page lives at /#service-toetjes (De Toetjes Vrouw, Charlotte).
-	// No bruidstaart-specific review exists yet, so aggregateRatingJsonLd([]) yields no
-	// rating markup; the aggregate + teaser appear once a review tagged 'toetjes' is added.
+	// The full reviews live on the homepage; here we only surface the aggregate score +
+	// count (matching the compact teaser below) and link through.
 	const toetjesReviews = nl.reviews.items.filter((review) => review.productId === 'toetjes');
 
 	const productJsonLd = {
