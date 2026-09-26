@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="nl">
+	<head>
+		<meta charset="utf-8" />
+		<title>Hangende Hapjes flyer A5</title>
+		<style>
+			/*
+				A5 liggend: 210 x 148 mm eindformaat, plus 3 mm afloop rondom.
+				Met ?trim valt de afloop weg en is de pagina precies A5.
+			*/
+			@font-face {
+				font-family: 'Outfit';
+				src: url('../node_modules/@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2')
+					format('woff2');
+				font-weight: 100 900;
+			}
+			@font-face {
+				font-family: 'Raleway';
+				src: url('../node_modules/@fontsource-variable/raleway/files/raleway-latin-wght-normal.woff2')
+					format('woff2');
+				font-weight: 100 900;
+			}
+			@font-face {
+				font-family: 'Lovelo Line';
+				src: url('../static/lovelo/Lovelo Line Bold.otf') format('opentype');
+				font-weight: 700;
+			}
+
+			:root {
+				--bleed: 3mm;
+				--bone: #f6f4ee;
+				--bone-300: #d8d4c4;
+				--teal: #004643;
+				--magenta: #d03861;
+				--ink: #0f1a18;
+				--ink-muted: #4a5c5a;
+			}
+			:root.trim {
+				--bleed: 0mm;
+			}
+
+			/* @page kent geen var(), dus de trim-variant zet zijn eigen maat (zie script) */
+			@page {
+				size: 216mm 154mm;
+				margin: 0;
+			}
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			html,
+			body {
+				-webkit-print-color-adjust: exact;
+				print-color-adjust: exact;
+			}
+			body {
+				font-family: 'Raleway', sans-serif;
+				color: var(--ink);
+			}
+
+			.page {
+				position: relative;
+				width: calc(210mm + 2 * var(--bleed));
+				height: calc(148mm + 2 * var(--bleed));
+				overflow: hidden;
+				break-after: page;
+			}
+			.page:last-child {
+				break-after: auto;
+			}
+			/* Veilige zone: 7 mm binnen het snijformaat */
+			.safe {
+				position: absolute;
+				inset: calc(var(--bleed) + 7mm);
+			}
+
+			.wordmark {
+				font-family: 'Lovelo Line', sans-serif;
+				font-weight: 700;
+				line-height: 0.95;
+				letter-spacing: 0.02em;
+			}
+
+			/* ---------- Voorkant: diagonale hero ---------- */
+			.front {
+				background: var(--ink);
+				color: var(--bone);
+			}
+			.panel {
+				position: absolute;
+				top: 0;
+				bottom: 0;
+			}
+			.panel img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				display: block;
+				opacity: 0.8;
+			}
+			/* Naad van 58% (boven) naar 30% (onder), net als op de site */
+			.panel.left {
+				left: 0;
+				width: 58%;
+				clip-path: polygon(0 0, 100% 0, 51.724% 100%, 0 100%);
+			}
+			.panel.right {
+				right: 0;
+				width: 70%;
+				clip-path: polygon(40% 0, 100% 0, 100% 100%, 0 100%);
+			}
+			.panel.right img {
+				object-position: 24% 50%;
+			}
+			.seam {
+				position: absolute;
+				inset: 0;
+				width: 100%;
+				height: 100%;
+			}
+			.shade {
+				position: absolute;
+				inset: 0;
+				background: linear-gradient(
+					to bottom,
+					rgb(15 26 24 / 0.35) 0%,
+					rgb(15 26 24 / 0.1) 35%,
+					rgb(15 26 24 / 0.25) 55%,
+					rgb(15 26 24 / 0.88) 100%
+				);
+			}
+			.front .wordmark {
+				position: absolute;
+				top: 0;
+				left: 0;
+				font-size: 17pt;
+			}
+			.front .copy {
+				position: absolute;
+				left: 0;
+				bottom: 0;
+				max-width: 125mm;
+			}
+			.eyebrow {
+				font-size: 7pt;
+				letter-spacing: 0.2em;
+				text-transform: uppercase;
+				opacity: 0.85;
+			}
+			.front h1 {
+				margin-top: 2.5mm;
+				font-family: 'Outfit', sans-serif;
+				font-weight: 500;
+				font-size: 27pt;
+				line-height: 1.08;
+				letter-spacing: -0.01em;
+			}
+			.front .url {
+				position: absolute;
+				right: 0;
+				bottom: 0;
+				font-family: 'Outfit', sans-serif;
+				font-size: 9pt;
+				font-weight: 500;
+				letter-spacing: 0.04em;
+				text-align: right;
+			}
+
+			/* ---------- Achterkant: 4 producten ---------- */
+			.back {
+				background: var(--bone);
+			}
+			.back .safe {
+				display: flex;
+				flex-direction: column;
+				gap: 4mm;
+			}
+			.back header {
+				display: flex;
+				align-items: flex-end;
+				justify-content: space-between;
+				border-bottom: 0.3mm solid var(--bone-300);
+				padding-bottom: 2.5mm;
+			}
+			.back header .wordmark {
+				font-size: 10pt;
+				color: var(--teal);
+			}
+			.contact {
+				list-style: none;
+				font-size: 7.4pt;
+				color: var(--ink);
+				line-height: 1.6;
+			}
+			.contact li {
+				display: flex;
+				align-items: center;
+				gap: 1.6mm;
+			}
+			.contact svg {
+				width: 2.8mm;
+				height: 2.8mm;
+				fill: none;
+				stroke: var(--teal);
+				stroke-width: 2;
+				stroke-linecap: round;
+				stroke-linejoin: round;
+			}
+			.grid {
+				flex: 1;
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				grid-template-rows: repeat(3, minmax(0, 1fr));
+				/* Kolom voor kolom: taarten links, borrel/dessert + actie rechts */
+				grid-auto-flow: column;
+				column-gap: 7mm;
+				row-gap: 3.5mm;
+				min-height: 0;
+			}
+			.product {
+				display: flex;
+				gap: 3.5mm;
+				min-height: 0;
+			}
+			.photo {
+				position: relative;
+				flex: 0 0 33mm;
+				padding: 1mm;
+				background: #fff;
+				border: 0.3mm solid var(--bone-300);
+				border-radius: 1.5mm;
+			}
+			/* Absoluut, zodat de foto de rijhoogte niet opdrijft */
+			.photo img {
+				position: absolute;
+				inset: 1mm;
+				width: calc(100% - 2mm);
+				height: calc(100% - 2mm);
+				object-fit: cover;
+				border-radius: 0.8mm;
+			}
+			.text {
+				display: flex;
+				flex-direction: column;
+				min-width: 0;
+			}
+			.product h2 {
+				font-family: 'Outfit', sans-serif;
+				font-weight: 600;
+				font-size: 10.5pt;
+				line-height: 1.1;
+				white-space: nowrap;
+			}
+			.product p {
+				margin-top: 1.4mm;
+				font-size: 7.6pt;
+				line-height: 1.42;
+				color: var(--ink-muted);
+			}
+			.product ul {
+				list-style: none;
+				margin-top: 1.2mm;
+				display: flex;
+				flex-direction: column;
+				gap: 0.3mm;
+			}
+			.product li {
+				position: relative;
+				padding-left: 2.6mm;
+				font-size: 7pt;
+				line-height: 1.35;
+				color: var(--ink-muted);
+			}
+			.product li::before {
+				content: '';
+				position: absolute;
+				left: 0.2mm;
+				top: 0.95mm;
+				width: 1.1mm;
+				height: 1.1mm;
+				border-radius: 50%;
+				background: var(--teal);
+			}
+			/* Prijs los onderaan, gescheiden door een dun lijntje */
+			.product .price {
+				margin-top: auto;
+				padding-top: 1.6mm;
+				border-top: 0.25mm solid var(--bone-300);
+				font-family: 'Outfit', sans-serif;
+				font-size: 7.2pt;
+				font-weight: 400;
+				white-space: nowrap;
+				color: var(--ink);
+			}
+			/* Actiekaart: geen foto, gevulde teal kaart, twee acties naast elkaar */
+			.actie {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				grid-template-rows: auto 1fr auto;
+				column-gap: 4mm;
+				row-gap: 1.6mm;
+				padding: 3mm 4mm;
+				background: var(--teal);
+				color: var(--bone);
+				border-radius: 1.5mm;
+			}
+			/* Kleine prefix boven de acties, geen echte titel */
+			.actie h2 {
+				grid-column: 1 / -1;
+				font-family: 'Raleway', sans-serif;
+				font-weight: 500;
+				font-size: 6.6pt;
+				letter-spacing: 0.18em;
+				text-transform: uppercase;
+				line-height: 1.2;
+				opacity: 0.75;
+			}
+			.deal {
+				font-size: 6.8pt;
+				line-height: 1.4;
+			}
+			.deal p {
+				opacity: 0.88;
+			}
+			.deal .deal-title {
+				font-family: 'Outfit', sans-serif;
+				font-size: 9pt;
+				font-weight: 600;
+				opacity: 1;
+				margin-bottom: 0.4mm;
+			}
+			.deal-note {
+				grid-column: 1 / -1;
+				padding-top: 1.2mm;
+				border-top: 0.25mm solid rgb(246 244 238 / 0.3);
+				font-size: 6.4pt;
+				font-style: italic;
+				opacity: 0.85;
+			}
+			.back footer {
+				border-top: 0.3mm solid var(--bone-300);
+				padding-top: 2.5mm;
+				font-size: 6.8pt;
+				color: var(--ink-muted);
+				text-align: center;
+			}
+		</style>
+		<script>
+			if (new URLSearchParams(location.search).has('trim')) {
+				document.documentElement.classList.add('trim');
+				document.write('<style>@page { size: 210mm 148mm; margin: 0; }</style>');
+			}
+		</script>
+	</head>
+	<body>
+		<!-- VOORKANT -->
+		<section class="page front">
+			<div class="panel left"><img src="assets/hero.jpg" alt="" /></div>
+			<div class="panel right"><img src="assets/cake.jpg" alt="" /></div>
+			<svg class="seam" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+				<line
+					x1="58"
+					y1="0"
+					x2="30"
+					y2="100"
+					stroke="#f6f4ee"
+					stroke-opacity="0.75"
+					stroke-width="0.9mm"
+					vector-effect="non-scaling-stroke"
+				/>
+			</svg>
+			<div class="shade"></div>
+
+			<div class="safe">
+				<div class="wordmark">HANGENDE<br />HAPJES</div>
+				<div class="copy">
+					<p class="eyebrow">Entertainend Eten</p>
+					<h1>Hapjes die jouw gasten onthouden.</h1>
+				</div>
+				<div class="url">hangendehapjes.nl</div>
+			</div>
+		</section>
+
+		<!-- ACHTERKANT -->
+		<section class="page back">
+			<div class="safe">
+				<header>
+					<div class="wordmark">HANGENDE<br />HAPJES</div>
+					<ul class="contact">
+						<li>
+							<svg viewBox="0 0 24 24" aria-hidden="true">
+								<path
+									d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+								/>
+							</svg>
+							+31 6 36111564
+						</li>
+						<li>
+							<svg viewBox="0 0 24 24" aria-hidden="true">
+								<rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+								<path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+								<line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+							</svg>
+							@hangendehapjes
+						</li>
+					</ul>
+				</header>
+
+				<div class="grid">
+					<article class="product">
+						<div class="photo">
+							<img src="assets/tiramisutaart.jpg" alt="" style="object-position: 42% 50%" />
+						</div>
+						<div class="text">
+							<h2>Tiramisu Taart</h2>
+							<ul>
+								<li>Groots als een bruidstaart, maar net anders</li>
+								<li>Live opgebouwd, een leuke show voor jullie gasten</li>
+								<li>Maak de taart samen af met cacao</li>
+								<li>Inclusief "Just Married" sjabloon</li>
+								<li>Een echte showstopper, ook als dessert</li>
+							</ul>
+							<p class="price">Vanaf €375/475 voor 30/50 personen</p>
+						</div>
+					</article>
+
+					<article class="product">
+						<div class="photo">
+							<img src="assets/millefeuille.jpg" alt="" />
+						</div>
+						<div class="text">
+							<h2>Millefeuille</h2>
+							<ul>
+								<li>Een frisse Italiaanse bruidstaart</li>
+								<li>Meerdere lagen van rood fruit en bakkersroom</li>
+								<li>Leg zelf de laatste hand met fruit of poedersuiker</li>
+								<li>Onze favoriet, een echt spektakel</li>
+								<li>Perfect in de zomer</li>
+							</ul>
+							<p class="price">Vanaf €350/495 voor 25/50 personen</p>
+						</div>
+					</article>
+
+					<article class="product">
+						<div class="photo">
+							<img src="assets/bruidstaart.jpg" alt="" />
+						</div>
+						<div class="text">
+							<h2>Klassieke Bruidstaart</h2>
+							<ul>
+								<li>Jullie eigen custom botercrèmetaart</li>
+								<li>Keuze uit 8 verschillende smaken en vullingen</li>
+								<li>Kleur, versiering en afwerking perfect matchend</li>
+								<li>Inclusief levering/afwerking op locatie</li>
+								<li>Persoonlijk gesprek voor alle details</li>
+							</ul>
+							<p class="price">Vanaf €11,50 per persoon</p>
+						</div>
+					</article>
+
+					<article class="product">
+						<div class="photo"><img src="assets/burrata.jpg" alt="" style="object-position: 55% 50%" /></div>
+						<div class="text">
+							<h2>Burrata</h2>
+							<ul>
+								<li>Romige stracciatella met knapperige scrocchi-toastjes</li>
+								<li>Variërende toppings en sauzen</li>
+								<li>Ter plekke opgemaakt tussen jouw gasten door</li>
+								<li>Perfect voor de borrel of als voorgerecht</li>
+								<li>Hartig, een echte Italiaanse crowdpleaser</li>
+							</ul>
+							<p class="price">Vanaf €450 voor 50 personen</p>
+						</div>
+					</article>
+
+					<article class="product">
+						<div class="photo"><img src="assets/tiramisu.jpg" alt="" /></div>
+						<div class="text">
+							<h2>Tiramisu</h2>
+							<ul>
+								<li>Klassieke tiramisu</li>
+								<li>Natuurlijk met espresso, amaretto en mascarpone</li>
+								<li>Ter plekke opgemaakt tussen jouw gasten door</li>
+								<li>Perfect tijdens de receptie of als dessert</li>
+								<li>Geen schotelgeld bij de locatie</li>
+							</ul>
+							<p class="price">Vanaf €425 voor 50 personen</p>
+						</div>
+					</article>
+
+					<article class="actie">
+						<h2>Met deze flyer</h2>
+						<div class="deal">
+							<p class="deal-title">Geen reiskosten</p>
+							<p>Boek je ons via de locatie waar je deze flyer kreeg? Dan rekenen we geen reiskosten.</p>
+						</div>
+						<div class="deal">
+							<p class="deal-title">€50 korting op je 2e product</p>
+							<p>
+								Neem je twee services af, bijvoorbeeld een voorgerecht en een taart? Dan krijg je €50 korting!
+							</p>
+						</div>
+						<p class="deal-note">Benoem deze flyer bij je aanvraag.</p>
+					</article>
+				</div>
+
+				<footer>
+					Prijzen excl. btw · Reiskosten inbegrepen tot 30 km vanaf Hilversum · All-in
+					service (geen keuken nodig) · Dieetwensen inbegrepen
+				</footer>
+			</div>
+		</section>
+	</body>
+</html>
