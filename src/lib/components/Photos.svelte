@@ -9,9 +9,9 @@
 	let { t }: Props = $props();
 
 	const posts = [
-		'https://www.instagram.com/reel/DXuaQahiOuF/',
-		'https://www.instagram.com/reel/DYPUD2gIS1Z/',
-		'https://www.instagram.com/p/DXtSIpKiGje/'
+		'https://www.instagram.com/p/DdJwmvDMp21/',
+		'https://www.instagram.com/p/DdmCvXTiNCM/',
+		'https://www.instagram.com/reel/DXuaQahiOuF/'
 	];
 </script>
 

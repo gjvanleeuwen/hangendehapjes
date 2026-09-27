@@ -16,6 +16,21 @@ export type Product = {
 	article?: { href: string; label: string };
 };
 
+/** A wedding cake card on the homepage; same shape as the live-concept cards. */
+export type CakeCard = {
+	id: string;
+	kicker: string;
+	name: string;
+	pitch: string;
+	priceFrom: string;
+	priceNote: string;
+	href: string;
+	image: string;
+	imageAlt: string;
+	/** Optional Tailwind object-position class for the photo crop. */
+	position?: string;
+};
+
 export type Translations = {
 	meta: {
 		title: string;
@@ -24,7 +39,6 @@ export type Translations = {
 	nav: {
 		about: string;
 		products: string;
-		cakes?: string;
 		photos: string;
 		contact: string;
 		homeHref: string;
@@ -37,8 +51,12 @@ export type Translations = {
 		title: string;
 		subtitle: string;
 		secondaryCta: string;
+		/** Left half of the diagonal split: the hanging-tray concept. Also used as og:image alt. */
 		image: string;
 		imageAlt: string;
+		/** Right half of the diagonal split: the tiramisu taart. */
+		cakeImage: string;
+		cakeImageAlt: string;
 	};
 	about: {
 		heading: string;
@@ -49,11 +67,12 @@ export type Translations = {
 		heading: string;
 		intro: string;
 		items: Product[];
-		cakeBanner?: {
-			kicker: string;
+		/** Sub-heading above the live-concept cards, e.g. "Hangende hapjes". */
+		hapjesHeading: string;
+		/** Wedding cakes, rendered inside the products section (anchor #bruidstaarten). */
+		cakes?: {
 			heading: string;
-			body: string;
-			links: { label: string; href: string; image: string; imageAlt: string }[];
+			items: CakeCard[];
 		};
 		priceFooter: string;
 		priceCta: string;
@@ -110,16 +129,15 @@ export type Translations = {
 			referral: string;
 			message: string;
 		};
-		serviceTypes: {
-			hapjes: { title: string; description: string };
-			taart: { title: string; description: string };
-		};
 		options: {
 			tiramisuLive: string;
 			burrataLive: string;
 			bruidstaart: string;
 			millefeuille: string;
 			tiramisuTaart: string;
+			/** Sixth card: a custom request. */
+			anders: string;
+			andersNote: string;
 		};
 		dagdelen: {
 			placeholder: string;
@@ -131,26 +149,23 @@ export type Translations = {
 		};
 		whatsapp: {
 			cta: string;
+			/** Word between the main button and the WhatsApp button, e.g. "of". */
 			or: string;
-		};
-		steps: {
-			choice: string;
-			event: string;
+			/** Lines of the prefilled WhatsApp message; only filled-in fields are added. */
+			prefill: {
+				greeting: string;
+				choice: string;
+				name: string;
+				email: string;
+				phone: string;
+				date: string;
+				guests: string;
+				location: string;
+			};
 		};
 		nav: {
 			next: string;
 			back: string;
-		};
-		modes: {
-			form: string;
-			direct: string;
-		};
-		callback: {
-			heading: string;
-			intro: string;
-			label: string;
-			placeholder: string;
-			submit: string;
 		};
 		placeholders: {
 			name: string;

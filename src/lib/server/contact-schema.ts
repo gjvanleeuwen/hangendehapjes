@@ -4,6 +4,47 @@ const HEADER_CHARS = /[<>"\\\r\n]/g;
 const CRLF = /[\r\n]/g;
 const CRLF_NORMALIZE = /\r\n/g;
 
+/**
+ * Step-1 snapshot sent when a visitor clicks "Volgende": just enough to follow
+ * up if they never finish step 2. Same cleaning rules as the full payload.
+ */
+export const LeadSchema = v.object({
+	email: v.pipe(
+		v.string(),
+		v.transform((s) => s.replace(CRLF, '').trim()),
+		v.maxLength(254, 'email too long'),
+		v.email('invalid email')
+	),
+	name: v.optional(
+		v.pipe(
+			v.string(),
+			v.transform((s) => s.replace(HEADER_CHARS, '').trim()),
+			v.maxLength(100, 'name too long')
+		),
+		''
+	),
+	phone: v.optional(
+		v.pipe(
+			v.string(),
+			v.transform((s) => s.replace(CRLF, ' ').trim()),
+			v.maxLength(30, 'phone too long')
+		),
+		''
+	),
+	serviceType: v.optional(v.picklist(['', 'hapjes', 'taart', 'anders']), ''),
+	choice: v.optional(
+		v.pipe(
+			v.string(),
+			v.transform((s) => s.replace(CRLF, ' ').trim()),
+			v.maxLength(120, 'choice too long')
+		),
+		''
+	),
+	locale: v.optional(v.picklist(['nl', 'en']), 'nl'),
+	// Honeypot: bots fill every field. Non-empty means we silently drop it.
+	subject: v.optional(v.string(), '')
+});
+
 export const PayloadSchema = v.object({
 	name: v.pipe(
 		v.string(),
@@ -45,7 +86,7 @@ export const PayloadSchema = v.object({
 		v.minLength(1, 'guests is required'),
 		v.maxLength(10, 'guests too long')
 	),
-	serviceType: v.picklist(['hapjes', 'taart'], 'service type is required'),
+	serviceType: v.picklist(['hapjes', 'taart', 'anders'], 'service type is required'),
 	choice: v.pipe(
 		v.string(),
 		v.transform((s) => s.replace(CRLF, ' ').trim()),

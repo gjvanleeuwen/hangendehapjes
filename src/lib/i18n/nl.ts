@@ -1,8 +1,9 @@
 import type { Translations } from './types';
 
 const HERO_IMAGE = '/images/hero.jpeg';
-const TOETJES_IMAGE = '/images/charlotte_main.jpeg';
-const BORREL_IMAGE = '/images/HH_burrata_Parma.jpeg';
+const HERO_CAKE_IMAGE = '/images/tiramisutaart_bruiloft_aansnijden.jpeg';
+const TOETJES_IMAGE = '/images/tiramisu_dienblad_handen.jpeg';
+const BORREL_IMAGE = '/images/burrata_closeup.jpeg';
 
 export const nl: Translations = {
 	meta: {
@@ -12,8 +13,7 @@ export const nl: Translations = {
 	},
 	nav: {
 		about: 'Over ons',
-		products: 'Concepten',
-		cakes: 'Bruidstaarten',
+		products: 'Producten',
 		photos: 'Foto’s',
 		contact: 'Contact',
 		homeHref: '/',
@@ -28,7 +28,9 @@ export const nl: Translations = {
 			'Met een tray vol zelfgemaakte hapjes lopen we tussen jouw gasten. Voor ieder wat wils op een unieke manier met een praatje en een glimlach.',
 		secondaryCta: 'Bekijk onze concepten',
 		image: HERO_IMAGE,
-		imageAlt: 'Charlotte en Gijs van Hangende Hapjes met een dienblad om de nek tussen gasten'
+		imageAlt: 'Charlotte en Gijs van Hangende Hapjes met een dienblad om de nek tussen gasten',
+		cakeImage: HERO_CAKE_IMAGE,
+		cakeImageAlt: 'Bruidspaar snijdt samen een grote tiramisutaart aan'
 	},
 	about: {
 		heading: 'Aan wie hangen de hapjes?',
@@ -43,9 +45,9 @@ export const nl: Translations = {
 		}
 	},
 	products: {
-		heading: 'Kies jij voor zoet of zout?',
+		heading: 'Vers van het dienblad of als taart',
 		intro:
-			'Eén voor de borrel, één voor het dessert, of misschien wel beide als midnight snack of walking dinner?',
+			'Tiramisu of burrata, per gast live opgebouwd tussen jouw gasten door. Of een bruidstaart van Charlotte als showstopper. Kies er één, of combineer ze gewoon.',
 		items: [
 			{
 				id: 'toetjes',
@@ -62,11 +64,7 @@ export const nl: Translations = {
 					'Vanaf €425 voor 50 porties · €650 voor 100 · grotere events op aanvraag'
 				],
 				image: TOETJES_IMAGE,
-				imageAlt: 'Charlotte maakt live tiramisu voor een gast',
-				video: {
-					playbackId: 'wAh8024FDNRT8VtuMTapIO5uHxiWIpr00d4t2aKMV8Stc',
-					title: 'Verse tiramisu ter plekke opgebouwd'
-				},
+				imageAlt: 'Gijs strooit cacao over een verse portie tiramisu boven het hangende dienblad',
 				article: { href: '/blog/tiramisu-bruiloft', label: 'Lees meer over onze tiramisu' }
 			},
 			{
@@ -99,33 +97,48 @@ export const nl: Translations = {
 					'Vanaf €450 voor 50 porties · €700 voor 100 · grotere events op aanvraag'
 				],
 				image: BORREL_IMAGE,
-				imageAlt:
-					'Een vers opgemaakte burrata-bowl met crispy prosciutto, pijnboompitten en scrocchi-toastjes',
+				imageAlt: 'Een burrata-bowl wordt ter plekke opgemaakt boven het hangende dienblad',
 				article: { href: '/blog/burrata-catering', label: 'Lees meer over onze burrata bar' }
 			}
 		],
-		cakeBanner: {
-			kicker: 'Showstoppers door Charlotte',
-			heading: 'Wij maken ook bruidstaarten',
-			body: 'Van een klassieke hoge bruidstaart tot een Italiaanse millefoglie of tiramisu bij het trouwen: hetzelfde huisgemaakte karakter, maar dan als taartmoment voor jouw trouwerij.',
-			links: [
+		hapjesHeading: 'Hangende hapjes',
+		cakes: {
+			heading: 'Bruidstaarten',
+			items: [
 				{
-					label: 'Klassieke bruidstaart',
+					id: 'tiramisutaart',
+					kicker: 'Zoet · ter plekke gebouwd',
+					name: 'Tiramisutaart',
+					pitch:
+						'Een grote tiramisutaart die we op locatie opbouwen. Jullie maken hem zelf af met cacao.',
+					priceFrom: 'Vanaf €475',
+					priceNote: 'voor 50 personen',
+					href: '/blog/tiramisu-bruiloft',
+					image: '/images/tiramisutaart_bruiloft_punt.jpeg',
+					imageAlt: 'Bruidspaar schept samen een punt tiramisutaart op een schaaltje',
+					position: 'object-[30%_50%]'
+				},
+				{
+					id: 'klassiek',
+					kicker: 'Klassiek · op maat',
+					name: 'Klassieke bruidstaart',
+					pitch: 'Botercrèmetaart in 8 smaken, met afwerking en bloemen naar keuze.',
+					priceFrom: 'Vanaf €11,50',
+					priceNote: 'per persoon',
 					href: '/blog/bruidstaart',
 					image: '/images/bruitstaart_120_pers.jpeg',
 					imageAlt: 'Bruidspaar snijdt een hoge klassieke bruidstaart aan'
 				},
 				{
-					label: 'Italiaanse bruidstaart',
+					id: 'italiaans',
+					kicker: 'Italiaans · vers fruit',
+					name: 'Italiaanse bruidstaart',
+					pitch: 'Millefoglie met dunne lagen bladerdeeg, luchtige room en vers rood fruit.',
+					priceFrom: 'Vanaf €495',
+					priceNote: 'voor 50 personen',
 					href: '/blog/italiaanse-bruidstaart',
 					image: '/images/millefoglie_aansnijden.jpeg',
 					imageAlt: 'Bruidspaar snijdt samen een Italiaanse millefoglie bruidstaart aan'
-				},
-				{
-					label: 'Tiramisu op je bruiloft',
-					href: '/blog/tiramisu-bruiloft',
-					image: '/images/tiramisutaart_cacao.jpg',
-					imageAlt: 'Tiramisu-taart met cacao als bruidstaart alternatief'
 				}
 			]
 		},
@@ -143,6 +156,10 @@ export const nl: Translations = {
 			{
 				heading: 'Persoonlijk & gigantisch lekker',
 				body: 'Het is altijd Charlotte of Gijs, elke mail en elk hapje. We passen ons graag aan qua kleding, hapjes keuze en tijden zodat het precies is wat jij zoekt. En zelfgemaakt smaakt natuurlijk het best.'
+			},
+			{
+				heading: 'Unieke Bruidstaarten',
+				body: 'Of het nou om een custom klassieke taart gaat met de beste smaken of een moderne Italiaanse taart, alles is zoals jullie het graag willen. Spektakel is gegarandeerd, helemaal als wij het live opbouwen en jullie zelf de laatste hand leggen.'
 			}
 		],
 		srHeading: 'Veelgestelde vragen',
@@ -265,30 +282,21 @@ export const nl: Translations = {
 			eventDate: 'Datum evenement',
 			location: 'Locatie evenement',
 			guests: 'Aantal gasten',
-			serviceType: 'Welke catering zoek je?',
-			choice: 'Welk product past het best?',
+			serviceType: 'Waar kies jij voor?',
+			choice: 'Wat heb je in gedachten?',
 			dagdeel: 'Als welk onderdeel van je evenement?',
 			servingTime: 'En hoe laat ongeveer?',
 			referral: 'Hoe heb je over ons gehoord?',
 			message: 'Bericht'
-		},
-		serviceTypes: {
-			hapjes: {
-				title: 'De Hangende Hapjes',
-				description: 'Catering als live entertainment, vers voor elke gast.'
-			},
-			taart: {
-				title: 'Een bruidstaart',
-				description:
-					'Een bruidstaart op maat of grote Italiaanse millefeuille/tiramisu gemaakt door Charlotte.'
-			}
 		},
 		options: {
 			tiramisuLive: 'Tiramisu',
 			burrataLive: 'Burrata',
 			bruidstaart: 'Klassieke bruidstaart',
 			millefeuille: 'Italiaanse millefeuille',
-			tiramisuTaart: 'Tiramisu Taart'
+			tiramisuTaart: 'Tiramisu Taart',
+			anders: 'Anders',
+			andersNote: 'Iets op maat'
 		},
 		dagdelen: {
 			placeholder: 'Kies een onderdeel',
@@ -300,26 +308,21 @@ export const nl: Translations = {
 		},
 		whatsapp: {
 			cta: 'Stuur een WhatsApp',
-			or: 'of'
-		},
-		steps: {
-			choice: 'Basisinformatie',
-			event: 'Over je feest'
+			or: 'of',
+			prefill: {
+				greeting: 'Hoi! Ik heb een vraag over Hangende Hapjes 👋',
+				choice: 'Interesse in',
+				name: 'Naam',
+				email: 'E-mail',
+				phone: 'Telefoon',
+				date: 'Datum',
+				guests: 'Aantal gasten',
+				location: 'Locatie'
+			}
 		},
 		nav: {
 			next: 'Volgende',
 			back: 'Terug'
-		},
-		modes: {
-			form: 'Stuur een aanvraag',
-			direct: 'WhatsApp of wordt teruggebeld'
-		},
-		callback: {
-			heading: 'Het snelst: even appen of bellen',
-			intro: 'App ons direct of laat je nummer achter, dan bellen we je terug.',
-			label: 'Telefoonnummer',
-			placeholder: '06…',
-			submit: 'Bel mij terug'
 		},
 		placeholders: {
 			name: 'Bijv. Charlotte de Vries',
@@ -329,7 +332,7 @@ export const nl: Translations = {
 			location: 'Bijv. De Vorstin, Hilversum',
 			message: 'Vertel ons over je feest, sfeer, locatie, eventuele wensen en meer.',
 			referral: 'Bijv. via Instagram, een vriend, Google…',
-			choice: 'Maak een keuze…'
+			choice: 'Vertel kort wat je zoekt'
 		},
 		optional: 'optioneel',
 		submit: 'Verstuur',

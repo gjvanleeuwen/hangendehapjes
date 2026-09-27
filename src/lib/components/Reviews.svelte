@@ -20,7 +20,7 @@
 </script>
 
 <section id="reviews" class="bg-muted/40">
-	<div class="mx-auto max-w-6xl px-6 py-20 md:py-28">
+	<div class="mx-auto max-w-6xl px-6 py-12 md:py-16">
 		<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 			<SectionHeading>{t.reviews.heading}</SectionHeading>
 
@@ -35,26 +35,40 @@
 						{/each}
 					</div>
 					<span class="text-sm text-muted-foreground">{count} {noun}</span>
+					<Button
+						href={t.reviews.cta.href}
+						target="_blank"
+						rel="noopener"
+						size="sm"
+						variant="outline"
+						title={t.reviews.cta.text}
+					>
+						{t.reviews.cta.button}
+					</Button>
 				</div>
 			{/if}
 		</div>
 
 		{#if count > 0}
-			<div class="mx-auto mt-8 grid max-w-3xl gap-4">
+			<div
+				class="-mx-6 mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-2 [scrollbar-width:thin]"
+			>
 				{#each reviews as review (review.name)}
-					<Card.Root class="text-left">
-						<Card.Content class="flex flex-col gap-4 py-6">
+					<Card.Root class="w-[min(85vw,22rem)] shrink-0 snap-start text-left">
+						<Card.Content class="flex h-full flex-col gap-3 py-5">
 							<div class="flex items-center gap-1 text-amber-500" aria-label="{review.rating} / 5">
 								{#each { length: review.rating } as _, i (i)}
 									<StarIcon class="size-4 fill-current" />
 								{/each}
 							</div>
-							<div class="flex flex-col gap-3 text-muted-foreground">
+							<div
+								class="flex max-h-32 flex-col gap-3 overflow-y-auto pr-1 text-sm leading-relaxed text-muted-foreground"
+							>
 								{#each review.quote as paragraph (paragraph)}
 									<p>{paragraph}</p>
 								{/each}
 							</div>
-							<div class="mt-2 flex items-center gap-3">
+							<div class="mt-auto flex items-center gap-3 pt-2">
 								{#if review.avatar}
 									<img
 										src={review.avatar}
@@ -89,17 +103,11 @@
 				<Card.Content class="flex flex-col items-center gap-4 py-12 text-center">
 					<QuoteIcon class="size-8 text-muted-foreground" />
 					<p class="max-w-xl text-muted-foreground">{t.reviews.empty}</p>
+					<Button href={t.reviews.cta.href} target="_blank" rel="noopener" size="sm">
+						{t.reviews.cta.button}
+					</Button>
 				</Card.Content>
 			</Card.Root>
 		{/if}
-
-		<div
-			class="mx-auto mt-4 flex max-w-3xl flex-col items-center justify-between gap-3 rounded-lg border bg-background px-5 py-4 text-center sm:flex-row sm:gap-6 sm:text-left"
-		>
-			<p class="text-sm text-muted-foreground">{t.reviews.cta.text}</p>
-			<Button href={t.reviews.cta.href} target="_blank" rel="noopener" size="sm">
-				{t.reviews.cta.button}
-			</Button>
-		</div>
 	</div>
 </section>

@@ -195,6 +195,25 @@ export async function ensureSchema(): Promise<Sql | null> {
 				);
 			`;
 
+			// Half-finished contact forms: saved when someone clicks "Volgende"
+			// with a valid email, so we can still reach people who drop off at
+			// step 2. One row per email; completed_at is set once they submit.
+			await sql`
+				CREATE TABLE IF NOT EXISTS contact_leads (
+					id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+					created_at   timestamptz NOT NULL DEFAULT now(),
+					updated_at   timestamptz NOT NULL DEFAULT now(),
+					email        text NOT NULL UNIQUE,
+					name         text NOT NULL DEFAULT '',
+					phone        text NOT NULL DEFAULT '',
+					service_type text NOT NULL DEFAULT '',
+					choice       text NOT NULL DEFAULT '',
+					locale       text NOT NULL DEFAULT 'nl',
+					completed_at timestamptz,
+					dismissed_at timestamptz
+				);
+			`;
+
 			// Keep the status whitelist in sync with DEAL_STATUSES (e.g. adds
 			// 'in_optie'). Drop + re-add so new statuses are always accepted.
 			await sql.unsafe('ALTER TABLE deals DROP CONSTRAINT IF EXISTS deals_status_check');

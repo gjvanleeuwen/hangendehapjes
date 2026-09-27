@@ -50,7 +50,6 @@
 			'Inbegrepen, zonder meerprijs:',
 			'· Wij nemen alles mee: tafel, koeling, servies en al het materiaal.',
 			'· Alternatieven voor allergieën en dieetwensen regelen we gewoon, laat het even weten.',
-			'· Een proeverij vooraf, zodat je weet wat je krijgt.',
 			'· Bij een taart een sjabloon met jullie datum of naam, en een mooi mes voor de foto.',
 			'· Reiskosten en opbouw op locatie.',
 			'· Na afloop gaat alles weer met ons mee, inclusief de afwas.'

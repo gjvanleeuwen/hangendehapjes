@@ -6,6 +6,7 @@ import { dev } from '$app/environment';
 import { notifyError } from '$lib/server/notify';
 import { PayloadSchema, CallbackSchema, type Clean } from '$lib/server/contact-schema';
 import { createDeal, toDateOrNull, type DealInput } from '$lib/server/deals';
+import { completeLead } from '$lib/server/leads';
 import type { RequestHandler } from './$types';
 
 const CONTACT_TO = 'info@hangendehapjes.nl';
@@ -21,9 +22,13 @@ const serviceTypeLabel = (serviceType: Clean['serviceType'], isNl: boolean) =>
 		? isNl
 			? 'Dessert / taart'
 			: 'Dessert / cake'
-		: isNl
-			? 'Hangende hapjes (live)'
-			: 'Hanging snacks (live)';
+		: serviceType === 'anders'
+			? isNl
+				? 'Anders / op maat'
+				: 'Something else'
+			: isNl
+				? 'Hangende hapjes (live)'
+				: 'Hanging snacks (live)';
 
 const buildConfirmation = (clean: Clean) => {
 	const isNl = clean.locale !== 'en';
@@ -407,6 +412,10 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	lastSubmission.set(ip, now);
 
 	captureDeal(clean);
+	// They finished step 2, so take them off the half-finished follow-up list.
+	void completeLead(clean.email).catch((err) =>
+		console.error('[contact] could not complete lead', err)
+	);
 
 	const serving = [clean.dagdeel, clean.servingTime].filter(Boolean).join(' — ');
 	const lines = [

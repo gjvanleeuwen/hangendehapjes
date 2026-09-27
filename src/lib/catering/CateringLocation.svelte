@@ -155,7 +155,7 @@
 </svelte:head>
 
 <div id="top" class="bg-background text-foreground">
-	<Nav {t} />
+	<Nav {t} {locale} />
 	<main>
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
 			<header class="space-y-4">

@@ -1,8 +1,9 @@
 import type { Translations } from './types';
 
 const HERO_IMAGE = '/images/hero.jpeg';
-const TOETJES_IMAGE = '/images/charlotte_main.jpeg';
-const BORREL_IMAGE = '/images/HH_burrata_Parma.jpeg';
+const HERO_CAKE_IMAGE = '/images/tiramisutaart_bruiloft_aansnijden.jpeg';
+const TOETJES_IMAGE = '/images/tiramisu_dienblad_handen.jpeg';
+const BORREL_IMAGE = '/images/burrata_closeup.jpeg';
 
 export const en: Translations = {
 	meta: {
@@ -12,8 +13,7 @@ export const en: Translations = {
 	},
 	nav: {
 		about: 'About',
-		products: 'Concepts',
-		cakes: 'Wedding cakes',
+		products: 'Products',
 		photos: 'Photos',
 		contact: 'Contact',
 		homeHref: '/en',
@@ -29,7 +29,9 @@ export const en: Translations = {
 		secondaryCta: 'See our concepts',
 		image: HERO_IMAGE,
 		imageAlt:
-			'Charlotte and Gijs of Hangende Hapjes with a tray hanging from their neck between guests'
+			'Charlotte and Gijs of Hangende Hapjes with a tray hanging from their neck between guests',
+		cakeImage: HERO_CAKE_IMAGE,
+		cakeImageAlt: 'A newlywed couple cutting a big tiramisu cake together'
 	},
 	about: {
 		heading: 'Who do the bites hang from?',
@@ -44,9 +46,9 @@ export const en: Translations = {
 		}
 	},
 	products: {
-		heading: 'Will you pick sweet or savoury?',
+		heading: 'Fresh from the tray, or as a cake',
 		intro:
-			'One for the drinks, one for dessert — or maybe both, as a midnight snack or walking dinner?',
+			'Tiramisu or burrata, built live for each guest as we walk between your guests. Or a wedding cake by Charlotte as the showstopper. Pick one, or just combine them.',
 		items: [
 			{
 				id: 'toetjes',
@@ -63,11 +65,7 @@ export const en: Translations = {
 					'From €425 for 50 portions · €650 for 100 · larger events on request'
 				],
 				image: TOETJES_IMAGE,
-				imageAlt: 'Charlotte making live tiramisu for a guest',
-				video: {
-					playbackId: 'wAh8024FDNRT8VtuMTapIO5uHxiWIpr00d4t2aKMV8Stc',
-					title: 'Fresh tiramisu built on the spot'
-				}
+				imageAlt: 'Gijs dusting cocoa over a fresh portion of tiramisu above the hanging tray'
 			},
 			{
 				id: 'borrel',
@@ -99,32 +97,46 @@ export const en: Translations = {
 					'From €450 for 50 portions · €700 for 100 · larger events on request'
 				],
 				image: BORREL_IMAGE,
-				imageAlt:
-					'A freshly built burrata bowl with crispy prosciutto, pine nuts and scrocchi toasts'
+				imageAlt: 'A burrata bowl being built on the spot above the hanging tray'
 			}
 		],
-		cakeBanner: {
-			kicker: 'Showstoppers by Charlotte',
-			heading: 'We also make wedding cakes',
-			body: 'From a classic tiered wedding cake to an Italian millefoglie or tiramisu for your wedding: the same homemade character, shaped into a cake moment for your celebration.',
-			links: [
+		hapjesHeading: 'Hanging bites',
+		cakes: {
+			heading: 'Wedding cakes',
+			items: [
 				{
-					label: 'Classic wedding cake',
+					id: 'tiramisutaart',
+					kicker: 'Sweet · built on the spot',
+					name: 'Tiramisu cake',
+					pitch: 'A big tiramisu cake we build on location. You finish it yourselves with cocoa.',
+					priceFrom: 'From €475',
+					priceNote: 'for 50 guests',
+					href: '/blog/tiramisu-bruiloft',
+					image: '/images/tiramisutaart_bruiloft_punt.jpeg',
+					imageAlt: 'A newlywed couple serving a slice of tiramisu cake onto a plate',
+					position: 'object-[30%_50%]'
+				},
+				{
+					id: 'klassiek',
+					kicker: 'Classic · made to order',
+					name: 'Classic wedding cake',
+					pitch: 'Buttercream cake in 8 flavours, with the finish and flowers of your choice.',
+					priceFrom: 'From €11.50',
+					priceNote: 'per person',
 					href: '/blog/bruidstaart',
 					image: '/images/bruitstaart_120_pers.jpeg',
 					imageAlt: 'A couple cutting a tall classic wedding cake'
 				},
 				{
-					label: 'Italian wedding cake',
+					id: 'italiaans',
+					kicker: 'Italian · fresh fruit',
+					name: 'Italian wedding cake',
+					pitch: 'Millefoglie with thin layers of puff pastry, light cream and fresh red fruit.',
+					priceFrom: 'From €495',
+					priceNote: 'for 50 guests',
 					href: '/blog/italiaanse-bruidstaart',
 					image: '/images/millefoglie_aansnijden.jpeg',
 					imageAlt: 'A couple cutting an Italian millefoglie wedding cake together'
-				},
-				{
-					label: 'Tiramisu at your wedding',
-					href: '/blog/tiramisu-bruiloft',
-					image: '/images/tiramisutaart_cacao.jpg',
-					imageAlt: 'Tiramisu cake with cocoa as a wedding cake alternative'
 				}
 			]
 		},
@@ -141,6 +153,10 @@ export const en: Translations = {
 			{
 				heading: 'Personal & seriously tasty',
 				body: 'It’s always Charlotte or Gijs, every email and every bite. We’re happy to adapt our clothing, bite choices and timing so it’s exactly what you’re looking for. And homemade tastes best, of course.'
+			},
+			{
+				heading: 'Unique Wedding Cakes',
+				body: 'Whether it’s a custom classic cake with the best flavours or a modern Italian cake, everything is just the way you want it. Spectacle guaranteed, especially when we build it live and you add the finishing touch yourselves.'
 			}
 		],
 		srHeading: 'Frequently asked questions',
@@ -263,29 +279,21 @@ export const en: Translations = {
 			eventDate: 'Date',
 			location: 'Location',
 			guests: 'Number of guests',
-			serviceType: 'What’s your pick?',
-			choice: 'And which one?',
+			serviceType: 'What would you like?',
+			choice: 'What do you have in mind?',
 			dagdeel: 'When should we serve?',
 			servingTime: 'Or a time',
 			referral: 'How did you hear about us?',
 			message: 'Message'
-		},
-		serviceTypes: {
-			hapjes: {
-				title: 'Our hanging snacks',
-				description: 'Made live in front of your guests, straight from the tray.'
-			},
-			taart: {
-				title: 'A dessert or cake',
-				description: 'A full dessert or cake, made by Charlotte.'
-			}
 		},
 		options: {
 			tiramisuLive: 'Tiramisu',
 			burrataLive: 'Burrata',
 			bruidstaart: 'Classic wedding cake',
 			millefeuille: 'Italian millefeuille',
-			tiramisuTaart: 'Tiramisu cake'
+			tiramisuTaart: 'Tiramisu cake',
+			anders: 'Something else',
+			andersNote: 'Made to measure'
 		},
 		dagdelen: {
 			placeholder: 'Pick a moment',
@@ -297,26 +305,21 @@ export const en: Translations = {
 		},
 		whatsapp: {
 			cta: 'Message us on WhatsApp',
-			or: 'or'
-		},
-		steps: {
-			choice: 'Your pick',
-			event: 'Your party'
+			or: 'or',
+			prefill: {
+				greeting: 'Hi! I have a question about Hangende Hapjes 👋',
+				choice: 'Interested in',
+				name: 'Name',
+				email: 'Email',
+				phone: 'Phone',
+				date: 'Date',
+				guests: 'Number of guests',
+				location: 'Location'
+			}
 		},
 		nav: {
 			next: 'Next',
 			back: 'Back'
-		},
-		modes: {
-			form: 'Send an inquiry',
-			direct: 'Message or call me'
-		},
-		callback: {
-			heading: 'Fastest: a quick message or call',
-			intro: 'Message us directly or leave your number and we’ll call you back.',
-			label: 'Phone number',
-			placeholder: 'Your number',
-			submit: 'Call me back'
 		},
 		placeholders: {
 			name: 'E.g. Charlotte de Vries',
@@ -326,7 +329,7 @@ export const en: Translations = {
 			location: 'E.g. De Vorstin, Hilversum',
 			message: 'Tell us about your party, the vibe, venue, any wishes and more.',
 			referral: 'E.g. via Instagram, a friend, Google…',
-			choice: 'Make a choice…'
+			choice: 'Tell us briefly what you’re after'
 		},
 		optional: 'optional',
 		submit: 'Send',

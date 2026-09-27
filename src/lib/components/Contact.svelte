@@ -9,6 +9,8 @@
 	import { cn } from '$lib/utils.js';
 	import { toast } from 'svelte-sonner';
 	import SectionHeading from './SectionHeading.svelte';
+	import Picture from './Picture.svelte';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 
 	type Props = { t: Translations; locale: Locale };
 	let { t, locale }: Props = $props();
@@ -19,8 +21,8 @@
 	let eventDate = $state('');
 	let location = $state('');
 	let guests = $state('');
-	let serviceType = $state<'' | 'hapjes' | 'taart'>('');
 	let choiceKey = $state('');
+	let customChoice = $state(''); // free text when "anders" is picked
 	let dagdeel = $state<'' | 'taartmoment' | 'receptie' | 'feest' | 'dessert' | 'voorgerecht'>('');
 	let servingTime = $state('');
 	let referral = $state('');
@@ -29,17 +31,6 @@
 	let submitting = $state(false);
 	let started = $state(false);
 
-	// Two ways to reach us, one shown at a time via the toggle:
-	// 'form' = the detailed request, 'direct' = WhatsApp or a quick callback.
-	let view = $state<'form' | 'direct'>('form');
-	let callbackContact = $state('');
-
-	function selectView(next: 'form' | 'direct') {
-		if (view === next) return;
-		view = next;
-		window.umami?.track('contact_mode', { mode: next, locale });
-	}
-
 	// Two-step flow: 1) jij & je keuze (wie + wat), 2) over je feest (de details).
 	// Two steps keep each screen balanced — splitting it further just adds clicks.
 	let step = $state(1);
@@ -47,74 +38,148 @@
 
 	const today = new Date().toISOString().slice(0, 10);
 
-	const stepDefs = $derived([
-		{ n: 1, title: t.contact.steps.choice },
-		{ n: 2, title: t.contact.steps.event }
-	]);
-
 	const emailValid = $derived(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
 	const step1Valid = $derived(
-		serviceType !== '' && choiceKey !== '' && name.trim().length > 0 && emailValid
+		choiceKey !== '' &&
+			(choiceKey !== 'anders' || customChoice.trim().length > 0) &&
+			name.trim().length > 0 &&
+			emailValid
 	);
 	const step2Valid = $derived(eventDate !== '' && Number(guests) >= 1 && message.trim().length > 0);
 	const canAdvance = $derived(step === 1 ? step1Valid : step2Valid);
-	const callbackValid = $derived(callbackContact.trim().length >= 3);
-	const currentStep = $derived(stepDefs[step - 1]);
 
 	function next() {
 		if (step < totalSteps && canAdvance) {
+			if (step === 1) saveLead();
 			step += 1;
 			// Funnel: how many people make it past step 1 vs. drop off there.
 			window.umami?.track('contact_step', { step, locale });
 		}
 	}
 
+	// Save the step-1 details so we can still reach people who never finish
+	// step 2. Fire-and-forget: it must never slow down or block the form.
+	function saveLead() {
+		void fetch('/api/contact/lead', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			keepalive: true,
+			body: JSON.stringify({
+				email,
+				name,
+				phone,
+				serviceType,
+				choice: choiceValue,
+				locale,
+				subject
+			})
+		}).catch(() => {});
+	}
+
 	function back() {
 		if (step > 1) step -= 1;
 	}
 
-	function handleCallbackSubmit(event: SubmitEvent) {
-		event.preventDefault();
-		submitCallback();
-	}
+	type ChoiceCard = {
+		key: string;
+		serviceType: 'hapjes' | 'taart' | 'anders';
+		label: string;
+		group: string;
+		image?: { src: string; position?: string };
+	};
 
-	const serviceTypeCards = $derived([
-		{ key: 'hapjes' as const, title: t.contact.serviceTypes.hapjes.title },
-		{ key: 'taart' as const, title: t.contact.serviceTypes.taart.title }
-	]);
-
-	const optionGroups = $derived({
-		'': [],
-		hapjes: [
-			{ key: 'tiramisu-live', label: t.contact.options.tiramisuLive },
-			{ key: 'burrata-live', label: t.contact.options.burrataLive }
-		],
-		taart: [
-			{ key: 'bruidstaart', label: t.contact.options.bruidstaart },
-			{ key: 'millefeuille', label: t.contact.options.millefeuille },
-			{ key: 'tiramisu-taart', label: t.contact.options.tiramisuTaart }
-		]
+	// Six picture cards: the five products from the homepage plus "anders".
+	// The service type follows from the card, so there's no separate step for it.
+	const choiceCards = $derived.by((): ChoiceCard[] => {
+		const product = (id: string) => t.products.items.find((p) => p.id === id);
+		const cake = (id: string) => t.products.cakes?.items.find((c) => c.id === id);
+		const hapjes = t.products.hapjesHeading;
+		const taarten = t.products.cakes?.heading ?? '';
+		const tiramisuImg = product('toetjes')?.image;
+		const burrataImg = product('borrel')?.image;
+		const tTaart = cake('tiramisutaart');
+		const klassiekImg = cake('klassiek')?.image;
+		const italiaansImg = cake('italiaans')?.image;
+		return [
+			{
+				key: 'tiramisu-live',
+				serviceType: 'hapjes',
+				label: t.contact.options.tiramisuLive,
+				group: hapjes,
+				image: tiramisuImg ? { src: tiramisuImg } : undefined
+			},
+			{
+				key: 'burrata-live',
+				serviceType: 'hapjes',
+				label: t.contact.options.burrataLive,
+				group: hapjes,
+				image: burrataImg ? { src: burrataImg } : undefined
+			},
+			{
+				key: 'tiramisu-taart',
+				serviceType: 'taart',
+				label: t.contact.options.tiramisuTaart,
+				group: taarten,
+				image: tTaart ? { src: tTaart.image, position: tTaart.position } : undefined
+			},
+			{
+				key: 'bruidstaart',
+				serviceType: 'taart',
+				label: t.contact.options.bruidstaart,
+				group: taarten,
+				image: klassiekImg ? { src: klassiekImg } : undefined
+			},
+			{
+				key: 'millefeuille',
+				serviceType: 'taart',
+				label: t.contact.options.millefeuille,
+				group: taarten,
+				image: italiaansImg ? { src: italiaansImg } : undefined
+			},
+			{
+				key: 'anders',
+				serviceType: 'anders',
+				label: t.contact.options.anders,
+				group: t.contact.options.andersNote
+			}
+		];
 	});
 
-	const currentOptions = $derived(optionGroups[serviceType]);
-	const selectedChoice = $derived(currentOptions.find((o) => o.key === choiceKey) ?? null);
-
-	const waHref = $derived(
-		`${WHATSAPP_URL}?text=${encodeURIComponent(
-			locale === 'en'
-				? 'Hi! I have a question about Hangende Hapjes 👋'
-				: 'Hoi! Ik heb een vraag over Hangende Hapjes 👋'
-		)}`
+	const selectedChoice = $derived(choiceCards.find((c) => c.key === choiceKey) ?? null);
+	const serviceType = $derived(selectedChoice?.serviceType ?? '');
+	// What we send and store: the product name, or the visitor's own words for "anders".
+	const choiceValue = $derived(
+		choiceKey === 'anders' ? customChoice.trim() : (selectedChoice?.label ?? '')
 	);
+
+	// WhatsApp message prefilled with whatever they already typed, so they
+	// don't have to repeat themselves and we get the details straight away.
+	const waHref = $derived.by(() => {
+		const p = t.contact.whatsapp.prefill;
+		const lines = [
+			p.greeting,
+			choiceValue ? `${p.choice}: ${choiceValue}` : '',
+			name.trim() ? `${p.name}: ${name.trim()}` : '',
+			emailValid ? `${p.email}: ${email.trim()}` : '',
+			phone.trim() ? `${p.phone}: ${phone.trim()}` : '',
+			eventDate ? `${p.date}: ${eventDate}` : '',
+			guests ? `${p.guests}: ${guests}` : '',
+			location.trim() ? `${p.location}: ${location.trim()}` : ''
+		].filter(Boolean);
+		return `${WHATSAPP_URL}?text=${encodeURIComponent(lines.join('\n'))}`;
+	});
 
 	const selectClass =
 		'border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 w-full min-w-0 rounded-lg border bg-transparent px-2.5 py-1 text-base outline-none transition-colors focus-visible:ring-3 md:text-sm';
 
-	function pickServiceType(value: 'hapjes' | 'taart') {
-		serviceType = value;
-		choiceKey = '';
+	function pickChoice(card: ChoiceCard) {
+		choiceKey = card.key;
 		// Captures what people are drawn to even if they never finish the form.
-		window.umami?.track('contact_service_type', { serviceType: value, locale });
+		window.umami?.track('contact_service_type', {
+			serviceType: card.serviceType,
+			choice: card.key,
+			locale
+		});
 	}
 
 	// Fires once when a visitor first interacts with any field — lets us measure
@@ -143,7 +208,7 @@
 					location,
 					guests,
 					serviceType,
-					choice: selectedChoice?.label ?? '',
+					choice: choiceValue,
 					dagdeel: dagdeel ? t.contact.dagdelen[dagdeel] : '',
 					servingTime,
 					referral,
@@ -181,8 +246,8 @@
 			eventDate = '';
 			location = '';
 			guests = '';
-			serviceType = '';
 			choiceKey = '';
+			customChoice = '';
 			dagdeel = '';
 			servingTime = '';
 			referral = '';
@@ -192,44 +257,6 @@
 			step = 1;
 		} catch {
 			window.umami?.track('contact_error', { reason: 'network', locale });
-			toast.error(t.contact.errorTitle, { description: t.contact.errorBody });
-		} finally {
-			submitting = false;
-		}
-	}
-
-	async function submitCallback() {
-		if (submitting || !callbackValid) return;
-		submitting = true;
-
-		try {
-			const res = await fetch('/api/contact', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ mode: 'callback', contact: callbackContact, subject, locale })
-			});
-
-			if (!res.ok) {
-				const data = (await res.json().catch(() => null)) as { error?: string } | null;
-				const reason =
-					res.status === 429 || data?.error === 'rate_limited'
-						? 'rate_limited'
-						: data?.error || `http_${res.status}`;
-				window.umami?.track('contact_callback_error', { reason, locale });
-				if (res.status === 429 || data?.error === 'rate_limited') {
-					toast.error(t.contact.errorRateTitle, { description: t.contact.errorRateBody });
-				} else {
-					toast.error(t.contact.errorTitle, { description: t.contact.errorBody });
-				}
-				return;
-			}
-
-			window.umami?.track('contact_callback_submit', { locale });
-			toast.success(t.contact.successTitle, { description: t.contact.successBody });
-			callbackContact = '';
-			subject = '';
-		} catch {
-			window.umami?.track('contact_callback_error', { reason: 'network', locale });
 			toast.error(t.contact.errorTitle, { description: t.contact.errorBody });
 		} finally {
 			submitting = false;
@@ -284,285 +311,238 @@
 			</div>
 		{/snippet}
 
-		<div
-			role="tablist"
-			class="mx-auto mb-8 flex max-w-3xl gap-1 rounded-xl border border-border bg-muted/40 p-1"
-		>
-			<button
-				type="button"
-				role="tab"
-				aria-selected={view === 'form'}
-				onclick={() => selectView('form')}
-				class={cn(
-					'flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-					view === 'form'
-						? 'bg-background text-foreground shadow-sm'
-						: 'text-muted-foreground hover:text-foreground'
-				)}
-			>
-				{t.contact.modes.form}
-			</button>
-			<button
-				type="button"
-				role="tab"
-				aria-selected={view === 'direct'}
-				onclick={() => selectView('direct')}
-				class={cn(
-					'flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-					view === 'direct'
-						? 'bg-background text-foreground shadow-sm'
-						: 'text-muted-foreground hover:text-foreground'
-				)}
-			>
-				{t.contact.modes.direct}
-			</button>
-		</div>
-
-		{#if view === 'form'}
-			<div class="mx-auto mb-8 max-w-3xl">
-				<div class="mb-2 flex items-baseline justify-between">
-					<span class="text-sm font-medium text-foreground">{currentStep.title}</span>
-					<span class="text-xs text-muted-foreground">{step}/{totalSteps}</span>
-				</div>
-				<div class="flex gap-1.5" aria-hidden="true">
-					{#each stepDefs as s (s.n)}
-						<span
-							class={cn(
-								'h-1.5 flex-1 rounded-full transition-colors',
-								s.n <= step ? 'bg-primary' : 'bg-border'
-							)}
-						></span>
-					{/each}
-				</div>
-			</div>
-
-			<form class="mx-auto max-w-3xl space-y-6" onsubmit={handleSubmit} onfocusin={markStarted}>
-				{#if step === 1}
-					<fieldset class="space-y-3">
-						<legend class="mb-2 text-sm font-medium">{t.contact.labels.serviceType}</legend>
-						<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-							{#each serviceTypeCards as card (card.key)}
-								<label
-									class={cn(
-										'flex cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-2 text-center text-sm transition-colors',
-										serviceType === card.key
-											? 'border-primary bg-primary/5 font-medium text-foreground ring-1 ring-primary'
-											: 'border-input text-muted-foreground hover:border-primary/50'
-									)}
+		<form class="mx-auto max-w-3xl space-y-6" onsubmit={handleSubmit} onfocusin={markStarted}>
+			{#if step === 1}
+				<fieldset class="space-y-3">
+					<legend class="mb-2 text-sm font-medium">{t.contact.labels.serviceType}</legend>
+					<div class="grid grid-cols-2 gap-2 md:grid-cols-6">
+						{#each choiceCards as card (card.key)}
+							<label
+								class={cn(
+									'flex cursor-pointer items-center overflow-hidden rounded-lg border bg-card text-left transition-colors md:flex-col md:items-stretch',
+									choiceKey === card.key
+										? 'border-primary ring-2 ring-primary'
+										: 'border-input hover:border-primary/50',
+									!card.image && choiceKey !== card.key && 'border-dashed'
+								)}
+							>
+								<input
+									type="radio"
+									name="choice"
+									value={card.key}
+									checked={choiceKey === card.key}
+									onchange={() => pickChoice(card)}
+									class="sr-only"
+								/>
+								<div
+									class="relative aspect-square w-14 shrink-0 overflow-hidden bg-muted md:w-auto"
 								>
-									<input
-										type="radio"
-										name="serviceType"
-										value={card.key}
-										checked={serviceType === card.key}
-										onchange={() => pickServiceType(card.key)}
-										class="sr-only"
-									/>
-									{card.title}
-								</label>
-							{/each}
-						</div>
-					</fieldset>
-
-					{#if serviceType}
-						<div class="space-y-2">
-							<Label for="choice">{t.contact.labels.choice}</Label>
-							<select id="choice" name="choice" bind:value={choiceKey} class={selectClass}>
-								<option value="" disabled>{t.contact.placeholders.choice}</option>
-								{#each currentOptions as opt (opt.key)}
-									<option value={opt.key}>{opt.label}</option>
-								{/each}
-							</select>
-						</div>
-					{/if}
-
-					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-						<div class="space-y-2">
-							<Label for="name">{t.contact.labels.name}</Label>
-							<Input
-								id="name"
-								name="name"
-								required
-								maxlength={100}
-								bind:value={name}
-								autocomplete="name"
-								placeholder={t.contact.placeholders.name}
-							/>
-						</div>
-						<div class="space-y-2">
-							<Label for="email">{t.contact.labels.email}</Label>
-							<Input
-								id="email"
-								name="email"
-								type="email"
-								required
-								maxlength={254}
-								bind:value={email}
-								autocomplete="email"
-								placeholder={t.contact.placeholders.email}
-							/>
-						</div>
-						<div class="space-y-2 md:col-span-2">
-							<Label for="phone">
-								{t.contact.labels.phone}
-								<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
-							</Label>
-							<Input
-								id="phone"
-								name="phone"
-								type="tel"
-								maxlength={30}
-								bind:value={phone}
-								autocomplete="tel"
-								placeholder={t.contact.placeholders.phone}
-							/>
-						</div>
+									{#if card.image}
+										<Picture
+											src={card.image.src}
+											alt=""
+											sizes="(min-width: 768px) 120px, 56px"
+											loading="lazy"
+											class="absolute inset-0 size-full object-cover {card.image.position ?? ''}"
+										/>
+									{:else}
+										<div class="flex size-full items-center justify-center text-muted-foreground">
+											<PlusIcon class="size-5 md:size-6" aria-hidden="true" />
+										</div>
+									{/if}
+								</div>
+								<div class="min-w-0 px-2 py-1.5">
+									<p class="text-xs leading-snug font-medium text-foreground">{card.label}</p>
+									<p class="text-[11px] leading-snug text-muted-foreground">{card.group}</p>
+								</div>
+							</label>
+						{/each}
 					</div>
-				{:else}
-					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-						<div class="space-y-2">
-							<Label for="eventDate">{t.contact.labels.eventDate}</Label>
-							<Input
-								id="eventDate"
-								name="eventDate"
-								type="date"
-								required
-								min={today}
-								bind:value={eventDate}
-								class="bg-input/50"
-							/>
-						</div>
-						<div class="space-y-2">
-							<Label for="guests">{t.contact.labels.guests}</Label>
-							<Input
-								id="guests"
-								name="guests"
-								type="number"
-								required
-								min="1"
-								max="99999"
-								bind:value={guests}
-								placeholder={t.contact.placeholders.guests}
-							/>
-						</div>
-						<div class="space-y-2">
-							<Label for="location">
-								{t.contact.labels.location}
-								<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
-							</Label>
-							<Input
-								id="location"
-								name="location"
-								maxlength={200}
-								bind:value={location}
-								placeholder={t.contact.placeholders.location}
-							/>
-						</div>
-						<div class="space-y-2">
-							<Label for="dagdeel">
-								{t.contact.labels.dagdeel}
-								<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
-							</Label>
-							<select id="dagdeel" name="dagdeel" bind:value={dagdeel} class={selectClass}>
-								<option value="">{t.contact.dagdelen.placeholder}</option>
-								<option value="taartmoment">{t.contact.dagdelen.taartmoment}</option>
-								<option value="receptie">{t.contact.dagdelen.receptie}</option>
-								<option value="feest">{t.contact.dagdelen.feest}</option>
-								<option value="dessert">{t.contact.dagdelen.dessert}</option>
-								<option value="voorgerecht">{t.contact.dagdelen.voorgerecht}</option>
-							</select>
-						</div>
-						<div class="space-y-2">
-							<Label for="servingTime">
-								{t.contact.labels.servingTime}
-								<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
-							</Label>
-							<Input id="servingTime" name="servingTime" type="time" bind:value={servingTime} />
-						</div>
-						<div class="space-y-2 md:col-span-2">
-							<Label for="message">{t.contact.labels.message}</Label>
-							<Textarea
-								id="message"
-								name="message"
-								rows={5}
-								required
-								maxlength={5000}
-								placeholder={t.contact.placeholders.message}
-								bind:value={message}
-							/>
-						</div>
-						<div class="space-y-2 md:col-span-2">
-							<Label for="referral">
-								{t.contact.labels.referral}
-								<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
-							</Label>
-							<Input
-								id="referral"
-								name="referral"
-								maxlength={200}
-								placeholder={t.contact.placeholders.referral}
-								bind:value={referral}
-							/>
-						</div>
+				</fieldset>
+
+				{#if choiceKey === 'anders'}
+					<div class="space-y-2">
+						<Label for="customChoice">{t.contact.labels.choice}</Label>
+						<Input
+							id="customChoice"
+							name="customChoice"
+							required
+							maxlength={120}
+							bind:value={customChoice}
+							placeholder={t.contact.placeholders.choice}
+						/>
 					</div>
 				{/if}
 
-				{@render honeypot()}
-
-				<div class="flex items-center justify-end gap-3">
-					{#if step > 1}
-						<Button type="button" variant="outline" size="lg" onclick={back}>
-							{t.contact.nav.back}
-						</Button>
-					{/if}
-					{#if step < totalSteps}
-						<Button
-							type="button"
-							size="lg"
-							class="h-11 px-8 text-base font-semibold"
-							disabled={!canAdvance}
-							onclick={next}
-						>
-							{t.contact.nav.next}
-						</Button>
-					{:else}
-						<Button
-							type="submit"
-							size="lg"
-							class="h-11 px-8 text-base font-semibold"
-							disabled={submitting || !step2Valid}
-						>
-							{submitting ? t.contact.submitting : t.contact.submit}
-						</Button>
-					{/if}
-				</div>
-			</form>
-		{:else}
-			<div class="mx-auto max-w-md text-center">
-				<p class="text-base font-medium text-foreground">{t.contact.callback.heading}</p>
-				<p class="mt-2 text-sm text-muted-foreground">{t.contact.callback.intro}</p>
-
-				<div class="mt-6 flex flex-col items-center gap-4">
-					{@render whatsappButton()}
-					<span class="text-sm text-muted-foreground">{t.contact.whatsapp.or}</span>
-					<form class="flex w-full items-center gap-2" onsubmit={handleCallbackSubmit}>
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					<!-- Name on its own row, then email with phone beside it. -->
+					<div class="space-y-2 md:col-span-2">
+						<Label for="name">{t.contact.labels.name}</Label>
 						<Input
-							id="callbackContact"
-							type="tel"
-							autocomplete="tel"
-							maxlength={254}
-							aria-label={t.contact.callback.label}
-							bind:value={callbackContact}
-							placeholder={t.contact.callback.placeholder}
-							class="h-10 flex-1"
+							id="name"
+							name="name"
+							required
+							maxlength={100}
+							bind:value={name}
+							autocomplete="name"
+							placeholder={t.contact.placeholders.name}
 						/>
-						{@render honeypot()}
-						<Button type="submit" size="lg" disabled={submitting || !callbackValid}>
-							{submitting ? t.contact.submitting : t.contact.callback.submit}
-						</Button>
-					</form>
+					</div>
+					<div class="space-y-2">
+						<Label for="email">{t.contact.labels.email}</Label>
+						<Input
+							id="email"
+							name="email"
+							type="email"
+							required
+							maxlength={254}
+							bind:value={email}
+							autocomplete="email"
+							placeholder={t.contact.placeholders.email}
+						/>
+					</div>
+					<div class="space-y-2">
+						<Label for="phone">
+							{t.contact.labels.phone}
+							<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
+						</Label>
+						<Input
+							id="phone"
+							name="phone"
+							type="tel"
+							maxlength={30}
+							bind:value={phone}
+							autocomplete="tel"
+							placeholder={t.contact.placeholders.phone}
+						/>
+					</div>
 				</div>
+			{:else}
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					<div class="space-y-2">
+						<Label for="eventDate">{t.contact.labels.eventDate}</Label>
+						<Input
+							id="eventDate"
+							name="eventDate"
+							type="date"
+							required
+							min={today}
+							bind:value={eventDate}
+							class="bg-input/50"
+						/>
+					</div>
+					<div class="space-y-2">
+						<Label for="guests">{t.contact.labels.guests}</Label>
+						<Input
+							id="guests"
+							name="guests"
+							type="number"
+							required
+							min="1"
+							max="99999"
+							bind:value={guests}
+							placeholder={t.contact.placeholders.guests}
+						/>
+					</div>
+					<div class="space-y-2">
+						<Label for="location">
+							{t.contact.labels.location}
+							<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
+						</Label>
+						<Input
+							id="location"
+							name="location"
+							maxlength={200}
+							bind:value={location}
+							placeholder={t.contact.placeholders.location}
+						/>
+					</div>
+					<div class="space-y-2">
+						<Label for="dagdeel">
+							{t.contact.labels.dagdeel}
+							<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
+						</Label>
+						<select id="dagdeel" name="dagdeel" bind:value={dagdeel} class={selectClass}>
+							<option value="">{t.contact.dagdelen.placeholder}</option>
+							<option value="taartmoment">{t.contact.dagdelen.taartmoment}</option>
+							<option value="receptie">{t.contact.dagdelen.receptie}</option>
+							<option value="feest">{t.contact.dagdelen.feest}</option>
+							<option value="dessert">{t.contact.dagdelen.dessert}</option>
+							<option value="voorgerecht">{t.contact.dagdelen.voorgerecht}</option>
+						</select>
+					</div>
+					<div class="space-y-2">
+						<Label for="servingTime">
+							{t.contact.labels.servingTime}
+							<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
+						</Label>
+						<Input id="servingTime" name="servingTime" type="time" bind:value={servingTime} />
+					</div>
+					<div class="space-y-2 md:col-span-2">
+						<Label for="message">{t.contact.labels.message}</Label>
+						<Textarea
+							id="message"
+							name="message"
+							rows={5}
+							required
+							maxlength={5000}
+							placeholder={t.contact.placeholders.message}
+							bind:value={message}
+						/>
+					</div>
+					<div class="space-y-2 md:col-span-2">
+						<Label for="referral">
+							{t.contact.labels.referral}
+							<span class="text-xs text-muted-foreground">({t.contact.optional})</span>
+						</Label>
+						<Input
+							id="referral"
+							name="referral"
+							maxlength={200}
+							placeholder={t.contact.placeholders.referral}
+							bind:value={referral}
+						/>
+					</div>
+				</div>
+			{/if}
+
+			{@render honeypot()}
+
+			<div class="flex flex-wrap items-center justify-end gap-3">
+				{#if step > 1}
+					<Button type="button" variant="outline" size="lg" onclick={back}>
+						{t.contact.nav.back}
+					</Button>
+				{/if}
+				<span class="text-xs text-muted-foreground tabular-nums" aria-hidden="true">
+					{step}/{totalSteps}
+				</span>
+				{#if step < totalSteps}
+					<Button
+						type="button"
+						size="lg"
+						class="h-11 px-8 text-base font-semibold hover:bg-primary/85"
+						disabled={!canAdvance}
+						onclick={next}
+					>
+						{t.contact.nav.next}
+					</Button>
+				{:else}
+					<Button
+						type="submit"
+						size="lg"
+						class="h-11 px-8 text-base font-semibold hover:bg-primary/85"
+						disabled={submitting || !step2Valid}
+					>
+						{submitting ? t.contact.submitting : t.contact.submit}
+					</Button>
+				{/if}
+				{#if step === 1}
+					<!-- The simpler option: WhatsApp, prefilled with what they typed so far. -->
+					<span class="text-sm text-muted-foreground">{t.contact.whatsapp.or}</span>
+					{@render whatsappButton()}
+				{/if}
 			</div>
-		{/if}
+		</form>
 	</div>
 </section>

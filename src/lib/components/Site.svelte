@@ -6,7 +6,6 @@
 	import About from './About.svelte';
 	import Products from './Products.svelte';
 	import FAQ from './FAQ.svelte';
-	import CakeBanner from './CakeBanner.svelte';
 	import Reviews from './Reviews.svelte';
 	import Photos from './Photos.svelte';
 	import Contact from './Contact.svelte';
@@ -19,13 +18,12 @@
 <SEO {t} {locale} />
 
 <div id="top" class="bg-background text-foreground">
-	<Nav {t} />
+	<Nav {t} {locale} />
 	<main>
 		<Hero {t} />
-		<About {t} />
 		<Products {t} />
+		<About {t} />
 		<FAQ {t} />
-		<CakeBanner {t} />
 		<Reviews {t} {locale} />
 		<Photos {t} />
 		<Contact {t} {locale} />

@@ -1,6 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { isDbConfigured } from '$lib/server/db';
+import { dismissLead, listOpenLeads } from '$lib/server/leads';
 import {
 	createDeal,
 	deleteDeal,
@@ -38,6 +39,8 @@ const addDays = (iso: string, days: number) => {
 export const load: PageServerLoad = async ({ url }) => {
 	const dbConfigured = isDbConfigured();
 	const deals = dbConfigured ? await listDeals() : [];
+	// Half-finished contact forms (step 1 only). Best-effort: never break the page.
+	const leads = dbConfigured ? await listOpenLeads().catch(() => []) : [];
 	const today = todayStr();
 	const soon = addDays(today, 7); // "verloopt binnenkort" window for table colouring
 
@@ -48,6 +51,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
 	return {
 		deals,
+		leads,
 		today,
 		soon,
 		dbConfigured,
@@ -371,5 +375,19 @@ export const actions: Actions = {
 			return fail(500, { error: `Verwijderen mislukt: ${(err as Error).message}` });
 		}
 		return { deleted: true };
+	},
+
+	/** Hide a half-finished contact form from the follow-up list. */
+	dismissLead: async ({ request }) => {
+		if (!isDbConfigured()) return fail(503, { error: 'Geen database geconfigureerd.' });
+		const fd = await request.formData();
+		const id = str(fd, 'id', 64);
+		if (!id) return fail(400, { error: 'id ontbreekt.' });
+		try {
+			await dismissLead(id);
+		} catch (err) {
+			return fail(500, { error: `Wegklikken mislukt: ${(err as Error).message}` });
+		}
+		return { leadDismissed: true };
 	}
 };

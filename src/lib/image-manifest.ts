@@ -136,6 +136,26 @@ export const IMAGE_MANIFEST = {
 		height: 3333,
 		widths: [320, 640, 960, 1280, 1920]
 	},
+	tiramisu_dienblad_gijs: {
+		width: 1080,
+		height: 1800,
+		widths: [320, 640, 960]
+	},
+	tiramisu_dienblad_handen: {
+		width: 950,
+		height: 800,
+		widths: [320, 640]
+	},
+	tiramisutaart_bruiloft_aansnijden: {
+		width: 2000,
+		height: 1333,
+		widths: [320, 640, 960, 1280, 1920]
+	},
+	tiramisutaart_bruiloft_punt: {
+		width: 2000,
+		height: 1333,
+		widths: [320, 640, 960, 1280, 1920]
+	},
 	tiramisutaart_cacao: {
 		width: 5000,
 		height: 3333,

@@ -8,9 +8,9 @@
 </script>
 
 <section id="about" class="bg-background">
-	<div class="mx-auto max-w-5xl px-6 py-20 md:py-28">
+	<div class="mx-auto max-w-5xl px-6 py-14 md:py-20">
 		<SectionHeading align="center">{t.about.heading}</SectionHeading>
-		<div class="mt-10 grid items-center gap-8 md:mt-14 md:grid-cols-2 md:gap-12">
+		<div class="mt-8 grid items-center gap-8 md:mt-10 md:grid-cols-2 md:gap-12">
 			<figure class="overflow-hidden rounded-2xl bg-muted">
 				<div class="aspect-5/4">
 					<Picture

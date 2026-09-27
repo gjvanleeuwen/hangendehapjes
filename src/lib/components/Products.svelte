@@ -1,16 +1,31 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { Translations } from '$lib/i18n/types';
-	import * as Card from '$lib/components/ui/card/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Separator } from '$lib/components/ui/separator/index.js';
-	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import SectionHeading from './SectionHeading.svelte';
 	import Picture from './Picture.svelte';
 	import { trackInView } from '$lib/inView';
 
 	type Props = { t: Translations };
 	let { t }: Props = $props();
+
+	/** What every card on the homepage shows: the same fields for hapjes and cakes. */
+	type CardData = {
+		kicker: string;
+		name: string;
+		pitch: string;
+		priceFrom: string;
+		priceNote: string;
+		href?: string;
+		image: string;
+		imageAlt: string;
+		position?: string;
+		video?: { playbackId: string; title: string };
+	};
+
+	const hapjes: CardData[] = $derived(
+		t.products.items.map((p) => ({ ...p, href: p.article?.href }))
+	);
 
 	onMount(() => {
 		if (t.products.items.some((product) => product.video)) {
@@ -19,92 +34,75 @@
 	});
 </script>
 
+{#snippet productCard(card: CardData)}
+	<svelte:element
+		this={card.href ? 'a' : 'div'}
+		href={card.href}
+		class="group flex flex-col overflow-hidden rounded-xl bg-card text-card-foreground ring-1 ring-foreground/10 transition-shadow hover:ring-(--brand-amaranth)/40"
+	>
+		<div class="relative aspect-4/3 overflow-hidden bg-muted">
+			{#if card.video}
+				<mux-player
+					playback-id={card.video.playbackId}
+					stream-type="on-demand"
+					title={card.video.title}
+					autoplay="muted"
+					muted
+					loop
+					nohotkeys
+					style="position: absolute; inset: 0; width: 100%; height: 100%; --controls: none; --media-object-fit: cover;"
+				></mux-player>
+			{:else}
+				<Picture
+					src={card.image}
+					alt={card.imageAlt}
+					sizes="(min-width: 1024px) 360px, (min-width: 640px) 50vw, 100vw"
+					loading="lazy"
+					class="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105 {card.position ??
+						''}"
+				/>
+			{/if}
+		</div>
+		<div class="flex flex-1 flex-col p-5">
+			<p class="text-xs font-medium tracking-[0.15em] text-muted-foreground uppercase">
+				{card.kicker}
+			</p>
+			<h4 class="mt-2 font-heading text-2xl leading-tight">{card.name}</h4>
+			<p class="mt-2 text-sm leading-relaxed text-muted-foreground">{card.pitch}</p>
+			<div class="mt-auto pt-5">
+				<p class="font-heading text-xl">{card.priceFrom}</p>
+				<p class="mt-1 text-xs text-muted-foreground/70">{card.priceNote}</p>
+			</div>
+		</div>
+	</svelte:element>
+{/snippet}
+
 <section id="products" class="bg-muted/40" use:trackInView={{ event: 'home_products_view' }}>
 	<div class="mx-auto max-w-6xl px-6 py-20 md:py-28">
-		<div class="mb-12 max-w-2xl">
+		<div class="mb-10 max-w-2xl">
 			<SectionHeading>{t.products.heading}</SectionHeading>
 			<p class="mt-3 text-muted-foreground">{t.products.intro}</p>
 		</div>
 
-		<div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-			{#each t.products.items as product (product.id)}
-				<Card.Root class="overflow-hidden p-0">
-					<div class="aspect-3/4 overflow-hidden bg-muted">
-						{#if product.video}
-							<mux-player
-								playback-id={product.video.playbackId}
-								stream-type="on-demand"
-								title={product.video.title}
-								autoplay="muted"
-								muted
-								loop
-								nohotkeys
-								style="display: block; width: 100%; height: 100%; --controls: none; --media-object-fit: cover;"
-							></mux-player>
-						{:else}
-							<Picture
-								src={product.image}
-								alt={product.imageAlt}
-								sizes="(min-width: 768px) min(540px, 50vw), 100vw"
-								loading="lazy"
-								class="size-full object-cover"
-							/>
-						{/if}
-					</div>
-					<Card.Header class="px-6 pt-6">
-						<p class="text-xs font-medium tracking-[0.15em] text-muted-foreground uppercase">
-							{product.kicker}
-						</p>
-						<Card.Title class="font-heading text-2xl">{product.name}</Card.Title>
-						<Card.Description class="text-base text-muted-foreground">
-							{product.pitch}
-						</Card.Description>
-					</Card.Header>
-					<Card.Content class="px-6 pb-6">
-						<div>
-							<p class="font-heading text-xl">{product.priceFrom}</p>
-							<p class="mt-1 text-xs text-muted-foreground/70">{product.priceNote}</p>
-						</div>
-						<Separator class="my-6" />
-						<ul class="space-y-2 text-sm leading-relaxed text-muted-foreground">
-							{#each product.bullets as bullet, i (i)}
-								<li class="flex gap-3">
-									<span class="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground/60"></span>
-									{#if typeof bullet === 'string'}
-										<span>{bullet}</span>
-									{:else}
-										<details class="group flex-1">
-											<summary
-												class="flex cursor-pointer list-none items-center gap-1 [&::-webkit-details-marker]:hidden"
-											>
-												<span>{bullet.label}</span>
-												<ChevronRight
-													class="size-3 opacity-60 transition-transform group-open:rotate-90"
-												/>
-											</summary>
-											<p class="mt-1.5 pl-0 text-xs text-muted-foreground/80">
-												{bullet.options.join(' · ')}
-											</p>
-										</details>
-									{/if}
-								</li>
-							{/each}
-						</ul>
-						{#if product.article}
-							<a
-								href={product.article.href}
-								class="mt-5 inline-flex items-center gap-1 text-sm font-medium text-(--brand-magenta) hover:underline"
-							>
-								{product.article.label}
-								<ChevronRight class="size-3.5" />
-							</a>
-						{/if}
-					</Card.Content>
-				</Card.Root>
+		<h3 class="mb-4 font-heading text-2xl tracking-tight">{t.products.hapjesHeading}</h3>
+		<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			{#each hapjes as card (card.name)}
+				{@render productCard(card)}
 			{/each}
 		</div>
 
-		<p class="mt-8 text-center text-xs text-muted-foreground">{t.products.priceFooter}</p>
+		{#if t.products.cakes}
+			<div id="bruidstaarten" class="mt-12 scroll-mt-20">
+				<h3 class="mb-4 font-heading text-2xl tracking-tight">{t.products.cakes.heading}</h3>
+				<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+					{#each t.products.cakes.items as card (card.id)}
+						{@render productCard(card)}
+					{/each}
+				</div>
+			</div>
+		{/if}
+
+		<p class="mt-10 text-center text-xs text-muted-foreground">{t.products.priceFooter}</p>
 		<div class="mt-3 flex justify-center">
 			<Button
 				href="{t.nav.homeHref}#contact"

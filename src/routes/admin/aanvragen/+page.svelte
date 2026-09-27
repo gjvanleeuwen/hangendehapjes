@@ -110,7 +110,13 @@
 	const activeQuoteId = (d: Deal) => activeQuoteOf(d)?.id ?? '';
 
 	const serviceLabel = (d: Deal) =>
-		d.serviceType === 'taart' ? 'Taart' : d.serviceType === 'hapjes' ? 'Hapjes' : d.serviceType;
+		d.serviceType === 'taart'
+			? 'Taart'
+			: d.serviceType === 'hapjes'
+				? 'Hapjes'
+				: d.serviceType === 'anders'
+					? 'Anders'
+					: d.serviceType;
 
 	const dealRank = (d: Deal) => {
 		if (isWon(d) || d.acceptedTermsAt) return 0;
@@ -492,6 +498,7 @@
 						<option value="">—</option>
 						<option value="hapjes">Hapjes (live)</option>
 						<option value="taart">Taart / dessert</option>
+						<option value="anders">Anders / op maat</option>
 					</select>
 				</div>
 				<div class="space-y-1">
@@ -536,6 +543,58 @@
 				<Button type="button" variant="outline" onclick={() => (showAdd = false)}>Annuleren</Button>
 			</div>
 		</form>
+	{/if}
+
+	<!-- Half-finished contact forms: saved on "Volgende", cleared on full submit. -->
+	{#if data.leads.length > 0}
+		<section class="space-y-2">
+			<div class="flex items-baseline justify-between gap-2">
+				<h2 class="font-heading text-lg">✉️ Half ingevulde aanvragen ({data.leads.length})</h2>
+				<p class="text-xs text-muted-foreground">Wel stap 1 gedaan, stap 2 nooit verstuurd</p>
+			</div>
+			<div class="overflow-x-auto border bg-card">
+				<table class="w-full text-sm">
+					<thead class="bg-muted/50 text-left text-xs text-muted-foreground">
+						<tr>
+							<th class="px-3 py-2 font-medium">Naam</th>
+							<th class="px-3 py-2 font-medium">E-mail</th>
+							<th class="px-3 py-2 font-medium">Telefoon</th>
+							<th class="px-3 py-2 font-medium">Keuze</th>
+							<th class="px-3 py-2 font-medium">Laatst</th>
+							<th class="px-3 py-2"></th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each data.leads as lead (lead.id)}
+							<tr class="border-t">
+								<td class="px-3 py-2">{lead.name || '—'}</td>
+								<td class="px-3 py-2">
+									<a class="underline" href="mailto:{lead.email}">{lead.email}</a>
+								</td>
+								<td class="px-3 py-2">
+									{#if lead.phone}<a class="underline" href="tel:{lead.phone}">{lead.phone}</a
+										>{:else}—{/if}
+								</td>
+								<td class="px-3 py-2">{lead.choice || '—'}</td>
+								<td class="px-3 py-2 whitespace-nowrap text-muted-foreground">
+									{new Date(lead.updatedAt).toLocaleDateString('nl-NL', {
+										day: 'numeric',
+										month: 'short'
+									})}
+								</td>
+								<td class="px-3 py-2 text-right">
+									<form method="POST" action="?/dismissLead" class="inline" use:enhance>
+										<input type="hidden" name="id" value={lead.id} />
+										<button type="submit" class="text-muted-foreground underline">Wegklikken</button
+										>
+									</form>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+		</section>
 	{/if}
 
 	<!-- Agenda: booked events on a calendar + height-matched scrollable list -->
@@ -1179,6 +1238,7 @@
 												<option value="">—</option>
 												<option value="hapjes">Hapjes (live)</option>
 												<option value="taart">Taart / dessert</option>
+												<option value="anders">Anders / op maat</option>
 											</select>
 										</div>
 										<div class="space-y-1">
