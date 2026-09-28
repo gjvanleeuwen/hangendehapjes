@@ -1,0 +1,41 @@
+{
+	"current_period": {
+		"start": "2026-08-24",
+		"end": "2026-09-20",
+		"days_inclusive": 28,
+		"clicks": 135,
+		"impressions": 3647,
+		"ctr": 0.03701672607622704,
+		"position": 12.978338360296133
+	},
+	"previous_period": {
+		"start": "2026-07-27",
+		"end": "2026-08-23",
+		"days_inclusive": 28,
+		"clicks": 114,
+		"impressions": 3149,
+		"ctr": 0.03620196887900921,
+		"position": 12.777072086376627
+	},
+	"changes": {
+		"clicks_pct": 18.421052631578938,
+		"impressions_pct": 15.814544299777712,
+		"ctr_percentage_points": 0.08147571972178316,
+		"position_delta": 0.20126627391950613
+	},
+	"latest_long_period": {
+		"start": "2026-06-22",
+		"end": "2026-09-20",
+		"days_inclusive": 91,
+		"clicks": 366,
+		"impressions": 9601,
+		"ctr": 0.03812102905947297,
+		"position": 12.190500989480263
+	},
+	"notes": [
+		"CTR fields are fractions unless explicitly named percentage points.",
+		"Queries omit anonymized traffic; do not infer whole-property branded mix.",
+		"Long windows overlap the August baseline.",
+		"Source helper labels 91 and 29 inclusive days as 90 and 28; exact pulls drive this report."
+	]
+}

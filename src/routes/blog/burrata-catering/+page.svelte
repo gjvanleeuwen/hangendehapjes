@@ -3,7 +3,7 @@
 	import Footer from '$lib/components/Footer.svelte';
 	import Picture from '$lib/components/Picture.svelte';
 	import { jsonLdScript, aggregateRatingJsonLd } from '$lib/seo';
-	import BlogReviewTeaser from '$lib/blog/BlogReviewTeaser.svelte';
+	import BlogSummary from '$lib/blog/BlogSummary.svelte';
 	import {
 		BUILD_DATE,
 		OG_IMAGE_HEIGHT,
@@ -185,25 +185,16 @@
 				</p>
 			</header>
 
-			<section
-				class="mt-10 rounded-xl border border-(--brand-magenta)/15 bg-(--brand-magenta)/5 px-6 py-5"
-				aria-labelledby="snel-antwoord"
-			>
-				<h2
-					id="snel-antwoord"
-					class="text-xs font-semibold tracking-wider text-(--brand-magenta) uppercase"
-				>
-					Alles op een rijtje
-				</h2>
-				<ul
-					class="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground marker:text-(--brand-magenta)"
-				>
-					<li>Verse stracciatella, live opgebouwd per gast</li>
-					<li>50–60 porties per uur per bediende</li>
-					<li>2 toppings en 1 saus naar keuze, met vlees of vegetarisch</li>
-					<li>Inzetbaar tijdens borrel, receptie, walking dinner, feest of beurs</li>
-				</ul>
-			</section>
+			<BlogSummary reviews={borrelReviews}>
+				<li>
+					<strong>Live hapje:</strong> verse stracciatella, per gast opgebouwd, vanaf €450 voor 50 gasten.
+				</li>
+				<li><strong>Keuze:</strong> 2 toppings en 1 saus, met vlees of vegetarisch.</li>
+				<li><strong>Dieetwensen:</strong> vegetarisch of glutenvrij kan ook.</li>
+				<li>
+					<strong>Inbegrepen:</strong> bakjes, servetten en opruimen. Reiskosten tot ~30km rondom Hilversum.
+				</li>
+			</BlogSummary>
 
 			<figure class="mt-10 overflow-hidden rounded-xl bg-muted">
 				<div class="aspect-3/2">
@@ -224,15 +215,14 @@
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Hangende Hapjes is een live cateringconcept waarbij elke gast een eigen burrata-bowl
 					krijgt. Die bowl maken we met verse stracciatella, het romige binnenste van burrata, en
-					Italiaanse toppings en saus naar keuze. Waar een klassieke burrata bar vaak een vast
-					station is, doen wij het lopend tussen je gasten.
+					Italiaanse toppings en saus naar keuze. Geen vaste plek of buffettafel: wij lopen ermee
+					tussen je gasten door.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Bij Hangende Hapjes is de burrata bar mobiel: we lopen met een hangend dienblad tussen
-					jouw gasten door en bouwen elk gerecht op het moment van serveren op. Iedereen kiest zijn
-					eigen toppings, krijgt er een praatje bij over de burrata of de nduja, en krijgt een vers
-					gemaakt borrelhapje. Geen rijen, geen lege schalen, en een portie die ook goed past bij
-					walking dinners en zakelijke evenementen.
+					We lopen met een hangend dienblad tussen jouw gasten door en bouwen elk gerecht op het
+					moment van serveren op. Iedereen kiest zijn eigen toppings, krijgt er een praatje bij over
+					de burrata of de nduja, en krijgt een vers gemaakt borrelhapje. Geen rijen, geen lege
+					schalen, en een portie die ook goed past bij walking dinners en zakelijke evenementen.
 				</p>
 			</section>
 
@@ -263,10 +253,6 @@
 						<strong>1 saus naar keuze</strong>: olijfolie, balsamico, truffelolie, pesto of spicy
 						honey
 					</li>
-					<li>
-						<strong>Duurzame bakjes en bestek</strong>, gebruiksvriendelijk voor staand eten en ook
-						geschikt voor kinderen of oudere gasten
-					</li>
 				</ul>
 				<figure class="mt-6">
 					<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -289,10 +275,6 @@
 							/>
 						</div>
 					</div>
-					<!-- <figcaption class="mt-2 text-sm text-muted-foreground">
-						Drie combinaties die we vaak maken: crispy prosciutto met balsamico, gegrilde perzik met
-						pistache, en tomatensalsa met pesto.
-					</figcaption> -->
 				</figure>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Smaakprofielen die we vaak terugzien:
@@ -315,8 +297,6 @@
 				</p>
 			</section>
 
-			<BlogReviewTeaser reviews={borrelReviews} />
-
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
 					Wanneer en waar past een burrata bar?
@@ -328,19 +308,19 @@
 					class="ml-6 list-disc space-y-1.5 text-base leading-relaxed text-muted-foreground md:text-lg"
 				>
 					<li>
-						<strong>Tijdens de borrel of receptie</strong> — tussen ceremonie en diner, of als zakelijke
+						<strong>Tijdens de borrel of receptie:</strong> tussen ceremonie en diner, of als zakelijke
 						borrel op een bedrijfsfeest, in plaats van kaasplankjes en bitterballen.
 					</li>
 					<li>
-						<strong>Als eerste of tweede gang in een walking dinner</strong> — de avondcateraar pakt daarna
+						<strong>Als eerste of tweede gang in een walking dinner:</strong> de avondcateraar pakt daarna
 						de warme gangen over.
 					</li>
 					<li>
-						<strong>Als midnight snack</strong> — laat op de avond, hartig maar niet zwaar, naast (of
-						in plaats van) een puntzak friet.
+						<strong>Als midnight snack:</strong> laat op de avond, hartig maar niet zwaar, naast (of in
+						plaats van) een puntzak friet.
 					</li>
 					<li>
-						<strong>Hartig én zoet samen</strong> — burrata bij de borrel, tiramisu als dessert, los van
+						<strong>Hartig én zoet samen:</strong> burrata bij de borrel, tiramisu als dessert, los van
 						elkaar getimed.
 					</li>
 				</ul>
@@ -368,44 +348,56 @@
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Wat een burrata bar kost</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					In de tabel hieronder zie je de vanaf-prijs (excl. BTW) voor onze live burrata bar; 1
-					portie = 1 gast. Dat bedrag is all-in: het maken, het rondlopen tussen je gasten, servies
-					en servetten en de afwas achteraf zitten er allemaal in.
+					Dit zijn pakketprijzen, excl. btw, waarbij 1 portie 1 gast is. Bezorgen, opbouwen op
+					locatie, servetten en dieetwensen zijn altijd inbegrepen.
 				</p>
-				<div class="overflow-x-auto">
-					<table class="w-full border-collapse text-sm md:text-base">
-						<thead>
-							<tr class="border-b border-border text-left">
-								<th class="py-3 pr-4 font-heading font-semibold">Porties</th>
-								<th class="py-3 pr-4 font-heading font-semibold">Tijd &amp; bezetting</th>
-								<th class="py-3 font-heading font-semibold">Prijs</th>
+				<div class="rounded-xl border border-border px-5 py-4">
+					<h3 class="font-heading text-lg tracking-tight">Live burrata bar</h3>
+					<table class="mt-2 w-full border-collapse text-sm">
+						<thead class="sr-only">
+							<tr>
+								<th>Aantal gasten</th>
+								<th>Prijs</th>
 							</tr>
 						</thead>
 						<tbody class="text-muted-foreground">
 							<tr class="border-b border-border/60">
-								<td class="py-3 pr-4">50</td>
-								<td class="py-3 pr-4">1 uur, 1 bediende</td>
-								<td class="py-3">€450</td>
+								<td class="py-2 pr-3">
+									<span class="text-foreground">50 gasten</span>
+									<span class="block text-xs">1 uur, 1 persoon</span>
+								</td>
+								<td class="py-2 text-right font-medium text-foreground">€450</td>
 							</tr>
 							<tr class="border-b border-border/60">
-								<td class="py-3 pr-4">100</td>
-								<td class="py-3 pr-4">1 uur, 2 bedienden (of 2 uur, 1)</td>
-								<td class="py-3">€700</td>
+								<td class="py-2 pr-3">
+									<span class="text-foreground">100 gasten</span>
+									<span class="block text-xs">1 uur met 2, of 2 uur met 1</span>
+								</td>
+								<td class="py-2 text-right font-medium text-foreground">€700</td>
 							</tr>
 							<tr>
-								<td class="py-3 pr-4">200</td>
-								<td class="py-3 pr-4">2 uur, 2 bedienden</td>
-								<td class="py-3">€1.200</td>
+								<td class="py-2 pr-3">
+									<span class="text-foreground">200 gasten</span>
+									<span class="block text-xs">2 uur, 2 personen</span>
+								</td>
+								<td class="py-2 text-right font-medium text-foreground">€1.200</td>
 							</tr>
 						</tbody>
 					</table>
+					<p class="mt-3 text-xs leading-relaxed text-muted-foreground">
+						Bij de hangende hapjes verzorgen we niet alleen het uitserveren, maar ontzorgen we jullie
+						en de locatie volledig. Stevige, duurzame bakjes, bestek en servetten zijn inbegrepen, zo
+						is het makkelijk eten, ook voor kinderen en oudere gasten.
+					</p>
+					<p class="mt-2 text-xs leading-relaxed text-muted-foreground">
+						Reiskosten zijn inbegrepen tot ~30km rondom Hilversum (Het Gooi, Amersfoort, Amsterdam
+						en Utrecht). Hierbuiten brengen wij reiskosten in rekening voor de extra kilometers.
+					</p>
+					<p class="mt-2 text-xs leading-relaxed text-muted-foreground">
+						Wil je burrata en tiramisu samen op één feest? Dan krijg je ongeveer €125 korting op de
+						gecombineerde vanafprijs.
+					</p>
 				</div>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Reiskosten: in het Gooi, Amsterdam en Utrecht zitten ze gewoon in de prijs. Verder weg
-					rekenen we de reis mee in je offerte, zodat je één totaalbedrag ziet. Wil je burrata en
-					tiramisu samen op één feest? Dan krijg je ongeveer €125 korting op de gecombineerde
-					vanafprijs.
-				</p>
 			</section>
 
 			<BlogCta

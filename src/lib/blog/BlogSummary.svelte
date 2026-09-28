@@ -7,10 +7,12 @@
 	type Props = {
 		reviews: Review[];
 		heading?: string;
+		/** How many reviews the teaser quotes; see BlogReviewTeaser. */
+		quotes?: number;
 		/** The summary bullets, as `<li>` elements. */
 		children: Snippet;
 	};
-	let { reviews, heading = 'Snelle samenvatting', children }: Props = $props();
+	let { reviews, heading = 'Snelle samenvatting', quotes = 1, children }: Props = $props();
 </script>
 
 <!-- Summary next to the review teaser, placed right below the intro of a blog post. -->
@@ -28,5 +30,5 @@
 			{@render children()}
 		</ul>
 	</div>
-	<BlogReviewTeaser {reviews} class="h-full" />
+	<BlogReviewTeaser {reviews} {quotes} class="h-full" />
 </section>

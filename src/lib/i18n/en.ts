@@ -25,7 +25,7 @@ export const en: Translations = {
 		eyebrow: 'Entertaining Food',
 		title: 'Bites your guests will remember.',
 		subtitle:
-			'With a tray full of homemade bites, we walk between your guests. Something for everyone in a unique way, with a chat and a smile.',
+			'Right in the middle of your guests, we make the tastiest bites live, with a chat and a smile. We even build wedding cakes on location, so everything is just perfect.',
 		secondaryCta: 'See our concepts',
 		image: HERO_IMAGE,
 		imageAlt:
@@ -177,7 +177,7 @@ export const en: Translations = {
 				id: 'travel',
 				question: 'Do you charge travel costs?',
 				answer:
-					'Travel is included for the Gooi region, Amsterdam, Utrecht, Amersfoort and Almere. Further afield we build the travel into your quote, so you always see one total and nothing gets added afterwards.'
+					'Travel is included for the Gooi region, Amsterdam, Utrecht, Amersfoort and Almere. Beyond that, we charge travel costs for the extra kilometres.'
 			},
 			{
 				id: 'combine',
@@ -195,7 +195,7 @@ export const en: Translations = {
 				id: 'diet',
 				question: 'Do you cater for allergies or dietary preferences?',
 				answer:
-					'Yes, we’re happy to think along. The tiramisu uses mascarpone, egg and ladyfingers (not lactose- or gluten-free), but can be made alcohol-free and caffeine-free. The burrata bowl is vegetarian and can also be made gluten-free. Let us know in your request and we’ll see what works.'
+					'Yes, we’re happy to think along. The tiramisu can be made alcohol-free and caffeine-free, and we can bring a lactose- and gluten-free tiramisu as an alternative. Unfortunately we don’t have a vegan tiramisu, so for vegan guests we bring a different cake instead. The burrata bowl is vegetarian and can also be made gluten-free. Let us know in your request and we’ll see what works.'
 			},
 			{
 				id: 'pace',

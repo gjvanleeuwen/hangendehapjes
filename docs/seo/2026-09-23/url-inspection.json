@@ -1,0 +1,311 @@
+{
+	"site": "sc-domain:hangendehapjes.nl",
+	"inspected_at": "2026-09-23T08:02:25.379192Z",
+	"summary": {
+		"total_urls_inspected": 9,
+		"not_indexed_count": 0,
+		"mobile_issues_count": 0,
+		"rich_result_errors_count": 0,
+		"no_sitemap_count": 5,
+		"stale_crawl_count": 0,
+		"not_indexed_urls": [],
+		"mobile_issue_urls": [],
+		"rich_error_urls": [],
+		"stale_crawl_urls": []
+	},
+	"results": [
+		{
+			"url": "https://hangendehapjes.nl/",
+			"index_status": {
+				"verdict": "PASS",
+				"coverage_state": "Submitted and indexed",
+				"last_crawl_time": "2026-09-17T07:46:01Z",
+				"crawled_as": "MOBILE",
+				"indexing_state": "INDEXING_ALLOWED",
+				"page_fetch_state": "SUCCESSFUL",
+				"robots_txt_state": "ALLOWED",
+				"referring_sitemaps": ["https://hangendehapjes.nl/sitemap.xml"],
+				"google_canonical": "https://hangendehapjes.nl/",
+				"user_declared_canonical": "https://hangendehapjes.nl/"
+			},
+			"mobile_usability": {
+				"verdict": "VERDICT_UNSPECIFIED",
+				"issues": []
+			},
+			"rich_results": {
+				"verdict": "PASS",
+				"detected_items": [
+					{
+						"name": "Hangende Hapjes",
+						"issues": []
+					}
+				]
+			}
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart",
+			"index_status": {
+				"verdict": "PASS",
+				"coverage_state": "Submitted and indexed",
+				"last_crawl_time": "2026-09-16T03:10:24Z",
+				"crawled_as": "MOBILE",
+				"indexing_state": "INDEXING_ALLOWED",
+				"page_fetch_state": "SUCCESSFUL",
+				"robots_txt_state": "ALLOWED",
+				"referring_sitemaps": ["https://hangendehapjes.nl/sitemap.xml"],
+				"google_canonical": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart",
+				"user_declared_canonical": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart"
+			},
+			"mobile_usability": {
+				"verdict": "VERDICT_UNSPECIFIED",
+				"issues": []
+			},
+			"rich_results": {
+				"verdict": "PASS",
+				"detected_items": [
+					{
+						"name": "Italiaanse bruidstaart (millefoglie) catering",
+						"issues": []
+					},
+					{
+						"name": "Italiaanse bruidstaart (millefoglie) catering",
+						"issues": [
+							"Missing field \"hasMerchantReturnPolicy\"",
+							"Missing field \"shippingDetails\""
+						]
+					},
+					{
+						"name": "Italiaanse bruidstaart (millefoglie) catering",
+						"issues": []
+					}
+				]
+			}
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/tiramisu-bruiloft",
+			"index_status": {
+				"verdict": "PASS",
+				"coverage_state": "Submitted and indexed",
+				"last_crawl_time": "2026-09-22T22:12:20Z",
+				"crawled_as": "MOBILE",
+				"indexing_state": "INDEXING_ALLOWED",
+				"page_fetch_state": "SUCCESSFUL",
+				"robots_txt_state": "ALLOWED",
+				"referring_sitemaps": [],
+				"google_canonical": "https://hangendehapjes.nl/blog/tiramisu-bruiloft",
+				"user_declared_canonical": "https://hangendehapjes.nl/blog/tiramisu-bruiloft"
+			},
+			"mobile_usability": {
+				"verdict": "VERDICT_UNSPECIFIED",
+				"issues": []
+			},
+			"rich_results": {
+				"verdict": "PASS",
+				"detected_items": [
+					{
+						"name": "Live tiramisu catering",
+						"issues": []
+					},
+					{
+						"name": "Live tiramisu catering",
+						"issues": [
+							"Missing field \"hasMerchantReturnPolicy\"",
+							"Missing field \"shippingDetails\""
+						]
+					},
+					{
+						"name": "Live tiramisu catering",
+						"issues": []
+					}
+				]
+			}
+		},
+		{
+			"url": "https://hangendehapjes.nl/catering/hilversum",
+			"index_status": {
+				"verdict": "PASS",
+				"coverage_state": "Submitted and indexed",
+				"last_crawl_time": "2026-09-19T18:05:04Z",
+				"crawled_as": "MOBILE",
+				"indexing_state": "INDEXING_ALLOWED",
+				"page_fetch_state": "SUCCESSFUL",
+				"robots_txt_state": "ALLOWED",
+				"referring_sitemaps": [],
+				"google_canonical": "https://hangendehapjes.nl/catering/hilversum",
+				"user_declared_canonical": "https://hangendehapjes.nl/catering/hilversum"
+			},
+			"mobile_usability": {
+				"verdict": "VERDICT_UNSPECIFIED",
+				"issues": []
+			},
+			"rich_results": {
+				"verdict": "PASS",
+				"detected_items": [
+					{
+						"name": "Unnamed item",
+						"issues": []
+					}
+				]
+			}
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/bruidstaart",
+			"index_status": {
+				"verdict": "PASS",
+				"coverage_state": "Submitted and indexed",
+				"last_crawl_time": "2026-09-13T18:41:17Z",
+				"crawled_as": "MOBILE",
+				"indexing_state": "INDEXING_ALLOWED",
+				"page_fetch_state": "SUCCESSFUL",
+				"robots_txt_state": "ALLOWED",
+				"referring_sitemaps": [],
+				"google_canonical": "https://hangendehapjes.nl/blog/bruidstaart",
+				"user_declared_canonical": "https://hangendehapjes.nl/blog/bruidstaart"
+			},
+			"mobile_usability": {
+				"verdict": "VERDICT_UNSPECIFIED",
+				"issues": []
+			},
+			"rich_results": {
+				"verdict": "PASS",
+				"detected_items": [
+					{
+						"name": "Bruidstaart op maat (catering)",
+						"issues": []
+					},
+					{
+						"name": "Bruidstaart op maat (catering)",
+						"issues": [
+							"Missing field \"hasMerchantReturnPolicy\"",
+							"Missing field \"shippingDetails\""
+						]
+					},
+					{
+						"name": "Bruidstaart op maat (catering)",
+						"issues": []
+					}
+				]
+			}
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/burrata-catering",
+			"index_status": {
+				"verdict": "PASS",
+				"coverage_state": "Submitted and indexed",
+				"last_crawl_time": "2026-09-14T16:49:43Z",
+				"crawled_as": "MOBILE",
+				"indexing_state": "INDEXING_ALLOWED",
+				"page_fetch_state": "SUCCESSFUL",
+				"robots_txt_state": "ALLOWED",
+				"referring_sitemaps": ["https://hangendehapjes.nl/sitemap.xml"],
+				"google_canonical": "https://hangendehapjes.nl/blog/burrata-catering",
+				"user_declared_canonical": "https://hangendehapjes.nl/blog/burrata-catering"
+			},
+			"mobile_usability": {
+				"verdict": "VERDICT_UNSPECIFIED",
+				"issues": []
+			},
+			"rich_results": {
+				"verdict": "PASS",
+				"detected_items": [
+					{
+						"name": "Live burrata bar catering",
+						"issues": []
+					},
+					{
+						"name": "Live burrata bar catering",
+						"issues": [
+							"Missing field \"shippingDetails\"",
+							"Missing field \"hasMerchantReturnPolicy\""
+						]
+					},
+					{
+						"name": "Live burrata bar catering",
+						"issues": []
+					}
+				]
+			}
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/hoeveel-hapjes-per-persoon",
+			"index_status": {
+				"verdict": "PASS",
+				"coverage_state": "Submitted and indexed",
+				"last_crawl_time": "2026-09-20T05:07:06Z",
+				"crawled_as": "MOBILE",
+				"indexing_state": "INDEXING_ALLOWED",
+				"page_fetch_state": "SUCCESSFUL",
+				"robots_txt_state": "ALLOWED",
+				"referring_sitemaps": ["https://hangendehapjes.nl/sitemap.xml"],
+				"google_canonical": "https://hangendehapjes.nl/blog/hoeveel-hapjes-per-persoon",
+				"user_declared_canonical": "https://hangendehapjes.nl/blog/hoeveel-hapjes-per-persoon"
+			},
+			"mobile_usability": {
+				"verdict": "VERDICT_UNSPECIFIED",
+				"issues": []
+			},
+			"rich_results": {
+				"verdict": "VERDICT_UNSPECIFIED",
+				"detected_items": []
+			}
+		},
+		{
+			"url": "https://hangendehapjes.nl/en",
+			"index_status": {
+				"verdict": "PASS",
+				"coverage_state": "Submitted and indexed",
+				"last_crawl_time": "2026-09-22T04:01:29Z",
+				"crawled_as": "MOBILE",
+				"indexing_state": "INDEXING_ALLOWED",
+				"page_fetch_state": "SUCCESSFUL",
+				"robots_txt_state": "ALLOWED",
+				"referring_sitemaps": [],
+				"google_canonical": "https://hangendehapjes.nl/en",
+				"user_declared_canonical": "https://hangendehapjes.nl/en"
+			},
+			"mobile_usability": {
+				"verdict": "VERDICT_UNSPECIFIED",
+				"issues": []
+			},
+			"rich_results": {
+				"verdict": "PASS",
+				"detected_items": [
+					{
+						"name": "Hangende Hapjes",
+						"issues": []
+					}
+				]
+			}
+		},
+		{
+			"url": "https://hangendehapjes.nl/en/catering/hilversum",
+			"index_status": {
+				"verdict": "PASS",
+				"coverage_state": "Submitted and indexed",
+				"last_crawl_time": "2026-09-19T19:17:59Z",
+				"crawled_as": "MOBILE",
+				"indexing_state": "INDEXING_ALLOWED",
+				"page_fetch_state": "SUCCESSFUL",
+				"robots_txt_state": "ALLOWED",
+				"referring_sitemaps": [],
+				"google_canonical": "https://hangendehapjes.nl/en/catering/hilversum",
+				"user_declared_canonical": "https://hangendehapjes.nl/en/catering/hilversum"
+			},
+			"mobile_usability": {
+				"verdict": "VERDICT_UNSPECIFIED",
+				"issues": []
+			},
+			"rich_results": {
+				"verdict": "PASS",
+				"detected_items": [
+					{
+						"name": "Unnamed item",
+						"issues": []
+					}
+				]
+			}
+		}
+	],
+	"errors": [],
+	"parser_note": "Corrected referringSitemaps/userDeclaredCanonical to API fields sitemap/userCanonical using archived raw responses. Other fields retain original inspection."
+}

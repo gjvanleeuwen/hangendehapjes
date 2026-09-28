@@ -1,0 +1,727 @@
+{
+	"audited_at": "2026-09-22T20:07:30.942921+00:00",
+	"domain": "hangendehapjes.nl",
+	"audit_status": "technical_complete_performance_blocked",
+	"sources": "Direct production HTTP fetches; local source review. No browser-rendered measurements.",
+	"gsc": {
+		"status": "unavailable",
+		"reason": "ADC property list excludes target; existing owner CLI account returned ACCESS_TOKEN_SCOPE_INSUFFICIENT",
+		"current_metrics": null,
+		"historical_baseline": {
+			"audit_date": "2026-08-09",
+			"start": "2026-05-08",
+			"end": "2026-08-06",
+			"inclusive_days": 91,
+			"clicks": 252,
+			"impressions": 5690,
+			"ctr_pct": 4.43,
+			"position": 10.2
+		}
+	},
+	"pages": [
+		{
+			"url": "https://hangendehapjes.nl/",
+			"status": 200,
+			"title": "Hangende Hapjes | Live catering voor jouw bruiloft of evenement",
+			"title_length": 63,
+			"description": "Verse tiramisu en burrata-bowls, ter plekke gemaakt voor jouw gasten. Hapjes en borrel catering voor bruiloften, recepties en zakelijke events. Vanaf €425.",
+			"description_length": 155,
+			"robots": "index, follow, max-image-preview:large",
+			"x_robots_headers": {},
+			"canonical_and_alternates": [
+				{
+					"rel": "canonical",
+					"href": "https://hangendehapjes.nl/"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "nl",
+					"href": "https://hangendehapjes.nl/"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "en",
+					"href": "https://hangendehapjes.nl/en"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "x-default",
+					"href": "https://hangendehapjes.nl/"
+				}
+			],
+			"headings": [
+				["h1", "Hapjes die jouw gasten onthouden."],
+				["h2", "Aan wie hangen de hapjes?"],
+				["h2", "Kies jij voor zoet of zout?"],
+				["h3", "Eten als Entertainment"],
+				["h3", "Persoonlijk & gigantisch lekker"],
+				["h2", "Veelgestelde vragen"],
+				["h3", "Wij maken ook bruidstaarten"],
+				["h2", "Wat gasten zeggen"],
+				["h2", "In actie"],
+				["h2", "Boek ons voor jouw feest"]
+			],
+			"og_image": "https://hangendehapjes.nl/og-image.jpg",
+			"html_bytes": 99121,
+			"element_count": 489,
+			"image_count": 7,
+			"images_missing_alt": 0,
+			"images_missing_dimensions": 0,
+			"json_ld_entities": [
+				{
+					"@type": "LocalBusiness",
+					"@id": "https://hangendehapjes.nl/#localbusiness",
+					"name": "Hangende Hapjes",
+					"aggregateRating": {
+						"@type": "AggregateRating",
+						"ratingValue": "5.0",
+						"reviewCount": 2,
+						"bestRating": 5,
+						"worstRating": 1
+					}
+				},
+				{
+					"@type": "Person",
+					"@id": "https://hangendehapjes.nl/#charlotte",
+					"name": "Charlotte"
+				},
+				{
+					"@type": "Person",
+					"@id": "https://hangendehapjes.nl/#gijs",
+					"name": "Gijs van Leeuwen"
+				},
+				{
+					"@type": "Service",
+					"@id": "https://hangendehapjes.nl/#service-toetjes",
+					"name": "Tiramisu",
+					"offers": {
+						"@type": "Offer",
+						"priceCurrency": "EUR",
+						"price": 425,
+						"availability": "https://schema.org/InStock",
+						"priceSpecification": {
+							"@type": "UnitPriceSpecification",
+							"price": 425,
+							"priceCurrency": "EUR",
+							"referenceQuantity": {
+								"@type": "QuantitativeValue",
+								"value": 50,
+								"unitText": "portions"
+							}
+						}
+					}
+				},
+				{
+					"@type": "Service",
+					"@id": "https://hangendehapjes.nl/#service-borrel",
+					"name": "Burrata",
+					"offers": {
+						"@type": "Offer",
+						"priceCurrency": "EUR",
+						"price": 450,
+						"availability": "https://schema.org/InStock",
+						"priceSpecification": {
+							"@type": "UnitPriceSpecification",
+							"price": 450,
+							"priceCurrency": "EUR",
+							"referenceQuantity": {
+								"@type": "QuantitativeValue",
+								"value": 50,
+								"unitText": "portions"
+							}
+						}
+					}
+				},
+				{
+					"@type": "FAQPage",
+					"@id": "https://hangendehapjes.nl/#faq-nl",
+					"dateModified": "2026-08-19T13:53:34.343Z"
+				}
+			],
+			"review_excerpt": "5,0 2 reviews Super service! Snel geregeld mooie show en iedereen vond de tiramisu erg lekker. Ook mogelijk voor glutenvrij, lactosevrij en alcoholvrij! Geweldig! Michael Demeulemeester Google review · 18 augustus 2026 Voor de opening van ons nieuwe Stip-bureau hebben wij \"Hangende Hapjes\" ingeschakeld voor de catering, en dat was een uitstekende keuze. Gedurende de hele middag liepen zij rond met heerlijke Burrata Bowls, die bij onze gasten enorm in de sm",
+			"tiramisu_links": [
+				{
+					"href": "/blog/tiramisu-bruiloft",
+					"text": "Lees meer over onze tiramisu "
+				},
+				{
+					"href": "/blog/tiramisu-bruiloft",
+					"text": "   Tiramisu op je bruiloft "
+				},
+				{
+					"href": "/blog/tiramisu-bruiloft",
+					"text": "Tiramisu op je bruiloft"
+				}
+			]
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/tiramisu-bruiloft",
+			"status": 200,
+			"title": "Tiramisu op je bruiloft: vers hapje of hele taart | Hangende Hapjes",
+			"title_length": 67,
+			"description": "Tiramisu op je bruiloft? Wij maken het live als vers hapje per gast, of als hele tiramisutaart om samen aan te snijden. Met mascarpone, espresso uit de mokapot en lange vingers.",
+			"description_length": 177,
+			"robots": "index, follow, max-image-preview:large",
+			"x_robots_headers": {},
+			"canonical_and_alternates": [
+				{
+					"rel": "canonical",
+					"href": "https://hangendehapjes.nl/blog/tiramisu-bruiloft"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "nl",
+					"href": "https://hangendehapjes.nl/blog/tiramisu-bruiloft"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "x-default",
+					"href": "https://hangendehapjes.nl/blog/tiramisu-bruiloft"
+				}
+			],
+			"headings": [
+				["h1", "Tiramisu op je bruiloft: als hapje of taart, ter plekke opgebouwd"],
+				["h2", "Alles op een rijtje"],
+				["h2", "Tiramisu als live catering op je bruiloft"],
+				["h2", "Tiramisu taart, tiramisu toren of Italiaanse bruidstaart"],
+				["h2", "Hoe wij de tiramisu maken"],
+				["h2", "Wanneer en waar past tiramisu op je bruiloft?"],
+				["h2", "Wat tiramisu op je bruiloft kost"],
+				["h2", "Tiramisu op jouw bruiloft? Stuur ons je datum."],
+				["h2", "Veelgestelde vragen"]
+			],
+			"og_image": "https://hangendehapjes.nl/og-blog-tiramisu-bruiloft.jpg",
+			"html_bytes": 67798,
+			"element_count": 337,
+			"image_count": 3,
+			"images_missing_alt": 0,
+			"images_missing_dimensions": 0,
+			"json_ld_entities": [
+				{
+					"@type": "Article",
+					"@id": "https://hangendehapjes.nl/blog/tiramisu-bruiloft#article",
+					"headline": "Tiramisu op je bruiloft: als hapje of taart, ter plekke opgebouwd",
+					"datePublished": "2026-05-09",
+					"dateModified": "2026-08-19T13:53:34.343Z",
+					"author": [
+						{
+							"@id": "https://hangendehapjes.nl/#charlotte"
+						},
+						{
+							"@id": "https://hangendehapjes.nl/#gijs"
+						}
+					],
+					"about": {
+						"@id": "https://hangendehapjes.nl/#service-toetjes"
+					},
+					"mentions": [
+						{
+							"@id": "https://hangendehapjes.nl/#service-toetjes"
+						}
+					]
+				},
+				{
+					"@type": "FAQPage",
+					"@id": "https://hangendehapjes.nl/blog/tiramisu-bruiloft#faq"
+				},
+				{
+					"@type": ["Service", "Product"],
+					"@id": "https://hangendehapjes.nl/#service-toetjes",
+					"name": "Live tiramisu catering",
+					"offers": {
+						"@type": "Offer",
+						"priceCurrency": "EUR",
+						"price": 425,
+						"availability": "https://schema.org/InStock",
+						"priceSpecification": {
+							"@type": "UnitPriceSpecification",
+							"price": 425,
+							"priceCurrency": "EUR",
+							"referenceQuantity": {
+								"@type": "QuantitativeValue",
+								"value": 50,
+								"unitText": "portions"
+							}
+						}
+					},
+					"aggregateRating": {
+						"@type": "AggregateRating",
+						"ratingValue": "5.0",
+						"reviewCount": 1,
+						"bestRating": 5,
+						"worstRating": 1
+					}
+				}
+			],
+			"review_excerpt": "5,0 · 1 review op Google “Super service! Snel geregeld mooie show en iedereen vond de tiramisu erg lekker. Ook mogelijk voor glutenvrij, lactosevrij en alcoholvrij! Geweldig!” — Michael Demeulemeester Lees al onze reviews Tiramisu op jouw bruiloft? Stuur ons je datum. Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: Tiramisu als hangend hapje of als taart, wat past bij jullie? Vraag een voorstel aan St",
+			"tiramisu_links": [
+				{
+					"href": "/blog/tiramisu-bruiloft",
+					"text": "Tiramisu op je bruiloft"
+				}
+			]
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart",
+			"status": 200,
+			"title": "Millefoglie: de Italiaanse bruidstaart | Hangende Hapjes",
+			"title_length": 56,
+			"description": "Millefoglie is de Italiaanse bruidstaart: dunne lagen bladerdeeg, luchtige Zwitserse room en vers rood fruit. Wij maken hem ter plekke af, Live voor jouw gasten.",
+			"description_length": 161,
+			"robots": "index, follow, max-image-preview:large",
+			"x_robots_headers": {},
+			"canonical_and_alternates": [
+				{
+					"rel": "canonical",
+					"href": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "nl",
+					"href": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "x-default",
+					"href": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart"
+				}
+			],
+			"headings": [
+				["h1", "Italiaanse bruidstaart: een millefoglie, vers afgemaakt op locatie"],
+				["h2", "Alles op een rijtje"],
+				["h2", "Wat is een Italiaanse bruidstaart precies?"],
+				["h2", "Vers afgemaakt op locatie"],
+				["h2", "Smaken, fruit en formaten"],
+				["h2", "Waarom wij deze taart zo leuk vinden"],
+				["h2", "Wat een Italiaanse bruidstaart kost"],
+				["h2", "Een Italiaanse bruidstaart op jullie dag? Stuur ons je datum."],
+				["h2", "Veelgestelde vragen"]
+			],
+			"og_image": "https://hangendehapjes.nl/og-blog-italiaanse-bruidstaart.jpg",
+			"html_bytes": 64313,
+			"element_count": 299,
+			"image_count": 4,
+			"images_missing_alt": 0,
+			"images_missing_dimensions": 0,
+			"json_ld_entities": [
+				{
+					"@type": "Article",
+					"@id": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart#article",
+					"headline": "Italiaanse bruidstaart: een millefoglie, vers afgemaakt op locatie",
+					"datePublished": "2026-06-29",
+					"dateModified": "2026-08-19T13:53:34.343Z",
+					"author": [
+						{
+							"@id": "https://hangendehapjes.nl/#charlotte"
+						},
+						{
+							"@id": "https://hangendehapjes.nl/#gijs"
+						}
+					],
+					"about": {
+						"@id": "https://hangendehapjes.nl/#service-toetjes"
+					},
+					"mentions": [
+						{
+							"@id": "https://hangendehapjes.nl/#service-toetjes"
+						}
+					]
+				},
+				{
+					"@type": "FAQPage",
+					"@id": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart#faq"
+				},
+				{
+					"@type": ["Service", "Product"],
+					"@id": "https://hangendehapjes.nl/#service-toetjes",
+					"name": "Italiaanse bruidstaart (millefoglie) catering",
+					"offers": {
+						"@type": "Offer",
+						"priceCurrency": "EUR",
+						"price": 395,
+						"availability": "https://schema.org/InStock",
+						"priceSpecification": {
+							"@type": "UnitPriceSpecification",
+							"price": 395,
+							"priceCurrency": "EUR",
+							"referenceQuantity": {
+								"@type": "QuantitativeValue",
+								"value": 25,
+								"unitText": "portions"
+							}
+						}
+					},
+					"aggregateRating": {
+						"@type": "AggregateRating",
+						"ratingValue": "5.0",
+						"reviewCount": 1,
+						"bestRating": 5,
+						"worstRating": 1
+					}
+				}
+			],
+			"review_excerpt": "5,0 · 1 review op Google “Super service! Snel geregeld mooie show en iedereen vond de tiramisu erg lekker. Ook mogelijk voor glutenvrij, lactosevrij en alcoholvrij! Geweldig!” — Michael Demeulemeester Lees al onze reviews Een Italiaanse bruidstaart op jullie dag? Stuur ons je datum. Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: een millefoglie, een klassieke bruidstaart, of de taart samen met live h",
+			"tiramisu_links": [
+				{
+					"href": "/blog/tiramisu-bruiloft",
+					"text": "tiramisu op je bruiloft?"
+				},
+				{
+					"href": "/blog/tiramisu-bruiloft",
+					"text": "live tiramisu"
+				},
+				{
+					"href": "/blog/tiramisu-bruiloft",
+					"text": "Tiramisu op je bruiloft"
+				}
+			]
+		},
+		{
+			"url": "https://hangendehapjes.nl/catering/hilversum",
+			"status": 200,
+			"title": "Live Catering Hilversum | Entertainend eten | Hangende Hapjes",
+			"title_length": 61,
+			"description": "Catering in Hilversum nodig? Wij maken verse tiramisu en burrata-bowls, voor iedere gast uniek. Vanaf 50 porties, geen reiskosten en vaste prijzen.",
+			"description_length": 147,
+			"robots": "index, follow, max-image-preview:large",
+			"x_robots_headers": {},
+			"canonical_and_alternates": [
+				{
+					"rel": "canonical",
+					"href": "https://hangendehapjes.nl/catering/hilversum"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "nl",
+					"href": "https://hangendehapjes.nl/catering/hilversum"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "en",
+					"href": "https://hangendehapjes.nl/en/catering/hilversum"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "x-default",
+					"href": "https://hangendehapjes.nl/catering/hilversum"
+				}
+			],
+			"headings": [
+				["h1", "Live catering in Hilversum: heerlijke hapjes ter plekke gemaakt voor elke gast"],
+				["h2", "Entertainend eten: zoet of hartig?"],
+				["h2", "Waarom een cateraar uit Hilversum zelf"],
+				["h2", "Voor welke feesten in Hilversum en het Gooi"],
+				["h2", "Bedrijfsfeest of zakelijke borrel in Hilversum"],
+				["h2", "Wat het kost en wat we nodig hebben"],
+				["h2", "Catering in Hilversum nodig? Stuur ons je datum."],
+				["h2", "Veelgestelde vragen"]
+			],
+			"og_image": "https://hangendehapjes.nl/images/owners.jpeg",
+			"html_bytes": 51809,
+			"element_count": 256,
+			"image_count": 2,
+			"images_missing_alt": 0,
+			"images_missing_dimensions": 0,
+			"json_ld_entities": [
+				{
+					"@type": "Service",
+					"@id": "https://hangendehapjes.nl/catering/hilversum#service",
+					"name": "Live catering in Hilversum",
+					"offers": [
+						{
+							"@type": "Offer",
+							"name": "Live tiramisu catering",
+							"priceCurrency": "EUR",
+							"price": 425,
+							"availability": "https://schema.org/InStock",
+							"priceSpecification": {
+								"@type": "UnitPriceSpecification",
+								"price": 425,
+								"priceCurrency": "EUR",
+								"referenceQuantity": {
+									"@type": "QuantitativeValue",
+									"value": 50,
+									"unitText": "portions"
+								}
+							}
+						},
+						{
+							"@type": "Offer",
+							"name": "Live burrata bar catering",
+							"priceCurrency": "EUR",
+							"price": 450,
+							"availability": "https://schema.org/InStock",
+							"priceSpecification": {
+								"@type": "UnitPriceSpecification",
+								"price": 450,
+								"priceCurrency": "EUR",
+								"referenceQuantity": {
+									"@type": "QuantitativeValue",
+									"value": 50,
+									"unitText": "portions"
+								}
+							}
+						}
+					]
+				},
+				{
+					"@type": "BreadcrumbList",
+					"@id": "https://hangendehapjes.nl/catering/hilversum#breadcrumb"
+				},
+				{
+					"@type": "FAQPage",
+					"@id": "https://hangendehapjes.nl/catering/hilversum#faq"
+				}
+			],
+			"review_excerpt": "5,0 · 1 review op Google “Voor de opening van ons nieuwe Stip-bureau hebben wij \"Hangende Hapjes\" ingeschakeld voor de catering, en dat was een uitstekende keuze. Gedurende de hele midda…” — Stip Hilversum Lees al onze reviews Bedrijfsfeest of zakelijke borrel in Hilversum Of je nou een event hebt op het Mediapark, op de bedrijfscampus bij Nike of gewoon in het centrum van Hilversum, voor een zakelijke borrel of een bedrijfsfeest zijn wij altijd dichtbij. ",
+			"tiramisu_links": [
+				{
+					"href": "/blog/tiramisu-bruiloft",
+					"text": "Lees meer over onze tiramisu "
+				},
+				{
+					"href": "/blog/tiramisu-bruiloft",
+					"text": "Tiramisu op je bruiloft"
+				}
+			]
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/burrata-catering",
+			"status": 200,
+			"title": "Burrata bar huren voor feest, borrel of bruiloft | Hangende Hapjes",
+			"title_length": 66,
+			"description": "Een burrata bar huren voor je bruiloft, bedrijfsfeest of borrel? Wij bouwen per gast een verse burrata-bowl op, live tussen je gasten. Bekijk toppings, timing en prijzen.",
+			"description_length": 170,
+			"robots": "index, follow, max-image-preview:large",
+			"x_robots_headers": {},
+			"canonical_and_alternates": [
+				{
+					"rel": "canonical",
+					"href": "https://hangendehapjes.nl/blog/burrata-catering"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "nl",
+					"href": "https://hangendehapjes.nl/blog/burrata-catering"
+				},
+				{
+					"rel": "alternate",
+					"hreflang": "x-default",
+					"href": "https://hangendehapjes.nl/blog/burrata-catering"
+				}
+			],
+			"headings": [
+				["h1", "Burrata bar voor jouw feest: live, per gast opgebouwd"],
+				["h2", "Alles op een rijtje"],
+				["h2", "Wat is een Hangend Hapje (burrata) precies?"],
+				["h2", "Wat zit er in onze burrata-bowl?"],
+				["h2", "Wanneer en waar past een burrata bar?"],
+				["h2", "Wat een burrata bar kost"],
+				["h2", "Burrata op jouw feest? Stuur ons je datum."],
+				["h2", "Veelgestelde vragen"]
+			],
+			"og_image": "https://hangendehapjes.nl/og-blog-burrata-catering.jpg",
+			"html_bytes": 62506,
+			"element_count": 311,
+			"image_count": 3,
+			"images_missing_alt": 0,
+			"images_missing_dimensions": 0,
+			"json_ld_entities": [
+				{
+					"@type": "Article",
+					"@id": "https://hangendehapjes.nl/blog/burrata-catering#article",
+					"headline": "Burrata bar voor jouw feest: live, per gast opgebouwd",
+					"datePublished": "2026-08-19T13:53:34.343Z",
+					"dateModified": "2026-08-19T13:53:34.343Z",
+					"author": [
+						{
+							"@id": "https://hangendehapjes.nl/#charlotte"
+						},
+						{
+							"@id": "https://hangendehapjes.nl/#gijs"
+						}
+					],
+					"about": {
+						"@id": "https://hangendehapjes.nl/#service-borrel"
+					},
+					"mentions": [
+						{
+							"@id": "https://hangendehapjes.nl/#service-borrel"
+						}
+					]
+				},
+				{
+					"@type": "FAQPage",
+					"@id": "https://hangendehapjes.nl/blog/burrata-catering#faq"
+				},
+				{
+					"@type": ["Service", "Product"],
+					"@id": "https://hangendehapjes.nl/#service-borrel",
+					"name": "Live burrata bar catering",
+					"offers": {
+						"@type": "Offer",
+						"priceCurrency": "EUR",
+						"price": 450,
+						"availability": "https://schema.org/InStock",
+						"priceSpecification": {
+							"@type": "UnitPriceSpecification",
+							"price": 450,
+							"priceCurrency": "EUR",
+							"referenceQuantity": {
+								"@type": "QuantitativeValue",
+								"value": 50,
+								"unitText": "portions"
+							}
+						}
+					},
+					"aggregateRating": {
+						"@type": "AggregateRating",
+						"ratingValue": "5.0",
+						"reviewCount": 1,
+						"bestRating": 5,
+						"worstRating": 1
+					}
+				}
+			],
+			"review_excerpt": "5,0 · 1 review op Google “Voor de opening van ons nieuwe Stip-bureau hebben wij \"Hangende Hapjes\" ingeschakeld voor de catering, en dat was een uitstekende keuze. Gedurende de hele midda…” — Stip Hilversum Lees al onze reviews Wanneer en waar past een burrata bar? Vier momenten waarop een live burrata bar écht werkt: Tijdens de borrel of receptie — tussen ceremonie en diner, of als zakelijke borrel op een bedrijfsfeest, in plaats van kaasplankjes en bitter",
+			"tiramisu_links": [
+				{
+					"href": "/blog/tiramisu-bruiloft",
+					"text": "tiramisu op je bruiloft"
+				},
+				{
+					"href": "/blog/tiramisu-bruiloft",
+					"text": "Tiramisu op je bruiloft"
+				}
+			]
+		}
+	],
+	"crawl_controls": [
+		{
+			"url": "http://hangendehapjes.nl/",
+			"status": 301,
+			"location": "https://hangendehapjes.nl/"
+		},
+		{
+			"url": "https://www.hangendehapjes.nl/",
+			"status": 301,
+			"location": "https://hangendehapjes.nl/"
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/burrata-bruiloft",
+			"status": 301,
+			"location": "/blog/burrata-catering"
+		},
+		{
+			"url": "https://hangendehapjes.nl/robots.txt",
+			"status": 200,
+			"body": "User-agent: *\nAllow: /\nDisallow: /api/\n\nUser-agent: GPTBot\nAllow: /\nDisallow: /api/\n\nUser-agent: ChatGPT-User\nAllow: /\nDisallow: /api/\n\nUser-agent: ClaudeBot\nAllow: /\nDisallow: /api/\n\nUser-agent: anthropic-ai\nAllow: /\nDisallow: /api/\n\nUser-agent: PerplexityBot\nAllow: /\nDisallow: /api/\n\nUser-agent: Perplexity-User\nAllow: /\nDisallow: /api/\n\nUser-agent: Google-Extended\nAllow: /\nDisallow: /api/\n\nUser-agent: Applebot-Extended\nAllow: /\nDisallow: /api/\n\nUser-agent: Bytespider\nAllow: /\nDisallow: /api/\n\nUser-agent: cohere-ai\nAllow: /\nDisallow: /api/\n\nUser-agent: meta-externalagent\nAllow: /\nDisallow: /api/\n\nSitemap: https://hangendehapjes.nl/sitemap.xml\n"
+		},
+		{
+			"url": "https://hangendehapjes.nl/sitemap.xml",
+			"status": 200,
+			"body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\n        xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">\n  <url>\n    <loc>https://hangendehapjes.nl/</loc>\n    <xhtml:link rel=\"alternate\" hreflang=\"nl\" href=\"https://hangendehapjes.nl/\" />\n    <xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"https://hangendehapjes.nl/en\" />\n    <xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"https://hangendehapjes.nl/\" />\n    <lastmod>2026-08-19</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>1.0</priority>\n  </url>\n  <url>\n    <loc>https://hangendehapjes.nl/en</loc>\n    <xhtml:link rel=\"alternate\" hreflang=\"nl\" href=\"https://hangendehapjes.nl/\" />\n    <xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"https://hangendehapjes.nl/en\" />\n    <xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"https://hangendehapjes.nl/\" />\n    <lastmod>2026-08-19</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n  <url>\n    <loc>https://hangendehapjes.nl/catering/hilversum</loc>\n    <xhtml:link rel=\"alternate\" hreflang=\"nl\" href=\"https://hangendehapjes.nl/catering/hilversum\" />\n    <xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"https://hangendehapjes.nl/en/catering/hilversum\" />\n    <xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"https://hangendehapjes.nl/catering/hilversum\" />\n    <lastmod>2026-08-19</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>\n  <url>\n    <loc>https://hangendehapjes.nl/en/catering/hilversum</loc>\n    <xhtml:link rel=\"alternate\" hreflang=\"nl\" href=\"https://hangendehapjes.nl/catering/hilversum\" />\n    <xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"https://hangendehapjes.nl/en/catering/hilversum\" />\n    <xhtml:link rel=\"alternate\" hreflang=\"x-default\" href=\"https://hangendehapjes.nl/catering/hilversum\" />\n    <lastmod>2026-08-19</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n  <url>\n    <loc>https://hangendehapjes.nl/blog/hoeveel-hapjes-per-persoon</loc>\n    <lastmod>2026-08-19</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n  <url>\n    <loc>https://hangendehapjes.nl/blog/tiramisu-bruiloft</loc>\n    <lastmod>2026-08-19</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n  <url>\n    <loc>https://hangendehapjes.nl/blog/burrata-catering</loc>\n    <lastmod>2026-08-19</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n  <url>\n    <loc>https://hangendehapjes.nl/blog/italiaanse-bruidstaart</loc>\n    <lastmod>2026-08-19</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n  <url>\n    <loc>https://hangendehapjes.nl/blog/bruidstaart</loc>\n    <lastmod>2026-08-19</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>\n  <url>\n    <loc>https://hangendehapjes.nl/terms</loc>\n    <lastmod>2026-08-19</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.3</priority>\n  </url>\n</urlset>\n"
+		}
+	],
+	"head_checks": [
+		{
+			"url": "https://hangendehapjes.nl/",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/",
+			"type": "text/html"
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/bruidstaart",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/blog/bruidstaart",
+			"type": "text/html"
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/burrata-catering",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/blog/burrata-catering",
+			"type": "text/html"
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/hoeveel-hapjes-per-persoon",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/blog/hoeveel-hapjes-per-persoon",
+			"type": "text/html"
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart",
+			"type": "text/html"
+		},
+		{
+			"url": "https://hangendehapjes.nl/blog/tiramisu-bruiloft",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/blog/tiramisu-bruiloft",
+			"type": "text/html"
+		},
+		{
+			"url": "https://hangendehapjes.nl/catering/hilversum",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/catering/hilversum",
+			"type": "text/html"
+		},
+		{
+			"url": "https://hangendehapjes.nl/en",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/en",
+			"type": "text/html"
+		},
+		{
+			"url": "https://hangendehapjes.nl/en/catering/hilversum",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/en/catering/hilversum",
+			"type": "text/html"
+		},
+		{
+			"url": "https://hangendehapjes.nl/images/owners.jpeg",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/images/owners.jpeg",
+			"type": "image/jpeg"
+		},
+		{
+			"url": "https://hangendehapjes.nl/og-blog-burrata-catering.jpg",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/og-blog-burrata-catering.jpg",
+			"type": "image/jpeg"
+		},
+		{
+			"url": "https://hangendehapjes.nl/og-blog-italiaanse-bruidstaart.jpg",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/og-blog-italiaanse-bruidstaart.jpg",
+			"type": "image/jpeg"
+		},
+		{
+			"url": "https://hangendehapjes.nl/og-blog-tiramisu-bruiloft.jpg",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/og-blog-tiramisu-bruiloft.jpg",
+			"type": "image/jpeg"
+		},
+		{
+			"url": "https://hangendehapjes.nl/og-image.jpg",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/og-image.jpg",
+			"type": "image/jpeg"
+		},
+		{
+			"url": "https://hangendehapjes.nl/terms",
+			"status": 200,
+			"final_url": "https://hangendehapjes.nl/terms",
+			"type": "text/html"
+		}
+	],
+	"pagespeed": {
+		"status": "unavailable",
+		"attempts": 10,
+		"urls": 5,
+		"strategies": ["mobile", "desktop"],
+		"reason": "HTTP 429, daily quota 0; no API key",
+		"field_data_status": "unknown",
+		"lab_data_status": "unknown"
+	}
+}

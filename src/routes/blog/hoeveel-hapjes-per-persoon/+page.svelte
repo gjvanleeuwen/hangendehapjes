@@ -222,8 +222,8 @@
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					De prijzen hierboven zijn all-in: het maken, het serveren tussen je gasten door, servies
 					en servetten en de afwas achteraf zitten erin. Reiskosten: in het Gooi, Amsterdam en
-					Utrecht zitten ze gewoon in de prijs. Verder weg rekenen we de reis mee in je offerte,
-					zodat je één totaalbedrag ziet.
+					Utrecht zitten ze gewoon in de prijs. Daar voorbij rekenen we reiskosten voor de extra
+					kilometers.
 				</p>
 			</section>
 

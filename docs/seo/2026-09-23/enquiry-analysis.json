@@ -1,0 +1,496 @@
+{
+	"summary": {
+		"as_of": "2026-09-23",
+		"opportunities": 21,
+		"possible_distinct_clients": 20,
+		"status": {
+			"accepted_crm_sent": {
+				"count": 1,
+				"known_quote_eur": "882.90",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			},
+			"completed": {
+				"count": 2,
+				"known_quote_eur": "1373.40",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			},
+			"declined_client": {
+				"count": 7,
+				"known_quote_eur": "10161.71",
+				"missing_quotes": 1,
+				"zero_quotes": 0
+			},
+			"declined_us": {
+				"count": 4,
+				"known_quote_eur": "1428.98",
+				"missing_quotes": 1,
+				"zero_quotes": 1
+			},
+			"open": {
+				"count": 7,
+				"known_quote_eur": "5263.59",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			}
+		},
+		"sources": {
+			"chatgpt": {
+				"count": 1,
+				"known_quote_eur": "779.35",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			},
+			"google_direct": {
+				"count": 11,
+				"known_quote_eur": "12097.00",
+				"missing_quotes": 2,
+				"zero_quotes": 0
+			},
+			"google_via_relative": {
+				"count": 1,
+				"known_quote_eur": "662.18",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			},
+			"own_idea": {
+				"count": 1,
+				"known_quote_eur": "0.00",
+				"missing_quotes": 0,
+				"zero_quotes": 1
+			},
+			"tiktok_then_google": {
+				"count": 1,
+				"known_quote_eur": "1498.75",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			},
+			"unknown": {
+				"count": 5,
+				"known_quote_eur": "3773.30",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			},
+			"word_of_mouth": {
+				"count": 1,
+				"known_quote_eur": "300.00",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			}
+		},
+		"products": {
+			"burrata": {
+				"count": 1,
+				"known_quote_eur": "6879.26",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			},
+			"italian_lunch": {
+				"count": 1,
+				"known_quote_eur": "1222.16",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			},
+			"millefoglie": {
+				"count": 2,
+				"known_quote_eur": "662.18",
+				"missing_quotes": 1,
+				"zero_quotes": 0
+			},
+			"tiramisu_bites": {
+				"count": 4,
+				"known_quote_eur": "2604.53",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			},
+			"tiramisu_burrata_mix": {
+				"count": 1,
+				"known_quote_eur": "828.39",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			},
+			"tiramisu_cake": {
+				"count": 9,
+				"known_quote_eur": "5446.70",
+				"missing_quotes": 1,
+				"zero_quotes": 1
+			},
+			"tiramisu_legacy_unspecified": {
+				"count": 2,
+				"known_quote_eur": "1167.36",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			},
+			"tiramisu_millefoglie_mix": {
+				"count": 1,
+				"known_quote_eur": "300.00",
+				"missing_quotes": 0,
+				"zero_quotes": 0
+			}
+		},
+		"accepted_or_completed": {
+			"count": 3,
+			"known_quote_eur": "2256.30",
+			"missing_quotes": 0,
+			"zero_quotes": 0
+		},
+		"open_unaccepted": {
+			"count": 7,
+			"known_quote_eur": "5263.59",
+			"missing_quotes": 0,
+			"zero_quotes": 0
+		},
+		"expired_open": {
+			"count": 4,
+			"known_quote_eur": "3566.99",
+			"missing_quotes": 0,
+			"zero_quotes": 0
+		},
+		"expired_open_ids": ["E04", "E05", "E07", "E09"],
+		"google_involved": {
+			"count": 13,
+			"known_quote_eur": "14257.93",
+			"missing_quotes": 2,
+			"zero_quotes": 0
+		},
+		"google_open": {
+			"count": 6,
+			"known_quote_eur": "4735.48",
+			"missing_quotes": 0,
+			"zero_quotes": 0
+		},
+		"google_accepted": {
+			"count": 1,
+			"known_quote_eur": "882.90",
+			"missing_quotes": 0,
+			"zero_quotes": 0
+		},
+		"known_quote_total": {
+			"count": 21,
+			"known_quote_eur": "19110.58",
+			"missing_quotes": 2,
+			"zero_quotes": 1
+		},
+		"monthly": {
+			"2026-05": 4,
+			"2026-06": 4,
+			"2026-07": 5,
+			"2026-08": 5,
+			"2026-09": 3
+		},
+		"cohorts": {
+			"previous_seo28": {
+				"start": "2026-07-27",
+				"end": "2026-08-23",
+				"count": 4,
+				"known_quote_eur": "3185.78",
+				"missing_quotes": 0,
+				"zero_quotes": 0,
+				"google_involved": {
+					"count": 3,
+					"known_quote_eur": "2885.78",
+					"missing_quotes": 0,
+					"zero_quotes": 0
+				},
+				"ids": ["E04", "E05", "E07", "E18"]
+			},
+			"current_seo28": {
+				"start": "2026-08-24",
+				"end": "2026-09-20",
+				"count": 2,
+				"known_quote_eur": "1465.51",
+				"missing_quotes": 0,
+				"zero_quotes": 0,
+				"google_involved": {
+					"count": 2,
+					"known_quote_eur": "1465.51",
+					"missing_quotes": 0,
+					"zero_quotes": 0
+				},
+				"ids": ["E03", "E06"]
+			}
+		},
+		"guest_count": {
+			"median_all": 55,
+			"median_open": 55
+		},
+		"notes": [
+			"Values are quotes as supplied, not verified paid revenue; VAT basis unknown.",
+			"E03 digitally accepted despite CRM Offerte verstuurd; counted accepted, not open.",
+			"E02 and E19 appear to be two opportunities for the same customer and event; not two acquired customers.",
+			"Google source is self-reported; organic vs paid and landing page unknown.",
+			"E11/E15 tiramisu format unspecified; do not classify as cake or walking portions.",
+			"Missing quotes remain null; zero quote is not proof of a free/completed job.",
+			"Customer contacts omitted from persisted analysis."
+		],
+		"product_priority": {
+			"tiramisu_related_opportunities": 17,
+			"tiramisu_related_open_opportunities": 6,
+			"tiramisu_related_open_quote_eur": "4601.41",
+			"tiramisu_related_accepted_or_completed": 3,
+			"note": "Counts from product fields in supplied list; offline Stip burrata event requires reconciliation."
+		},
+		"source_notes": {
+			"google_involved_opportunities": 13,
+			"google_involved_pct": 61.904761904761905,
+			"chatgpt_completed_quote_eur": "779.35",
+			"organic_conversion_rate": null,
+			"verified_paid_revenue_eur": null
+		}
+	},
+	"opportunities": [
+		{
+			"id": "E01",
+			"received": "2026-07-23",
+			"event_date": "2026-08-08",
+			"guests": 85,
+			"product": "tiramisu_cake",
+			"source": "chatgpt",
+			"status": "completed",
+			"quote_eur": "779.35",
+			"valid_until": "2026-08-07",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E02",
+			"received": "2026-05-29",
+			"event_date": "2026-09-11",
+			"guests": 65,
+			"product": "tiramisu_cake",
+			"source": "unknown",
+			"status": "completed",
+			"quote_eur": "594.05",
+			"valid_until": "2026-07-17",
+			"possible_same_client_group": "G01"
+		},
+		{
+			"id": "E03",
+			"received": "2026-08-25",
+			"event_date": "2027-06-11",
+			"guests": 100,
+			"product": "tiramisu_bites",
+			"source": "google_direct",
+			"status": "accepted_crm_sent",
+			"quote_eur": "882.90",
+			"valid_until": "2026-09-11",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E04",
+			"received": "2026-08-09",
+			"event_date": "2027-04-02",
+			"guests": 55,
+			"product": "millefoglie",
+			"source": "google_via_relative",
+			"status": "open",
+			"quote_eur": "662.18",
+			"valid_until": "2026-08-23",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E05",
+			"received": "2026-08-12",
+			"event_date": "2027-05-01",
+			"guests": 55,
+			"product": "tiramisu_cake",
+			"source": "google_direct",
+			"status": "open",
+			"quote_eur": "724.85",
+			"valid_until": "2026-08-31",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E06",
+			"received": "2026-09-11",
+			"event_date": "2027-05-07",
+			"guests": 50,
+			"product": "tiramisu_cake",
+			"source": "google_direct",
+			"status": "open",
+			"quote_eur": "582.61",
+			"valid_until": "2026-09-26",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E07",
+			"received": "2026-08-05",
+			"event_date": "2027-06-05",
+			"guests": 200,
+			"product": "tiramisu_cake",
+			"source": "tiktok_then_google",
+			"status": "open",
+			"quote_eur": "1498.75",
+			"valid_until": "2026-08-19",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E08",
+			"received": "2026-09-21",
+			"event_date": "2027-06-18",
+			"guests": 45,
+			"product": "tiramisu_bites",
+			"source": "unknown",
+			"status": "open",
+			"quote_eur": "528.11",
+			"valid_until": "2026-10-05",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E09",
+			"received": "2026-07-13",
+			"event_date": "2027-07-09",
+			"guests": 65,
+			"product": "tiramisu_cake",
+			"source": "google_direct",
+			"status": "open",
+			"quote_eur": "681.21",
+			"valid_until": "2026-07-27",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E10",
+			"received": "2026-09-22",
+			"event_date": "2027-07-27",
+			"guests": 46,
+			"product": "tiramisu_cake",
+			"source": "google_direct",
+			"status": "open",
+			"quote_eur": "585.88",
+			"valid_until": "2026-10-06",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E11",
+			"received": "2026-05-30",
+			"event_date": "2027-08-14",
+			"guests": 65,
+			"product": "tiramisu_legacy_unspecified",
+			"source": "unknown",
+			"status": "declined_us",
+			"quote_eur": "600.59",
+			"valid_until": "2026-06-20",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E12",
+			"received": "2026-06-05",
+			"event_date": "2027-07-22",
+			"guests": 80,
+			"product": "tiramisu_cake",
+			"source": "own_idea",
+			"status": "declined_us",
+			"quote_eur": "0.00",
+			"valid_until": "2026-06-29",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E13",
+			"received": "2026-07-22",
+			"event_date": "2026-09-05",
+			"guests": 50,
+			"product": "millefoglie",
+			"source": "google_direct",
+			"status": "declined_us",
+			"quote_eur": null,
+			"valid_until": null,
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E14",
+			"received": "2026-05-05",
+			"event_date": "2026-09-05",
+			"guests": 50,
+			"product": "tiramisu_burrata_mix",
+			"source": "unknown",
+			"status": "declined_us",
+			"quote_eur": "828.39",
+			"valid_until": "2026-05-26",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E15",
+			"received": "2026-05-27",
+			"event_date": "2027-04-17",
+			"guests": 55,
+			"product": "tiramisu_legacy_unspecified",
+			"source": "google_direct",
+			"status": "declined_client",
+			"quote_eur": "566.77",
+			"valid_until": "2026-06-11",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E16",
+			"received": "2026-07-22",
+			"event_date": "2026-11-27",
+			"guests": 36,
+			"product": "tiramisu_bites",
+			"source": "google_direct",
+			"status": "declined_client",
+			"quote_eur": "439.27",
+			"valid_until": "2026-08-07",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E17",
+			"received": "2026-06-07",
+			"event_date": "2026-10-17",
+			"guests": 66,
+			"product": "tiramisu_bites",
+			"source": "google_direct",
+			"status": "declined_client",
+			"quote_eur": "754.25",
+			"valid_until": "2026-06-23",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E18",
+			"received": "2026-08-04",
+			"event_date": "2026-09-25",
+			"guests": 40,
+			"product": "tiramisu_millefoglie_mix",
+			"source": "word_of_mouth",
+			"status": "declined_client",
+			"quote_eur": "300.00",
+			"valid_until": null,
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E19",
+			"received": "2026-07-14",
+			"event_date": "2026-09-11",
+			"guests": 65,
+			"product": "italian_lunch",
+			"source": "unknown",
+			"status": "declined_client",
+			"quote_eur": "1222.16",
+			"valid_until": "2026-07-28",
+			"possible_same_client_group": "G01"
+		},
+		{
+			"id": "E20",
+			"received": "2026-06-11",
+			"event_date": "2026-08-22",
+			"guests": 50,
+			"product": "tiramisu_cake",
+			"source": "google_direct",
+			"status": "declined_client",
+			"quote_eur": null,
+			"valid_until": "2026-06-29",
+			"possible_same_client_group": null
+		},
+		{
+			"id": "E21",
+			"received": "2026-06-02",
+			"event_date": "2026-06-15",
+			"guests": 400,
+			"product": "burrata",
+			"source": "google_direct",
+			"status": "declined_client",
+			"quote_eur": "6879.26",
+			"valid_until": "2026-06-16",
+			"possible_same_client_group": null
+		}
+	]
+}

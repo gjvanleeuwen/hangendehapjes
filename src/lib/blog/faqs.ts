@@ -9,7 +9,7 @@ export const BLOG_FAQS_NL = {
 		id: 'allergies',
 		question: 'Hebben jullie opties voor allergieën of dieetwensen?',
 		answer:
-			'Ja, we denken graag mee. De tiramisu heeft mascarpone, ei en lange vingers als basis en is dus standaard niet lactosevrij of glutenvrij. De tiramisu kan ook alcoholvrij en cafeïnevrij gemaakt worden. De burrata-bowl is in basis vegetarisch en kan ook glutenvrij gemaakt worden. Geef in je aanvraag door welke allergieën of voorkeuren er spelen, dan kijken we welke aanpassingen passen. Voor strenge allergieën zijn we eerlijk dat we ter plekke werken, dus volledige kruisbesmettingsvrije productie kunnen we niet garanderen.'
+			'Ja, we denken graag mee. De tiramisu kan alcoholvrij en cafeïnevrij, en we kunnen een lactose- en glutenvrije tiramisu als alternatief meenemen. Een vegan tiramisu hebben we helaas niet, voor vegan gasten nemen we een ander taartje mee. De burrata-bowl is in basis vegetarisch en kan ook glutenvrij gemaakt worden. Geef in je aanvraag door welke allergieën of voorkeuren er spelen, dan kijken we welke aanpassingen passen. Voor strenge allergieën zijn we eerlijk dat we ter plekke werken, dus volledige kruisbesmettingsvrije productie kunnen we niet garanderen.'
 	},
 	leadtime: {
 		id: 'leadtime',

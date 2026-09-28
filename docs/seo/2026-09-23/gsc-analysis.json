@@ -1,0 +1,1446 @@
+{
+	"site": "sc-domain:hangendehapjes.nl",
+	"period": {
+		"start": "2026-06-22",
+		"end": "2026-09-20",
+		"days": 90
+	},
+	"summary": {
+		"clicks": 366,
+		"impressions": 9601,
+		"ctr": 3.81,
+		"position": 12.2
+	},
+	"top_queries": [
+		{
+			"query": "tiramisu bruidstaart",
+			"clicks": 21,
+			"impressions": 88,
+			"ctr": 23.86,
+			"position": 1.5
+		},
+		{
+			"query": "tiramisu bruiloft",
+			"clicks": 14,
+			"impressions": 62,
+			"ctr": 22.58,
+			"position": 1.9
+		},
+		{
+			"query": "hangende hapjes",
+			"clicks": 8,
+			"impressions": 17,
+			"ctr": 47.06,
+			"position": 1.1
+		},
+		{
+			"query": "tiramisu toren bruiloft",
+			"clicks": 8,
+			"impressions": 65,
+			"ctr": 12.31,
+			"position": 3.4
+		},
+		{
+			"query": "tiramisu toren",
+			"clicks": 7,
+			"impressions": 99,
+			"ctr": 7.07,
+			"position": 4.8
+		},
+		{
+			"query": "millefoglie bruidstaart",
+			"clicks": 6,
+			"impressions": 126,
+			"ctr": 4.76,
+			"position": 4.0
+		},
+		{
+			"query": "millefoglie taart",
+			"clicks": 6,
+			"impressions": 121,
+			"ctr": 4.96,
+			"position": 5.4
+		},
+		{
+			"query": "tiramisu bar",
+			"clicks": 6,
+			"impressions": 92,
+			"ctr": 6.52,
+			"position": 9.2
+		},
+		{
+			"query": "tiramisu taart bruiloft",
+			"clicks": 5,
+			"impressions": 23,
+			"ctr": 21.74,
+			"position": 1.2
+		},
+		{
+			"query": "tiramisu catering",
+			"clicks": 4,
+			"impressions": 30,
+			"ctr": 13.33,
+			"position": 5.4
+		},
+		{
+			"query": "tiramisu taart bestellen",
+			"clicks": 4,
+			"impressions": 48,
+			"ctr": 8.33,
+			"position": 7.2
+		},
+		{
+			"query": "millefoglie",
+			"clicks": 3,
+			"impressions": 716,
+			"ctr": 0.42,
+			"position": 9.0
+		},
+		{
+			"query": "burrata bar",
+			"clicks": 2,
+			"impressions": 15,
+			"ctr": 13.33,
+			"position": 5.8
+		},
+		{
+			"query": "hoeveel hapjes per persoon verjaardag",
+			"clicks": 2,
+			"impressions": 17,
+			"ctr": 11.76,
+			"position": 11.4
+		},
+		{
+			"query": "the tiramisu bar",
+			"clicks": 2,
+			"impressions": 26,
+			"ctr": 7.69,
+			"position": 8.6
+		},
+		{
+			"query": "catering hapjes",
+			"clicks": 1,
+			"impressions": 5,
+			"ctr": 20.0,
+			"position": 15.8
+		},
+		{
+			"query": "catering hilversum",
+			"clicks": 1,
+			"impressions": 1022,
+			"ctr": 0.1,
+			"position": 31.2
+		},
+		{
+			"query": "italiaanse bruidstaart",
+			"clicks": 1,
+			"impressions": 151,
+			"ctr": 0.66,
+			"position": 5.1
+		},
+		{
+			"query": "koude hapjes bestellen",
+			"clicks": 1,
+			"impressions": 1,
+			"ctr": 100,
+			"position": 2
+		},
+		{
+			"query": "2 hapjes.nl",
+			"clicks": 0,
+			"impressions": 33,
+			"ctr": 0,
+			"position": 8.1
+		},
+		{
+			"query": "50",
+			"clicks": 0,
+			"impressions": 1,
+			"ctr": 0,
+			"position": 1
+		},
+		{
+			"query": "aansnijtaart",
+			"clicks": 0,
+			"impressions": 1,
+			"ctr": 0,
+			"position": 55
+		},
+		{
+			"query": "afbeelding",
+			"clicks": 0,
+			"impressions": 1,
+			"ctr": 0,
+			"position": 1
+		},
+		{
+			"query": "apron catering",
+			"clicks": 0,
+			"impressions": 1,
+			"ctr": 0,
+			"position": 4
+		},
+		{
+			"query": "bar burrata",
+			"clicks": 0,
+			"impressions": 2,
+			"ctr": 0,
+			"position": 9
+		},
+		{
+			"query": "bedrijfsbijeenkomst hilversum",
+			"clicks": 0,
+			"impressions": 16,
+			"ctr": 0,
+			"position": 83.6
+		},
+		{
+			"query": "bedrijfsfeest hilversum",
+			"clicks": 0,
+			"impressions": 147,
+			"ctr": 0,
+			"position": 43.2
+		},
+		{
+			"query": "bedrijfsfeest locaties hilversum",
+			"clicks": 0,
+			"impressions": 3,
+			"ctr": 0,
+			"position": 54.3
+		},
+		{
+			"query": "benoem de 5 hapjes 5x h2",
+			"clicks": 0,
+			"impressions": 4,
+			"ctr": 0,
+			"position": 26
+		},
+		{
+			"query": "beste hapjes pan",
+			"clicks": 0,
+			"impressions": 1,
+			"ctr": 0,
+			"position": 8
+		}
+	],
+	"top_pages": [
+		{
+			"page": "https://hangendehapjes.nl/blog/tiramisu-bruiloft",
+			"clicks": 230,
+			"impressions": 1742,
+			"ctr": 13.2,
+			"position": 4.9
+		},
+		{
+			"page": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart",
+			"clicks": 53,
+			"impressions": 1958,
+			"ctr": 2.71,
+			"position": 6.9
+		},
+		{
+			"page": "https://hangendehapjes.nl/",
+			"clicks": 47,
+			"impressions": 1443,
+			"ctr": 3.26,
+			"position": 12.2
+		},
+		{
+			"page": "https://hangendehapjes.nl/blog/hoeveel-hapjes-per-persoon",
+			"clicks": 16,
+			"impressions": 2862,
+			"ctr": 0.56,
+			"position": 7.4
+		},
+		{
+			"page": "https://hangendehapjes.nl/blog/burrata-catering",
+			"clicks": 9,
+			"impressions": 175,
+			"ctr": 5.14,
+			"position": 6.4
+		},
+		{
+			"page": "https://hangendehapjes.nl/blog/bruidstaart",
+			"clicks": 4,
+			"impressions": 214,
+			"ctr": 1.87,
+			"position": 8.9
+		},
+		{
+			"page": "https://hangendehapjes.nl/catering/hilversum",
+			"clicks": 4,
+			"impressions": 1732,
+			"ctr": 0.23,
+			"position": 38.3
+		},
+		{
+			"page": "https://hangendehapjes.nl/en",
+			"clicks": 4,
+			"impressions": 153,
+			"ctr": 2.61,
+			"position": 20.3
+		},
+		{
+			"page": "https://hangendehapjes.nl/#products",
+			"clicks": 0,
+			"impressions": 52,
+			"ctr": 0,
+			"position": 5.6
+		},
+		{
+			"page": "https://hangendehapjes.nl/en/catering/hilversum",
+			"clicks": 0,
+			"impressions": 45,
+			"ctr": 0,
+			"position": 57.7
+		},
+		{
+			"page": "https://hangendehapjes.nl/terms",
+			"clicks": 0,
+			"impressions": 15,
+			"ctr": 0,
+			"position": 1.9
+		}
+	],
+	"position_buckets": {
+		"1-3": [
+			{
+				"query": "tiramisu bruidstaart",
+				"clicks": 21,
+				"impressions": 88,
+				"ctr": 23.86,
+				"position": 1.5
+			},
+			{
+				"query": "tiramisu bruiloft",
+				"clicks": 14,
+				"impressions": 62,
+				"ctr": 22.58,
+				"position": 1.9
+			},
+			{
+				"query": "tiramisu taart bruiloft",
+				"clicks": 5,
+				"impressions": 23,
+				"ctr": 21.74,
+				"position": 1.2
+			},
+			{
+				"query": "hangende hapjes",
+				"clicks": 8,
+				"impressions": 17,
+				"ctr": 47.06,
+				"position": 1.1
+			},
+			{
+				"query": "hapjes bestellen",
+				"clicks": 0,
+				"impressions": 5,
+				"ctr": 0,
+				"position": 1.4
+			},
+			{
+				"query": "goedkope hapjes voor veel mensen",
+				"clicks": 0,
+				"impressions": 3,
+				"ctr": 0,
+				"position": 3
+			},
+			{
+				"query": "hapjesschalen bestellen",
+				"clicks": 0,
+				"impressions": 3,
+				"ctr": 0,
+				"position": 2.7
+			},
+			{
+				"query": "feestelijke hapjes bestellen",
+				"clicks": 0,
+				"impressions": 2,
+				"ctr": 0,
+				"position": 2
+			},
+			{
+				"query": "hapjes buffet aan huis",
+				"clicks": 0,
+				"impressions": 2,
+				"ctr": 0,
+				"position": 2
+			},
+			{
+				"query": "hapjes laten bezorgen",
+				"clicks": 0,
+				"impressions": 2,
+				"ctr": 0,
+				"position": 3
+			},
+			{
+				"query": "tiramisu service",
+				"clicks": 0,
+				"impressions": 2,
+				"ctr": 0,
+				"position": 1.5
+			},
+			{
+				"query": "koude hapjes bestellen",
+				"clicks": 1,
+				"impressions": 1,
+				"ctr": 100,
+				"position": 2
+			},
+			{
+				"query": "50",
+				"clicks": 0,
+				"impressions": 1,
+				"ctr": 0,
+				"position": 1
+			},
+			{
+				"query": "afbeelding",
+				"clicks": 0,
+				"impressions": 1,
+				"ctr": 0,
+				"position": 1
+			},
+			{
+				"query": "borrelhapjes die je van tevoren kunt maken",
+				"clicks": 0,
+				"impressions": 1,
+				"ctr": 0,
+				"position": 3
+			},
+			{
+				"query": "catering",
+				"clicks": 0,
+				"impressions": 1,
+				"ctr": 0,
+				"position": 2
+			},
+			{
+				"query": "fingerfood hapjes bestellen",
+				"clicks": 0,
+				"impressions": 1,
+				"ctr": 0,
+				"position": 2
+			},
+			{
+				"query": "high tea kasteel maurick",
+				"clicks": 0,
+				"impressions": 1,
+				"ctr": 0,
+				"position": 3
+			},
+			{
+				"query": "hoeveel",
+				"clicks": 0,
+				"impressions": 1,
+				"ctr": 0,
+				"position": 2
+			},
+			{
+				"query": "kippie doetinchem",
+				"clicks": 0,
+				"impressions": 1,
+				"ctr": 0,
+				"position": 3
+			}
+		],
+		"4-10": [
+			{
+				"query": "millefoglie",
+				"clicks": 3,
+				"impressions": 716,
+				"ctr": 0.42,
+				"position": 9.0
+			},
+			{
+				"query": "hapjes bestellen hilversum",
+				"clicks": 0,
+				"impressions": 249,
+				"ctr": 0,
+				"position": 5.6
+			},
+			{
+				"query": "italiaanse bruidstaart",
+				"clicks": 1,
+				"impressions": 151,
+				"ctr": 0.66,
+				"position": 5.1
+			},
+			{
+				"query": "millefoglie bruidstaart",
+				"clicks": 6,
+				"impressions": 126,
+				"ctr": 4.76,
+				"position": 4.0
+			},
+			{
+				"query": "millefoglie taart",
+				"clicks": 6,
+				"impressions": 121,
+				"ctr": 4.96,
+				"position": 5.4
+			},
+			{
+				"query": "wat is millefoglie",
+				"clicks": 0,
+				"impressions": 104,
+				"ctr": 0,
+				"position": 5.8
+			},
+			{
+				"query": "tiramisu toren",
+				"clicks": 7,
+				"impressions": 99,
+				"ctr": 7.07,
+				"position": 4.8
+			},
+			{
+				"query": "tiramisu bar",
+				"clicks": 6,
+				"impressions": 92,
+				"ctr": 6.52,
+				"position": 9.2
+			},
+			{
+				"query": "tiramisu toren bruiloft",
+				"clicks": 8,
+				"impressions": 65,
+				"ctr": 12.31,
+				"position": 3.4
+			},
+			{
+				"query": "tiramisu taart bestellen",
+				"clicks": 4,
+				"impressions": 48,
+				"ctr": 8.33,
+				"position": 7.2
+			},
+			{
+				"query": "2 hapjes.nl",
+				"clicks": 0,
+				"impressions": 33,
+				"ctr": 0,
+				"position": 8.1
+			},
+			{
+				"query": "tiramisu catering",
+				"clicks": 4,
+				"impressions": 30,
+				"ctr": 13.33,
+				"position": 5.4
+			},
+			{
+				"query": "mille foglie",
+				"clicks": 0,
+				"impressions": 30,
+				"ctr": 0,
+				"position": 9.5
+			},
+			{
+				"query": "the tiramisu bar",
+				"clicks": 2,
+				"impressions": 26,
+				"ctr": 7.69,
+				"position": 8.6
+			},
+			{
+				"query": "twee hapjes.nl",
+				"clicks": 0,
+				"impressions": 20,
+				"ctr": 0,
+				"position": 9.4
+			},
+			{
+				"query": "burrata bar",
+				"clicks": 2,
+				"impressions": 15,
+				"ctr": 13.33,
+				"position": 5.8
+			},
+			{
+				"query": "millefogli",
+				"clicks": 0,
+				"impressions": 8,
+				"ctr": 0,
+				"position": 8
+			},
+			{
+				"query": "italiaanse taart bruiloft",
+				"clicks": 0,
+				"impressions": 7,
+				"ctr": 0,
+				"position": 5.6
+			},
+			{
+				"query": "milefoglie",
+				"clicks": 0,
+				"impressions": 7,
+				"ctr": 0,
+				"position": 8.7
+			},
+			{
+				"query": "millefogie",
+				"clicks": 0,
+				"impressions": 6,
+				"ctr": 0,
+				"position": 9.5
+			}
+		],
+		"11-20": [
+			{
+				"query": "cateraar hilversum",
+				"clicks": 0,
+				"impressions": 118,
+				"ctr": 0,
+				"position": 11.0
+			},
+			{
+				"query": "hapjes",
+				"clicks": 0,
+				"impressions": 60,
+				"ctr": 0,
+				"position": 16.4
+			},
+			{
+				"query": "hoeveel hapjes per persoon",
+				"clicks": 0,
+				"impressions": 31,
+				"ctr": 0,
+				"position": 12.3
+			},
+			{
+				"query": "hoeveel borrelhapjes per persoon",
+				"clicks": 0,
+				"impressions": 23,
+				"ctr": 0,
+				"position": 10.2
+			},
+			{
+				"query": "hoeveel hapjes per persoon verjaardag",
+				"clicks": 2,
+				"impressions": 17,
+				"ctr": 11.76,
+				"position": 11.4
+			},
+			{
+				"query": "hoeveel hapjes per persoon receptie",
+				"clicks": 0,
+				"impressions": 16,
+				"ctr": 0,
+				"position": 11.6
+			},
+			{
+				"query": "tiramisu taart kopen",
+				"clicks": 0,
+				"impressions": 16,
+				"ctr": 0,
+				"position": 13.1
+			},
+			{
+				"query": "hoeveel aperitiefhapjes per persoon",
+				"clicks": 0,
+				"impressions": 15,
+				"ctr": 0,
+				"position": 13.9
+			},
+			{
+				"query": "hoeveel hapjes per persoon bij borrel",
+				"clicks": 0,
+				"impressions": 15,
+				"ctr": 0,
+				"position": 10.2
+			},
+			{
+				"query": "bruidstaart 25 personen",
+				"clicks": 0,
+				"impressions": 11,
+				"ctr": 0,
+				"position": 13.3
+			},
+			{
+				"query": "bruidstaart klassiek",
+				"clicks": 0,
+				"impressions": 11,
+				"ctr": 0,
+				"position": 12.7
+			},
+			{
+				"query": "klassieke bruidstaart",
+				"clicks": 0,
+				"impressions": 11,
+				"ctr": 0,
+				"position": 12.2
+			},
+			{
+				"query": "goedkope hapjes bestellen",
+				"clicks": 0,
+				"impressions": 10,
+				"ctr": 0,
+				"position": 19.6
+			},
+			{
+				"query": "hoeveel bittergarnituur per persoon",
+				"clicks": 0,
+				"impressions": 7,
+				"ctr": 0,
+				"position": 13.9
+			},
+			{
+				"query": "hapjes avond bruiloft",
+				"clicks": 0,
+				"impressions": 6,
+				"ctr": 0,
+				"position": 16
+			},
+			{
+				"query": "catering hapjes",
+				"clicks": 1,
+				"impressions": 5,
+				"ctr": 20.0,
+				"position": 15.8
+			},
+			{
+				"query": "feest catering",
+				"clicks": 0,
+				"impressions": 5,
+				"ctr": 0,
+				"position": 10.6
+			},
+			{
+				"query": "bruidstaart 50 personen",
+				"clicks": 0,
+				"impressions": 4,
+				"ctr": 0,
+				"position": 12.5
+			},
+			{
+				"query": "haljes",
+				"clicks": 0,
+				"impressions": 4,
+				"ctr": 0,
+				"position": 11.2
+			},
+			{
+				"query": "millefoglia",
+				"clicks": 0,
+				"impressions": 4,
+				"ctr": 0,
+				"position": 10.2
+			}
+		],
+		"21+": [
+			{
+				"query": "catering hilversum",
+				"clicks": 1,
+				"impressions": 1022,
+				"ctr": 0.1,
+				"position": 31.2
+			},
+			{
+				"query": "bedrijfsfeest hilversum",
+				"clicks": 0,
+				"impressions": 147,
+				"ctr": 0,
+				"position": 43.2
+			},
+			{
+				"query": "catering het gooi",
+				"clicks": 0,
+				"impressions": 146,
+				"ctr": 0,
+				"position": 40.6
+			},
+			{
+				"query": "restaurantcatering hilversum",
+				"clicks": 0,
+				"impressions": 129,
+				"ctr": 0,
+				"position": 34.3
+			},
+			{
+				"query": "snackwagen huren hilversum",
+				"clicks": 0,
+				"impressions": 42,
+				"ctr": 0,
+				"position": 82.9
+			},
+			{
+				"query": "personeelsfeest hilversum",
+				"clicks": 0,
+				"impressions": 31,
+				"ctr": 0,
+				"position": 48.0
+			},
+			{
+				"query": "fingerfood catering",
+				"clicks": 0,
+				"impressions": 18,
+				"ctr": 0,
+				"position": 70.2
+			},
+			{
+				"query": "frietwagen hilversum",
+				"clicks": 0,
+				"impressions": 18,
+				"ctr": 0,
+				"position": 78.1
+			},
+			{
+				"query": "hapjes bruiloft",
+				"clicks": 0,
+				"impressions": 17,
+				"ctr": 0,
+				"position": 25.7
+			},
+			{
+				"query": "bedrijfsbijeenkomst hilversum",
+				"clicks": 0,
+				"impressions": 16,
+				"ctr": 0,
+				"position": 83.6
+			},
+			{
+				"query": "hapjes receptie",
+				"clicks": 0,
+				"impressions": 11,
+				"ctr": 0,
+				"position": 24.9
+			},
+			{
+				"query": "catering in het gooi",
+				"clicks": 0,
+				"impressions": 10,
+				"ctr": 0,
+				"position": 34.2
+			},
+			{
+				"query": "hapjes op bruiloft",
+				"clicks": 0,
+				"impressions": 7,
+				"ctr": 0,
+				"position": 20.1
+			},
+			{
+				"query": "huwelijk hapjes bestellen",
+				"clicks": 0,
+				"impressions": 7,
+				"ctr": 0,
+				"position": 64.4
+			},
+			{
+				"query": "wedding catering",
+				"clicks": 0,
+				"impressions": 7,
+				"ctr": 0,
+				"position": 68.3
+			},
+			{
+				"query": "hilversum catering",
+				"clicks": 0,
+				"impressions": 6,
+				"ctr": 0,
+				"position": 38.7
+			},
+			{
+				"query": "hoeveel hapjes per persoon kerst",
+				"clicks": 0,
+				"impressions": 6,
+				"ctr": 0,
+				"position": 23.8
+			},
+			{
+				"query": "cocktail catering hilversum",
+				"clicks": 0,
+				"impressions": 5,
+				"ctr": 0,
+				"position": 27.2
+			},
+			{
+				"query": "benoem de 5 hapjes 5x h2",
+				"clicks": 0,
+				"impressions": 4,
+				"ctr": 0,
+				"position": 26
+			},
+			{
+				"query": "borrelhapjes goedkoop",
+				"clicks": 0,
+				"impressions": 4,
+				"ctr": 0,
+				"position": 26.2
+			}
+		]
+	},
+	"ctr_opportunities": [
+		{
+			"query": "millefoglie",
+			"clicks": 3,
+			"impressions": 716,
+			"ctr": 0.42,
+			"position": 9.0
+		}
+	],
+	"ctr_gaps_by_page": [
+		{
+			"query": "millefoglie",
+			"page": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart",
+			"clicks": 3,
+			"impressions": 716,
+			"ctr": 0.42,
+			"position": 9.0
+		},
+		{
+			"query": "catering hilversum",
+			"page": "https://hangendehapjes.nl/",
+			"clicks": 1,
+			"impressions": 448,
+			"ctr": 0.22,
+			"position": 17.7
+		},
+		{
+			"query": "hapjes bestellen hilversum",
+			"page": "https://hangendehapjes.nl/",
+			"clicks": 0,
+			"impressions": 208,
+			"ctr": 0,
+			"position": 2.6
+		}
+	],
+	"cannibalization": [
+		{
+			"query": "catering hilversum",
+			"winner_page": "https://hangendehapjes.nl/#products",
+			"winner_reason": "best position (1)",
+			"loser_pages": [
+				"https://hangendehapjes.nl/",
+				"https://hangendehapjes.nl/catering/hilversum",
+				"https://hangendehapjes.nl/en/catering/hilversum"
+			],
+			"recommended_action": "consolidate: 301 redirect losers to winner or add canonical",
+			"competing_pages": [
+				{
+					"page": "https://hangendehapjes.nl/#products",
+					"clicks": 0,
+					"impressions": 1,
+					"ctr": 0,
+					"position": 1
+				},
+				{
+					"page": "https://hangendehapjes.nl/",
+					"clicks": 1,
+					"impressions": 448,
+					"ctr": 0.22,
+					"position": 17.7
+				},
+				{
+					"page": "https://hangendehapjes.nl/catering/hilversum",
+					"clicks": 0,
+					"impressions": 870,
+					"ctr": 0,
+					"position": 41.6
+				},
+				{
+					"page": "https://hangendehapjes.nl/en/catering/hilversum",
+					"clicks": 0,
+					"impressions": 2,
+					"ctr": 0,
+					"position": 79
+				}
+			],
+			"total_impressions": 1321,
+			"total_clicks": 1
+		},
+		{
+			"query": "hapjes bestellen hilversum",
+			"winner_page": "https://hangendehapjes.nl/",
+			"winner_reason": "best position (2.6)",
+			"loser_pages": [
+				"https://hangendehapjes.nl/catering/hilversum",
+				"https://hangendehapjes.nl/en/catering/hilversum"
+			],
+			"recommended_action": "consolidate: 301 redirect losers to winner or add canonical",
+			"competing_pages": [
+				{
+					"page": "https://hangendehapjes.nl/",
+					"clicks": 0,
+					"impressions": 208,
+					"ctr": 0,
+					"position": 2.6
+				},
+				{
+					"page": "https://hangendehapjes.nl/catering/hilversum",
+					"clicks": 0,
+					"impressions": 130,
+					"ctr": 0,
+					"position": 20.2
+				},
+				{
+					"page": "https://hangendehapjes.nl/en/catering/hilversum",
+					"clicks": 0,
+					"impressions": 1,
+					"ctr": 0,
+					"position": 33
+				}
+			],
+			"total_impressions": 339,
+			"total_clicks": 0
+		},
+		{
+			"query": "cateraar hilversum",
+			"winner_page": "https://hangendehapjes.nl/",
+			"winner_reason": "best position (10.5)",
+			"loser_pages": [
+				"https://hangendehapjes.nl/catering/hilversum",
+				"https://hangendehapjes.nl/en/catering/hilversum"
+			],
+			"recommended_action": "consolidate: 301 redirect losers to winner or add canonical",
+			"competing_pages": [
+				{
+					"page": "https://hangendehapjes.nl/",
+					"clicks": 0,
+					"impressions": 116,
+					"ctr": 0,
+					"position": 10.5
+				},
+				{
+					"page": "https://hangendehapjes.nl/catering/hilversum",
+					"clicks": 0,
+					"impressions": 71,
+					"ctr": 0,
+					"position": 37.6
+				},
+				{
+					"page": "https://hangendehapjes.nl/en/catering/hilversum",
+					"clicks": 0,
+					"impressions": 2,
+					"ctr": 0,
+					"position": 75
+				}
+			],
+			"total_impressions": 189,
+			"total_clicks": 0
+		},
+		{
+			"query": "restaurantcatering hilversum",
+			"winner_page": "https://hangendehapjes.nl/",
+			"winner_reason": "best position (21.5)",
+			"loser_pages": ["https://hangendehapjes.nl/catering/hilversum"],
+			"recommended_action": "consolidate: 301 redirect losers to winner or add canonical",
+			"competing_pages": [
+				{
+					"page": "https://hangendehapjes.nl/",
+					"clicks": 0,
+					"impressions": 24,
+					"ctr": 0,
+					"position": 21.5
+				},
+				{
+					"page": "https://hangendehapjes.nl/catering/hilversum",
+					"clicks": 0,
+					"impressions": 118,
+					"ctr": 0,
+					"position": 37
+				}
+			],
+			"total_impressions": 142,
+			"total_clicks": 0
+		}
+	],
+	"comparison": {
+		"period": "2026-08-23 to 2026-09-20",
+		"prior_period": "2026-07-25 to 2026-08-22",
+		"declining_pages": [],
+		"declining_queries": [
+			{
+				"query": "tiramisu toren bruiloft",
+				"clicks_now": 0,
+				"clicks_prev": 8,
+				"click_delta": -8,
+				"absolute_click_loss": 8,
+				"change_pct": -100.0,
+				"impressions_now": 28,
+				"impressions_prev": 30,
+				"impression_delta": -2,
+				"ctr_now": 0,
+				"ctr_prev": 26.67,
+				"position_now": 4.1,
+				"position_prev": 2.9
+			}
+		],
+		"page_query_decompositions": []
+	},
+	"device_split": [
+		{
+			"device": "MOBILE",
+			"clicks": 272,
+			"impressions": 5918,
+			"ctr": 4.6,
+			"position": 8.2
+		},
+		{
+			"device": "DESKTOP",
+			"clicks": 93,
+			"impressions": 3572,
+			"ctr": 2.6,
+			"position": 18.6
+		},
+		{
+			"device": "TABLET",
+			"clicks": 1,
+			"impressions": 111,
+			"ctr": 0.9,
+			"position": 18.2
+		}
+	],
+	"country_split": [
+		{
+			"country": "nld",
+			"clicks": 320,
+			"impressions": 7811,
+			"ctr": 4.1,
+			"position": 13.0
+		},
+		{
+			"country": "bel",
+			"clicks": 36,
+			"impressions": 1018,
+			"ctr": 3.54,
+			"position": 6.9
+		},
+		{
+			"country": "fra",
+			"clicks": 2,
+			"impressions": 28,
+			"ctr": 7.14,
+			"position": 7.2
+		},
+		{
+			"country": "ita",
+			"clicks": 2,
+			"impressions": 247,
+			"ctr": 0.81,
+			"position": 6.8
+		},
+		{
+			"country": "chl",
+			"clicks": 1,
+			"impressions": 4,
+			"ctr": 25.0,
+			"position": 27
+		},
+		{
+			"country": "cze",
+			"clicks": 1,
+			"impressions": 2,
+			"ctr": 50.0,
+			"position": 3.5
+		},
+		{
+			"country": "deu",
+			"clicks": 1,
+			"impressions": 41,
+			"ctr": 2.44,
+			"position": 9.6
+		},
+		{
+			"country": "esp",
+			"clicks": 1,
+			"impressions": 41,
+			"ctr": 2.44,
+			"position": 10.1
+		},
+		{
+			"country": "hrv",
+			"clicks": 1,
+			"impressions": 14,
+			"ctr": 7.14,
+			"position": 8.8
+		},
+		{
+			"country": "phl",
+			"clicks": 1,
+			"impressions": 13,
+			"ctr": 7.69,
+			"position": 31.2
+		},
+		{
+			"country": "are",
+			"clicks": 0,
+			"impressions": 5,
+			"ctr": 0,
+			"position": 19.6
+		},
+		{
+			"country": "arg",
+			"clicks": 0,
+			"impressions": 4,
+			"ctr": 0,
+			"position": 21.2
+		},
+		{
+			"country": "aus",
+			"clicks": 0,
+			"impressions": 1,
+			"ctr": 0,
+			"position": 10
+		},
+		{
+			"country": "aut",
+			"clicks": 0,
+			"impressions": 4,
+			"ctr": 0,
+			"position": 15.5
+		},
+		{
+			"country": "aze",
+			"clicks": 0,
+			"impressions": 1,
+			"ctr": 0,
+			"position": 10
+		},
+		{
+			"country": "bes",
+			"clicks": 0,
+			"impressions": 1,
+			"ctr": 0,
+			"position": 3
+		},
+		{
+			"country": "bgd",
+			"clicks": 0,
+			"impressions": 3,
+			"ctr": 0,
+			"position": 26
+		},
+		{
+			"country": "bgr",
+			"clicks": 0,
+			"impressions": 1,
+			"ctr": 0,
+			"position": 4
+		},
+		{
+			"country": "bol",
+			"clicks": 0,
+			"impressions": 1,
+			"ctr": 0,
+			"position": 9
+		},
+		{
+			"country": "bra",
+			"clicks": 0,
+			"impressions": 9,
+			"ctr": 0,
+			"position": 28.9
+		}
+	],
+	"search_type_split": [
+		{
+			"type": "web",
+			"clicks": 366,
+			"impressions": 9601,
+			"ctr": 3.81,
+			"position": 12.2
+		},
+		{
+			"type": "image",
+			"clicks": 5,
+			"impressions": 1514,
+			"ctr": 0.33,
+			"position": 25.6
+		}
+	],
+	"branded_split": {
+		"branded": {
+			"clicks": 8,
+			"impressions": 82,
+			"ctr": 9.76,
+			"position": 1.8,
+			"query_count": 2,
+			"top_queries": [
+				{
+					"query": "hangende hapjes",
+					"clicks": 8,
+					"impressions": 77,
+					"ctr": 10.39,
+					"position": 1.5
+				},
+				{
+					"query": "hangende",
+					"clicks": 0,
+					"impressions": 5,
+					"ctr": 0.0,
+					"position": 6.8
+				}
+			]
+		},
+		"non_branded": {
+			"clicks": 94,
+			"impressions": 4881,
+			"ctr": 1.93,
+			"position": 20.7,
+			"query_count": 209,
+			"top_queries": [
+				{
+					"query": "catering hilversum",
+					"clicks": 1,
+					"impressions": 1321,
+					"ctr": 0.08,
+					"position": 33.6
+				},
+				{
+					"query": "millefoglie",
+					"clicks": 3,
+					"impressions": 716,
+					"ctr": 0.42,
+					"position": 9.0
+				},
+				{
+					"query": "hapjes bestellen hilversum",
+					"clicks": 0,
+					"impressions": 339,
+					"ctr": 0.0,
+					"position": 9.5
+				},
+				{
+					"query": "cateraar hilversum",
+					"clicks": 0,
+					"impressions": 189,
+					"ctr": 0.0,
+					"position": 21.4
+				},
+				{
+					"query": "italiaanse bruidstaart",
+					"clicks": 1,
+					"impressions": 151,
+					"ctr": 0.66,
+					"position": 5.1
+				},
+				{
+					"query": "bedrijfsfeest hilversum",
+					"clicks": 0,
+					"impressions": 147,
+					"ctr": 0.0,
+					"position": 43.2
+				},
+				{
+					"query": "catering het gooi",
+					"clicks": 0,
+					"impressions": 146,
+					"ctr": 0.0,
+					"position": 40.6
+				},
+				{
+					"query": "restaurantcatering hilversum",
+					"clicks": 0,
+					"impressions": 142,
+					"ctr": 0.0,
+					"position": 34.4
+				},
+				{
+					"query": "millefoglie bruidstaart",
+					"clicks": 6,
+					"impressions": 126,
+					"ctr": 4.76,
+					"position": 4.0
+				},
+				{
+					"query": "millefoglie taart",
+					"clicks": 6,
+					"impressions": 121,
+					"ctr": 4.96,
+					"position": 5.4
+				},
+				{
+					"query": "wat is millefoglie",
+					"clicks": 0,
+					"impressions": 104,
+					"ctr": 0.0,
+					"position": 5.8
+				},
+				{
+					"query": "tiramisu toren",
+					"clicks": 7,
+					"impressions": 99,
+					"ctr": 7.07,
+					"position": 4.8
+				},
+				{
+					"query": "tiramisu bar",
+					"clicks": 6,
+					"impressions": 92,
+					"ctr": 6.52,
+					"position": 9.2
+				},
+				{
+					"query": "tiramisu bruidstaart",
+					"clicks": 21,
+					"impressions": 91,
+					"ctr": 23.08,
+					"position": 2.7
+				},
+				{
+					"query": "tiramisu toren bruiloft",
+					"clicks": 8,
+					"impressions": 65,
+					"ctr": 12.31,
+					"position": 3.4
+				},
+				{
+					"query": "hapjes",
+					"clicks": 0,
+					"impressions": 65,
+					"ctr": 0.0,
+					"position": 15.7
+				},
+				{
+					"query": "tiramisu bruiloft",
+					"clicks": 14,
+					"impressions": 63,
+					"ctr": 22.22,
+					"position": 2.1
+				},
+				{
+					"query": "tiramisu taart bestellen",
+					"clicks": 4,
+					"impressions": 48,
+					"ctr": 8.33,
+					"position": 7.2
+				},
+				{
+					"query": "snackwagen huren hilversum",
+					"clicks": 0,
+					"impressions": 42,
+					"ctr": 0.0,
+					"position": 82.9
+				},
+				{
+					"query": "2 hapjes.nl",
+					"clicks": 0,
+					"impressions": 33,
+					"ctr": 0.0,
+					"position": 8.1
+				}
+			]
+		}
+	},
+	"page_groups": [
+		{
+			"group": "blog",
+			"page_count": 5,
+			"clicks": 312,
+			"impressions": 6951,
+			"ctr": 4.49,
+			"position": 6.7
+		},
+		{
+			"group": "other",
+			"page_count": 6,
+			"clicks": 55,
+			"impressions": 3440,
+			"ctr": 1.6,
+			"position": 26.2
+		}
+	]
+}

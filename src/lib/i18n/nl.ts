@@ -9,7 +9,7 @@ export const nl: Translations = {
 	meta: {
 		title: 'Hangende Hapjes | Live catering voor jouw bruiloft of evenement',
 		description:
-			'Verse tiramisu en burrata-bowls, ter plekke gemaakt voor jouw gasten. Hapjes en borrel catering voor bruiloften, recepties en zakelijke events. Vanaf €425.'
+			'Verse tiramisu, bruidstaarten en hartige snacks, ter plekke gemaakt voor jouw gasten. Hapjes en borrel catering voor bruiloften, recepties en zakelijke events.'
 	},
 	nav: {
 		about: 'Over ons',
@@ -25,7 +25,7 @@ export const nl: Translations = {
 		eyebrow: 'Entertainend Eten',
 		title: 'Hapjes die jouw gasten onthouden.',
 		subtitle:
-			'Met een tray vol zelfgemaakte hapjes lopen we tussen jouw gasten. Voor ieder wat wils op een unieke manier met een praatje en een glimlach.',
+			'Ten midden van jullie gasten maken wij live met een praatje en een glimlach de lekkerste hapjes. Zelfs bruidstaarten bouwen wij op locatie zodat alles helemaal perfect is.',
 		secondaryCta: 'Bekijk onze concepten',
 		image: HERO_IMAGE,
 		imageAlt: 'Charlotte en Gijs van Hangende Hapjes met een dienblad om de nek tussen gasten',
@@ -45,9 +45,9 @@ export const nl: Translations = {
 		}
 	},
 	products: {
-		heading: 'Vers van het dienblad of als taart',
+		heading: 'Onze hapjes en taarten',
 		intro:
-			'Tiramisu of burrata, per gast live opgebouwd tussen jouw gasten door. Of een bruidstaart van Charlotte als showstopper. Kies er één, of combineer ze gewoon.',
+			'Tiramisu of burrata, per gast live opgebouwd tussen jouw gasten door. Of een italiaanse/klassieke bruidstaart als showstopper. Wil je net wat anders dan denken we graag met je mee!',
 		items: [
 			{
 				id: 'toetjes',
@@ -143,7 +143,7 @@ export const nl: Translations = {
 			]
 		},
 		priceFooter:
-			'Prijzen excl. BTW · Reiskosten zitten in de prijs in het Gooi, Amsterdam en Utrecht.',
+			'Prijzen excl. BTW · Reiskosten inbegrepen voor regio Gooi, Amsterdam en Utrecht · All-in service (inclusief dieetwensen)',
 		priceCta: 'Vraag een offerte aan'
 	},
 	faq: {
@@ -180,7 +180,7 @@ export const nl: Translations = {
 				id: 'travel',
 				question: 'Vragen jullie ook reiskosten?',
 				answer:
-					'In het Gooi, Amsterdam, Utrecht, Amersfoort en Almere zitten de reiskosten gewoon in de prijs. Zit je feest verder weg? Dan rekenen we de reis mee in je offerte, zodat je altijd één totaalbedrag ziet en er achteraf niks bijkomt.'
+					'In het Gooi, Amsterdam, Utrecht, Amersfoort en Almere zitten de reiskosten gewoon in de prijs. Daar voorbij rekenen we reiskosten voor de extra kilometers.'
 			},
 			{
 				id: 'combine',
@@ -198,7 +198,7 @@ export const nl: Translations = {
 				id: 'diet',
 				question: 'Hebben jullie opties voor allergieën of dieetwensen?',
 				answer:
-					'Ja, we denken graag mee. De tiramisu heeft mascarpone, ei en lange vingers als basis (niet lactose- of glutenvrij), maar kan wel alcoholvrij en cafeïnevrij gemaakt worden. De burrata-bowl is vegetarisch en kan ook glutenvrij. Geef je wensen door in de aanvraag, dan kijken we wat past.'
+					'Ja, we denken graag mee. De tiramisu kan alcoholvrij en cafeïnevrij, en we kunnen een lactose- en glutenvrije tiramisu als alternatief meenemen. Een vegan tiramisu hebben we helaas niet, voor vegan gasten nemen we een ander taartje mee. De burrata-bowl is vegetarisch en kan ook glutenvrij. Geef je wensen door in de aanvraag, dan kijken we wat past.'
 			},
 			{
 				id: 'pace',

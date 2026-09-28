@@ -1,0 +1,21 @@
+{
+	"sitemap": [
+		{
+			"path": "https://hangendehapjes.nl/sitemap.xml",
+			"lastSubmitted": "2026-07-03T10:41:06.577Z",
+			"isPending": false,
+			"isSitemapsIndex": false,
+			"type": "sitemap",
+			"lastDownloaded": "2026-09-18T17:46:32.870Z",
+			"warnings": "0",
+			"errors": "0",
+			"contents": [
+				{
+					"type": "web",
+					"submitted": "10",
+					"indexed": "0"
+				}
+			]
+		}
+	]
+}

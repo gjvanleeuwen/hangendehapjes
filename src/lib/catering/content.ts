@@ -131,7 +131,7 @@ const HILVERSUM_NL: LocationContent = {
 			id: 'hilversum-omgeving',
 			question: 'Komen jullie ook buiten Hilversum, in de rest van het Gooi?',
 			answer:
-				'Zeker. Hilversum is onze thuisbasis, maar we komen net zo makkelijk in Bussum, Laren, Blaricum, Naarden en de rest van het Gooi. Daar zitten de reiskosten gewoon in de prijs, net als in Amsterdam, Utrecht, Amersfoort en Almere. Wil je ons ergens verder weg hebben? Dat kan ook, dan rekenen we de reis mee in je offerte zodat je één totaalbedrag ziet.'
+				'Zeker. Hilversum is onze thuisbasis, maar we komen net zo makkelijk in Bussum, Laren, Blaricum, Naarden en de rest van het Gooi. Daar zitten de reiskosten gewoon in de prijs, net als in Amsterdam, Utrecht, Amersfoort en Almere. Wil je ons ergens verder weg hebben? Dat kan ook, daar voorbij rekenen we reiskosten voor de extra kilometers.'
 		},
 		{
 			id: 'hilversum-prijs',

@@ -17,6 +17,11 @@
 		numberLocale?: string;
 		/** Outer spacing/sizing; defaults to the standalone top margin. */
 		class?: string;
+		/**
+		 * How many reviews to quote. One gives a longer snippet; more gives short
+		 * snippets (used on pages without a review of their own product).
+		 */
+		quotes?: number;
 	};
 	let {
 		reviews,
@@ -25,7 +30,8 @@
 		sourceLabel = 'op Google',
 		readAllLabel = 'Lees al onze reviews',
 		numberLocale = 'nl-NL',
-		class: className = 'mt-12'
+		class: className = 'mt-12',
+		quotes = 1
 	}: Props = $props();
 
 	let count = $derived(reviews.length);
@@ -35,12 +41,26 @@
 	);
 	let rounded = $derived(Math.round(average));
 	let nounDisplay = $derived(count === 1 ? noun.one : noun.other);
-	let featured = $derived(reviews[0]);
-	let snippet = $derived.by(() => {
-		if (!featured) return '';
-		const text = featured.quote.join(' ');
-		return text.length > 160 ? text.slice(0, 160).trimEnd() + '…' : text;
-	});
+
+	function truncate(text: string, max: number) {
+		if (text.length <= max) return text;
+		const cut = text.slice(0, max);
+		// Prefer ending on a full sentence; otherwise break on a word boundary.
+		const sentenceEnd = Math.max(
+			cut.lastIndexOf('. '),
+			cut.lastIndexOf('! '),
+			cut.lastIndexOf('? ')
+		);
+		if (sentenceEnd > max * 0.4) return cut.slice(0, sentenceEnd + 1);
+		return cut.slice(0, cut.lastIndexOf(' ')).replace(/[\s,.;:!]+$/, '') + '…';
+	}
+
+	let snippets = $derived(
+		reviews.slice(0, quotes).map((review) => ({
+			name: review.name,
+			text: truncate(review.quote.join(' '), quotes > 1 ? 140 : 160)
+		}))
+	);
 </script>
 
 {#if count > 0}
@@ -57,14 +77,24 @@
 			<span class="text-sm font-semibold text-foreground">{averageDisplay}</span>
 			<span class="text-sm text-muted-foreground">· {count} {nounDisplay} {sourceLabel}</span>
 		</div>
-		{#if featured}
+		{#if snippets.length === 1}
 			<p class="mt-3 text-base leading-relaxed text-muted-foreground md:text-lg">
-				“{snippet}” <span class="text-sm text-muted-foreground/80">— {featured.name}</span>
+				“{snippets[0].text}”
+				<span class="text-sm text-muted-foreground/80">— {snippets[0].name}</span>
 			</p>
-			<span class="mt-3 inline-flex items-center gap-1 text-sm font-medium text-(--brand-magenta)">
-				{readAllLabel}
-				<ArrowRight class="size-3.5" />
-			</span>
+		{:else}
+			<ul class="mt-3 space-y-3">
+				{#each snippets as snippet (snippet.name)}
+					<li class="text-sm leading-relaxed text-muted-foreground">
+						“{snippet.text}”
+						<span class="mt-0.5 block text-xs font-medium text-foreground">{snippet.name}</span>
+					</li>
+				{/each}
+			</ul>
 		{/if}
+		<span class="mt-3 inline-flex items-center gap-1 text-sm font-medium text-(--brand-magenta)">
+			{readAllLabel}
+			<ArrowRight class="size-3.5" />
+		</span>
 	</a>
 {/if}

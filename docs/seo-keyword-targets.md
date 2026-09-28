@@ -1,5 +1,23 @@
 # Keyword targets — reference list
 
+**Enquiry validation, 23 September:** tiramisu is the primary commercial cluster: 17/21 supplied opportunities involve it, with all three accepted/completed records and six open quotes. Prioritize buyer intent around `tiramisu bruidstaart`, `tiramisu taart bestellen` and live wedding portions. This does not prove which query/page generated any individual enquiry. Keep millefoglie secondary, retain the existing local page and defer more city pages. Source evidence includes 11 explicit Google reports, two Google-assisted journeys and one completed ChatGPT-referred event; organic-versus-paid attribution remains unknown. [Full enquiry analysis](enquiry-analysis-2026-09-23.md).
+
+**Update, 23 September 2026:** see the [completed SEO review](seo-analysis-2026-09-23.md). Fresh GSC access is restored; current priorities below supersede the historical August annotations further down. Keep the delivery/DIY/competitor-brand exclusions. The local H1 and product OG cards are live; continue deferring new city pages. Current travel pricing comes from the live offer, not the older fixed-radius/per-km notes.
+
+| Query | Clicks / impressions, 24 August–20 September | Average position | Current decision |
+| --- | ---: | ---: | --- |
+| `tiramisu bruidstaart` | 8 / 32 | 1.44 | Protect; improve conversion proof, not a generic top-three ranking push. |
+| `tiramisu bruiloft` | 8 / 19 | 1.68 | Protect; strengthen the existing wedding page. |
+| `tiramisu taart bestellen` | 4 / 44 | 7.20 | Clarify the real cake offer and enquiry path on the existing page. |
+| `millefoglie bruidstaart` | 2 / 46 | 2.26 | Improve wedding-intent appeal and proof; small sample. |
+| `italiaanse bruidstaart` | 1 / 61 | 4.30 | Same page and priority; relevant title stays. |
+| `millefoglie` | 2 / 546 | 9.06 | Broad mixed intent; do not equate impressions with wedding demand. |
+| `catering hilversum` | 0 / 360 | 27.84 | Property-level query metric. Location page alone ranks 43.97; homepage 15.93. Strengthen proof, not canonical consolidation. |
+| `bedrijfsfeest hilversum` | 0 / 57 | 37.70 | Local proof opportunity, not a quick ranking win yet. |
+| `catering het gooi` | 0 / 122 | 40.41 | Cover actual service area on the existing local page before creating another location URL. |
+
+These are disclosed web-query metrics, all countries/devices, not Keyword Planner volumes. Hidden/anonymized query traffic is substantial. Historical tier tables below remain dated August evidence, not current measurements.
+
 Raw wishlist from Gijs (2026-08-09), sorted into tiers and annotated with real GSC data
 from the 90-day window **2026-05-08 → 2026-08-06** (252 clicks / 5,690 impressions).
 

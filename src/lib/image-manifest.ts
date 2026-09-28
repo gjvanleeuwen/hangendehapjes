@@ -6,175 +6,390 @@ export type OptimizedImage = {
 };
 
 export const IMAGE_MANIFEST = {
-	'02': {
-		width: 1280,
-		height: 1600,
-		widths: [320, 640, 960, 1280]
+	"02": {
+		"width": 1280,
+		"height": 1600,
+		"widths": [
+			320,
+			640,
+			960,
+			1280
+		]
 	},
-	bruidstaart_80_pers: {
-		width: 3000,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"bruidstaart_80_pers": {
+		"width": 3000,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	bruidstaart_orchidee: {
-		width: 2040,
-		height: 3444,
-		widths: [320, 640, 960, 1280, 1920]
+	"bruidstaart_bloemen": {
+		"width": 882,
+		"height": 1567,
+		"widths": [
+			320,
+			640
+		]
 	},
-	bruitstaart_120_pers: {
-		width: 5120,
-		height: 3413,
-		widths: [320, 640, 960, 1280, 1920]
+	"bruidstaart_orchidee": {
+		"width": 2040,
+		"height": 3444,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	burrata_closeup: {
-		width: 5000,
-		height: 3333,
-		widths: [320, 640, 960, 1280, 1920]
+	"bruitstaart_120_pers": {
+		"width": 5120,
+		"height": 3413,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	burrata_trio: {
-		width: 2252,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"burrata_closeup": {
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	charlotte_2: {
-		width: 2252,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"burrata_trio": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	charlotte_3: {
-		width: 2252,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"charlotte_2": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	charlotte_evenement: {
-		width: 2500,
-		height: 3333,
-		widths: [320, 640, 960, 1280, 1920]
+	"charlotte_3": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	charlotte_main: {
-		width: 2252,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"charlotte_evenement": {
+		"width": 2500,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	gijs_2: {
-		width: 3000,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"charlotte_main": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	gijs_3: {
-		width: 3000,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"gijs_2": {
+		"width": 3000,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	gijs_evenement: {
-		width: 3414,
-		height: 4552,
-		widths: [320, 640, 960, 1280, 1920]
+	"gijs_3": {
+		"width": 3000,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	gijs_main: {
-		width: 3000,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"gijs_evenement": {
+		"width": 3414,
+		"height": 4552,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	'GuidoDijkstraFotografie.com-DSC07206': {
-		width: 5000,
-		height: 3333,
-		widths: [320, 640, 960, 1280, 1920]
+	"gijs_main": {
+		"width": 3000,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	hero: {
-		width: 5000,
-		height: 3333,
-		widths: [320, 640, 960, 1280, 1920]
+	"GuidoDijkstraFotografie.com-DSC07206": {
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	'HH_burrata_3 (1)': {
-		width: 2252,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"hero": {
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	HH_burrata_Parma: {
-		width: 2252,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"HH_burrata_3 (1)": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	HH_burrata_Peach: {
-		width: 2252,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"HH_burrata_Parma": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	HH_burrata_T: {
-		width: 2252,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"HH_burrata_Peach": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	lage_bruidstaart: {
-		width: 3000,
-		height: 4000,
-		widths: [320, 640, 960, 1280, 1920]
+	"HH_burrata_T": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	millefoglie_aansnijden: {
-		width: 5000,
-		height: 3333,
-		widths: [320, 640, 960, 1280, 1920]
+	"lage_bruidstaart": {
+		"width": 3000,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	millefoglie_banner: {
-		width: 4400,
-		height: 2316,
-		widths: [320, 640, 960, 1280, 1920]
+	"millefoglie_aansnijden": {
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	millefoglie_charlotte: {
-		width: 5000,
-		height: 3333,
-		widths: [320, 640, 960, 1280, 1920]
+	"millefoglie_banner": {
+		"width": 4400,
+		"height": 2316,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	millefoglie_ons: {
-		width: 1600,
-		height: 1067,
-		widths: [320, 640, 960, 1280]
+	"millefoglie_charlotte": {
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	owners: {
-		width: 4100,
-		height: 3333,
-		widths: [320, 640, 960, 1280, 1920]
+	"millefoglie_ons": {
+		"width": 1600,
+		"height": 1067,
+		"widths": [
+			320,
+			640,
+			960,
+			1280
+		]
 	},
-	tiramisu_dienblad_gijs: {
-		width: 1080,
-		height: 1800,
-		widths: [320, 640, 960]
+	"owners": {
+		"width": 4100,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	tiramisu_dienblad_handen: {
-		width: 950,
-		height: 800,
-		widths: [320, 640]
+	"tiramisu_dienblad_gijs": {
+		"width": 1080,
+		"height": 1800,
+		"widths": [
+			320,
+			640,
+			960
+		]
 	},
-	tiramisutaart_bruiloft_aansnijden: {
-		width: 2000,
-		height: 1333,
-		widths: [320, 640, 960, 1280, 1920]
+	"tiramisu_dienblad_handen": {
+		"width": 950,
+		"height": 800,
+		"widths": [
+			320,
+			640
+		]
 	},
-	tiramisutaart_bruiloft_punt: {
-		width: 2000,
-		height: 1333,
-		widths: [320, 640, 960, 1280, 1920]
+	"tiramisutaart_bruiloft_aansnijden": {
+		"width": 2000,
+		"height": 1333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	tiramisutaart_cacao: {
-		width: 5000,
-		height: 3333,
-		widths: [320, 640, 960, 1280, 1920]
+	"tiramisutaart_bruiloft_punt": {
+		"width": 2000,
+		"height": 1333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	tiramisutaart_hapje: {
-		width: 3333,
-		height: 5000,
-		widths: [320, 640, 960, 1280, 1920]
+	"tiramisutaart_cacao": {
+		"width": 5000,
+		"height": 3333,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	tiramisutaart_opbouw: {
-		width: 3333,
-		height: 5000,
-		widths: [320, 640, 960, 1280, 1920]
+	"tiramisutaart_hapje": {
+		"width": 3333,
+		"height": 5000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	},
-	'WhatsApp Image 2026-04-26 at 17.13.04': {
-		width: 1452,
-		height: 1600,
-		widths: [320, 640, 960, 1280]
+	"tiramisutaart_opbouw": {
+		"width": 3333,
+		"height": 5000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
+	},
+	"WhatsApp Image 2026-04-26 at 17.13.04": {
+		"width": 1452,
+		"height": 1600,
+		"widths": [
+			320,
+			640,
+			960,
+			1280
+		]
+	},
+	"WhatsApp Image 2026-09-27 at 19.08.30": {
+		"width": 2252,
+		"height": 4000,
+		"widths": [
+			320,
+			640,
+			960,
+			1280,
+			1920
+		]
 	}
 } as const satisfies Record<string, OptimizedImage>;
 

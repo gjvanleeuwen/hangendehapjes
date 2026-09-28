@@ -1,0 +1,444 @@
+[
+	{
+		"url": "https://hangendehapjes.nl/",
+		"response": {
+			"inspectionResult": {
+				"inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:hangendehapjes.nl&id=zsn3FQhU75hVusMBQrsENQ&utm_medium=link&utm_source=api",
+				"indexStatusResult": {
+					"verdict": "PASS",
+					"coverageState": "Submitted and indexed",
+					"robotsTxtState": "ALLOWED",
+					"indexingState": "INDEXING_ALLOWED",
+					"lastCrawlTime": "2026-09-17T07:46:01Z",
+					"pageFetchState": "SUCCESSFUL",
+					"googleCanonical": "https://hangendehapjes.nl/",
+					"userCanonical": "https://hangendehapjes.nl/",
+					"sitemap": ["https://hangendehapjes.nl/sitemap.xml"],
+					"referringUrls": [
+						"https://hangendehapjes.nl/blog/burrata-catering",
+						"https://hangendehapjes.nl/sitemap.xml"
+					],
+					"crawledAs": "MOBILE"
+				},
+				"mobileUsabilityResult": {
+					"verdict": "VERDICT_UNSPECIFIED"
+				},
+				"richResultsResult": {
+					"verdict": "PASS",
+					"detectedItems": [
+						{
+							"richResultType": "Review snippets",
+							"items": [
+								{
+									"name": "Hangende Hapjes"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		"error": null
+	},
+	{
+		"url": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart",
+		"response": {
+			"inspectionResult": {
+				"inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:hangendehapjes.nl&id=AGfWhgoXS4vQW9IlXZ6vPw&utm_medium=link&utm_source=api",
+				"indexStatusResult": {
+					"verdict": "PASS",
+					"coverageState": "Submitted and indexed",
+					"robotsTxtState": "ALLOWED",
+					"indexingState": "INDEXING_ALLOWED",
+					"lastCrawlTime": "2026-09-16T03:10:24Z",
+					"pageFetchState": "SUCCESSFUL",
+					"googleCanonical": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart",
+					"userCanonical": "https://hangendehapjes.nl/blog/italiaanse-bruidstaart",
+					"sitemap": ["https://hangendehapjes.nl/sitemap.xml"],
+					"referringUrls": ["https://hangendehapjes.nl/blog/burrata-catering"],
+					"crawledAs": "MOBILE"
+				},
+				"mobileUsabilityResult": {
+					"verdict": "VERDICT_UNSPECIFIED"
+				},
+				"richResultsResult": {
+					"verdict": "PASS",
+					"detectedItems": [
+						{
+							"richResultType": "Product snippets",
+							"items": [
+								{
+									"name": "Italiaanse bruidstaart (millefoglie) catering"
+								}
+							]
+						},
+						{
+							"richResultType": "Merchant listings",
+							"items": [
+								{
+									"name": "Italiaanse bruidstaart (millefoglie) catering",
+									"issues": [
+										{
+											"issueMessage": "Missing field \"hasMerchantReturnPolicy\"",
+											"severity": "WARNING"
+										},
+										{
+											"issueMessage": "Missing field \"shippingDetails\"",
+											"severity": "WARNING"
+										}
+									]
+								}
+							]
+						},
+						{
+							"richResultType": "Review snippets",
+							"items": [
+								{
+									"name": "Italiaanse bruidstaart (millefoglie) catering"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		"error": null
+	},
+	{
+		"url": "https://hangendehapjes.nl/blog/tiramisu-bruiloft",
+		"response": {
+			"inspectionResult": {
+				"inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:hangendehapjes.nl&id=cEJlGdndGyVGyZXHyAYgng&utm_medium=link&utm_source=api",
+				"indexStatusResult": {
+					"verdict": "PASS",
+					"coverageState": "Submitted and indexed",
+					"robotsTxtState": "ALLOWED",
+					"indexingState": "INDEXING_ALLOWED",
+					"lastCrawlTime": "2026-09-22T22:12:20Z",
+					"pageFetchState": "SUCCESSFUL",
+					"googleCanonical": "https://hangendehapjes.nl/blog/tiramisu-bruiloft",
+					"userCanonical": "https://hangendehapjes.nl/blog/tiramisu-bruiloft",
+					"referringUrls": [
+						"https://hangendehapjes.nl/blog/burrata-catering",
+						"https://hangendehapjes.nl/sitemap.xml"
+					],
+					"crawledAs": "MOBILE"
+				},
+				"mobileUsabilityResult": {
+					"verdict": "VERDICT_UNSPECIFIED"
+				},
+				"richResultsResult": {
+					"verdict": "PASS",
+					"detectedItems": [
+						{
+							"richResultType": "Product snippets",
+							"items": [
+								{
+									"name": "Live tiramisu catering"
+								}
+							]
+						},
+						{
+							"richResultType": "Merchant listings",
+							"items": [
+								{
+									"name": "Live tiramisu catering",
+									"issues": [
+										{
+											"issueMessage": "Missing field \"shippingDetails\"",
+											"severity": "WARNING"
+										},
+										{
+											"issueMessage": "Missing field \"hasMerchantReturnPolicy\"",
+											"severity": "WARNING"
+										}
+									]
+								}
+							]
+						},
+						{
+							"richResultType": "Review snippets",
+							"items": [
+								{
+									"name": "Live tiramisu catering"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		"error": null
+	},
+	{
+		"url": "https://hangendehapjes.nl/catering/hilversum",
+		"response": {
+			"inspectionResult": {
+				"inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:hangendehapjes.nl&id=8g2tNTVmcuOrbHQsXXsJdw&utm_medium=link&utm_source=api",
+				"indexStatusResult": {
+					"verdict": "PASS",
+					"coverageState": "Submitted and indexed",
+					"robotsTxtState": "ALLOWED",
+					"indexingState": "INDEXING_ALLOWED",
+					"lastCrawlTime": "2026-09-19T18:05:04Z",
+					"pageFetchState": "SUCCESSFUL",
+					"googleCanonical": "https://hangendehapjes.nl/catering/hilversum",
+					"userCanonical": "https://hangendehapjes.nl/catering/hilversum",
+					"referringUrls": ["https://hangendehapjes.nl/blog/burrata-catering"],
+					"crawledAs": "MOBILE"
+				},
+				"mobileUsabilityResult": {
+					"verdict": "VERDICT_UNSPECIFIED"
+				},
+				"richResultsResult": {
+					"verdict": "PASS",
+					"detectedItems": [
+						{
+							"richResultType": "Breadcrumbs",
+							"items": [
+								{
+									"name": "Unnamed item"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		"error": null
+	},
+	{
+		"url": "https://hangendehapjes.nl/blog/bruidstaart",
+		"response": {
+			"inspectionResult": {
+				"inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:hangendehapjes.nl&id=iuTkBBdE89l5gKVQl7PhzA&utm_medium=link&utm_source=api",
+				"indexStatusResult": {
+					"verdict": "PASS",
+					"coverageState": "Submitted and indexed",
+					"robotsTxtState": "ALLOWED",
+					"indexingState": "INDEXING_ALLOWED",
+					"lastCrawlTime": "2026-09-13T18:41:17Z",
+					"pageFetchState": "SUCCESSFUL",
+					"googleCanonical": "https://hangendehapjes.nl/blog/bruidstaart",
+					"userCanonical": "https://hangendehapjes.nl/blog/bruidstaart",
+					"referringUrls": ["https://hangendehapjes.nl/blog/burrata-catering"],
+					"crawledAs": "MOBILE"
+				},
+				"mobileUsabilityResult": {
+					"verdict": "VERDICT_UNSPECIFIED"
+				},
+				"richResultsResult": {
+					"verdict": "PASS",
+					"detectedItems": [
+						{
+							"richResultType": "Product snippets",
+							"items": [
+								{
+									"name": "Bruidstaart op maat (catering)"
+								}
+							]
+						},
+						{
+							"richResultType": "Merchant listings",
+							"items": [
+								{
+									"name": "Bruidstaart op maat (catering)",
+									"issues": [
+										{
+											"issueMessage": "Missing field \"shippingDetails\"",
+											"severity": "WARNING"
+										},
+										{
+											"issueMessage": "Missing field \"hasMerchantReturnPolicy\"",
+											"severity": "WARNING"
+										}
+									]
+								}
+							]
+						},
+						{
+							"richResultType": "Review snippets",
+							"items": [
+								{
+									"name": "Bruidstaart op maat (catering)"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		"error": null
+	},
+	{
+		"url": "https://hangendehapjes.nl/blog/burrata-catering",
+		"response": {
+			"inspectionResult": {
+				"inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:hangendehapjes.nl&id=2YSUTphf-hEWTe_DtnthlQ&utm_medium=link&utm_source=api",
+				"indexStatusResult": {
+					"verdict": "PASS",
+					"coverageState": "Submitted and indexed",
+					"robotsTxtState": "ALLOWED",
+					"indexingState": "INDEXING_ALLOWED",
+					"lastCrawlTime": "2026-09-14T16:49:43Z",
+					"pageFetchState": "SUCCESSFUL",
+					"googleCanonical": "https://hangendehapjes.nl/blog/burrata-catering",
+					"userCanonical": "https://hangendehapjes.nl/blog/burrata-catering",
+					"sitemap": ["https://hangendehapjes.nl/sitemap.xml"],
+					"referringUrls": [
+						"https://hangendehapjes.nl/catering/hilversum",
+						"https://hangendehapjes.nl/sitemap.xml"
+					],
+					"crawledAs": "MOBILE"
+				},
+				"mobileUsabilityResult": {
+					"verdict": "VERDICT_UNSPECIFIED"
+				},
+				"richResultsResult": {
+					"verdict": "PASS",
+					"detectedItems": [
+						{
+							"richResultType": "Product snippets",
+							"items": [
+								{
+									"name": "Live burrata bar catering"
+								}
+							]
+						},
+						{
+							"richResultType": "Merchant listings",
+							"items": [
+								{
+									"name": "Live burrata bar catering",
+									"issues": [
+										{
+											"issueMessage": "Missing field \"hasMerchantReturnPolicy\"",
+											"severity": "WARNING"
+										},
+										{
+											"issueMessage": "Missing field \"shippingDetails\"",
+											"severity": "WARNING"
+										}
+									]
+								}
+							]
+						},
+						{
+							"richResultType": "Review snippets",
+							"items": [
+								{
+									"name": "Live burrata bar catering"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		"error": null
+	},
+	{
+		"url": "https://hangendehapjes.nl/blog/hoeveel-hapjes-per-persoon",
+		"response": {
+			"inspectionResult": {
+				"inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:hangendehapjes.nl&id=7gt6ru96NY9QJAiGUUvwkw&utm_medium=link&utm_source=api",
+				"indexStatusResult": {
+					"verdict": "PASS",
+					"coverageState": "Submitted and indexed",
+					"robotsTxtState": "ALLOWED",
+					"indexingState": "INDEXING_ALLOWED",
+					"lastCrawlTime": "2026-09-20T05:07:06Z",
+					"pageFetchState": "SUCCESSFUL",
+					"googleCanonical": "https://hangendehapjes.nl/blog/hoeveel-hapjes-per-persoon",
+					"userCanonical": "https://hangendehapjes.nl/blog/hoeveel-hapjes-per-persoon",
+					"sitemap": ["https://hangendehapjes.nl/sitemap.xml"],
+					"crawledAs": "MOBILE"
+				},
+				"mobileUsabilityResult": {
+					"verdict": "VERDICT_UNSPECIFIED"
+				}
+			}
+		},
+		"error": null
+	},
+	{
+		"url": "https://hangendehapjes.nl/en",
+		"response": {
+			"inspectionResult": {
+				"inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:hangendehapjes.nl&id=zj4_ScvIztNIaa2wRs5LsQ&utm_medium=link&utm_source=api",
+				"indexStatusResult": {
+					"verdict": "PASS",
+					"coverageState": "Submitted and indexed",
+					"robotsTxtState": "ALLOWED",
+					"indexingState": "INDEXING_ALLOWED",
+					"lastCrawlTime": "2026-09-22T04:01:29Z",
+					"pageFetchState": "SUCCESSFUL",
+					"googleCanonical": "https://hangendehapjes.nl/en",
+					"userCanonical": "https://hangendehapjes.nl/en",
+					"referringUrls": [
+						"https://hangendehapjes.nl/blog/burrata-catering",
+						"https://hangendehapjes.nl/sitemap.xml"
+					],
+					"crawledAs": "MOBILE"
+				},
+				"mobileUsabilityResult": {
+					"verdict": "VERDICT_UNSPECIFIED"
+				},
+				"richResultsResult": {
+					"verdict": "PASS",
+					"detectedItems": [
+						{
+							"richResultType": "Review snippets",
+							"items": [
+								{
+									"name": "Hangende Hapjes"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		"error": null
+	},
+	{
+		"url": "https://hangendehapjes.nl/en/catering/hilversum",
+		"response": {
+			"inspectionResult": {
+				"inspectionResultLink": "https://search.google.com/search-console/inspect?resource_id=sc-domain:hangendehapjes.nl&id=QgcGl4GCSeN0sfT8UsV-wg&utm_medium=link&utm_source=api",
+				"indexStatusResult": {
+					"verdict": "PASS",
+					"coverageState": "Submitted and indexed",
+					"robotsTxtState": "ALLOWED",
+					"indexingState": "INDEXING_ALLOWED",
+					"lastCrawlTime": "2026-09-19T19:17:59Z",
+					"pageFetchState": "SUCCESSFUL",
+					"googleCanonical": "https://hangendehapjes.nl/en/catering/hilversum",
+					"userCanonical": "https://hangendehapjes.nl/en/catering/hilversum",
+					"referringUrls": [
+						"https://hangendehapjes.nl/catering/hilversum",
+						"https://hangendehapjes.nl/sitemap.xml"
+					],
+					"crawledAs": "MOBILE"
+				},
+				"mobileUsabilityResult": {
+					"verdict": "VERDICT_UNSPECIFIED"
+				},
+				"richResultsResult": {
+					"verdict": "PASS",
+					"detectedItems": [
+						{
+							"richResultType": "Breadcrumbs",
+							"items": [
+								{
+									"name": "Unnamed item"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		"error": null
+	}
+]

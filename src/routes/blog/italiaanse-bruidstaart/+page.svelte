@@ -2,8 +2,9 @@
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import Picture from '$lib/components/Picture.svelte';
-	import { jsonLdScript, aggregateRatingJsonLd } from '$lib/seo';
-	import BlogReviewTeaser from '$lib/blog/BlogReviewTeaser.svelte';
+	import { jsonLdScript } from '$lib/seo';
+	import BlogSummary from '$lib/blog/BlogSummary.svelte';
+	import BlogOtherCakes from '$lib/blog/BlogOtherCakes.svelte';
 	import {
 		BUILD_DATE,
 		OG_IMAGE_HEIGHT,
@@ -24,7 +25,7 @@
 	// en de FAQ staan voor de long tail.
 	const title = 'Millefoglie: de Italiaanse bruidstaart | Hangende Hapjes';
 	const description =
-		'Millefoglie is de Italiaanse bruidstaart: dunne lagen bladerdeeg, luchtige Zwitserse room en vers rood fruit. Wij maken hem ter plekke af, Live voor jouw gasten.';
+		'Millefoglie is de Italiaanse bruidstaart: dunne lagen bladerdeeg, luchtige Zwitserse room en vers rood fruit. Wij maken hem ter plekke af, live voor jouw gasten.';
 	const slug = '/blog/italiaanse-bruidstaart';
 	const canonical = SITE_URL + slug;
 	const ogImage = SITE_URL + '/og-blog-italiaanse-bruidstaart.jpg';
@@ -55,10 +56,9 @@
 		mentions: [{ '@id': serviceId }]
 	};
 
-	// Canonical commercial page lives at /#service-toetjes (De Toetjes Vrouw). The full
-	// reviews live on the homepage; here we only surface the aggregate score + count
-	// (matching the compact teaser below) and link through.
-	const toetjesReviews = nl.reviews.items.filter((review) => review.productId === 'toetjes');
+	// No millefoglie review yet, so no aggregateRating on this product (borrowing the
+	// tiramisu rating would be misleading). The summary card shows the business-wide
+	// score with short snippets of all reviews and links through.
 
 	const productJsonLd = {
 		'@context': 'https://schema.org',
@@ -89,8 +89,7 @@
 					unitText: 'portions'
 				}
 			}
-		},
-		...aggregateRatingJsonLd(toetjesReviews)
+		}
 	};
 
 	const faqList: BlogFaq[] = [
@@ -98,7 +97,7 @@
 			id: 'millefoglie-vs-millefeuille',
 			question: 'Wat is het verschil tussen een millefoglie en een millefeuille?',
 			answer:
-				'Eigenlijk niets, het is dezelfde taart in een andere taal. Millefoglie is de Italiaanse naam, millefeuille de Franse, en allebei betekenen ze duizend blaadjes. Het gaat om dunne, knapperige lagen bladerdeeg met daartussen een romige vulling. Onze versie is de Italiaanse: luchtige Zwitserse room en een flinke laag vers rood fruit erbovenop. Zie het als de chique, grote zus van de Nederlandse tompouce.'
+				'Eigenlijk niets, het is dezelfde taart in een andere taal. Millefoglie is de Italiaanse naam, millefeuille de Franse, en allebei betekenen ze duizend blaadjes. Het gaat om dunne, knapperige lagen bladerdeeg met daartussen een romige vulling. Onze versie is de Italiaanse: luchtige Zwitserse room en een flinke laag vers rood fruit erbovenop.'
 		},
 		{
 			id: 'bruidstaart-fruit',
@@ -114,9 +113,9 @@
 		},
 		{
 			id: 'bruidstaart-proeven',
-			question: 'Kunnen we de bruidstaart eerst proeven?',
+			question: 'Kunnen we de millefoglie eerst proeven?',
 			answer:
-				'Heel graag zelfs. Net als bij onze tiramisu doen we de proeverij bij ons in Hilversum: je komt langs en proeft de millefoglie vers, want een bladerdeegtaart leent zich niet goed voor een doosje mee naar huis. Zo proef je hem precies zoals hij op je grote dag is voordat je iets vastlegt.'
+				'Ja! We organiseren geen losse proeverijen per stel, maar we staan vier keer per jaar op de Open Trouwlocatieroute. Daar kun je gewoon langskomen en proeven. Stuur ons een berichtje, dan laten we weten wanneer en waar we de volgende keer staan.'
 		},
 		{
 			id: 'bruidstaart-zomer-buiten',
@@ -191,40 +190,25 @@
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Een Italiaanse bruidstaart, ook wel een millefoglie (of de Franse millefeuille) genoemd,
 					is een gelaagde taart van dunne, knapperige lagen bladerdeeg met luchtige Zwitserse room
-					en een flinke berg vers rood fruit. Zelf hadden wij deze taart op onze bruiloft en het was
-					een enorm succes. Niet alleen hadden wij zelf de tijd van ons leven met het leggen van het
-					fruit, ook de gasten vonden het fantastisch om naar het opbouwen te kijken. Het was
-					feestelijk, super lekker en net even anders dan een klassieke hoge bruidstaart.
-				</p>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Liever een <a href="/blog/bruidstaart" class="underline hover:text-foreground"
-						>klassieke hoge bruidstaart</a
-					>, of
-					<a href="/blog/tiramisu-bruiloft" class="underline hover:text-foreground"
-						>tiramisu op je bruiloft?
-					</a> Daar denken we ook graag in mee.
+					en een flinke berg vers rood fruit. Zelf hadden wij deze taart op onze bruiloft, en nu
+					maken we hem ook voor jullie.
 				</p>
 			</header>
 
-			<section
-				class="mt-10 rounded-xl border border-(--brand-magenta)/15 bg-(--brand-magenta)/5 px-6 py-5"
-				aria-labelledby="snel-antwoord"
-			>
-				<h2
-					id="snel-antwoord"
-					class="text-xs font-semibold tracking-wider text-(--brand-magenta) uppercase"
-				>
-					Alles op een rijtje
-				</h2>
-				<ul
-					class="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground marker:text-(--brand-magenta)"
-				>
-					<li>Knapperig bladerdeeg, luchtige Zwitserse room en vers rood fruit</li>
-					<li>Ter plekke afgemaakt, zodat het bladerdeeg knapperig blijft</li>
-					<li>Vanaf 25 personen, het hele jaar door, binnen of buiten</li>
-					<li>Wij bouwen de taart op, jullie maken hem af en/of snijden de taart aan</li>
-				</ul>
-			</section>
+			<BlogSummary reviews={nl.reviews.items} quotes={2}>
+				<li>
+					<strong>Wat:</strong> knapperig bladerdeeg, luchtige Zwitserse room en vers rood fruit.
+				</li>
+				<li>
+					<strong>Vers afgemaakt:</strong> we bouwen hem ter plekke op, het laatste fruit mogen jullie
+					zelf leggen.
+				</li>
+				<li><strong>Prijs:</strong> vanaf €395 voor 25 gasten, het hele jaar door.</li>
+				<li>
+					<strong>Inbegrepen:</strong> bezorgen, opbouwen en alternatieven voor dieetwensen. In het Gooi,
+					Amsterdam en Utrecht rekenen we geen reiskosten.
+				</li>
+			</BlogSummary>
 
 			<figure class="mt-10 overflow-hidden rounded-xl bg-muted">
 				<div class="aspect-[19/10]">
@@ -249,24 +233,20 @@
 					Millefoglie betekent letterlijk duizend blaadjes, en dat is precies wat het is: laag op
 					laag knapperig bladerdeeg, daartussen luchtige Zwitserse room (banketbakkersroom met
 					slagroom, lichter dan de crème in een tompouce), en bovenop een gulle laag vers rood
-					fruit. Geen zware botercrème of stugge cake, maar een lichte, gelaagde taart die na een
-					diner nog prima wegglijdt. Het is de Italiaanse neef van de Franse millefeuille en de
-					chique grote zus van de Nederlandse tompouce.
-				</p>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					De taart wordt groter en groter met het aantal personen en je kan het zelf afmaken met
-					rood fruit of poedersuiker. Zo kun je er een mooi taartmoment van maken.
+					fruit. Een lichte, gelaagde taart die na een diner nog prima wegglijdt. Zie het als de
+					Italiaanse neef van de Franse millefeuille en de chique grote zus van de Nederlandse
+					tompouce.
 				</p>
 			</section>
 
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Vers afgemaakt op locatie</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Het geheim van een goede millefoglie is timing. Bladerdeeg dat te lang onder de room ligt
-					wordt zacht, en daar gaat juist de knapperigheid verloren die de taart zo lekker maakt.
-					Daarom bouwen wij de taart ter plekke op: Charlotte spuit de Zwitserse room en legt het
-					verse fruit erop kort voor het taartmoment. Gasten vinden het super leuk om hier naar te
-					kijken en we maken graag een praatje met ze.
+					Bladerdeeg dat te lang onder de room ligt, wordt zacht, en dan is de knapperigheid weg die
+					de taart zo lekker maakt. Daarom bouwen wij de taart ter plekke op: Wij spuiten de
+					Zwitserse room op en leggen het verse fruit erop kort voor het taartmoment. Gasten vinden
+					het super leuk om hier naar te kijken en we maken graag een praatje met ze. Op deze manier
+					kunnen wij hele grote taarten leveren, tot wel 2 meter breed.
 				</p>
 				<figure class="mt-6 overflow-hidden rounded-xl bg-muted">
 					<div class="aspect-3/2">
@@ -282,8 +262,8 @@
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Wij bouwen de taart helemaal op en geven hem daarna aan jullie door voor het taartmoment.
 					Wil je er nog een klein showmoment van maken? Dan kan je het laatste fruit en een snufje
-					poedersuiker ook zelf opleggen. Dat hoeft niet, maar het is wel een leuk, persoonlijk
-					moment.
+					poedersuiker ook zelf plaatsen. Dat hoeft niet, maar het is wel een leuk, persoonlijk
+					moment en geeft super mooie plaatjes.
 				</p>
 				<figure class="mt-6 overflow-hidden rounded-xl bg-muted">
 					<div class="aspect-3/2">
@@ -297,60 +277,39 @@
 					</div>
 				</figure>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Verder hebben we weinig nodig op locatie: een koel hoekje om de taart op te bouwen, en wij
-					nemen mee wat nodig is om hem netjes klaar te zetten. We blijven erbij tot het
-					aansnijmoment, zodat de taart precies staat zoals jullie hem willen.
+					Wij nemen alles zelf mee, maar mocht er op de locatie een plek zijn voor de koelbox, dan
+					is dat perfect. We blijven erbij tot het aansnijmoment en ook het afval gaat met ons
+					terug, zo zijn jullie en de locatie volledig ontzorgd.
 				</p>
 			</section>
 
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Smaken, fruit en formaten</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					De millefoglie is bewust klassiek: knapperig bladerdeeg, luchtige Zwitserse room en vers
-					rood fruit. De variatie zit niet in de vulling maar in het fruit en de afwerking.
+					De millefoglie is bewust klassiek: bladerdeeg, Zwitserse room en vers rood fruit (aardbei,
+					framboos, braam en blauwe bes) met wat poedersuiker. In de zomer is dat fruit op z'n best.
+					Daarbuiten kan de mix iets veranderen, want we kiezen liever wat op dat moment het
+					lekkerst is.
 				</p>
-				<ul
-					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
-				>
-					<li>
-						<strong>Klassieke millefoglie</strong> met Zwitserse room en vers rood fruit: aardbei, frambozen,
-						bramen en blauwe bes, met een lichte poedersuiker. Feestelijk, fris en precies waarom we deze
-						taart zo leuk vinden.
-					</li>
-					<li>
-						<strong>Rood fruit naar seizoen.</strong> Aardbei, frambozen, bramen en blauwe bes komen het
-						best tot hun recht in de zomer. Ver buiten het zomerseizoen kan de mix iets veranderen door
-						beschikbaarheid en kwaliteit; dan kiezen we het fruit dat op dat moment het lekkerst en mooiste
-						is.
-					</li>
-					<li>
-						<strong>Liever iets anders?</strong> We maken ook een
-						<a href="/blog/bruidstaart" class="underline hover:text-foreground"
-							>klassieke hoge bruidstaart</a
-						>, of je combineert de dag met onze
-						<a href="/blog/tiramisu-bruiloft" class="underline hover:text-foreground"
-							>live tiramisu</a
-						>. We denken graag met je mee over wat het beste bij jullie dag past.
-					</li>
-				</ul>
+				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
+					We leveren een taart vanaf 25 personen maar het kan tot zeker 200 personen, dan wordt de
+					taart gewoon breder en langer.
+				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Laat ons via het <a href="/#contact" class="underline hover:text-foreground"
 						>contactformulier</a
-					> weten wat je voor ogen hebt, dan sturen we een voorstel op maat. Je kan ook eerst bij ons
-					in Hilversum langskomen om te proeven.
+					> weten wat je voor ogen hebt, dan sturen we een voorstel op maat.
 				</p>
 			</section>
 
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
-					Waarom wij deze taart zo leuk vinden
+					Gegarandeerd een succes, we weten het uit ervaring.
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Op onze eigen bruiloft hadden we ook een Italiaanse millefoglie, en dat moment is ons
-					altijd bijgebleven. Niet omdat hij traditioneel of perfect strak was, maar juist omdat hij
-					luchtig, vrolijk en een beetje anders voelde. Dat is precies waarom we hem nu in ons
-					aanbod hebben: Charlotte heeft de patisserie-ervaring om hem lekker en mooi te maken, en
-					wij vinden het gewoon een fantastische taart voor een feest.
+					Op onze eigen bruiloft hadden we een mega milefeille voor 100 personen. Samen het fruit
+					leggen was echt een hoogtepunt en de gasten vonden het genieten. Wij weten precies hoe we
+					het moeten maken en leveren zodat het ook voor jullie perfect is!
 				</p>
 				<figure class="mt-6 overflow-hidden rounded-xl bg-muted">
 					<div class="aspect-[19/10]">
@@ -365,57 +324,56 @@
 				</figure>
 			</section>
 
+			<BlogOtherCakes ids={['tiramisutaart', 'klassiek']} event="bruidstaart">
+				Wij leveren ook een tiramisutaart die we ter plekke opbouwen, en klassieke hoge
+				bruidstaarten in 8 smaken.
+			</BlogOtherCakes>
+
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
 					Wat een Italiaanse bruidstaart kost
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					In de tabel hieronder zie je de pakketprijzen (excl. BTW) voor onze Italiaanse
-					bruidstaart. Dit is geen portieprijs maar volledig inclusief: bezorgen, live afmaken op
-					locatie, aanwezig blijven tot het aansnijmoment, eetgerij, servetten, dieetwensen en het
-					netjes klaarzetten zijn allemaal inbegrepen.
+					Dit zijn pakketprijzen, excl. btw. Bezorgen, live opbouwen op locatie en dieetwensen zijn
+					inbegrepen.
 				</p>
-				<div class="overflow-x-auto">
-					<table class="w-full border-collapse text-sm md:text-base">
-						<thead>
-							<tr class="border-b border-border text-left">
-								<th class="py-3 pr-4 font-heading font-semibold">Aantal gasten</th>
-								<th class="py-3 font-heading font-semibold">Pakketprijs (vanaf)</th>
-							</tr>
-						</thead>
-						<tbody class="text-muted-foreground">
-							<tr class="border-b border-border/60">
-								<td class="py-3 pr-4">25</td>
-								<td class="py-3">€395</td>
-							</tr>
-							<tr class="border-b border-border/60">
-								<td class="py-3 pr-4">50</td>
-								<td class="py-3">€575</td>
-							</tr>
-							<tr>
-								<td class="py-3 pr-4">100</td>
-								<td class="py-3">€995</td>
-							</tr>
-						</tbody>
-					</table>
+				<div>
+					<div class="rounded-xl border border-border px-5 py-4">
+						<h3 class="font-heading text-lg tracking-tight">Italiaanse bruidstaart</h3>
+						<table class="mt-2 w-full border-collapse text-sm">
+							<thead class="sr-only">
+								<tr>
+									<th>Aantal gasten</th>
+									<th>Prijs</th>
+								</tr>
+							</thead>
+							<tbody class="text-muted-foreground">
+								<tr class="border-b border-border/60">
+									<td class="py-2 pr-3 text-foreground">25 gasten</td>
+									<td class="py-2 text-right font-medium text-foreground">€395</td>
+								</tr>
+								<tr class="border-b border-border/60">
+									<td class="py-2 pr-3 text-foreground">50 gasten</td>
+									<td class="py-2 text-right font-medium text-foreground">€495</td>
+								</tr>
+								<tr>
+									<td class="py-2 pr-3 text-foreground">100 gasten</td>
+									<td class="py-2 text-right font-medium text-foreground">€845</td>
+								</tr>
+							</tbody>
+						</table>
+						<p class="mt-3 text-xs leading-relaxed text-muted-foreground">
+							Alle service tot en met het aansnijd moment is inbegrepen. Borden, bestek, een
+							presentatietafel en servetten gebruiken wij graag van de locatie. Is dit lastig dan
+							kunnen wij dit in overleg ook meenemen en regelen voor jullie.
+						</p>
+						<p class="mt-2 text-xs leading-relaxed text-muted-foreground">
+							Reiskosten zijn inbegrepen tot ~30km rondom Hilversum (Het Gooi, Amersfoort, Amsterdam en
+							Utrecht). Hierbuiten brengen wij reiskosten in rekening voor de extra kilometers.
+						</p>
+					</div>
 				</div>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Een millefoglie wordt vers in onze keuken gemaakt en op locatie afgemaakt met room en een
-					flinke laag echt fruit. Voor grotere bruiloften maken we de taart groter; vraag gerust een
-					voorstel op maat aan.
-				</p>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Wil je de locatie ontzorgen of kosten daar beperken? Dan kunnen we in overleg ook borden,
-					bestek, extra servetten of een presentatietafel meenemen. Zo heb je geen schotelgeld of
-					andere onverwachtse kosten zoals bij een klassieke bruidstaart.
-				</p>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Reiskosten: in het Gooi, Amsterdam en Utrecht zitten ze gewoon in de prijs. Verder weg
-					rekenen we de reis mee in je offerte, zodat je één totaalbedrag ziet.
-				</p>
 			</section>
-
-			<BlogReviewTeaser reviews={toetjesReviews} />
 
 			<BlogCta
 				event="bruidstaart"
