@@ -4,7 +4,8 @@
 	import MuxClips from '$lib/components/MuxClips.svelte';
 	import Picture from '$lib/components/Picture.svelte';
 	import { jsonLdScript, aggregateRatingJsonLd } from '$lib/seo';
-	import BlogReviewTeaser from '$lib/blog/BlogReviewTeaser.svelte';
+	import BlogSummary from '$lib/blog/BlogSummary.svelte';
+	import BlogOtherCakes from '$lib/blog/BlogOtherCakes.svelte';
 	import {
 		BUILD_DATE,
 		OG_IMAGE_HEIGHT,
@@ -91,16 +92,16 @@
 
 	const faqList: BlogFaq[] = [
 		{
-			id: 'tiramisu-taart',
-			question: 'Maken jullie ook een tiramisu taart of Italiaanse bruidstaart?',
+			id: 'tiramisu-toren',
+			question: 'Kunnen jullie ook een tiramisu toren leveren voor op een bruiloft?',
 			answer:
-				'Ja, en hierboven lees je er alles over. Charlotte heeft veel patisserie-ervaring en bakte al talloze bruidstaarten. Je kan kiezen voor een platte tiramisutaart in showformaat vanaf ongeveer 30 personen, een Italiaanse mille-feuille vanaf 25 personen, of een klassieke hoge bruidstaart met tiramisu-smaak. We bouwen de tiramisutaart live op locatie, je mag hem zelf afmaken met cacao of wij kunnen een persoonlijk sjabloon plaatsen. Laat ons via het contactformulier weten wat je voor ogen hebt, dan sturen we een voorstel. Je kan ook eerst bij ons in Hilversum langskomen om te proeven.'
+				'Nee, helaas leveren wij geen gebouwde tiramisu toren. Dat is een bewuste keuze: onze kracht zit in tiramisu vers op locatie opbouwen, als hangend hapje tussen de gasten of als tiramisutaart. Een toren met losse glaasjes moet je eigenlijk vooraf maken; als wij dat allemaal vers op locatie vullen, wordt het onnodig duur en omslachtig. Willen jullie de tiramisu toch in glas presenteren, dan denken we graag mee over coupes of glaswerk.'
 		},
 		{
-			id: 'tiramisu-all-inclusive',
-			question: 'Moeten wij of de locatie zelf nog iets regelen of terugbrengen?',
+			id: 'tiramisu-sjabloon',
+			question: 'Kan er iets persoonlijks op de taart?',
 			answer:
-				'Nee, dit is een full-service pakket. Wij bezorgen alles, bouwen de tiramisu of taart ter plekke vers op en blijven erbij tot het moment klopt zoals jullie het willen. Voor hangende hapjes is ook eetgerij inbegrepen, voor de taart kunnen wij borden, bestek, extra servetten of zelfs een tafel en decoratie meenemen als dit voor jullie makkelijker is dan overleggen met de locatie. Alles is geregeld, je hoeft dus ook geen schalen of bakken terug te brengen en vaak geen schotelgeld te betalen. Het is voor ons wat meer werk, maar dan heb je wel een compleet verzorgd dessert- of taartmoment.'
+				'Op de tiramisutaart maken we aan de hand van een sjabloon een tekst in cacao. ‘Just Married’ hebben we standaard liggen en die zit bij de prijs in. Wil je jullie namen, de datum of iets anders eigens, dan laten we daar een sjabloon voor maken en rekenen we soms een klein bedrag door. Vraag het gerust in je aanvraag, dan zeggen we meteen of het meerkosten heeft.'
 		},
 		{
 			id: 'tiramisu-zonder-alcohol',
@@ -109,30 +110,30 @@
 				'Ja. Standaard zit er een scheutje amaretto in, maar we hebben ook een alcoholvrije amaretto die we als vervanging gebruiken. Op een bruiloft met een gemengd publiek (kinderen, zwangere gasten, gasten die niet drinken) is dat geen enkel probleem. Geef het in je aanvraag door, dan houden we er meteen rekening mee.'
 		},
 		{
-			id: 'tiramisu-vegetarisch',
-			question: 'Is jullie tiramisu vegetarisch?',
-			answer:
-				'Ja. Mascarpone, eieren, lange vingers, suiker, espresso en cacao. Geen vlees of vis. De eieren zijn gepasteuriseerd, dus de tiramisu is ook veilig voor zwangere gasten en kinderen. Daarentegen is tiramisu niet Veganistisch.'
-		},
-		{
-			id: 'tiramisu-toren',
-			question: 'Kunnen jullie ook een tiramisu toren leveren voor op een bruiloft?',
-			answer:
-				'Nee, helaas leveren wij geen gebouwde tiramisu toren. Dat is een bewuste keuze: onze kracht zit in tiramisu vers op locatie opbouwen, als hangend hapje tussen de gasten of als tiramisutaart. Een toren met losse glaasjes moet je eigenlijk vooraf maken; als wij dat allemaal vers op locatie vullen, wordt het onnodig duur en omslachtig. Willen jullie de tiramisu toch in glas presenteren, dan denken we graag mee over coupes of glaswerk.'
-		},
-		{
 			id: 'tiramisu-allergies',
 			question: 'Hebben jullie opties voor allergieën of dieetwensen?',
 			answer:
-				'Ja, geef allergieën en dieetwensen altijd vooraf door. Daar rekenen we niets extra voor. Onze tiramisu bevat standaard gluten, lactose en ei. We kunnen losse alternatieven meenemen voor gasten die vegan eten of een complexe allergie hebben. De tiramisu of tiramisutaart zelf passen we alleen aan als iedereen dezelfde aangepaste receptuur krijgt. Alcoholvrij of cafeïnevrij kan wel per persoon bij live tiramisu. Voor strenge allergieën kunnen we geen volledig kruisbesmettingsvrije productie garanderen.'
+				'Ja, geef allergieën en dieetwensen altijd vooraf door. Daar rekenen we niets extra voor. Onze tiramisu bevat standaard gluten, lactose en ei. Als alternatief maken daarom een lactose-, gluten-, Alcohol- en cafeïnevrijrije tiramisu - ook deze is super lekker. Een vegan tiramisu kunnen we helaas niet maken, voor vegan gasten nemen we een ander taartje mee. Voor strenge allergieën kunnen we geen volledig kruisbesmettingsvrije productie garanderen.'
 		},
 		{
-			id: 'tiramisu-sjabloon',
-			question: 'Kan er iets persoonlijks op de taart?',
+			id: 'tiramisu-all-inclusive',
+			question: 'Moeten wij of de locatie zelf nog iets regelen of terugbrengen?',
 			answer:
-				'Op de tiramisutaart maken we aan de hand van een sjabloon een tekst in cacao. ‘Just Married’ hebben we standaard liggen en die zit bij de prijs in. Wil je jullie namen, de datum of iets anders eigens, dan laten we daar een sjabloon voor maken en rekenen we soms een klein bedrag door. Vraag het gerust in je aanvraag, dan zeggen we meteen of het meerkosten heeft.'
+				'Nee, dit is een full-service pakket. Wij bezorgen alles, bouwen de tiramisu of taart ter plekke vers op en blijven erbij tot het moment klopt zoals jullie het willen. Voor hangende hapjes is ook eetgerij inbegrepen, voor de taart kunnen wij borden, bestek, extra servetten of zelfs een tafel en decoratie meenemen als dit voor jullie makkelijker is dan overleggen met de locatie. Alles is geregeld, je hoeft dus ook geen schalen of bakken terug te brengen en vaak geen schotelgeld te betalen. Het is voor ons wat meer werk, maar dan heb je wel een compleet verzorgd dessert- of taartmoment.'
 		},
-		BLOG_FAQS_NL.leadtime
+		{
+			id: 'tiramisu-proeven',
+			question: 'Kunnen we de tiramisu eerst proeven?',
+			answer:
+				'Ja! We organiseren geen losse proeverijen per stel, maar we staan vier keer per jaar op de Open Trouwlocatieroute. Daar kun je gewoon langskomen en proeven. Stuur ons een berichtje, dan laten we weten wanneer en waar we de volgende keer staan.'
+		},
+		BLOG_FAQS_NL.leadtime,
+		{
+			id: 'tiramisu-taart',
+			question: 'Maken jullie ook andere (italiaanse) bruidstaarten?',
+			answer:
+				'Ja! Charlotte heeft veel patisserie-ervaring en maakt naast de tiramisutaart nog twee bruidstaarten. Een Italiaanse millefoglie (of mille-feuille) met knapperig bladerdeeg, Zwitserse room en vers rood fruit, vanaf 25 personen. Die maken we op locatie af, en het laatste fruit mogen jullie zelf leggen. En een klassieke hoge bruidstaart op maat, ook vanaf 25 personen, met 8 smaken om per laag uit te kiezen, waaronder tiramisu. Hierboven bij "Liever een andere bruidstaart?" lees je meer over allebei.'
+		}
 	];
 
 	const faqJsonLd = buildFaqJsonLd(faqList, { id: canonical + '#faq' });
@@ -185,124 +186,96 @@
 					{headline}
 				</h1>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Tiramisu op je bruiloft is nog leuker vanaf een hangend dienblad! Elke gast krijgt een
-					vers gemaakte portie: lange vingers, espresso uit de mokapot, mascarponecrème, amaretto en
-					cacao. Met een praatje en een glimlach serveren wij jullie dessert, midnight snack of
-					zelfs tiramisu bruidstaart.
+					Tiramisu op je bruiloft kan bij ons op twee manieren. Als <strong>hangend hapje</strong>:
+					Charlotte of Gijs loopt met een dienblad tussen jouw gasten door en bouwt elke portie vers
+					op - super leuk voor tijdens de borrel of het feest. Of als
+					<strong>tiramisutaart</strong>: een grote open taart die we ter plekke opbouwen, en die
+					jullie samen kunnen afmaken en aansnijden.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Toch liever een tiramisu taart om zelf aan te snijden of een toren met volle glazen, ook
-					dan ben je aan het juiste adres.
+					Hieronder lees je per optie hoe het werkt en wat het kost. Welke past bij jullie dag?
 				</p>
 			</header>
 
-			<section
-				class="mt-10 rounded-xl border border-(--brand-magenta)/15 bg-(--brand-magenta)/5 px-6 py-5"
-				aria-labelledby="snel-antwoord"
-			>
-				<h2
-					id="snel-antwoord"
-					class="text-xs font-semibold tracking-wider text-(--brand-magenta) uppercase"
-				>
-					Alles op een rijtje
-				</h2>
-				<ul
-					class="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground marker:text-(--brand-magenta)"
-				>
-					<li>Verse tiramisu voor elke gast</li>
-					<li>50–60 porties per uur als hangend hapje</li>
-					<li>Ook als tiramisutaart te bestellen</li>
-					<li>Maak van jouw dessert of taartmoment een extra feestje</li>
-				</ul>
-			</section>
+			<BlogSummary reviews={toetjesReviews}>
+				<li>
+					<strong>Live hapje:</strong> vers per gast opgebouwd, vanaf €425 voor 50 gasten.
+				</li>
+				<li>
+					<strong>Tiramisutaart:</strong> om samen aan te snijden, vanaf €375 voor 30 gasten.
+				</li>
+				<li>
+					<strong>Dieetwensen:</strong> we maken hem ook alcoholvrij, lactosevrij of glutenvrij.
+				</li>
+				<li>
+					<strong>Inbegrepen:</strong> bezorgen en opbouwen. In het Gooi, Amsterdam en Utrecht rekenen
+					we geen reiskosten.
+				</li>
+			</BlogSummary>
 
-			<MuxClips
-				clips={[
-					{
-						playbackId: 'Q6dowlovJnKajd134vOoS60101q00RS3NYz2YgOCv4gQpE',
-						title: 'Tiramisu live op een bruiloft'
-					},
-					{
-						playbackId: 'wAh8024FDNRT8VtuMTapIO5uHxiWIpr00d4t2aKMV8Stc',
-						title: 'Tiramisu ter plekke opgebouwd'
-					}
-				]}
-				gridClass="mx-auto mt-6 grid max-w-xl grid-cols-2 justify-items-center gap-3 sm:gap-4"
-			/>
-
-			<section class="mt-12 space-y-4">
+			<section class="mt-12 flow-root space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
-					Tiramisu als live catering op je bruiloft
+					Tiramisu als hangend hapje op je bruiloft
 				</h2>
+				<MuxClips
+					clips={[
+						{
+							playbackId: 'Q6dowlovJnKajd134vOoS60101q00RS3NYz2YgOCv4gQpE',
+							title: 'Gijs bouwt live een portie tiramisu op vanaf zijn hangende dienblad'
+						}
+					]}
+					gridClass="mx-auto mb-4 w-full max-w-60 sm:float-right sm:mt-1 sm:mb-2 sm:ml-6 sm:w-56"
+					itemClass="w-full"
+				/>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Ga voor iets unieks en laat Charlotte of Gijs rondlopen met verse tiramisu voor elke gast.
-					We bouwen elke portie pas op bij het serveren voor extra entertainment en de hoogste
-					kwaliteit. Zelf vinden wij dit er mooier uitzien dan scheppen uit een grote schaal en zo
-					voelt het uniek voor elke gast.
+					Charlotte of Gijs loopt rond met een dienblad om de nek en bouwt elke portie waar de gast
+					bij staat Met een klein praatje en een glimlach brengen wij zo niet alleen een borrelhapje
+					of dessert maar ook een stuk entertainment.
 				</p>
 				<ul
 					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
 				>
 					<li>
-						Iedere portie wordt op het moment zelf opgebouwd. Zo krijgt de laatste gast dezelfde
-						kwaliteit als de eerste.
+						Per gast kunnen wij aanpassingen maken zoals alcoholvrij of alleen een losse lange
+						vinger voor de kinderen.
 					</li>
 					<li>
-						Een glimlach en praatje met elke gast zorgt voor die extra herinnering aan jullie
-						speciale dag. Ook kunnen we hiermee makkelijk wisselen tussen porties met likeur of
-						juist alcoholvrij voor kinderen, zwangere gasten of gasten die niet drinken.
+						Gasten hoeven niet in de rij te staan en kunnen op eigen tempo een Tiramisu krijgen
 					</li>
 					<li>
-						Zelf hadden wij op onze bruiloft een ijsbar, na een zittend diner was dit echt perfect
-						om nog even rond te lopen en de after-dinner dip over te slaan. Tiramisu werkt ook op
-						dezelfde manier: een los, gezellig moment zonder rij voor een buffet.
+						Zelf hadden wij op onze bruiloft een ijsbar. Na een zittend diner was het echt fijn om
+						gasten wat vrijheid te bieden, zo raakt iedereen weer even in gesprek.
 					</li>
 				</ul>
+				<aside
+					class="rounded-r-lg border-l-4 border-(--brand-magenta) bg-(--brand-magenta)/5 px-5 py-4"
+				>
+					<p class="text-xs font-semibold tracking-wider text-(--brand-magenta) uppercase">
+						Tip van ons
+					</p>
+					<p class="mt-1 text-base leading-relaxed text-muted-foreground">
+						Een tiramisu Hangend Hapje past goed tijden je receptie of als walking dinner dessert. Maar onze favoriet:
+						ruil je midnight snack in voor tiramisu! Wij dansen graag tussen je gasten door en serveren een echte crowdpleaser.
+					</p>
+				</aside>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Zijn er vragen over ons recept van de gasten of wordt er een grapje gemaakt? We gaan er
-					graag in mee en praten met liefde over de tiramisu. Toetjesfanaat of niet, we halen ze
-					allemaal over om lekker te proeven.
+					Als wij rondlopen kunnen we tot 50–60 porties per uur serveren, dit is voor de meeste aantallen onder 70-80 perfect. Hierboven raden we aan dat we met z'n tweeën komen zodat we de gasten snel genoeg kunnen bedienen.
+					Wij nemen alles zelf mee maar mocht er op de locatie een plek zijn voor onze koelbox en om ons om te kleden dan zou dat perfect zijn.
+					Bakjes, lepels en servetten nemen wij mee en ook het afval gaat met ons terug, zo zijn jullie en de locatie volledig ontzorgd.
 				</p>
 			</section>
 
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
-					Tiramisu taart, tiramisu toren of Italiaanse bruidstaart
+					Tiramisutaart als bruidstaart
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Liever een taart om zelf aan te snijden? Ook dan ben je bij ons aan het juiste adres.
-					Charlotte heeft veel patisserie-ervaring en naast klassieke bruidstaarten leveren wij ook
-					een mooie tiramisutaart of Italiaanse millefoglie.
-				</p>
-				<ul
-					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
-				>
-					<li>
-						<strong>Tiramisutaart</strong> in showformaat om zelf aan te snijden. Ideaal als je een groter
-						dessertmoment wilt, krap in de tijd zit of zelf onderdeel wilt zijn van het taartmoment.
-					</li>
-					<li>
-						<strong>Tiramisu toren (coupes)</strong> Helaas leveren wij geen voorgebouwde torens omdat
-						dit minder goed past bij ons verse concept en all-inclusive service. Wel kunnen we glaswerk
-						meenemen zodat gasten uit een mooie coupe kunnen eten. We leveren alleen geen gebouwde torenconstructie.
-					</li>
-					<li>
-						<a href="/blog/italiaanse-bruidstaart" class="underline hover:text-foreground"
-							><strong>Italiaanse mille-feuille (millefoglie)</strong> als bruidstaart</a
-						>, precies zoals wij die zelf op onze eigen bruiloft hadden. Een groot feest om zelf af
-						te maken met rood fruit als je dat wilt!
-					</li>
-					<li>
-						<a href="/blog/bruidstaart" class="underline hover:text-foreground"
-							><strong>Klassieke hoge bruidstaart</strong> met een tiramisu-smaak en -vulling</a
-						>, een echte aanrader.
-					</li>
-				</ul>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Een ronde open showtaart van lange vingers en Tiramisu-creme door jullie afgemaakt met een
-					laagje cacao. We bouwen hem live op locatie, dus je gasten kunnen meekijken. Een portie is
-					een volwaardig stuk taart en is mooi gelaagd voor elke gast. Liever een andere vorm, een
-					sjabloon of een dichte taart, ook dat kan!
+					Liever een taart om samen aan te snijden, geen probleem. Onze tiramisutaart is een grote, ronde open
+					taart. Door onze speciale receptuur is die mooi stevig voor het bouwen zodat je niet hoeft te scheppen maar echt kan snijden
+					Het smaakt nogsteeds net zo luchtig en romig als je gewend bent.
+					We bouwen de taart op locatie, dit duurt zo een 30 minuten voor 50 personen. Als jullie het willen kunnen jullie gasten
+					dus meekijken, uit ervaring weten wij dat mensen dit erg leuk vinden.
+					Zo heb je wel het klassieke taart moment, maar dan toch net anders.
 				</p>
 
 				<div class="mt-6 grid gap-4 sm:grid-cols-2">
@@ -331,11 +304,9 @@
 				</div>
 
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Het leukste bewaren we voor jullie: de laatste laag cacao mag je zelf strooien. We geven
-					het zeefje met liefde uit handen voor dat ene plaatje, en meteen heb je een mooi moment
-					voor de fotograaf. Wil je het persoonlijker maken? Dan kunnen we ook een decal in de cacao
-					stempelen, denk aan jullie namen, initialen of de trouwdatum. Op deze foto's zie je 'm
-					niet, maar vraag er gerust naar, we denken graag mee.
+					Voor een stukje extra interactie kunnen jullie de laatste laag cacao zelf strooien, dit levert ook super mooie beelden op.
+				    Ook kunnen we een sjabloon zoals 'Just Married' in de
+					cacao plaatsen, beide is bij de prijs inbegrepen. Jullie namen of de trouwdatum kan ook, daar maken we dan een custom sjabloon voor.
 				</p>
 
 				<figure class="mt-6 overflow-hidden rounded-xl bg-muted">
@@ -351,101 +322,47 @@
 				</figure>
 
 				<p class="text-sm leading-relaxed text-muted-foreground/80">
-					De taart op deze foto's is gemaakt voor zo'n 30 personen.
-				</p>
-
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Laat ons via het <a href="/#contact" class="underline hover:text-foreground"
-						>contactformulier</a
-					> weten wat je voor ogen hebt, dan sturen we een voorstel op maat. Kom vooral van tevoren proeven
-					in Hilversum, dat is altijd een leuk moment in de aanloop naar jullie dag.
+					De taart op deze foto's is voor zo'n 30 personen.
 				</p>
 			</section>
+
+			<BlogOtherCakes ids={['italiaans', 'klassiek']} event="tiramisu">
+				Charlotte heeft veel patisserie-ervaring en maakt ook een prachtige Italiaanse millefoglie (die hadden
+				we zelf op onze bruiloft) en een klassieke hoge bruidstaart, in 8 verschillende smaken (incl tiramisu optie).
+			</BlogOtherCakes>
 
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Hoe wij de tiramisu maken</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Het recept is klassiek-Italiaans. Tiramisu hoort als tiramisu te smaken, en daar houden we
-					ons aan. De basis ligt vast, de afwerking kiezen jouw gasten ter plekke.
+					Het recept is klassiek Italiaans, voor het hapje en de taart. Tiramisu hoort als tiramisu
+					te smaken, dus we houden het bij de basis en letten vooral op goede ingrediënten.
 				</p>
 				<ul
 					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
 				>
 					<li>
-						<strong>Echte mascarpone</strong> crème, geen slagroom
+						<strong>Echte mascarpone</strong>, geen slagroom. De crème wordt luchtig door er met
+						suiker opgeklopte eieren door te spatelen. Die eieren zijn gepasteuriseerd, dus ook
+						zwangere gasten en kinderen kunnen gewoon mee-eten.
 					</li>
 					<li>
-						De crème wordt luchtig door met suiker opgeklopte (gepasteuriseerde) eieren toe te
-						voegen.
-					</li>
-					<li>
-						<strong>Lange vingers</strong>
-					</li>
-					<li>
-						Sterke koffie uit de mokapot van light-roast Ethiopische bonen van
+						<strong>Sterke koffie uit de mokapot</strong>, van licht gebrande Ethiopische bonen van
 						<a
 							href="https://www.blommers.coffee/nl/"
 							target="_blank"
 							rel="noopener noreferrer"
 							class="underline hover:text-foreground">Blommers Roasters</a
-						>
-						Een heldere en bloemige koffie die een goed contrast geeft.
+						>. Helder en bloemig, een mooi contrast met de zoete crème.
 					</li>
+					<li><strong>Lange vingers</strong>, gedoopt in die koffie.</li>
 					<li>
 						<strong>Amaretto</strong> voor het Italiaanse randje. Liever zonder alcohol? Dan gebruiken
-						we een alcoholvrije amaretto, met dezelfde smaak.
+						we alcoholvrije amaretto, met dezelfde smaak.
 					</li>
 					<li>
-						<strong>Cacao</strong> op het einde gestrooid, zoveel als je wilt.
-					</li>
-					<li>
-						Stevige, duurzame bakjes, lepels en servetten. Ook voor kinderen en oudere gasten is het
-						daarmee makkelijk eten.
+						<strong>Cacao</strong> tot het helemaal bedekt is, maakt het echt af.
 					</li>
 				</ul>
-			</section>
-
-			<section class="mt-12 space-y-4">
-				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
-					Wanneer en waar past tiramisu op je bruiloft?
-				</h2>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Drie momenten waarop het écht werkt:
-				</p>
-				<ul
-					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
-				>
-					<li>
-						<strong>Als dessertmoment of tijdens een Walking dinner</strong> Een verse tiramisu, per gast
-						opgebouwd, maakt het dessert tot een hoogtepunt van de avond.
-					</li>
-					<li>
-						<strong>Als midnight snack.</strong> Laat op de avond, na een lang diner, een ronde verse
-						tiramisu. Koffie en zoet in één hapje.
-					</li>
-					<li>
-						<strong>Als taartmoment (receptie of feest).</strong> Snijd zelf je tiramisutaart aan en laat
-						ons het dessertmoment eromheen verzorgen. Geen lange rijen, gewoon wat lekkers voor iedereen.
-					</li>
-				</ul>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Wij houden de focus op jullie gasten en op de kwaliteit van elke portie, zodat jij nergens
-					aan hoeft te denken.
-				</p>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Qua capaciteit verzorgen we 50–60 porties per uur per bediende; vanaf 100 gasten raden we
-					een extra bediende aan. Voor veel bruiloftsmomenten is een serveervenster van 1-2 uur
-					eigenlijk perfect: gasten komen in golven en bepalen zo hun eigen moment voor een
-					tiramisu. Op locatie hebben we weinig nodig, een klein hoekje voor de koelelementen, een
-					stopcontact en een waterkraan. De rest regelen wij, van bakjes tot servetten. Heb je
-					minder tijd? Dan kan de tiramisu ook als grote taart geleverd worden.
-				</p>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Wil je tiramisu combineren met een hartig hapje?
-					<a href="/blog/burrata-catering" class="underline hover:text-foreground"
-						>Lees over onze burrata-catering</a
-					>, of stuur ons een mail met je datum en aantal gasten. We denken graag met je mee.
-				</p>
 			</section>
 
 			<section class="mt-12 space-y-4">
@@ -453,62 +370,91 @@
 					Wat tiramisu op je bruiloft kost
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					In de tabel hieronder zie je de pakketprijzen (excl. BTW) voor onze live tiramisu en
-					tiramisutaart. Deze prijs is inclusief bezorgen, opbouw op locatie, serveren of aanwezig
-					blijven tot het taartmoment, eetgerij, servetten, dieetwensen, het sjabloon en alle andere
-					wensen. Een portie per gast is groter bij de tiramisutaart, hier komt het prijsverschil
-					vandaan voor de opties.
+					Dit zijn pakketprijzen, excl. btw. Bezorgen, opbouwen op locatie, servetten en
+					dieetwensen zijn altijd inbegrepen.
 				</p>
-				<div class="overflow-x-auto">
-					<table class="w-full border-collapse text-sm md:text-base">
-						<thead>
-							<tr class="border-b border-border text-left">
-								<th class="py-3 pr-4 font-heading font-semibold">Aantal gasten</th>
-								<th class="py-3 pr-4 font-heading font-semibold">Tijd &amp; bezetting</th>
-								<th class="py-3 pr-4 font-heading font-semibold">Live tiramisu</th>
-								<th class="py-3 font-heading font-semibold">Tiramisutaart</th>
-							</tr>
-						</thead>
-						<tbody class="text-muted-foreground">
-							<tr class="border-b border-border/60">
-								<td class="py-3 pr-4">30</td>
-								<td class="py-3 pr-4">Taartmoment</td>
-								<td class="py-3 pr-4">—</td>
-								<td class="py-3">€375</td>
-							</tr>
-							<tr class="border-b border-border/60">
-								<td class="py-3 pr-4">50</td>
-								<td class="py-3 pr-4">1 uur, 1 bediende</td>
-								<td class="py-3 pr-4">€425</td>
-								<td class="py-3">€475</td>
-							</tr>
-							<tr class="border-b border-border/60">
-								<td class="py-3 pr-4">100</td>
-								<td class="py-3 pr-4">1 uur, 2 bedienden (of 2 uur, 1)</td>
-								<td class="py-3 pr-4">€650</td>
-								<td class="py-3">€795</td>
-							</tr>
-							<tr>
-								<td class="py-3 pr-4">200</td>
-								<td class="py-3 pr-4">2 uur, 2 bedienden</td>
-								<td class="py-3 pr-4">€1.150</td>
-								<td class="py-3">Op aanvraag</td>
-							</tr>
-						</tbody>
-					</table>
+
+				<div class="grid gap-4 sm:grid-cols-2">
+					<div class="rounded-xl border border-border px-5 py-4">
+						<h3 class="font-heading text-lg tracking-tight">Live tiramisu als hapje</h3>
+						<table class="mt-2 w-full border-collapse text-sm">
+							<thead class="sr-only">
+								<tr>
+									<th>Aantal gasten</th>
+									<th>Prijs</th>
+								</tr>
+							</thead>
+							<tbody class="text-muted-foreground">
+								<tr class="border-b border-border/60">
+									<td class="py-2 pr-3">
+										<span class="text-foreground">50 gasten</span>
+										<span class="block text-xs">1 uur, 1 persoon</span>
+									</td>
+									<td class="py-2 text-right font-medium text-foreground">€425</td>
+								</tr>
+								<tr class="border-b border-border/60">
+									<td class="py-2 pr-3">
+										<span class="text-foreground">100 gasten</span>
+										<span class="block text-xs">1 uur met 2, of 2 uur met 1</span>
+									</td>
+									<td class="py-2 text-right font-medium text-foreground">€650</td>
+								</tr>
+								<tr>
+									<td class="py-2 pr-3">
+										<span class="text-foreground">200 gasten</span>
+										<span class="block text-xs">2 uur, 2 personen</span>
+									</td>
+									<td class="py-2 text-right font-medium text-foreground">€1.150</td>
+								</tr>
+							</tbody>
+						</table>
+						<p class="mt-3 text-xs leading-relaxed text-muted-foreground">
+							Bij de hangende hapjes verzorgen we het niet alleen het uitserveren maar ook ontzorgen we jullie en de locatie volledig.
+						    Stevige, duurzame bakjes, lepels en servetten zijn inbegrepen, zo is het makkelijk eten ook voor kinderen en
+							oudere gasten.
+						</p>
+					</div>
+
+					<div class="rounded-xl border border-border px-5 py-4">
+						<h3 class="font-heading text-lg tracking-tight">Tiramisutaart</h3>
+						<table class="mt-2 w-full border-collapse text-sm">
+							<thead class="sr-only">
+								<tr>
+									<th>Aantal gasten</th>
+									<th>Prijs</th>
+								</tr>
+							</thead>
+							<tbody class="text-muted-foreground">
+								<tr class="border-b border-border/60">
+									<td class="py-2 pr-3 text-foreground">30 gasten</td>
+									<td class="py-2 text-right font-medium text-foreground">€375</td>
+								</tr>
+								<tr class="border-b border-border/60">
+									<td class="py-2 pr-3 text-foreground">50 gasten</td>
+									<td class="py-2 text-right font-medium text-foreground">€475</td>
+								</tr>
+								<tr class="border-b border-border/60">
+									<td class="py-2 pr-3 text-foreground">100 gasten</td>
+									<td class="py-2 text-right font-medium text-foreground">€795</td>
+								</tr>
+								<tr>
+									<td class="py-2 pr-3 text-foreground">200 gasten</td>
+									<td class="py-2 text-right">Op aanvraag</td>
+								</tr>
+							</tbody>
+						</table>
+						<p class="mt-3 text-xs leading-relaxed text-muted-foreground">
+							Bij de tiramisutaart is de complete opbouw, communicatie en andere elementen inbegrepen.
+							Ook een gedecoreerde tafel kunnen wij meenemen. Wel wordt er vanuit gegaan dat er voor het aansnijden Borden, bestek, extra servetten
+							en dergelijke van de locatie gebruikt kan worden. Mochten jullie dit graag anders zien laat dit dan vooral even weten en dan denken we graag mee.
+						</p>
+					</div>
 				</div>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Reiskosten: in het Gooi, Amsterdam en Utrecht zitten ze gewoon in de prijs. Verder weg
-					rekenen we de reis mee in je offerte, zodat je één totaalbedrag ziet.
-				</p>
-				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Tip van Hangende Hapjes: denk aan tiramisu, als midnight snack. Laat op de avond krijgen
-					gasten vaak weer trek, en dan is dit echt een topmoment. Wij dansen lekker mee tijdens het
-					uitserveren.
+					Reiskosten zijn inbegrepen tot ~30km rondom Hilversum (Het Gooi, Amersfoort, Amsterdam en Utrecht).
+					Hierbuiten brengen wij reiskosten in rekening voor de extra kilometers.
 				</p>
 			</section>
-
-			<BlogReviewTeaser reviews={toetjesReviews} />
 
 			<BlogCta
 				event="tiramisu"

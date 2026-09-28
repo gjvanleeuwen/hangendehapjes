@@ -15,6 +15,8 @@
 		sourceLabel?: string;
 		readAllLabel?: string;
 		numberLocale?: string;
+		/** Outer spacing/sizing; defaults to the standalone top margin. */
+		class?: string;
 	};
 	let {
 		reviews,
@@ -22,7 +24,8 @@
 		noun = { one: 'review', other: 'reviews' },
 		sourceLabel = 'op Google',
 		readAllLabel = 'Lees al onze reviews',
-		numberLocale = 'nl-NL'
+		numberLocale = 'nl-NL',
+		class: className = 'mt-12'
 	}: Props = $props();
 
 	let count = $derived(reviews.length);
@@ -43,7 +46,7 @@
 {#if count > 0}
 	<a
 		{href}
-		class="mt-12 block rounded-lg border bg-muted/40 p-6 transition-colors hover:bg-muted/70 md:p-8"
+		class="{className} block rounded-lg border bg-muted/40 p-6 transition-colors hover:bg-muted/70 md:p-8"
 	>
 		<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
 			<div class="flex items-center gap-0.5 text-amber-500" aria-hidden="true">
