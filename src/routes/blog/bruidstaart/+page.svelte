@@ -22,7 +22,7 @@
 	const headline = 'Bruidstaart op maat: Perfect voor jullie dag';
 	const title = 'Bruidstaart op maat: inclusief proeven';
 	const description =
-		'Een klassieke bruidstaart op maat? wij bakken botercrèmetaarten in 8 smaken, met afwerking naar keuze. Proeven zit bij de prijs in.';
+		'Een klassieke bruidstaart op maat? wij bakken botercrèmetaarten in 6 smaken, met afwerking naar keuze. Proeven zit bij de prijs in.';
 	const slug = '/blog/bruidstaart';
 	const canonical = SITE_URL + slug;
 	const ogImage = SITE_URL + '/og-blog-bruidstaart.jpg';
@@ -98,7 +98,7 @@
 			id: 'bruidstaart-proeven',
 			question: 'Kunnen we de bruidstaart eerst proeven?',
 			answer:
-				'Ja, dat hoort erbij. Je proeft alle acht smaken, zodat jullie per laag kunnen kiezen. Bestel je daarna de taart, dan zit de proeverij bij de prijs in. Zie je ervan af, dan rekenen we €35.'
+				'Ja, dat hoort erbij. Je proeft alle zes smaken, zodat jullie per laag kunnen kiezen. Bestel je daarna de taart, dan zit de proeverij bij de prijs in. Zie je ervan af, dan rekenen we €35.'
 		},
 		{
 			id: 'bruidstaart-bloemen',
@@ -110,13 +110,13 @@
 			id: 'bruidstaart-hoog-stevig',
 			question: 'Blijft een bruidstaart wel stevig staan, ook buiten?',
 			answer:
-				'Ja. Een klassieke bruidstaart bouwen we op met een stevige interne constructie, zodat de etages elkaar dragen en de taart strak blijft staan. Charlotte heeft veel patisserie-ervaring en bakte al talloze taarten zelfs met een buitentemperatuur van 40 graden. We zetten de taart op locatie in elkaar in plaats van hem heel te vervoeren, dus hij komt altijd recht aan. Op een warme trouwdag hebben we alleen een koel hoekje nodig om hem op te bouwen.'
+				'Ja. Een klassieke bruidstaart bouwen we op met een stevige interne constructie, zodat de etages elkaar dragen en de taart strak blijft staan. Charlotte heeft veel patisserie-ervaring en bakte al talloze taarten zelfs met een buitentemperatuur van 40 graden. Op een warme trouwdag hebben we alleen een koel hoekje nodig om hem op te bouwen.'
 		},
 		{
 			id: 'bruidstaart-bezorgen',
 			question: 'Bezorgen jullie de taart, of moeten we hem ophalen?',
 			answer:
-				'Wij bezorgen de taart en zetten hem op locatie in elkaar, zodat hij daar in de koeling kan tot het taartmoment. Het bezorgen zit bij de prijs in, in het Gooi, Amsterdam en Utrecht. Daar voorbij rekenen we reiskosten voor de extra kilometers. Het aansnijden en serveren doen jullie zelf of je locatie. Wil je liever dat wij tussen je gasten door serveren? Kijk dan naar onze millefoglie of live tiramisu, of vraag ernaar in je aanvraag.'
+				'Wij bezorgen de taart al volledig gestapeld. Het kan dan bij de locatie in de koeling tot het taartmoment. Het bezorgen zit bij de prijs in, in het Gooi, Amsterdam en Utrecht. Daar voorbij rekenen we reiskosten voor de extra kilometers. Het aansnijden en serveren doen jullie zelf of je locatie. Wil je liever dat wij tussen je gasten door serveren? Kijk dan naar onze millefoglie of live tiramisu, of vraag ernaar in je aanvraag.'
 		},
 		{
 			id: 'bruidstaart-allergies',
@@ -189,14 +189,13 @@
 					bakt Charlotte de taart in jullie kleur en stijl.
 				</li>
 				<li>
-					<strong>8 smaken:</strong> per laag te kiezen. Proeven zit erbij als je bestelt, anders €35.
+					<strong>6 smaken:</strong> per laag te kiezen. Proeven zit erbij als je bestelt, anders €35.
 				</li>
 				<li>
 					<strong>Formaat:</strong> vanaf 25 personen in twee etages, vanaf 50 personen ook in drie.
 				</li>
 				<li>
-					<strong>Prijs:</strong> richtprijs €11,50 per persoon, excl. btw. Bezorgen en opbouwen op
-					locatie zijn inbegrepen.
+					<strong>Prijs:</strong> richtprijs €11,50 per persoon, excl. btw. Bezorgen is inbegrepen tot 30km vanaf hilversum, daarbuiten rekenen we extra reiskosten per km.
 				</li>
 			</BlogSummary>
 
@@ -211,7 +210,7 @@
 					/>
 				</div>
 				<figcaption class="px-4 py-3 text-sm text-muted-foreground">
-					Deze bruidstaart was voor 140 personen.
+					Deze bruidstaart was voor 120 personen.
 				</figcaption>
 			</figure>
 
@@ -236,7 +235,7 @@
 					</li>
 					<li>
 						<strong>De afwerking:</strong> botercrème in elke kleur die je wilt, strak afgesmeerd of juist
-						rustiek, opgespoten of naked. Jij bepaalt de look.
+						rustiek, opgespoten of semi-naked. Jij bepaalt de look.
 					</li>
 					<li>
 						<strong>De details:</strong> verse bloemen, vers fruit, parels, een pipingtechniek
@@ -248,7 +247,7 @@
 					</li>
 				</ul>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Charlotte bakt de taart in lagen en zet hem op locatie in elkaar, zodat hij recht en strak
+					Charlotte bakt de taart in lagen en levert deze gestapeld af bij de locatie zodat deze
 					klaarstaat voor het aansnijmoment. Kort voor de bruiloft hebben we altijd nog even contact
 					om de bezorging en de laatste dingen kort te sluiten.
 				</p>
@@ -287,14 +286,17 @@
 			<section class="mt-12 space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Eerst proeven</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Welke smaak wordt het? Dat kies je het makkelijkst door te proeven. Je proeft alle acht
+					Welke smaak wordt het? Dat kies je het makkelijkst door te proeven. Je proeft alle zes
 					smaken, zodat jullie per laag kunnen kiezen. Bestel je daarna de taart, dan zit de
-					proeverij bij de prijs in. Zie je ervan af, dan rekenen we €35. Dit zijn de acht smaken:
+					proeverij bij de prijs in. Zie je ervan af, dan rekenen we €35.
 				</p>
 				<ul
 					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
 				>
-					<li>
+    				<li>
+    					<strong>Smaken tijdelijk niet vermeld:</strong> Wij zijn druk bezig met receptontwikkeling van onze nieuwe smaken. Hierdoor hebben wij tijdelijk geen smaken op de website staan. Stuur ons een berichtje om een proefdoosje op te halen met de nieuwe combinaties.
+    				</li>
+					<!-- <li>
 						<strong>Passie witte choco:</strong> vanille witte chocoladecake met een passievruchten-curd
 						en witte chocolade ganache.
 					</li>
@@ -326,7 +328,7 @@
 						<a href="/blog/tiramisu-bruiloft" class="underline hover:text-foreground"
 							>tiramisucrème</a
 						>, lange vingers en cacao.
-					</li>
+					</li> -->
 				</ul>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Mooie combinaties of een eigen idee? We denken graag mee.
@@ -353,7 +355,7 @@
 						<span class="font-medium text-foreground">€11,50 per persoon</span>
 					</div>
 					<p class="mt-3 text-xs leading-relaxed text-muted-foreground">
-						Bezorgen en opbouwen op locatie zijn inbegrpen. Het serveren wordt gedaan door de locatie.
+						Bezorgen is inbegrepen. Het serveren wordt gedaan door de locatie.
 					</p>
 					<p class="mt-2 text-xs leading-relaxed text-muted-foreground">
 						Reiskosten zijn inbegrepen tot ~30km rondom Hilversum (Het Gooi, Amersfoort, Amsterdam en
