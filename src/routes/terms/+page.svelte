@@ -5,7 +5,23 @@
 	import { nl } from '$lib/i18n/nl';
 	import { SITE_URL } from '$lib/site-config';
 
-	const updated = '3 juli 2026';
+	const updated = '12 oktober 2026';
+	const metaPolicy = 'https://www.facebook.com/privacy/policy/';
+
+	// Privacy: what the contact form stores and what (only with the checkbox)
+	// goes to Meta. In Dutch and English, because the English site links here too.
+	const privacy = {
+		nl: [
+			'Vul je het contactformulier in, dan bewaren wij wat je daar invult (naam, e-mailadres, telefoonnummer en de details van je feest) plus de pagina waar je op binnenkwam en hoe je bij ons terechtkwam, bijvoorbeeld via Google of Instagram. Dat gebruiken we alleen om je aanvraag te beantwoorden en om te zien welke kanalen voor ons werken. Onze bezoekersstatistieken (Umami) werken zonder cookies en zonder persoonsgegevens.',
+			'Kom je via een Instagram- of Facebook-advertentie, dan zie je op het formulier een vinkje. Alleen als je dat aanzet sturen we Meta een versleutelde versie (hash) van je e-mailadres en telefoonnummer, het kenmerk van de advertentie-klik, je IP-adres en browser, wat je aanvroeg, en later of je aanvraag een boeking werd en voor welk bedrag. Zo weten we welke advertenties werken. Zonder vinkje gaat er niets naar Meta. Hoe Meta daarmee omgaat lees je in hun privacybeleid.',
+			`Wil je weten wat we van je hebben, of wil je het laten verwijderen? Mail ons op ${BUSINESS.email}.`
+		],
+		en: [
+			'If you fill in the contact form we keep what you enter (name, email, phone number and the details of your party) plus the page you landed on and how you found us, for example Google or Instagram. We only use that to answer your request and to see which channels work for us. Our visitor statistics (Umami) run without cookies and without personal data.',
+			'If you arrive from an Instagram or Facebook ad, the form shows a checkbox. Only when you tick it do we send Meta a scrambled version (hash) of your email address and phone number, the id of the ad click, your IP address and browser, what you asked for, and later whether your request turned into a booking and for what amount. That tells us which ads work. Without the checkbox nothing goes to Meta. How Meta handles that is in their privacy policy.',
+			`Want to know what we have on you, or have it deleted? Email us at ${BUSINESS.email}.`
+		]
+	};
 	const canonical = `${SITE_URL}/terms`;
 
 	const sections = [
@@ -113,14 +129,35 @@
 		</header>
 
 		<div class="mt-10 space-y-10">
-			{#each sections as section}
+			{#each sections as section (section.title)}
 				<section class="space-y-3">
 					<h2 class="font-heading text-2xl">{section.title}</h2>
-					{#each section.body as paragraph}
+					{#each section.body as paragraph (paragraph)}
 						<p class="leading-relaxed text-muted-foreground">{paragraph}</p>
 					{/each}
 				</section>
 			{/each}
+
+			<section id="privacy" class="scroll-mt-24 space-y-3">
+				<h2 class="font-heading text-2xl">Privacy</h2>
+				{#each privacy.nl as paragraph (paragraph)}
+					<p class="leading-relaxed text-muted-foreground">{paragraph}</p>
+				{/each}
+				<p class="leading-relaxed text-muted-foreground">
+					Privacybeleid van Meta: <a class="underline" href={metaPolicy} rel="noopener"
+						>{metaPolicy}</a
+					>
+				</p>
+				<h3 class="pt-4 font-heading text-xl" lang="en">Privacy (English)</h3>
+				{#each privacy.en as paragraph (paragraph)}
+					<p class="leading-relaxed text-muted-foreground" lang="en">{paragraph}</p>
+				{/each}
+				<p class="leading-relaxed text-muted-foreground" lang="en">
+					Meta's privacy policy: <a class="underline" href={metaPolicy} rel="noopener"
+						>{metaPolicy}</a
+					>
+				</p>
+			</section>
 		</div>
 	</main>
 	<Footer t={nl} />

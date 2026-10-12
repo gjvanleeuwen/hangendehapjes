@@ -10,6 +10,15 @@
 	let { deal }: { deal: Deal } = $props();
 
 	const measured = $derived(describeAttribution(deal.firstTouch));
+
+	// Meta Conversions API trail: consent ticked on the form, Lead / Purchase
+	// accepted by Meta. Read-only; the server stamps these.
+	const dateOf = (iso: string | null) => (iso ? iso.slice(0, 10) : 'nee');
+	const metaLine = $derived(
+		deal.metaConsentAt
+			? `toestemming ${dateOf(deal.metaConsentAt)} · lead verstuurd ${dateOf(deal.metaLeadSentAt)} · boeking verstuurd ${dateOf(deal.metaPurchaseSentAt)}`
+			: 'geen toestemming'
+	);
 </script>
 
 {#snippet row(title: string)}
@@ -119,6 +128,7 @@
 				</p>
 			</div>
 		</div>
+		<p class="text-xs text-muted-foreground">Meta: {metaLine}</p>
 	</div>
 
 	{#if deal.message}

@@ -1,3 +1,6 @@
+// Checks for the contact form payload schema. Run with `bun run test:contact`.
+// No test framework: a list of cases, each either passes validation or fails
+// on an expected path, with optional checks on the cleaned output.
 import * as v from 'valibot';
 import { PayloadSchema } from '../src/lib/server/contact-schema';
 
@@ -9,128 +12,188 @@ type Case = {
 	check?: (output: unknown) => string | null;
 };
 
+// The smallest payload the form can send: every required field filled in.
+const base = {
+	name: 'Gijs',
+	email: 'gijs@example.com',
+	eventDate: '2026-08-01',
+	guests: '75',
+	serviceType: 'hapjes',
+	choice: 'Tiramisu',
+	message: 'Hi there'
+};
+const withBase = (overrides: Record<string, unknown>) => ({ ...base, ...overrides });
+const without = (key: keyof typeof base) => {
+	const copy: Record<string, unknown> = { ...base };
+	delete copy[key];
+	return copy;
+};
+const field = (o: unknown, key: string) => (o as Record<string, unknown>)[key];
+
 const cases: Case[] = [
 	// Happy paths
 	{
-		name: 'minimal valid (name + email + message)',
-		input: { name: 'Gijs', email: 'gijs@example.com', message: 'Hi there' },
+		name: 'minimal valid payload',
+		input: base,
 		shouldPass: true,
 		check: (o) => {
-			const c = o as Record<string, unknown>;
-			if (c.locale !== 'nl') return `locale should default to "nl", got ${String(c.locale)}`;
-			if (c.phone !== '') return `phone should default to "", got ${String(c.phone)}`;
-			if (!Array.isArray(c.interests) || c.interests.length !== 0)
-				return `interests should default to []`;
+			if (field(o, 'locale') !== 'nl') return `locale should default to "nl"`;
+			if (field(o, 'phone') !== '') return `phone should default to ""`;
+			if (field(o, 'referral') !== '') return `referral should default to ""`;
+			if (field(o, 'attribution') !== '') return `attribution should default to ""`;
+			if (field(o, 'subject') !== '') return `honeypot should default to ""`;
+			if (field(o, 'metaConsent') !== false) return `metaConsent should default to false`;
 			return null;
 		}
 	},
 	{
 		name: 'full payload',
-		input: {
+		input: withBase({
 			name: 'Charlotte',
 			email: 'charlotte@example.com',
 			phone: '+31 6 12345678',
-			eventDate: '2026-08-01',
 			location: 'Amsterdam',
 			guests: '120',
-			interests: ['Tiramisu', 'Burrata'],
+			serviceType: 'taart',
+			choice: 'Klassieke bruidstaart',
+			dagdeel: 'Taartmoment',
+			servingTime: '16:30',
+			referral: 'Via Instagram',
 			message: 'We zijn op zoek naar iets origineels',
-			locale: 'en'
-		},
+			attribution: JSON.stringify({ first: { ts: '2026-07-01', src: 'instagram' } }),
+			locale: 'en',
+			metaConsent: true
+		}),
 		shouldPass: true,
-		check: (o) => ((o as { locale: string }).locale === 'en' ? null : 'locale should be "en"')
+		check: (o) => (field(o, 'locale') === 'en' ? null : 'locale should be "en"')
+	},
+
+	// Meta consent
+	{
+		name: 'metaConsent true is kept',
+		input: withBase({ metaConsent: true }),
+		shouldPass: true,
+		check: (o) => (field(o, 'metaConsent') === true ? null : 'metaConsent should be true')
+	},
+	{
+		name: 'metaConsent false is kept',
+		input: withBase({ metaConsent: false }),
+		shouldPass: true,
+		check: (o) => (field(o, 'metaConsent') === false ? null : 'metaConsent should be false')
+	},
+	{
+		name: 'metaConsent missing defaults to false (never opt in by accident)',
+		input: base,
+		shouldPass: true,
+		check: (o) => (field(o, 'metaConsent') === false ? null : 'metaConsent should default false')
+	},
+	{
+		name: 'metaConsent as string "true" fails (no truthy coercion)',
+		input: withBase({ metaConsent: 'true' }),
+		shouldPass: false,
+		expectIssueOn: 'metaConsent'
+	},
+	{
+		name: 'metaConsent as 1 fails',
+		input: withBase({ metaConsent: 1 }),
+		shouldPass: false,
+		expectIssueOn: 'metaConsent'
 	},
 
 	// Sanitization
 	{
 		name: 'name strips header-injection chars',
-		input: {
-			name: 'Gijs<script>alert(1)</script>',
-			email: 'g@x.com',
-			message: 'hi'
-		},
+		input: withBase({ name: 'Gijs<script>alert(1)</script>' }),
 		shouldPass: true,
 		check: (o) => {
-			const n = (o as { name: string }).name;
+			const n = field(o, 'name') as string;
 			if (/[<>"\\]/.test(n)) return `name still contains hostile chars: "${n}"`;
 			return null;
 		}
 	},
 	{
 		name: 'name with only special chars fails (becomes empty after strip)',
-		input: { name: '<<<<>>>>', email: 'g@x.com', message: 'hi' },
+		input: withBase({ name: '<<<<>>>>' }),
 		shouldPass: false,
 		expectIssueOn: 'name'
 	},
 	{
-		name: 'email strips CRLF',
-		input: { name: 'Gijs', email: 'g@x.com\r\nBcc: evil@x.com', message: 'hi' },
-		shouldPass: false, // resulting string still won't match email regex due to surrounding chars
+		name: 'email with CRLF injection fails',
+		input: withBase({ email: 'g@x.com\r\nBcc: evil@x.com' }),
+		shouldPass: false,
 		expectIssueOn: 'email'
 	},
 	{
 		name: 'email is trimmed',
-		input: { name: 'Gijs', email: '  g@x.com  ', message: 'hi' },
+		input: withBase({ email: '  g@x.com  ' }),
 		shouldPass: true,
-		check: (o) =>
-			(o as { email: string }).email === 'g@x.com' ? null : 'email not trimmed properly'
+		check: (o) => (field(o, 'email') === 'g@x.com' ? null : 'email not trimmed properly')
 	},
 	{
 		name: 'phone CRLF replaced with space',
-		input: { name: 'G', email: 'g@x.com', phone: '06\n12345678', message: 'hi' },
+		input: withBase({ phone: '06\n12345678' }),
 		shouldPass: true,
-		check: (o) => (/[\r\n]/.test((o as { phone: string }).phone) ? `phone contains CRLF` : null)
+		check: (o) => (/[\r\n]/.test(field(o, 'phone') as string) ? `phone contains CRLF` : null)
 	},
 	{
 		name: 'message preserves newlines',
-		input: { name: 'G', email: 'g@x.com', message: 'line one\nline two\nline three' },
+		input: withBase({ message: 'line one\nline two\nline three' }),
 		shouldPass: true,
 		check: (o) =>
-			(o as { message: string }).message.split('\n').length === 3
-				? null
-				: 'newlines lost in message'
+			(field(o, 'message') as string).split('\n').length === 3 ? null : 'newlines lost in message'
+	},
+	{
+		name: 'message CRLF normalised to LF',
+		input: withBase({ message: 'line one\r\nline two' }),
+		shouldPass: true,
+		check: (o) => (/\r/.test(field(o, 'message') as string) ? 'message still has CR' : null)
 	},
 
 	// Required fields
-	{
-		name: 'missing name',
-		input: { email: 'g@x.com', message: 'hi' },
-		shouldPass: false,
-		expectIssueOn: 'name'
-	},
-	{
-		name: 'empty name',
-		input: { name: '', email: 'g@x.com', message: 'hi' },
-		shouldPass: false,
-		expectIssueOn: 'name'
-	},
+	{ name: 'missing name', input: without('name'), shouldPass: false, expectIssueOn: 'name' },
+	{ name: 'empty name', input: withBase({ name: '' }), shouldPass: false, expectIssueOn: 'name' },
 	{
 		name: 'whitespace-only name',
-		input: { name: '   ', email: 'g@x.com', message: 'hi' },
+		input: withBase({ name: '   ' }),
 		shouldPass: false,
 		expectIssueOn: 'name'
 	},
-	{
-		name: 'missing email',
-		input: { name: 'G', message: 'hi' },
-		shouldPass: false,
-		expectIssueOn: 'email'
-	},
+	{ name: 'missing email', input: without('email'), shouldPass: false, expectIssueOn: 'email' },
 	{
 		name: 'invalid email format',
-		input: { name: 'G', email: 'not-an-email', message: 'hi' },
+		input: withBase({ email: 'not-an-email' }),
 		shouldPass: false,
 		expectIssueOn: 'email'
 	},
 	{
+		name: 'missing eventDate',
+		input: without('eventDate'),
+		shouldPass: false,
+		expectIssueOn: 'eventDate'
+	},
+	{ name: 'missing guests', input: without('guests'), shouldPass: false, expectIssueOn: 'guests' },
+	{
+		name: 'missing serviceType',
+		input: without('serviceType'),
+		shouldPass: false,
+		expectIssueOn: 'serviceType'
+	},
+	{
+		name: 'unknown serviceType fails',
+		input: withBase({ serviceType: 'drankjes' }),
+		shouldPass: false,
+		expectIssueOn: 'serviceType'
+	},
+	{ name: 'missing choice', input: without('choice'), shouldPass: false, expectIssueOn: 'choice' },
+	{
 		name: 'missing message',
-		input: { name: 'G', email: 'g@x.com' },
+		input: without('message'),
 		shouldPass: false,
 		expectIssueOn: 'message'
 	},
 	{
 		name: 'empty message',
-		input: { name: 'G', email: 'g@x.com', message: '   ' },
+		input: withBase({ message: '   ' }),
 		shouldPass: false,
 		expectIssueOn: 'message'
 	},
@@ -138,121 +201,80 @@ const cases: Case[] = [
 	// Length caps
 	{
 		name: 'name at 100 chars passes',
-		input: { name: 'a'.repeat(100), email: 'g@x.com', message: 'hi' },
+		input: withBase({ name: 'a'.repeat(100) }),
 		shouldPass: true
 	},
 	{
 		name: 'name at 101 chars fails',
-		input: { name: 'a'.repeat(101), email: 'g@x.com', message: 'hi' },
+		input: withBase({ name: 'a'.repeat(101) }),
 		shouldPass: false,
 		expectIssueOn: 'name'
 	},
 	{
 		name: 'message at 5000 chars passes',
-		input: { name: 'G', email: 'g@x.com', message: 'a'.repeat(5000) },
+		input: withBase({ message: 'a'.repeat(5000) }),
 		shouldPass: true
 	},
 	{
 		name: 'message at 5001 chars fails',
-		input: { name: 'G', email: 'g@x.com', message: 'a'.repeat(5001) },
+		input: withBase({ message: 'a'.repeat(5001) }),
 		shouldPass: false,
 		expectIssueOn: 'message'
 	},
 	{
-		name: 'email at 254 chars fails (regex still requires sane shape)',
-		input: { name: 'G', email: 'a'.repeat(245) + '@x.com', message: 'hi' },
+		name: 'email at 251 chars passes',
+		input: withBase({ email: 'a'.repeat(245) + '@x.com' }),
 		shouldPass: true
 	},
 	{
-		name: 'email at 300 chars fails (over cap)',
-		input: { name: 'G', email: 'a'.repeat(290) + '@x.com', message: 'hi' },
+		name: 'email at 296 chars fails (over cap)',
+		input: withBase({ email: 'a'.repeat(290) + '@x.com' }),
 		shouldPass: false,
 		expectIssueOn: 'email'
 	},
-
-	// Interests
 	{
-		name: '10 interests passes',
-		input: {
-			name: 'G',
-			email: 'g@x.com',
-			message: 'hi',
-			interests: Array.from({ length: 10 }, (_, i) => `i${i}`)
-		},
-		shouldPass: true
-	},
-	{
-		name: '11 interests fails',
-		input: {
-			name: 'G',
-			email: 'g@x.com',
-			message: 'hi',
-			interests: Array.from({ length: 11 }, (_, i) => `i${i}`)
-		},
+		name: 'attribution over 2000 chars fails',
+		input: withBase({ attribution: 'x'.repeat(2001) }),
 		shouldPass: false,
-		expectIssueOn: 'interests'
-	},
-	{
-		name: 'interest item over 100 chars fails',
-		input: {
-			name: 'G',
-			email: 'g@x.com',
-			message: 'hi',
-			interests: ['a'.repeat(101)]
-		},
-		shouldPass: false,
-		expectIssueOn: 'interests'
+		expectIssueOn: 'attribution'
 	},
 
 	// Locale
 	{
 		name: 'invalid locale fails',
-		input: { name: 'G', email: 'g@x.com', message: 'hi', locale: 'fr' },
+		input: withBase({ locale: 'fr' }),
 		shouldPass: false,
 		expectIssueOn: 'locale'
 	},
-	{
-		name: 'locale "en" accepted',
-		input: { name: 'G', email: 'g@x.com', message: 'hi', locale: 'en' },
-		shouldPass: true
-	},
+	{ name: 'locale "en" accepted', input: withBase({ locale: 'en' }), shouldPass: true },
 
 	// Type abuse
 	{
 		name: 'name as number fails',
-		input: { name: 123, email: 'g@x.com', message: 'hi' },
+		input: withBase({ name: 123 }),
 		shouldPass: false,
 		expectIssueOn: 'name'
 	},
 	{
 		name: 'guests as number passes (HTML5 type=number ships as JSON number)',
-		input: { name: 'G', email: 'g@x.com', message: 'hi', guests: 100 },
+		input: withBase({ guests: 100 }),
 		shouldPass: true,
-		check: (o) =>
-			(o as { guests: string }).guests === '100' ? null : 'guests not coerced to string'
+		check: (o) => (field(o, 'guests') === '100' ? null : 'guests not coerced to string')
 	},
 	{
 		name: 'guests as string still passes',
-		input: { name: 'G', email: 'g@x.com', message: 'hi', guests: '100' },
+		input: withBase({ guests: '100' }),
 		shouldPass: true,
-		check: (o) => ((o as { guests: string }).guests === '100' ? null : 'guests not preserved')
+		check: (o) => (field(o, 'guests') === '100' ? null : 'guests not preserved')
 	},
 	{
-		name: 'interests not an array fails',
-		input: { name: 'G', email: 'g@x.com', message: 'hi', interests: 'tiramisu' },
-		shouldPass: false,
-		expectIssueOn: 'interests'
+		name: 'honeypot value is passed through for the endpoint to flag',
+		input: withBase({ subject: 'buy now' }),
+		shouldPass: true,
+		check: (o) => (field(o, 'subject') === 'buy now' ? null : 'honeypot value lost')
 	},
-	{
-		name: 'completely empty body fails',
-		input: {},
-		shouldPass: false
-	},
-	{
-		name: 'null body fails',
-		input: null,
-		shouldPass: false
-	}
+	{ name: 'completely empty body fails', input: {}, shouldPass: false },
+	{ name: 'null body fails', input: null, shouldPass: false }
 ];
 
 let passed = 0;

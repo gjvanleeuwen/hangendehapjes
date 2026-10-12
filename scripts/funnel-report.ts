@@ -21,7 +21,12 @@
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
-import { parseAttribution, sourceBucket, type Touch } from '../src/lib/attribution';
+import {
+	isMetaAttribution,
+	parseAttribution,
+	sourceBucket,
+	type Touch
+} from '../src/lib/attribution';
 import { adsRule, economics, LOST_REASON_LABEL, PRODUCT_LABEL } from './funnel-economics';
 
 // ───────────────────────────── args ─────────────────────────────
@@ -221,6 +226,7 @@ type Deal = {
 	source?: string;
 	attribution?: string;
 	firstTouch?: string;
+	metaConsentAt?: string | null; // ticked the Meta consent box on the form
 	eventDate?: string | null;
 	guests?: string;
 	location?: string;
@@ -305,6 +311,7 @@ async function loadDeals(): Promise<{ deals: Deal[]; label: string }> {
 					source: r.source,
 					attribution: r.attribution,
 					firstTouch: r.first_touch ?? '',
+					metaConsentAt: r.meta_consent_at ? new Date(r.meta_consent_at).toISOString() : null,
 					eventDate: r.event_date ? String(r.event_date).slice(0, 10) : null,
 					guests: r.guests,
 					location: r.location,
@@ -587,6 +594,8 @@ type Bucket = {
 	pendingValue: number;
 	lostClient: number;
 	declinedUs: number;
+	metaLeads: number; // leads whose site touch came from Instagram / Facebook
+	metaConsent: number; // of those, how many ticked the Meta consent box
 };
 
 const emptyBySource = () =>
@@ -614,7 +623,9 @@ const emptyBucket = (from: string, to: string): Bucket => ({
 	pending: 0,
 	pendingValue: 0,
 	lostClient: 0,
-	declinedUs: 0
+	declinedUs: 0,
+	metaLeads: 0,
+	metaConsent: 0
 });
 
 function fill(b: Bucket, visits: Visit[], deals: Deal[], gsc: Gsc) {
@@ -640,6 +651,10 @@ function fill(b: Bucket, visits: Visit[], deals: Deal[], gsc: Gsc) {
 		b.leads++;
 		b.leadsBySource[src]++;
 		if (src === 'google') b.leadsGoogle++;
+		if (isMetaAttribution(parseAttribution(d.firstTouch))) {
+			b.metaLeads++;
+			if (d.metaConsentAt) b.metaConsent++;
+		}
 		if (isOfferteSent(d)) b.offersSent++;
 		if (isWon(d)) {
 			b.won++;
@@ -1213,7 +1228,12 @@ ${funnel}
 			`${n0(b.contactView)} / ${n0(b.contactStart)} / ${n0(b.contactSubmit)}`,
 			'tracked since the form events went live'
 		],
-		['CTA clicks (offerte + WhatsApp)', n0(b.ctaClicks)]
+		['CTA clicks (offerte + WhatsApp)', n0(b.ctaClicks)],
+		[
+			'Meta opt-in',
+			`${n0(b.metaConsent)} of ${n0(b.metaLeads)} Meta leads`,
+			'ticked the consent box, so Meta got a Lead event'
+		]
 	])}</details>
 </section>
 `;

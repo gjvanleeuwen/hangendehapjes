@@ -15,6 +15,7 @@
 		"og": "bun scripts/generate-og.ts",
 		"images": "bun scripts/optimize-images.ts",
 		"test:contact": "bun scripts/test-contact-schema.ts",
+		"test:meta": "bun scripts/test-meta-capi.ts",
 		"report": "bun scripts/funnel-report.ts",
 		"gsc:pull": "bun scripts/pull-gsc.ts"
 	},

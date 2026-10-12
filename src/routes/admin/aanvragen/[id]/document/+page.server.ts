@@ -33,11 +33,13 @@ export const load: PageServerLoad = async ({ parent }) => {
 
 	const latestTexts: { offerte: DocTexts | null; factuur: DocTexts | null } = {
 		offerte: lastQuote
-			? { notes: lastQuote.notes, terms: lastQuote.terms, footerNote: lastQuote.footerNote }
+			? // Notes are about one specific aanvraag ("opbouw via de achteringang"),
+				// so they never carry over to another client's document.
+				{ notes: '', terms: lastQuote.terms, footerNote: lastQuote.footerNote }
 			: null,
 		factuur: lastInvoice
 			? {
-					notes: lastInvoice.doc.notes,
+					notes: '',
 					terms: lastInvoice.doc.terms,
 					footerNote: lastInvoice.doc.footerNote,
 					paymentInstructions: lastInvoice.doc.paymentInstructions,
@@ -73,7 +75,8 @@ export const actions: Actions = {
 
 		const updated = await saveQuoteVersion(dealId, quote, true);
 		if (!updated) return fail(404, { error: 'Aanvraag niet gevonden.' });
-		return { savedQuote: true };
+		// False when the client already signed another version: saved, not active.
+		return { savedQuote: true, activeOnPortal: updated.activeQuoteId === quote.id };
 	},
 
 	/** Put this factuur in the klantportaal (same factuurnummer replaces it). */
@@ -86,7 +89,18 @@ export const actions: Actions = {
 		} catch {
 			return fail(400, { error: 'Factuurgegevens konden niet gelezen worden.' });
 		}
-		if (!dealId || !doc || doc.kind !== 'factuur' || !Array.isArray(doc.lineItems)) {
+		// The portal sorts on `date` and renders through docFigures, so a doc
+		// that misses those fields would 500 the client's factuur page later.
+		if (
+			!dealId ||
+			!doc ||
+			doc.kind !== 'factuur' ||
+			!Array.isArray(doc.lineItems) ||
+			typeof doc.date !== 'string' ||
+			typeof doc.issuer !== 'object' ||
+			doc.issuer === null ||
+			typeof doc.paymentInstructions !== 'string'
+		) {
 			return fail(400, { error: 'Factuurgegevens zijn niet geldig.' });
 		}
 		const number = String(doc.number ?? '').trim();
@@ -94,11 +108,18 @@ export const actions: Actions = {
 			return fail(400, { error: 'Geef de factuur eerst een factuurnummer ("Volgend nummer").' });
 		}
 
+		let amountDue: number;
+		try {
+			amountDue = docFigures(doc).amountDue;
+		} catch {
+			return fail(400, { error: 'Factuurgegevens zijn niet geldig.' });
+		}
+
 		const updated = await saveInvoice(dealId, {
 			id: crypto.randomUUID(),
 			number,
 			createdAt: new Date().toISOString(),
-			amountDue: docFigures(doc).amountDue,
+			amountDue,
 			doc
 		});
 		if (!updated) return fail(404, { error: 'Aanvraag niet gevonden.' });

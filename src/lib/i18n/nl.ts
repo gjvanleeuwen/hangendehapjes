@@ -334,6 +334,11 @@ export const nl: Translations = {
 			referral: 'Bijv. via Instagram, een vriend, Google…',
 			choice: 'Vertel kort wat je zoekt'
 		},
+		metaConsent: {
+			label:
+				'Jullie mogen Meta (Instagram) laten weten dat ik via een advertentie kwam, en of het een boeking werd.',
+			hint: 'Dan gaat er een hash van je e-mailadres en telefoonnummer naar Meta, plus de advertentie-klik, je IP-adres en browser, wat je aanvroeg en later het boekingsbedrag. Zo weten we welke advertenties werken. Geen cookies. Optioneel.'
+		},
 		optional: 'optioneel',
 		submit: 'Verstuur',
 		submitting: 'Bezig met versturen…',

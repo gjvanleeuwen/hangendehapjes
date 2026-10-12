@@ -181,6 +181,11 @@ export async function ensureSchema(): Promise<Sql | null> {
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS active_quote_id text NOT NULL DEFAULT ''`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS portal_questions_enabled boolean NOT NULL DEFAULT true`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS portal_note text NOT NULL DEFAULT ''`;
+			// Meta Conversions API: consent ticked on the form, and when the Lead /
+			// Purchase event was accepted by Meta. Null consent = never send.
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS meta_consent_at timestamptz`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS meta_lead_sent_at timestamptz`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS meta_purchase_sent_at timestamptz`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_questions text NOT NULL DEFAULT '[]'`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_json text NOT NULL DEFAULT '{}'`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS ops_completed_at timestamptz`;

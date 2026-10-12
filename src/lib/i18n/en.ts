@@ -331,6 +331,11 @@ export const en: Translations = {
 			referral: 'E.g. via Instagram, a friend, Google…',
 			choice: 'Tell us briefly what you’re after'
 		},
+		metaConsent: {
+			label:
+				'You may tell Meta (Instagram) that I came via an ad, and whether it turned into a booking.',
+			hint: 'Meta then gets a hash of your email address and phone number, plus the ad click, your IP address and browser, what you asked for and later the booking amount. That tells us which ads work. No cookies. Optional.'
+		},
 		optional: 'optional',
 		submit: 'Send',
 		submitting: 'Sending…',

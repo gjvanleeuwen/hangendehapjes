@@ -19,7 +19,7 @@ export function docFigures(doc: DocumentState) {
 			: doc.invoiceType === 'aanbetaling'
 				? prepaymentAmount
 				: doc.invoiceType === 'eind'
-					? round2(totals.total - Math.max(0, doc.priorInvoiceAmount))
+					? round2(Math.max(0, totals.total - Math.max(0, doc.priorInvoiceAmount)))
 					: totals.total;
 
 	const invoiceTypeLabel =

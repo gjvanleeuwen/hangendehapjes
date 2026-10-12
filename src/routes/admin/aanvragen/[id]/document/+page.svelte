@@ -49,7 +49,7 @@
 	// maar omdat "all-in" pas iets betekent als je benoemt wat erin zit.
 	const defaultNotes = (kind: DocumentKind) => {
 		const saved = latestFor(kind);
-		if (saved) return saved.notes;
+		if (saved?.notes) return saved.notes;
 		if (kind !== 'offerte') return '';
 		return [
 			'Inbegrepen, zonder meerprijs:',
@@ -130,6 +130,21 @@
 		paymentInstructions: latest.factuur?.paymentInstructions || DEFAULT_PAYMENT_INSTRUCTIONS,
 		paymentTermDays: latest.factuur?.paymentTermDays ?? 14
 	});
+
+	// The eindfactuur refers back to the aanbetalingsfactuur already in the
+	// portal. Prefill from the newest one when the fields are still empty, so
+	// "reeds gefactureerd" never stays at 0 by accident. Typed values win.
+	const savedDeposit =
+		(deal?.invoices ?? [])
+			.filter((i) => i.doc.invoiceType === 'aanbetaling')
+			.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null;
+	function setInvoiceType(v: InvoiceType) {
+		doc.invoiceType = v;
+		if (v !== 'eind' || !savedDeposit) return;
+		if (!doc.priorInvoiceNumber) doc.priorInvoiceNumber = savedDeposit.number;
+		if (!doc.priorInvoiceDate) doc.priorInvoiceDate = savedDeposit.doc.date;
+		if (!doc.priorInvoiceAmount) doc.priorInvoiceAmount = savedDeposit.amountDue;
+	}
 
 	$effect(() => {
 		if (typeof localStorage === 'undefined') return;
@@ -293,7 +308,12 @@
 		{/if}
 		{#if form?.savedQuote}
 			<div class="border border-primary/30 bg-primary/5 p-3 text-sm">
-				Offerteversie opgeslagen op de aanvraag.
+				{#if form.activeOnPortal}
+					Offerteversie opgeslagen en actief op het klantportaal.
+				{:else}
+					Offerteversie opgeslagen. De klant heeft al akkoord gegeven op een andere versie, dus deze
+					staat niet actief. Kies hem bij Portaal als je hem toch wilt tonen.
+				{/if}
 			</div>
 		{/if}
 		{#if form?.savedInvoice}
@@ -400,7 +420,7 @@
 					{#each [{ v: 'volledig', l: 'Volledig bedrag' }, { v: 'aanbetaling', l: 'Aanbetaling' }, { v: 'eind', l: 'Eindfactuur' }] as const as opt (opt.v)}
 						<button
 							type="button"
-							onclick={() => (doc.invoiceType = opt.v as InvoiceType)}
+							onclick={() => setInvoiceType(opt.v as InvoiceType)}
 							class="border px-3 py-1.5 text-sm transition {doc.invoiceType === opt.v
 								? 'border-primary bg-primary text-primary-foreground'
 								: 'hover:bg-muted'}"
@@ -449,8 +469,11 @@
 						</div>
 					</div>
 					<p class="text-xs text-muted-foreground">
-						Op de eindfactuur staat het volledige bedrag; de aanbetaling gaat er inclusief btw weer
-						vanaf. Zo draag je de btw over dat deel niet twee keer af. Nog te voldoen: {formatEUR(
+						{#if savedDeposit}
+							Vooringevuld vanuit aanbetalingsfactuur {savedDeposit.number}.
+						{/if}
+						Op de eindfactuur staat het volledige bedrag; de aanbetaling gaat er inclusief btw weer vanaf.
+						Zo draag je de btw over dat deel niet twee keer af. Nog te voldoen: {formatEUR(
 							amountDue
 						)}.
 					</p>
@@ -690,7 +713,15 @@
 				Bereken met calculator
 			</a>
 			{#if doc.kind === 'offerte'}
-				<form method="POST" action="?/saveQuote">
+				<!-- Keeps the editor as it is after saving: a full-page POST would reset it to the blank default. -->
+				<form
+					method="POST"
+					action="?/saveQuote"
+					use:enhance={() =>
+						async ({ update }) => {
+							await update({ reset: false });
+						}}
+				>
 					<input type="hidden" name="dealId" value={deal.id} />
 					<input type="hidden" name="quote" value={quotePayload} />
 					<Button type="submit" variant="outline">Opslaan als actieve offerte op portal</Button>

@@ -177,6 +177,11 @@ export type Translations = {
 			referral: string;
 			choice: string;
 		};
+		/** Opt-in to share a hashed email + ad click id with Meta; only shown to visitors from Instagram/Facebook. */
+		metaConsent: {
+			label: string;
+			hint: string;
+		};
 		optional: string;
 		submit: string;
 		submitting: string;

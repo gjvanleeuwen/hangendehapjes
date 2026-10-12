@@ -7,6 +7,7 @@ import { notifyError } from '$lib/server/notify';
 import { PayloadSchema, CallbackSchema, type Clean } from '$lib/server/contact-schema';
 import { createDeal, toDateOrNull, type DealInput } from '$lib/server/deals';
 import { completeLead } from '$lib/server/leads';
+import { sendMetaEvent, type MetaRequestContext } from '$lib/server/meta-capi';
 import { describeAttribution } from '$lib/attribution';
 import type { RequestHandler } from './$types';
 
@@ -126,11 +127,19 @@ const pruneOlderThan = (map: Map<string, number>, now: number, ms: number) => {
  * lands in the pipeline and is never lost. Fire-and-forget — a missing or
  * broken DB must never block or slow the contact form. Email stays the source
  * of truth.
+ *
+ * With `meta` given (the genuine path only) and the consent box ticked, the
+ * Lead event goes to Meta right after the deal exists, in the same background
+ * task, with the customer's IP and user agent from this request.
  */
-const captureDeal = (clean: Clean, extra: Partial<DealInput> = {}) => {
+const captureDeal = (
+	clean: Clean,
+	extra: Partial<DealInput> = {},
+	meta: MetaRequestContext | null = null
+) => {
 	void (async () => {
 		try {
-			await createDeal({
+			const deal = await createDeal({
 				name: clean.name,
 				email: clean.email,
 				phone: clean.phone,
@@ -147,8 +156,11 @@ const captureDeal = (clean: Clean, extra: Partial<DealInput> = {}) => {
 				message: clean.message,
 				status: 'nieuw',
 				origin: 'contact_form',
+				metaConsentAt: clean.metaConsent ? new Date().toISOString() : null,
 				...extra
 			});
+			// sendMetaEvent never throws and skips by itself without consent.
+			if (deal && meta && clean.metaConsent) await sendMetaEvent(deal, 'Lead', meta);
 		} catch (err) {
 			void notifyError(err, {
 				source: 'contact form — deal capture (non-fatal)',
@@ -415,7 +427,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	}
 	lastSubmission.set(ip, now);
 
-	captureDeal(clean);
+	captureDeal(clean, {}, { ip, userAgent: request.headers.get('user-agent') ?? '' });
 	// They finished step 2, so take them off the half-finished follow-up list.
 	void completeLead(clean.email).catch((err) =>
 		console.error('[contact] could not complete lead', err)

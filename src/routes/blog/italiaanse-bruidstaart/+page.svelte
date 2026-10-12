@@ -301,7 +301,7 @@
 					taart gewoon breder en langer.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Laat ons via het <a href="/#contact" class="underline hover:text-foreground"
+					Laat ons via het <a href="#aanvraag" class="underline hover:text-foreground"
 						>contactformulier</a
 					> weten wat je voor ogen hebt, dan sturen we een voorstel op maat.
 				</p>

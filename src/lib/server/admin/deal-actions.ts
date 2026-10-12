@@ -10,6 +10,7 @@ import { fail } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import { isDbConfigured } from '$lib/server/db';
 import { dismissLead, getLead } from '$lib/server/leads';
+import { sendMetaEvent } from '$lib/server/meta-capi';
 import {
 	createDeal,
 	deleteDeal,
@@ -70,9 +71,10 @@ const optionalDateTime = (fd: FormData, key: string): string | null => {
 	return Number.isNaN(d.getTime()) ? null : d.toISOString();
 };
 
-const statusOf = (fd: FormData): DealStatus => {
+/** Null for a value outside DEAL_STATUSES: a stale or forged form must not drag a won deal back to nieuw. */
+const statusOf = (fd: FormData): DealStatus | null => {
 	const s = String(fd.get('status') ?? 'nieuw');
-	return (DEAL_STATUSES as readonly string[]).includes(s) ? (s as DealStatus) : 'nieuw';
+	return (DEAL_STATUSES as readonly string[]).includes(s) ? (s as DealStatus) : null;
 };
 
 const paymentStatusOf = (fd: FormData, key: string): string => {
@@ -142,6 +144,8 @@ export const createDealAction = async ({ request }: ActionEvent) => {
 	const fd = await request.formData();
 	const name = str(fd, 'name', 100);
 	if (!name) return fail(400, { error: 'Naam is verplicht.', form: 'create' });
+	const status = statusOf(fd);
+	if (!status) return fail(400, { error: 'Onbekende status.', form: 'create' });
 
 	const input: DealInput = {
 		name,
@@ -155,7 +159,7 @@ export const createDealAction = async ({ request }: ActionEvent) => {
 		guests: str(fd, 'guests', 10),
 		serviceType: str(fd, 'serviceType', 20),
 		choice: str(fd, 'choice', 120),
-		status: statusOf(fd),
+		status,
 		paymentTerm: normalizePaymentTerm(fd.get('paymentTerm')),
 		offerteAmount: amountOrNull(fd, 'offerteAmount'),
 		btwAmount: amountOrNull(fd, 'btwAmount'),
@@ -199,16 +203,20 @@ export const updateDealAction = async ({ request }: ActionEvent) => {
 	if (!existing) return fail(404, { error: 'Aanvraag niet gevonden.' });
 
 	const fields: Partial<DealInput> = {};
-	if (fd.has('status')) fields.status = statusOf(fd);
+	if (fd.has('status')) {
+		const status = statusOf(fd);
+		if (!status) return fail(400, { error: 'Onbekende status.' });
+		fields.status = status;
+	}
 	if (fd.has('name')) fields.name = str(fd, 'name', 100);
 	if (fd.has('email')) fields.email = str(fd, 'email', 254);
 	if (fd.has('phone')) fields.phone = str(fd, 'phone', 30);
 	if (fd.has('source')) fields.source = str(fd, 'source', 200);
 	if (fd.has('attribution')) fields.attribution = str(fd, 'attribution', 200);
-	if (fd.has('eventDate')) {
-		fields.eventDate = toDateOrNull(str(fd, 'eventDate', 25));
-		fields.eventDateText = str(fd, 'eventDate', 25);
-	}
+	// Only the parsed date: the admin's date input cannot post free text, and
+	// eventDateText holds what the customer wrote ("ergens in september"),
+	// which must survive a save of this card.
+	if (fd.has('eventDate')) fields.eventDate = toDateOrNull(str(fd, 'eventDate', 25));
 	if (fd.has('location')) fields.location = str(fd, 'location', 200);
 	if (fd.has('guests')) fields.guests = str(fd, 'guests', 10);
 	if (fd.has('serviceType')) fields.serviceType = str(fd, 'serviceType', 20);
@@ -262,6 +270,11 @@ export const updateDealAction = async ({ request }: ActionEvent) => {
 		fields.activeQuoteId = activeQuoteId;
 		const activeQuote = existing.quoteVersions.find((q) => q.id === activeQuoteId);
 		if (activeQuote) Object.assign(fields, quoteDealFields(activeQuote));
+		// "Geen actieve offerte": the portal falls back to the per-version flag
+		// when the id is empty, so clear that too or the choice is a no-op.
+		else if (!activeQuoteId && existing.quoteVersions.some((q) => q.active)) {
+			fields.quoteVersions = existing.quoteVersions.map((q) => ({ ...q, active: false }));
+		}
 	}
 	if (fd.has('portalQuestionsEnabled'))
 		fields.portalQuestionsEnabled = str(fd, 'portalQuestionsEnabled', 10) === 'true';
@@ -360,10 +373,37 @@ export const updateDealAction = async ({ request }: ActionEvent) => {
 		}
 	}
 
+	let updated: Deal | null;
 	try {
-		await updateDeal(id, fields);
+		updated = await updateDeal(id, fields);
 	} catch (err) {
 		return fail(500, { error: `Bijwerken mislukt: ${(err as Error).message}` });
+	}
+
+	// Won with consent on record and an amount: tell Meta it became a booking.
+	// Fires on the move to a won status, and on the amount being filled in
+	// later for a deal that is already won. Fire-and-forget; sendMetaEvent
+	// checks consent, dedupes and never throws. Meta wants the customer's user
+	// agent on website events: when they signed in the klantportaal we have
+	// theirs. The admin request's IP and user agent are ours, so never those.
+	if (updated) {
+		const becameWon =
+			!!fields.status && fields.status !== existing.status && isWon({ status: fields.status });
+		const amountFilledIn =
+			fields.offerteAmount !== undefined &&
+			fields.offerteAmount !== existing.offerteAmount &&
+			isWon(updated);
+		if (
+			(becameWon || amountFilledIn) &&
+			updated.metaConsentAt &&
+			!updated.metaPurchaseSentAt &&
+			(updated.offerteAmount ?? 0) > 0
+		) {
+			void sendMetaEvent(updated, 'Purchase', {
+				ip: updated.acceptedIp || undefined,
+				userAgent: updated.acceptedUserAgent || undefined
+			});
+		}
 	}
 	return { updated: true };
 };

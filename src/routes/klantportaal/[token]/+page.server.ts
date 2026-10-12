@@ -184,7 +184,12 @@ export const actions: Actions = {
 		const until = portalExpiryAfterEvent(deal.eventDate, deal.acceptanceExpiresAt);
 		if (until) fields.acceptanceExpiresAt = until;
 
-		await updateDeal(deal.id, fields);
+		// Compare-and-set on accepted_terms_at: a double submit or a retried
+		// request must not overwrite who signed, nor send the mails twice.
+		const accepted = await updateDeal(deal.id, fields, { onlyIfNotAccepted: true });
+		if (!accepted) {
+			return fail(400, { error: 'Er is al akkoord gegeven op deze offerte.' });
+		}
 
 		// Fired after the write succeeds, and awaited-but-never-thrown inside, so
 		// a mail outage can't undo an acceptance that is already stored.

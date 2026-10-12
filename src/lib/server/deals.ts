@@ -153,7 +153,7 @@ function rowToDeal(r: Record<string, unknown>): Deal {
 		source: (r.source as string) ?? '',
 		attribution: (r.attribution as string) ?? '',
 		firstTouch: (r.first_touch as string) ?? '',
-		eventDate: quoteFields.eventDate ?? asDateStr(r.event_date),
+		eventDate: asDateStr(r.event_date),
 		eventDateText: (r.event_date_text as string) ?? '',
 		location: (r.location as string) ?? '',
 		guests: (r.guests as string) ?? '',
@@ -162,12 +162,16 @@ function rowToDeal(r: Record<string, unknown>): Deal {
 		dagdeel: (r.dagdeel as string) ?? '',
 		servingTime: (r.serving_time as string) ?? '',
 		status: (r.status as DealStatus) ?? 'nieuw',
+		// Bedrag and btw follow the active offerteversie (the Pijplijn card says
+		// so). Every other quote field is copied into its column when a version
+		// is activated and stays editable after that: real hours and costs after
+		// the event, a moved date, a stretched geldig tot.
 		offerteAmount: quoteFields.offerteAmount ?? asNum(r.offerte_amount),
 		btwAmount: quoteFields.btwAmount ?? asNum(r.btw_amount),
-		costs: quoteFields.costs ?? asNum(r.costs),
-		timeSpent: quoteFields.timeSpent ?? parseTimeSpent(r.time_spent),
+		costs: asNum(r.costs),
+		timeSpent: parseTimeSpent(r.time_spent),
 		offerteVerstuurdOp: asDateStr(r.offerte_verstuurd_op),
-		geldigTot: quoteFields.geldigTot ?? asDateStr(r.geldig_tot),
+		geldigTot: asDateStr(r.geldig_tot),
 		geaccepteerdOp: asDateStr(r.geaccepteerd_op),
 		firstReplyOn: asDateStr(r.first_reply_on),
 		afgewezenOp: asDateStr(r.afgewezen_op),
@@ -210,7 +214,10 @@ function rowToDeal(r: Record<string, unknown>): Deal {
 		opsAudit: parseOpsAudit(r.ops_audit),
 		message: (r.message as string) ?? '',
 		notes: (r.notes as string) ?? '',
-		origin: (r.origin as string) ?? 'manual'
+		origin: (r.origin as string) ?? 'manual',
+		metaConsentAt: asIsoOrNull(r.meta_consent_at),
+		metaLeadSentAt: asIsoOrNull(r.meta_lead_sent_at),
+		metaPurchaseSentAt: asIsoOrNull(r.meta_purchase_sent_at)
 	};
 }
 
@@ -282,7 +289,10 @@ export async function createDeal(input: DealInput): Promise<Deal | null> {
 		ops_audit: JSON.stringify(normalizeOpsAudit(input.opsAudit)),
 		message: input.message ?? '',
 		notes: input.notes ?? '',
-		origin: input.origin ?? 'manual'
+		origin: input.origin ?? 'manual',
+		meta_consent_at: input.metaConsentAt ?? null,
+		meta_lead_sent_at: input.metaLeadSentAt ?? null,
+		meta_purchase_sent_at: input.metaPurchaseSentAt ?? null
 	};
 
 	// Backfill: let callers stamp the real original date on imported aanvragen.
@@ -314,9 +324,13 @@ export async function listEventDeals(): Promise<Deal[]> {
 	return rows.map(rowToDeal);
 }
 
+// `deals.id` is a uuid column: anything else makes Postgres throw (22P02) and
+// the admin 500 on a typo in the URL, so treat a malformed id as not found.
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function getDeal(id: string): Promise<Deal | null> {
 	const sql = await ensureSchema();
-	if (!sql) return null;
+	if (!sql || !UUID.test(id)) return null;
 	const [row] = await sql`SELECT * FROM deals WHERE id = ${id}`;
 	return row ? rowToDeal(row) : null;
 }
@@ -334,7 +348,16 @@ export async function getDealByAcceptanceToken(token: string): Promise<Deal | nu
 	return row ? rowToDeal(row) : null;
 }
 
-export async function updateDeal(id: string, fields: Partial<DealInput>): Promise<Deal | null> {
+/**
+ * `onlyIfNotAccepted` turns the write into a compare-and-set on
+ * `accepted_terms_at IS NULL`, so two simultaneous akkoord submits cannot both
+ * succeed; the loser gets null.
+ */
+export async function updateDeal(
+	id: string,
+	fields: Partial<DealInput>,
+	opts: { onlyIfNotAccepted?: boolean } = {}
+): Promise<Deal | null> {
 	const sql = await ensureSchema();
 	if (!sql) return null;
 
@@ -403,6 +426,9 @@ export async function updateDeal(id: string, fields: Partial<DealInput>): Promis
 		message: 'message',
 		notes: 'notes',
 		origin: 'origin',
+		metaConsentAt: 'meta_consent_at',
+		metaLeadSentAt: 'meta_lead_sent_at',
+		metaPurchaseSentAt: 'meta_purchase_sent_at',
 		createdAt: 'created_at'
 	};
 
@@ -431,6 +457,7 @@ export async function updateDeal(id: string, fields: Partial<DealInput>): Promis
 	const [updated] = await sql`
 		UPDATE deals SET ${sql(row)}, updated_at = now()
 		WHERE id = ${id}
+		${opts.onlyIfNotAccepted ? sql`AND accepted_terms_at IS NULL` : sql``}
 		RETURNING *
 	`;
 	return updated ? rowToDeal(updated) : null;
@@ -444,6 +471,13 @@ export async function saveQuoteVersion(
 	const deal = await getDeal(id);
 	if (!deal) return null;
 
+	// Once the client has signed, the active version is what they signed for.
+	// A different version saved after that goes in as inactive; making it the
+	// active one is an explicit choice in the portal settings, not a side
+	// effect of pressing save in the builder.
+	const signedId = deal.acceptedTermsAt ? activeQuoteOf(deal)?.id : undefined;
+	const activate = setActive && (!signedId || signedId === quote.id);
+
 	// Visibility is managed in /admin/aanvragen, not in the document builder, so
 	// the incoming quote never carries the flag. Re-saving a revision from the
 	// builder must not quietly republish one we hid.
@@ -451,13 +485,13 @@ export async function saveQuoteVersion(
 
 	const quoteVersions = normalizeQuoteVersions([
 		...deal.quoteVersions.filter((q) => q.id !== quote.id),
-		{ ...quote, active: setActive, hiddenForClient: previous?.hiddenForClient ?? false }
-	]).map((q) => ({ ...q, active: setActive ? q.id === quote.id : q.active }));
+		{ ...quote, active: activate, hiddenForClient: previous?.hiddenForClient ?? false }
+	]).map((q) => ({ ...q, active: activate ? q.id === quote.id : q.active }));
 
 	return updateDeal(id, {
 		quoteVersions,
-		activeQuoteId: setActive ? quote.id : deal.activeQuoteId,
-		...(setActive ? quoteDealFields(quote) : {})
+		activeQuoteId: activate ? quote.id : deal.activeQuoteId,
+		...(activate ? quoteDealFields(quote) : {})
 	});
 }
 
@@ -502,7 +536,7 @@ export async function deleteQuoteVersion(id: string, quoteId: string): Promise<D
 
 export async function deleteDeal(id: string): Promise<boolean> {
 	const sql = await ensureSchema();
-	if (!sql) return false;
+	if (!sql || !UUID.test(id)) return false;
 	const result = await sql`DELETE FROM deals WHERE id = ${id}`;
 	return result.count > 0;
 }

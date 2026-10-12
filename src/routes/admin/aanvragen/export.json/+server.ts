@@ -18,6 +18,7 @@ export const GET: RequestHandler = async () => {
 		source: d.source,
 		attribution: d.attribution,
 		firstTouch: d.firstTouch,
+		metaConsentAt: d.metaConsentAt,
 		origin: d.origin,
 		eventDate: d.eventDate,
 		location: d.location,

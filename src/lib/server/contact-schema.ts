@@ -16,9 +16,11 @@ const attributionField = v.optional(
  * up if they never finish step 2. Same cleaning rules as the full payload.
  */
 export const LeadSchema = v.object({
+	// Lower-cased: leads upsert on the exact email, while completeLead matches
+	// case-insensitively, so Foo@x.nl and foo@x.nl must be one row.
 	email: v.pipe(
 		v.string(),
-		v.transform((s) => s.replace(CRLF, '').trim()),
+		v.transform((s) => s.replace(CRLF, '').trim().toLowerCase()),
 		v.maxLength(254, 'email too long'),
 		v.email('invalid email')
 	),
@@ -136,7 +138,10 @@ export const PayloadSchema = v.object({
 	// (not `website`/`url`) so password managers don't autofill it and trip real
 	// visitors. Must stay empty — a non-empty value is handled in the endpoint.
 	subject: v.optional(v.string(), ''),
-	locale: v.optional(v.picklist(['nl', 'en']), 'nl')
+	locale: v.optional(v.picklist(['nl', 'en']), 'nl'),
+	// Optional opt-in to share a hashed email + Meta click id with the
+	// Conversions API (see $lib/server/meta-capi). Unchecked by default.
+	metaConsent: v.optional(v.boolean(), false)
 });
 
 export type Clean = v.InferOutput<typeof PayloadSchema>;

@@ -178,7 +178,7 @@
 								{#if d.depositStatus === 'paid' && d.depositAmount != null}
 									<div class="text-muted-foreground">{formatEUR(d.depositAmount)}</div>
 								{:else if d.depositAmount != null}
-									<div class="text-muted-foreground">50% na akkoord</div>
+									<div class="text-muted-foreground">{formatEUR(d.depositAmount)} na akkoord</div>
 								{/if}
 							</div>
 							<span class="shrink-0 border px-2 py-0.5 text-xs {depositBadge.className}">

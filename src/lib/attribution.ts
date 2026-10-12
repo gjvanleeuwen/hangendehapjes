@@ -12,9 +12,30 @@ export type Touch = {
 	cnt: string; // utm_content (creative / placement)
 	ref: string; // referrer hostname, '' when none (direct)
 	land: string; // landing path
+	fbclid?: string; // Meta click id, '' when absent (older stored touches lack the key)
+	fbat?: number; // ms the fbclid was first seen, Meta's fbc creation time (older touches lack it)
 };
 
 export type Attribution = { first: Touch; last: Touch };
+
+const META_SOURCE = /^(ig|fb|instagram|insta|facebook|meta)$/;
+
+/**
+ * Did this visitor arrive from Instagram or Facebook (first or last touch)?
+ * Decides whether the Meta consent checkbox is shown on the contact form.
+ */
+export function isMetaAttribution(a: Attribution | null): boolean {
+	if (!a) return false;
+	return [a.first, a.last].some((t) => !!t.fbclid || META_SOURCE.test((t.src ?? '').toLowerCase()));
+}
+
+/** The touch whose click id goes to Meta: the last one with an fbclid, else the first. */
+export function metaTouch(a: Attribution | null): Touch | null {
+	if (!a) return null;
+	if (a.last.fbclid) return a.last;
+	if (a.first.fbclid) return a.first;
+	return null;
+}
 
 const FIRST_KEY = 'hh_touch_first';
 const LAST_KEY = 'hh_touch_last';
@@ -78,8 +99,10 @@ function currentTouch(): { touch: Touch; isNew: boolean } {
 		cmp: p.get('utm_campaign') ?? '',
 		cnt: p.get('utm_content') ?? '',
 		ref,
-		land: url.pathname
+		land: url.pathname,
+		fbclid: (p.get('fbclid') ?? '').slice(0, 255)
 	};
+	if (touch.fbclid) touch.fbat = Date.now();
 	return { touch, isNew: tagged || ref !== '' };
 }
 

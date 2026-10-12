@@ -10,8 +10,10 @@
 	let { deal }: { deal: Deal } = $props();
 
 	// Writable deriveds: editable locally, reset to the stored values on refresh.
-	let offerteAmount = $derived(deal.offerteAmount ?? 0);
-	let btwAmount = $derived(deal.btwAmount ?? 0);
+	// Empty, not 0, when nothing is known: a 0 would be stored as a real amount
+	// and the list would show "€ 0,00" after saving an unrelated field here.
+	let offerteAmount: number | '' = $derived(deal.offerteAmount ?? '');
+	let btwAmount: number | '' = $derived(deal.btwAmount ?? '');
 	const excl = $derived((Number(offerteAmount) || 0) - (Number(btwAmount) || 0));
 
 	// Fill btw from a rate applied to the (incl. btw) total.

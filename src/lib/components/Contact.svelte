@@ -6,8 +6,14 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { WHATSAPP_URL } from '$lib/site-config';
 	import { trackInView } from '$lib/inView';
-	import { attributionJson, getAttribution, sourceBucket } from '$lib/attribution';
+	import {
+		attributionJson,
+		getAttribution,
+		isMetaAttribution,
+		sourceBucket
+	} from '$lib/attribution';
 	import { cn } from '$lib/utils.js';
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import SectionHeading from './SectionHeading.svelte';
 	import Picture from './Picture.svelte';
@@ -53,6 +59,15 @@
 	let referral = $state('');
 	let message = $state('');
 	let subject = $state(''); // honeypot — must stay empty
+	// Opt-in to tell Meta (server-side, no pixel) that this lead came from an ad.
+	// Unchecked by default; only offered to visitors who arrived via Instagram or
+	// Facebook, everyone else has nothing to consent to.
+	let metaConsent = $state(false);
+	let showMetaConsent = $state(false);
+	// Read in onMount: attribution lives in localStorage, which SSR cannot see.
+	onMount(() => {
+		showMetaConsent = isMetaAttribution(getAttribution());
+	});
 	let submitting = $state(false);
 	let started = $state(false);
 	let lastField = ''; // last input the visitor focused, for contact_abandon
@@ -221,12 +236,12 @@
 	function onFieldFocus(event: FocusEvent) {
 		const name = (event.target as HTMLElement | null)?.getAttribute?.('name');
 		if (name && name !== 'subject') lastField = name;
-		abandonFired = false;
 		markStarted();
 	}
 
 	// Started but left (tab closed, switched away, navigated on): once per attempt,
 	// with the last field they touched, so we can see where the form loses people.
+	// Reset only after a successful submit, so switching tabs twice is one abandon.
 	function onVisibilityChange() {
 		if (document.visibilityState !== 'hidden' || !started || abandonFired) return;
 		abandonFired = true;
@@ -247,10 +262,14 @@
 
 	// Where this visitor originally came from, as Umami event data, so the form
 	// funnel can be split per channel / campaign (Instagram ads vs Google etc.).
+	// lastSource is the most recent arrival from outside: a visitor whose first
+	// visit was direct and who later clicks an ad would otherwise read as direct.
 	function touchData() {
-		const first = getAttribution()?.first;
+		const a = getAttribution();
+		const first = a?.first;
 		return {
 			source: first ? sourceBucket(first) : 'unknown',
+			lastSource: a?.last ? sourceBucket(a.last) : 'unknown',
 			campaign: first?.cmp || 'none',
 			landing: first?.land || 'unknown'
 		};
@@ -280,7 +299,8 @@
 					message,
 					subject,
 					locale,
-					attribution: attributionJson()
+					attribution: attributionJson(),
+					metaConsent: showMetaConsent && metaConsent
 				})
 			});
 
@@ -305,6 +325,7 @@
 				serviceType: serviceType || 'none',
 				choice: choiceKey || 'none',
 				referral: referral ? 'provided' : 'empty',
+				metaConsent: showMetaConsent && metaConsent ? 'yes' : 'no',
 				...touchData()
 			});
 			toast.success(t.contact.successTitle, { description: t.contact.successBody });
@@ -321,7 +342,9 @@
 			referral = '';
 			message = '';
 			subject = '';
+			metaConsent = false;
 			started = false;
+			abandonFired = false;
 			step = 1;
 		} catch {
 			window.umami?.track('contact_error', { reason: 'network', locale, surface });
@@ -365,7 +388,12 @@
 				size="lg"
 				target="_blank"
 				rel="noopener noreferrer"
-				data-umami-event="home_whatsapp"
+				data-umami-event="{surface}_whatsapp"
+				onclick={() => {
+					// Leaving for WhatsApp is a conversion, not an abandon: the tab hide
+					// that follows on mobile must not count.
+					abandonFired = true;
+				}}
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -595,6 +623,25 @@
 			{/if}
 
 			{@render honeypot()}
+
+			{#if step === totalSteps && showMetaConsent}
+				<label
+					class="flex items-start gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm"
+				>
+					<input
+						type="checkbox"
+						name="metaConsent"
+						class="mt-0.5 size-4 shrink-0 accent-primary"
+						bind:checked={metaConsent}
+					/>
+					<span>
+						{t.contact.metaConsent.label}
+						<span class="mt-1 block text-xs text-muted-foreground">
+							{t.contact.metaConsent.hint}
+						</span>
+					</span>
+				</label>
+			{/if}
 
 			<div class="flex flex-wrap items-center justify-end gap-3">
 				{#if step > 1}

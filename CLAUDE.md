@@ -16,7 +16,7 @@ Aimed at weddings, receptions, corporate events, parties.
 - Dutch is the primary language. A complete English mirror lives under `/en`.
 - Not an e-commerce / booking platform — every booking is bespoke and finalised over email.
 
-See [docs/website-plan.md](docs/website-plan.md) for the page structure, copy direction, and product/pricing reference.
+See [docs/_TASKS/done/website-plan.md](docs/_TASKS/done/website-plan.md) for the page structure, copy direction, and product/pricing reference.
 
 ## Project Configuration
 

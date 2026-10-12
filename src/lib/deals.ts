@@ -189,6 +189,10 @@ export type Deal = {
 	message: string;
 	notes: string; // internal only — never leaves the admin
 	origin: string; // 'contact_form' | 'manual'
+	// Meta Conversions API (see $lib/server/meta-capi). Consent null = never send.
+	metaConsentAt: string | null; // ISO timestamp the box was ticked on the form
+	metaLeadSentAt: string | null; // ISO timestamp Meta accepted the Lead event
+	metaPurchaseSentAt: string | null; // ISO timestamp Meta accepted the Purchase event
 };
 
 export type DealInput = {
@@ -256,6 +260,9 @@ export type DealInput = {
 	message?: string;
 	notes?: string;
 	origin?: string;
+	metaConsentAt?: string | null;
+	metaLeadSentAt?: string | null;
+	metaPurchaseSentAt?: string | null;
 	createdAt?: string | null; // backfill override for past aanvragen
 };
 
