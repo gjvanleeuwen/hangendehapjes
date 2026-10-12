@@ -34,7 +34,12 @@
 			>
 				Hangende Hapjes
 			</a>
-			<Button href="{t.nav.homeHref}#contact" size="sm" class="hidden md:inline-flex">
+			<Button
+				href="{t.nav.homeHref}#contact"
+				size="sm"
+				class="hidden md:inline-flex"
+				data-umami-event="nav_offerte"
+			>
 				{t.nav.contact}
 			</Button>
 		</div>
@@ -75,7 +80,12 @@
 				<span class="hidden text-muted-foreground/50 md:inline" aria-hidden="true">·</span>
 			{/if}
 			<!-- Mobile: Contact sits between the rating and the language switch. -->
-			<Button href="{t.nav.homeHref}#contact" size="sm" class="md:hidden">
+			<Button
+				href="{t.nav.homeHref}#contact"
+				size="sm"
+				class="md:hidden"
+				data-umami-event="nav_offerte"
+			>
 				{t.nav.contact}
 			</Button>
 			<a

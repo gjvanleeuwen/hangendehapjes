@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
@@ -7,7 +8,7 @@
 	import { BUSINESS } from '$lib/admin/business';
 	import { formatDateNL } from '$lib/admin/calc';
 
-	let { data } = $props();
+	let { data, form } = $props();
 	const deal = untrack(() => data.deal);
 	const ops = deal.opsJson;
 	const today = new Date().toISOString().slice(0, 10);
@@ -65,12 +66,22 @@
 	// Curated answers are already prefilled into the fields above, so they start
 	// unticked to avoid printing the same thing twice. Anything we have no field
 	// for starts ticked — otherwise it would be invisible on the sheet.
-	let include = $state(
-		Object.fromEntries(answers.map((a) => [a.key, !CURATED_KEYS.has(a.key)])) as Record<
+	// A saved sheet wins over the portal prefill, field by field, so edits made
+	// before survive a reload. New portal answers still fill empty fields.
+	const saved = deal.eventSheet as {
+		fields?: Record<string, string>;
+		include?: Record<string, boolean>;
+		savedAt?: string;
+	};
+	const savedAt = saved.savedAt ?? '';
+
+	let include = $state({
+		...(Object.fromEntries(answers.map((a) => [a.key, !CURATED_KEYS.has(a.key)])) as Record<
 			string,
 			boolean
-		>
-	);
+		>),
+		...(saved.include ?? {})
+	});
 
 	const includedAnswers = $derived(answers.filter((a) => include[a.key]));
 
@@ -110,6 +121,14 @@
 		footer:
 			'Deze sheet vat de praktische afspraken samen zoals bekend op het moment van genereren. Bel of mail ons bij wijzigingen.'
 	});
+	for (const [key, value] of Object.entries(saved.fields ?? {})) {
+		if (key in sheet && typeof value === 'string' && value.trim()) {
+			(sheet as Record<string, string>)[key] = value;
+		}
+	}
+
+	const payload = $derived(JSON.stringify({ fields: sheet, include }));
+	let saving = $state(false);
 
 	const rows = $derived([
 		['Opdrachtgever', sheet.client],
@@ -166,11 +185,16 @@
 <div class="grid gap-8 lg:grid-cols-[1.1fr_minmax(0,620px)] print:block">
 	<section class="space-y-5 print:hidden">
 		<div>
-			<a class="text-sm underline" href="/admin/aanvragen">Terug naar aanvragen</a>
-			<h1 class="mt-2 font-heading text-2xl">Event sheet</h1>
+			<h1 class="font-heading text-xl">Event sheet</h1>
 			<p class="text-sm text-muted-foreground">
-				Pas de velden aan en gebruik daarna printen of opslaan als PDF.
+				Pas de velden aan, sla op en print of bewaar als PDF.
+				{#if form?.sheetSaved}
+					<span class="text-primary">Opgeslagen.</span>
+				{:else if savedAt}
+					Laatst opgeslagen op {formatDateNL(savedAt)}.
+				{/if}
 			</p>
+			{#if form?.error}<p class="text-sm text-destructive">{form.error}</p>{/if}
 		</div>
 
 		<div class="grid gap-3 sm:grid-cols-2">
@@ -280,7 +304,26 @@
 			<Textarea id="footer" rows={2} bind:value={sheet.footer} />
 		</div>
 
-		<Button type="button" onclick={() => window.print()}>Print / Opslaan als PDF</Button>
+		<div class="flex flex-wrap gap-2">
+			<form
+				method="POST"
+				action="?/save"
+				use:enhance={() => {
+					saving = true;
+					return async ({ update }) => {
+						await update({ reset: false, invalidateAll: false });
+						saving = false;
+					};
+				}}
+			>
+				<input type="hidden" name="id" value={deal.id} />
+				<input type="hidden" name="sheet" value={payload} />
+				<Button type="submit" disabled={saving}>{saving ? 'Opslaan…' : 'Opslaan'}</Button>
+			</form>
+			<Button type="button" variant="outline" onclick={() => window.print()}>
+				Print / Opslaan als PDF
+			</Button>
+		</div>
 	</section>
 
 	<section class="bg-white text-black shadow-sm print:shadow-none">
@@ -303,7 +346,7 @@
 			</header>
 
 			<div class="mt-6 grid gap-2 text-sm">
-				{#each visible(rows) as [label, value]}
+				{#each visible(rows) as [label, value] (label)}
 					<div class="grid grid-cols-[135px_1fr] gap-3 border-b border-neutral-100 pb-1">
 						<div class="text-neutral-500">{label}</div>
 						<div class="font-medium whitespace-pre-line">{value}</div>
@@ -311,13 +354,13 @@
 				{/each}
 			</div>
 
-			{#each sections as [title, sectionRows]}
+			{#each sections as [title, sectionRows] (title)}
 				{@const shown = visible(sectionRows)}
 				{#if shown.length > 0}
 					<section class="mt-6">
 						<h2 class="border-b border-neutral-300 pb-1 font-heading text-lg">{title}</h2>
 						<div class="mt-3 grid gap-2 text-sm">
-							{#each shown as [label, value]}
+							{#each shown as [label, value] (label)}
 								<div class="grid grid-cols-[135px_1fr] gap-3">
 									<div class="text-neutral-500">{label}</div>
 									<div class="whitespace-pre-line">{value}</div>

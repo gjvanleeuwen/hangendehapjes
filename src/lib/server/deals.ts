@@ -4,11 +4,13 @@ import {
 	normalizeOpsAudit,
 	normalizeOpsQuestions,
 	normalizePaymentTerm,
+	normalizeInvoices,
 	normalizeQuoteVersions,
 	quoteDealFields,
 	type Deal,
 	type DealInput,
 	type DealStatus,
+	type InvoiceRecord,
 	type OpsAuditEntry,
 	type OpsQuestion,
 	type QuoteVersion
@@ -104,6 +106,15 @@ const parseQuoteVersions = (v: unknown) => {
 	}
 };
 
+const parseInvoices = (v: unknown) => {
+	if (typeof v !== 'string' || !v) return [];
+	try {
+		return normalizeInvoices(JSON.parse(v));
+	} catch {
+		return [];
+	}
+};
+
 const parseTimeSpent = (v: unknown): Record<string, number> => {
 	if (typeof v !== 'string' || !v) return {};
 	try {
@@ -141,6 +152,7 @@ function rowToDeal(r: Record<string, unknown>): Deal {
 		phone: (r.phone as string) ?? '',
 		source: (r.source as string) ?? '',
 		attribution: (r.attribution as string) ?? '',
+		firstTouch: (r.first_touch as string) ?? '',
 		eventDate: quoteFields.eventDate ?? asDateStr(r.event_date),
 		eventDateText: (r.event_date_text as string) ?? '',
 		location: (r.location as string) ?? '',
@@ -157,6 +169,16 @@ function rowToDeal(r: Record<string, unknown>): Deal {
 		offerteVerstuurdOp: asDateStr(r.offerte_verstuurd_op),
 		geldigTot: quoteFields.geldigTot ?? asDateStr(r.geldig_tot),
 		geaccepteerdOp: asDateStr(r.geaccepteerd_op),
+		firstReplyOn: asDateStr(r.first_reply_on),
+		afgewezenOp: asDateStr(r.afgewezen_op),
+		factuurVerstuurdOp: asDateStr(r.factuur_verstuurd_op),
+		betaaldOp: asDateStr(r.betaald_op),
+		herinnering1Op: asDateStr(r.herinnering_1_op),
+		herinnering2Op: asDateStr(r.herinnering_2_op),
+		gebeldOp: asDateStr(r.gebeld_op),
+		kans: (r.kans as string) ?? '',
+		eventSheet: parseJsonObject(r.event_sheet),
+		lostReason: (r.lost_reason as string) ?? '',
 		acceptanceToken: (r.acceptance_token as string) ?? '',
 		acceptanceEnabled: Boolean(r.acceptance_enabled),
 		acceptanceExpiresAt: asIsoOrNull(r.acceptance_expires_at),
@@ -178,6 +200,7 @@ function rowToDeal(r: Record<string, unknown>): Deal {
 		finalPaymentLink: (r.final_payment_link as string) ?? '',
 		finalPaymentStatus: (r.final_payment_status as string) ?? 'not_sent',
 		quoteVersions,
+		invoices: parseInvoices(r.invoices),
 		activeQuoteId,
 		portalQuestionsEnabled: r.portal_questions_enabled !== false,
 		portalNote: (r.portal_note as string) ?? '',
@@ -201,6 +224,7 @@ export async function createDeal(input: DealInput): Promise<Deal | null> {
 		phone: input.phone ?? '',
 		source: input.source ?? '',
 		attribution: input.attribution ?? '',
+		first_touch: input.firstTouch ?? '',
 		event_date: input.eventDate ?? null,
 		event_date_text: input.eventDateText ?? '',
 		location: input.location ?? '',
@@ -217,6 +241,16 @@ export async function createDeal(input: DealInput): Promise<Deal | null> {
 		offerte_verstuurd_op: input.offerteVerstuurdOp ?? null,
 		geldig_tot: input.geldigTot ?? null,
 		geaccepteerd_op: input.geaccepteerdOp ?? null,
+		first_reply_on: input.firstReplyOn ?? null,
+		afgewezen_op: input.afgewezenOp ?? null,
+		factuur_verstuurd_op: input.factuurVerstuurdOp ?? null,
+		betaald_op: input.betaaldOp ?? null,
+		herinnering_1_op: input.herinnering1Op ?? null,
+		herinnering_2_op: input.herinnering2Op ?? null,
+		gebeld_op: input.gebeldOp ?? null,
+		kans: input.kans ?? '',
+		event_sheet: JSON.stringify(input.eventSheet ?? {}),
+		lost_reason: input.lostReason ?? '',
 		acceptance_token: input.acceptanceToken ?? '',
 		acceptance_enabled: input.acceptanceEnabled ?? false,
 		acceptance_expires_at: input.acceptanceExpiresAt ?? null,
@@ -238,6 +272,7 @@ export async function createDeal(input: DealInput): Promise<Deal | null> {
 		final_payment_link: input.finalPaymentLink ?? '',
 		final_payment_status: input.finalPaymentStatus ?? 'not_sent',
 		quote_versions: JSON.stringify(normalizeQuoteVersions(input.quoteVersions)),
+		invoices: JSON.stringify(normalizeInvoices(input.invoices)),
 		active_quote_id: input.activeQuoteId ?? '',
 		portal_questions_enabled: input.portalQuestionsEnabled ?? true,
 		portal_note: input.portalNote ?? '',
@@ -273,7 +308,7 @@ export async function listEventDeals(): Promise<Deal[]> {
 	if (!sql) return [];
 	const rows = await sql`
 		SELECT * FROM deals
-		WHERE event_date IS NOT NULL AND status IN ('in_optie', 'geaccepteerd', 'afgerond')
+		WHERE event_date IS NOT NULL AND status IN ('in_optie', 'geaccepteerd', 'geleverd', 'factuur_verstuurd', 'afgerond')
 		ORDER BY event_date
 	`;
 	return rows.map(rowToDeal);
@@ -309,6 +344,7 @@ export async function updateDeal(id: string, fields: Partial<DealInput>): Promis
 		phone: 'phone',
 		source: 'source',
 		attribution: 'attribution',
+		firstTouch: 'first_touch',
 		eventDate: 'event_date',
 		eventDateText: 'event_date_text',
 		location: 'location',
@@ -325,6 +361,16 @@ export async function updateDeal(id: string, fields: Partial<DealInput>): Promis
 		offerteVerstuurdOp: 'offerte_verstuurd_op',
 		geldigTot: 'geldig_tot',
 		geaccepteerdOp: 'geaccepteerd_op',
+		firstReplyOn: 'first_reply_on',
+		afgewezenOp: 'afgewezen_op',
+		factuurVerstuurdOp: 'factuur_verstuurd_op',
+		betaaldOp: 'betaald_op',
+		herinnering1Op: 'herinnering_1_op',
+		herinnering2Op: 'herinnering_2_op',
+		gebeldOp: 'gebeld_op',
+		kans: 'kans',
+		eventSheet: 'event_sheet',
+		lostReason: 'lost_reason',
 		acceptanceToken: 'acceptance_token',
 		acceptanceEnabled: 'acceptance_enabled',
 		acceptanceExpiresAt: 'acceptance_expires_at',
@@ -346,6 +392,7 @@ export async function updateDeal(id: string, fields: Partial<DealInput>): Promis
 		finalPaymentLink: 'final_payment_link',
 		finalPaymentStatus: 'final_payment_status',
 		quoteVersions: 'quote_versions',
+		invoices: 'invoices',
 		activeQuoteId: 'active_quote_id',
 		portalQuestionsEnabled: 'portal_questions_enabled',
 		portalNote: 'portal_note',
@@ -370,7 +417,9 @@ export async function updateDeal(id: string, fields: Partial<DealInput>): Promis
 			key === 'opsJson' ||
 			key === 'opsQuestions' ||
 			key === 'quoteVersions' ||
-			key === 'acceptanceSnapshot'
+			key === 'invoices' ||
+			key === 'acceptanceSnapshot' ||
+			key === 'eventSheet'
 				? JSON.stringify(value)
 				: key === 'opsAudit'
 					? JSON.stringify(normalizeOpsAudit(value))
@@ -456,4 +505,23 @@ export async function deleteDeal(id: string): Promise<boolean> {
 	if (!sql) return false;
 	const result = await sql`DELETE FROM deals WHERE id = ${id}`;
 	return result.count > 0;
+}
+
+/** Put a factuur in the portal, or replace the one with the same number. */
+export async function saveInvoice(id: string, invoice: InvoiceRecord): Promise<Deal | null> {
+	const deal = await getDeal(id);
+	if (!deal) return null;
+	return updateDeal(id, {
+		invoices: normalizeInvoices([
+			...deal.invoices.filter((i) => i.number !== invoice.number),
+			invoice
+		])
+	});
+}
+
+/** Take a factuur out of the portal. */
+export async function deleteInvoice(id: string, invoiceId: string): Promise<Deal | null> {
+	const deal = await getDeal(id);
+	if (!deal) return null;
+	return updateDeal(id, { invoices: deal.invoices.filter((i) => i.id !== invoiceId) });
 }

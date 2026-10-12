@@ -18,7 +18,10 @@
 	import { nl } from '$lib/i18n/nl';
 	import { BLOG_FAQS_NL, buildFaqJsonLd, type BlogFaq } from '$lib/blog/faqs';
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
-	import BlogCta from '$lib/blog/BlogCta.svelte';
+	import BlogContactForm from '$lib/blog/BlogContactForm.svelte';
+	import BlogTopCta from '$lib/blog/BlogTopCta.svelte';
+	import BlogStickyCta from '$lib/blog/BlogStickyCta.svelte';
+	import { trackInView } from '$lib/inView';
 
 	const headline = 'Tiramisu op je bruiloft: als hapje of taart, ter plekke opgebouwd';
 	const title = 'Tiramisu op je bruiloft: vers hapje of hele taart | Hangende Hapjes';
@@ -174,7 +177,7 @@
 	{@html productJsonLdHtml}
 </svelte:head>
 
-<div id="top" class="bg-background text-foreground">
+<div id="top" class="bg-background pb-16 text-foreground md:pb-0">
 	<Nav t={nl} />
 	<main>
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
@@ -212,6 +215,8 @@
 					we geen reiskosten.
 				</li>
 			</BlogSummary>
+
+			<BlogTopCta event="tiramisu" />
 
 			<section class="mt-12 flow-root space-y-4">
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
@@ -254,14 +259,18 @@
 						Tip van ons
 					</p>
 					<p class="mt-1 text-base leading-relaxed text-muted-foreground">
-						Een tiramisu Hangend Hapje past goed tijden je receptie of als walking dinner dessert. Maar onze favoriet:
-						ruil je midnight snack in voor tiramisu! Wij dansen graag tussen je gasten door en serveren een echte crowdpleaser.
+						Een tiramisu Hangend Hapje past goed tijden je receptie of als walking dinner dessert.
+						Maar onze favoriet: ruil je midnight snack in voor tiramisu! Wij dansen graag tussen je
+						gasten door en serveren een echte crowdpleaser.
 					</p>
 				</aside>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Als wij rondlopen kunnen we tot 50–60 porties per uur serveren, dit is voor de meeste aantallen onder 70-80 perfect. Hierboven raden we aan dat we met z'n tweeën komen zodat we de gasten snel genoeg kunnen bedienen.
-					Wij nemen alles zelf mee maar mocht er op de locatie een plek zijn voor onze koelbox en om ons om te kleden dan zou dat perfect zijn.
-					Bakjes, lepels en servetten nemen wij mee en ook het afval gaat met ons terug, zo zijn jullie en de locatie volledig ontzorgd.
+					Als wij rondlopen kunnen we tot 50–60 porties per uur serveren, dit is voor de meeste
+					aantallen onder 70-80 perfect. Hierboven raden we aan dat we met z'n tweeën komen zodat we
+					de gasten snel genoeg kunnen bedienen. Wij nemen alles zelf mee maar mocht er op de
+					locatie een plek zijn voor onze koelbox en om ons om te kleden dan zou dat perfect zijn.
+					Bakjes, lepels en servetten nemen wij mee en ook het afval gaat met ons terug, zo zijn
+					jullie en de locatie volledig ontzorgd.
 				</p>
 			</section>
 
@@ -270,12 +279,13 @@
 					Tiramisutaart als bruidstaart
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Liever een taart om samen aan te snijden, geen probleem. Onze tiramisutaart is een grote, ronde open
-					taart. Door onze speciale receptuur is die mooi stevig voor het bouwen zodat je niet hoeft te scheppen maar echt kan snijden
-					Het smaakt nogsteeds net zo luchtig en romig als je gewend bent.
-					We bouwen de taart op locatie, dit duurt zo een 30 minuten voor 50 personen. Als jullie het willen kunnen jullie gasten
-					dus meekijken, uit ervaring weten wij dat mensen dit erg leuk vinden.
-					Zo heb je wel het klassieke taart moment, maar dan toch net anders.
+					Liever een taart om samen aan te snijden, geen probleem. Onze tiramisutaart is een grote,
+					ronde open taart. Door onze speciale receptuur is die mooi stevig voor het bouwen zodat je
+					niet hoeft te scheppen maar echt kan snijden Het smaakt nogsteeds net zo luchtig en romig
+					als je gewend bent. We bouwen de taart op locatie, dit duurt zo een 30 minuten voor 50
+					personen. Als jullie het willen kunnen jullie gasten dus meekijken, uit ervaring weten wij
+					dat mensen dit erg leuk vinden. Zo heb je wel het klassieke taart moment, maar dan toch
+					net anders.
 				</p>
 
 				<div class="mt-6 grid gap-4 sm:grid-cols-2">
@@ -304,9 +314,10 @@
 				</div>
 
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Voor een stukje extra interactie kunnen jullie de laatste laag cacao zelf strooien, dit levert ook super mooie beelden op.
-				    Ook kunnen we een sjabloon zoals 'Just Married' in de
-					cacao plaatsen, beide is bij de prijs inbegrepen. Jullie namen of de trouwdatum kan ook, daar maken we dan een custom sjabloon voor.
+					Voor een stukje extra interactie kunnen jullie de laatste laag cacao zelf strooien, dit
+					levert ook super mooie beelden op. Ook kunnen we een sjabloon zoals 'Just Married' in de
+					cacao plaatsen, beide is bij de prijs inbegrepen. Jullie namen of de trouwdatum kan ook,
+					daar maken we dan een custom sjabloon voor.
 				</p>
 
 				<figure class="mt-6 overflow-hidden rounded-xl bg-muted">
@@ -327,8 +338,9 @@
 			</section>
 
 			<BlogOtherCakes ids={['italiaans', 'klassiek']} event="tiramisu">
-				Charlotte heeft veel patisserie-ervaring en maakt ook een prachtige Italiaanse millefoglie (die hadden
-				we zelf op onze bruiloft) en een klassieke hoge bruidstaart, in 8 verschillende smaken (incl tiramisu optie).
+				Charlotte heeft veel patisserie-ervaring en maakt ook een prachtige Italiaanse millefoglie
+				(die hadden we zelf op onze bruiloft) en een klassieke hoge bruidstaart, in 8 verschillende
+				smaken (incl tiramisu optie).
 			</BlogOtherCakes>
 
 			<section class="mt-12 space-y-4">
@@ -365,13 +377,13 @@
 				</ul>
 			</section>
 
-			<section class="mt-12 space-y-4">
+			<section class="mt-12 space-y-4" use:trackInView={{ event: 'blog_tiramisu_prices_view' }}>
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
 					Wat tiramisu op je bruiloft kost
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Dit zijn pakketprijzen, excl. btw. Bezorgen, opbouwen op locatie, servetten en
-					dieetwensen zijn altijd inbegrepen.
+					Dit zijn pakketprijzen, excl. btw. Bezorgen, opbouwen op locatie, servetten en dieetwensen
+					zijn altijd inbegrepen.
 				</p>
 
 				<div class="grid gap-4 sm:grid-cols-2">
@@ -409,9 +421,9 @@
 							</tbody>
 						</table>
 						<p class="mt-3 text-xs leading-relaxed text-muted-foreground">
-							Bij de hangende hapjes verzorgen we het niet alleen het uitserveren maar ook ontzorgen we jullie en de locatie volledig.
-						    Stevige, duurzame bakjes, lepels en servetten zijn inbegrepen, zo is het makkelijk eten ook voor kinderen en
-							oudere gasten.
+							Bij de hangende hapjes verzorgen we het niet alleen het uitserveren maar ook ontzorgen
+							we jullie en de locatie volledig. Stevige, duurzame bakjes, lepels en servetten zijn
+							inbegrepen, zo is het makkelijk eten ook voor kinderen en oudere gasten.
 						</p>
 					</div>
 
@@ -444,23 +456,26 @@
 							</tbody>
 						</table>
 						<p class="mt-3 text-xs leading-relaxed text-muted-foreground">
-							Bij de tiramisutaart is de complete opbouw, communicatie en andere elementen inbegrepen.
-							Ook een gedecoreerde tafel kunnen wij meenemen. Wel wordt er vanuit gegaan dat er voor het aansnijden Borden, bestek, extra servetten
-							en dergelijke van de locatie gebruikt kan worden. Mochten jullie dit graag anders zien laat dit dan vooral even weten en dan denken we graag mee.
+							Bij de tiramisutaart is de complete opbouw, communicatie en andere elementen
+							inbegrepen. Ook een gedecoreerde tafel kunnen wij meenemen. Wel wordt er vanuit gegaan
+							dat er voor het aansnijden Borden, bestek, extra servetten en dergelijke van de
+							locatie gebruikt kan worden. Mochten jullie dit graag anders zien laat dit dan vooral
+							even weten en dan denken we graag mee.
 						</p>
 					</div>
 				</div>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Reiskosten zijn inbegrepen tot ~30km rondom Hilversum (Het Gooi, Amersfoort, Amsterdam en Utrecht).
-					Hierbuiten brengen wij reiskosten in rekening voor de extra kilometers.
+					Reiskosten zijn inbegrepen tot ~30km rondom Hilversum (Het Gooi, Amersfoort, Amsterdam en
+					Utrecht). Hierbuiten brengen wij reiskosten in rekening voor de extra kilometers.
 				</p>
 			</section>
 
-			<BlogCta
+			<BlogContactForm
 				event="tiramisu"
 				heading="Tiramisu op jouw bruiloft? Stuur ons je datum."
-				body="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: Tiramisu als hangend hapje of als taart, wat past bij jullie?"
-				waText="Hoi! Ik heb een vraag over tiramisu van Hangende Hapjes 👋"
+				intro="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: Tiramisu als hangend hapje of als taart, wat past bij jullie?"
+				preselect="tiramisu-taart"
+				cards={['tiramisu-taart', 'tiramisu-live']}
 			/>
 
 			<BlogFaqSection
@@ -469,5 +484,9 @@
 			/>
 		</article>
 	</main>
+	<BlogStickyCta
+		event="tiramisu"
+		waText="Hoi! Ik heb een vraag over tiramisu van Hangende Hapjes 👋"
+	/>
 	<Footer t={nl} />
 </div>

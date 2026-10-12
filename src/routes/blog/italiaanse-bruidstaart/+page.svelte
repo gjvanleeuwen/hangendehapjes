@@ -15,7 +15,10 @@
 	import { nl } from '$lib/i18n/nl';
 	import { BLOG_FAQS_NL, buildFaqJsonLd, type BlogFaq } from '$lib/blog/faqs';
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
-	import BlogCta from '$lib/blog/BlogCta.svelte';
+	import BlogContactForm from '$lib/blog/BlogContactForm.svelte';
+	import BlogTopCta from '$lib/blog/BlogTopCta.svelte';
+	import BlogStickyCta from '$lib/blog/BlogStickyCta.svelte';
+	import { trackInView } from '$lib/inView';
 
 	const headline = 'Italiaanse bruidstaart: een millefoglie, vers afgemaakt op locatie';
 	// Title leads with "millefoglie": GSC (90d tot 2026-08-06) laat zien dat dat het
@@ -176,7 +179,7 @@
 	{@html productJsonLdHtml}
 </svelte:head>
 
-<div id="top" class="bg-background text-foreground">
+<div id="top" class="bg-background pb-16 text-foreground md:pb-0">
 	<Nav t={nl} />
 	<main>
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
@@ -209,6 +212,8 @@
 					Amsterdam en Utrecht rekenen we geen reiskosten.
 				</li>
 			</BlogSummary>
+
+			<BlogTopCta event="bruidstaart" />
 
 			<figure class="mt-10 overflow-hidden rounded-xl bg-muted">
 				<div class="aspect-[19/10]">
@@ -329,7 +334,7 @@
 				bruidstaarten in 8 smaken.
 			</BlogOtherCakes>
 
-			<section class="mt-12 space-y-4">
+			<section class="mt-12 space-y-4" use:trackInView={{ event: 'blog_bruidstaart_prices_view' }}>
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
 					Wat een Italiaanse bruidstaart kost
 				</h2>
@@ -368,18 +373,19 @@
 							kunnen wij dit in overleg ook meenemen en regelen voor jullie.
 						</p>
 						<p class="mt-2 text-xs leading-relaxed text-muted-foreground">
-							Reiskosten zijn inbegrepen tot ~30km rondom Hilversum (Het Gooi, Amersfoort, Amsterdam en
-							Utrecht). Hierbuiten brengen wij reiskosten in rekening voor de extra kilometers.
+							Reiskosten zijn inbegrepen tot ~30km rondom Hilversum (Het Gooi, Amersfoort, Amsterdam
+							en Utrecht). Hierbuiten brengen wij reiskosten in rekening voor de extra kilometers.
 						</p>
 					</div>
 				</div>
 			</section>
 
-			<BlogCta
+			<BlogContactForm
 				event="bruidstaart"
 				heading="Een Italiaanse bruidstaart op jullie dag? Stuur ons je datum."
-				body="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: een millefoglie, een klassieke bruidstaart, of de taart samen met live hapjes."
-				waText="Hoi! Ik heb een vraag over een Italiaanse bruidstaart van Hangende Hapjes 👋"
+				intro="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: een millefoglie, een klassieke bruidstaart, of de taart samen met live hapjes."
+				preselect="millefeuille"
+				cards={['millefeuille', 'bruidstaart', 'tiramisu-taart']}
 			/>
 
 			<BlogFaqSection
@@ -388,5 +394,9 @@
 			/>
 		</article>
 	</main>
+	<BlogStickyCta
+		event="bruidstaart"
+		waText="Hoi! Ik heb een vraag over een Italiaanse bruidstaart van Hangende Hapjes 👋"
+	/>
 	<Footer t={nl} />
 </div>

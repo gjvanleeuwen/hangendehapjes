@@ -206,6 +206,41 @@
 				</div>
 			</div>
 
+			{#if d.invoices.length > 0}
+				<div class="border-t pt-4">
+					<h3 class="text-sm font-medium">Facturen</h3>
+					<div class="mt-3 space-y-3 text-sm">
+						{#each d.invoices as inv (inv.id)}
+							<div class="flex items-start justify-between gap-3">
+								<div>
+									<a
+										class="font-medium underline"
+										href="/klantportaal/{data.token}/factuur/{inv.id}"
+										target="_blank"
+										rel="noreferrer"
+									>
+										{inv.invoiceType === 'aanbetaling'
+											? 'Aanbetalingsfactuur'
+											: inv.invoiceType === 'eind'
+												? 'Eindfactuur'
+												: 'Factuur'}
+										{inv.number}
+									</a>
+									<div class="text-muted-foreground">{formatEUR(inv.amountDue)}</div>
+								</div>
+								<span
+									class="shrink-0 border px-2 py-0.5 text-xs {inv.paid
+										? 'border-primary/30 bg-primary/10'
+										: 'border-amber-300 bg-amber-50'}"
+								>
+									{inv.paid ? 'Betaald' : 'Open'}
+								</span>
+							</div>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
 			{#if otherQuotes.length > 0}
 				<div class="border-t pt-4">
 					<div class="text-sm font-medium">Andere opties</div>

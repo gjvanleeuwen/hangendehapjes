@@ -16,7 +16,10 @@
 	import { nl } from '$lib/i18n/nl';
 	import { BLOG_FAQS_NL, buildFaqJsonLd, type BlogFaq } from '$lib/blog/faqs';
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
-	import BlogCta from '$lib/blog/BlogCta.svelte';
+	import BlogContactForm from '$lib/blog/BlogContactForm.svelte';
+	import BlogTopCta from '$lib/blog/BlogTopCta.svelte';
+	import BlogStickyCta from '$lib/blog/BlogStickyCta.svelte';
+	import { trackInView } from '$lib/inView';
 
 	const headline = 'Burrata bar voor jouw feest: live, per gast opgebouwd';
 	const title = 'Burrata bar huren voor feest, borrel of bruiloft | Hangende Hapjes';
@@ -166,7 +169,7 @@
 	{@html productJsonLdHtml}
 </svelte:head>
 
-<div id="top" class="bg-background text-foreground">
+<div id="top" class="bg-background pb-16 text-foreground md:pb-0">
 	<Nav t={nl} />
 	<main>
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
@@ -195,6 +198,8 @@
 					<strong>Inbegrepen:</strong> bakjes, servetten en opruimen. Reiskosten tot ~30km rondom Hilversum.
 				</li>
 			</BlogSummary>
+
+			<BlogTopCta event="burrata" />
 
 			<figure class="mt-10 overflow-hidden rounded-xl bg-muted">
 				<div class="aspect-3/2">
@@ -345,7 +350,7 @@
 				</p>
 			</section>
 
-			<section class="mt-12 space-y-4">
+			<section class="mt-12 space-y-4" use:trackInView={{ event: 'blog_burrata_prices_view' }}>
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Wat een burrata bar kost</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Dit zijn pakketprijzen, excl. btw, waarbij 1 portie 1 gast is. Bezorgen, opbouwen op
@@ -385,9 +390,9 @@
 						</tbody>
 					</table>
 					<p class="mt-3 text-xs leading-relaxed text-muted-foreground">
-						Bij de hangende hapjes verzorgen we niet alleen het uitserveren, maar ontzorgen we jullie
-						en de locatie volledig. Stevige, duurzame bakjes, bestek en servetten zijn inbegrepen, zo
-						is het makkelijk eten, ook voor kinderen en oudere gasten.
+						Bij de hangende hapjes verzorgen we niet alleen het uitserveren, maar ontzorgen we
+						jullie en de locatie volledig. Stevige, duurzame bakjes, bestek en servetten zijn
+						inbegrepen, zo is het makkelijk eten, ook voor kinderen en oudere gasten.
 					</p>
 					<p class="mt-2 text-xs leading-relaxed text-muted-foreground">
 						Reiskosten zijn inbegrepen tot ~30km rondom Hilversum (Het Gooi, Amersfoort, Amsterdam
@@ -400,11 +405,12 @@
 				</div>
 			</section>
 
-			<BlogCta
+			<BlogContactForm
 				event="burrata"
 				heading="Burrata op jouw feest? Stuur ons je datum."
-				body="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: alleen burrata, alleen tiramisu, of beide."
-				waText="Hoi! Ik heb een vraag over een burrata bar 👋"
+				intro="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: alleen burrata, alleen tiramisu, of beide."
+				preselect="burrata-live"
+				cards={['burrata-live', 'tiramisu-live']}
 			/>
 
 			<BlogFaqSection
@@ -413,5 +419,6 @@
 			/>
 		</article>
 	</main>
+	<BlogStickyCta event="burrata" waText="Hoi! Ik heb een vraag over een burrata bar 👋" />
 	<Footer t={nl} />
 </div>

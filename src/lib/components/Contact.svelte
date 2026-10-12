@@ -6,14 +6,37 @@
 	import { Label } from '$lib/components/ui/label/index.js';
 	import { WHATSAPP_URL } from '$lib/site-config';
 	import { trackInView } from '$lib/inView';
+	import { attributionJson, getAttribution, sourceBucket } from '$lib/attribution';
 	import { cn } from '$lib/utils.js';
 	import { toast } from 'svelte-sonner';
 	import SectionHeading from './SectionHeading.svelte';
 	import Picture from './Picture.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 
-	type Props = { t: Translations; locale: Locale };
-	let { t, locale }: Props = $props();
+	type Props = {
+		t: Translations;
+		locale: Locale;
+		/** 'full' = homepage section with heading; 'inline' = compact card inside a blog post. */
+		variant?: 'full' | 'inline';
+		/** Where this form lives; sent with every form event so funnels can be split per page. */
+		surface?: string;
+		heading?: string;
+		intro?: string;
+		/** Choice card to start with, e.g. 'tiramisu-taart' on the tiramisu blog. */
+		preselect?: string;
+		/** Limit the choice cards to these keys (order kept). Default: all six. */
+		cards?: string[];
+	};
+	let {
+		t,
+		locale,
+		variant = 'full',
+		surface = 'home',
+		heading,
+		intro,
+		preselect = '',
+		cards
+	}: Props = $props();
 
 	let name = $state('');
 	let email = $state('');
@@ -21,7 +44,9 @@
 	let eventDate = $state('');
 	let location = $state('');
 	let guests = $state('');
-	let choiceKey = $state('');
+	// Initial value only: the page decides what to start with, the visitor can switch.
+	// svelte-ignore state_referenced_locally
+	let choiceKey = $state(preselect);
 	let customChoice = $state(''); // free text when "anders" is picked
 	let dagdeel = $state<'' | 'taartmoment' | 'receptie' | 'feest' | 'dessert' | 'voorgerecht'>('');
 	let servingTime = $state('');
@@ -30,6 +55,8 @@
 	let subject = $state(''); // honeypot — must stay empty
 	let submitting = $state(false);
 	let started = $state(false);
+	let lastField = ''; // last input the visitor focused, for contact_abandon
+	let abandonFired = false;
 
 	// Two-step flow: 1) jij & je keuze (wie + wat), 2) over je feest (de details).
 	// Two steps keep each screen balanced — splitting it further just adds clicks.
@@ -53,7 +80,7 @@
 			if (step === 1) saveLead();
 			step += 1;
 			// Funnel: how many people make it past step 1 vs. drop off there.
-			window.umami?.track('contact_step', { step, locale });
+			window.umami?.track('contact_step', { step, locale, surface });
 		}
 	}
 
@@ -71,7 +98,8 @@
 				serviceType,
 				choice: choiceValue,
 				locale,
-				subject
+				subject,
+				attribution: attributionJson()
 			})
 		}).catch(() => {});
 	}
@@ -90,7 +118,7 @@
 
 	// Six picture cards: the five products from the homepage plus "anders".
 	// The service type follows from the card, so there's no separate step for it.
-	const choiceCards = $derived.by((): ChoiceCard[] => {
+	const allCards = $derived.by((): ChoiceCard[] => {
 		const product = (id: string) => t.products.items.find((p) => p.id === id);
 		const cake = (id: string) => t.products.cakes?.items.find((c) => c.id === id);
 		const hapjes = t.products.hapjesHeading;
@@ -144,6 +172,10 @@
 			}
 		];
 	});
+	// Blog pages offer only the cards that fit the post, in the order given.
+	const choiceCards = $derived(
+		cards ? cards.flatMap((key) => allCards.filter((c) => c.key === key)) : allCards
+	);
 
 	const selectedChoice = $derived(choiceCards.find((c) => c.key === choiceKey) ?? null);
 	const serviceType = $derived(selectedChoice?.serviceType ?? '');
@@ -178,17 +210,50 @@
 		window.umami?.track('contact_service_type', {
 			serviceType: card.serviceType,
 			choice: card.key,
-			locale
+			locale,
+			surface
 		});
 	}
 
 	// Fires once when a visitor first interacts with any field — lets us measure
 	// form abandonment (contact_start vs contact_submit) instead of only seeing
 	// the people who made it all the way through.
+	function onFieldFocus(event: FocusEvent) {
+		const name = (event.target as HTMLElement | null)?.getAttribute?.('name');
+		if (name && name !== 'subject') lastField = name;
+		abandonFired = false;
+		markStarted();
+	}
+
+	// Started but left (tab closed, switched away, navigated on): once per attempt,
+	// with the last field they touched, so we can see where the form loses people.
+	function onVisibilityChange() {
+		if (document.visibilityState !== 'hidden' || !started || abandonFired) return;
+		abandonFired = true;
+		window.umami?.track('contact_abandon', {
+			step,
+			lastField: lastField || 'none',
+			locale,
+			surface,
+			...touchData()
+		});
+	}
+
 	function markStarted() {
 		if (started) return;
 		started = true;
-		window.umami?.track('contact_start', { locale });
+		window.umami?.track('contact_start', { locale, surface, ...touchData() });
+	}
+
+	// Where this visitor originally came from, as Umami event data, so the form
+	// funnel can be split per channel / campaign (Instagram ads vs Google etc.).
+	function touchData() {
+		const first = getAttribution()?.first;
+		return {
+			source: first ? sourceBucket(first) : 'unknown',
+			campaign: first?.cmp || 'none',
+			landing: first?.land || 'unknown'
+		};
 	}
 
 	async function handleSubmit(event: SubmitEvent) {
@@ -214,7 +279,8 @@
 					referral,
 					message,
 					subject,
-					locale
+					locale,
+					attribution: attributionJson()
 				})
 			});
 
@@ -224,7 +290,7 @@
 					res.status === 429 || data?.error === 'rate_limited'
 						? 'rate_limited'
 						: data?.error || `http_${res.status}`;
-				window.umami?.track('contact_error', { reason, locale });
+				window.umami?.track('contact_error', { reason, locale, surface });
 				if (res.status === 429 || data?.error === 'rate_limited') {
 					toast.error(t.contact.errorRateTitle, { description: t.contact.errorRateBody });
 				} else {
@@ -235,9 +301,11 @@
 
 			window.umami?.track('contact_submit', {
 				locale,
+				surface,
 				serviceType: serviceType || 'none',
 				choice: choiceKey || 'none',
-				referral: referral ? 'provided' : 'empty'
+				referral: referral ? 'provided' : 'empty',
+				...touchData()
 			});
 			toast.success(t.contact.successTitle, { description: t.contact.successBody });
 			name = '';
@@ -246,7 +314,7 @@
 			eventDate = '';
 			location = '';
 			guests = '';
-			choiceKey = '';
+			choiceKey = preselect;
 			customChoice = '';
 			dagdeel = '';
 			servingTime = '';
@@ -256,7 +324,7 @@
 			started = false;
 			step = 1;
 		} catch {
-			window.umami?.track('contact_error', { reason: 'network', locale });
+			window.umami?.track('contact_error', { reason: 'network', locale, surface });
 			toast.error(t.contact.errorTitle, { description: t.contact.errorBody });
 		} finally {
 			submitting = false;
@@ -264,16 +332,31 @@
 	}
 </script>
 
+<svelte:document onvisibilitychange={onVisibilityChange} />
+
 <section
-	id="contact"
-	class="bg-background"
-	use:trackInView={{ event: 'contact_view', data: { locale } }}
+	id={variant === 'inline' ? 'aanvraag' : 'contact'}
+	class={variant === 'inline'
+		? 'mt-12 scroll-mt-24 rounded-xl border border-border bg-background px-5 py-6 md:px-8 md:py-8'
+		: 'bg-background'}
+	use:trackInView={{ event: 'contact_view', data: { locale, surface } }}
 >
-	<div class="mx-auto max-w-6xl px-6 py-20 md:py-28">
-		<div class="mx-auto mb-10 max-w-2xl text-center">
-			<SectionHeading align="center">{t.contact.heading}</SectionHeading>
-			<p class="mt-3 text-muted-foreground">{t.contact.intro}</p>
-		</div>
+	<div class={variant === 'inline' ? '' : 'mx-auto max-w-6xl px-6 py-20 md:py-28'}>
+		{#if variant === 'inline'}
+			<div class="mb-6">
+				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
+					{heading ?? t.contact.heading}
+				</h2>
+				<p class="mt-2 text-base leading-relaxed text-muted-foreground md:text-lg">
+					{intro ?? t.contact.intro}
+				</p>
+			</div>
+		{:else}
+			<div class="mx-auto mb-10 max-w-2xl text-center">
+				<SectionHeading align="center">{heading ?? t.contact.heading}</SectionHeading>
+				<p class="mt-3 text-muted-foreground">{intro ?? t.contact.intro}</p>
+			</div>
+		{/if}
 
 		{#snippet whatsappButton()}
 			<Button
@@ -311,11 +394,16 @@
 			</div>
 		{/snippet}
 
-		<form class="mx-auto max-w-3xl space-y-6" onsubmit={handleSubmit} onfocusin={markStarted}>
+		<form class="mx-auto max-w-3xl space-y-6" onsubmit={handleSubmit} onfocusin={onFieldFocus}>
 			{#if step === 1}
 				<fieldset class="space-y-3">
 					<legend class="mb-2 text-sm font-medium">{t.contact.labels.serviceType}</legend>
-					<div class="grid grid-cols-2 gap-2 md:grid-cols-6">
+					<div
+						class={cn(
+							'grid grid-cols-2 gap-2',
+							cards ? 'md:grid-cols-[repeat(auto-fill,minmax(150px,1fr))]' : 'md:grid-cols-6'
+						)}
+					>
 						{#each choiceCards as card (card.key)}
 							<label
 								class={cn(

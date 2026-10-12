@@ -17,7 +17,10 @@
 	import { nl } from '$lib/i18n/nl';
 	import { BLOG_FAQS_NL, buildFaqJsonLd, type BlogFaq } from '$lib/blog/faqs';
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
-	import BlogCta from '$lib/blog/BlogCta.svelte';
+	import BlogContactForm from '$lib/blog/BlogContactForm.svelte';
+	import BlogTopCta from '$lib/blog/BlogTopCta.svelte';
+	import BlogStickyCta from '$lib/blog/BlogStickyCta.svelte';
+	import { trackInView } from '$lib/inView';
 
 	const headline = 'Bruidstaart op maat: Perfect voor jullie dag';
 	const title = 'Bruidstaart op maat: inclusief proeven';
@@ -165,7 +168,7 @@
 	{@html productJsonLdHtml}
 </svelte:head>
 
-<div id="top" class="bg-background text-foreground">
+<div id="top" class="bg-background pb-16 text-foreground md:pb-0">
 	<Nav t={nl} />
 	<main>
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
@@ -177,16 +180,17 @@
 					{headline}
 				</h1>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Een klassieke hoge bruidstaart, maar dan precies zoals jullie in gedachten hebben. Charlotte bakt hem op maat:
-					elke laag in de smaak die jullie kiezen, botercrème in jullie kleur en een afwerking die
-					past bij de bloemen, de jurk of de styling. We laten niks te wensen over.
+					Een klassieke hoge bruidstaart, maar dan precies zoals jullie in gedachten hebben.
+					Charlotte bakt hem op maat: elke laag in de smaak die jullie kiezen, botercrème in jullie
+					kleur en een afwerking die past bij de bloemen, de jurk of de styling. We laten niks te
+					wensen over.
 				</p>
 			</header>
 
 			<BlogSummary reviews={nl.reviews.items} quotes={2}>
 				<li>
-					<strong>Op maat:</strong> in een online videogesprek bespreken we jullie wensen, daarna
-					bakt Charlotte de taart in jullie kleur en stijl.
+					<strong>Op maat:</strong> in een online videogesprek bespreken we jullie wensen, daarna bakt
+					Charlotte de taart in jullie kleur en stijl.
 				</li>
 				<li>
 					<strong>6 smaken:</strong> per laag te kiezen. Proeven zit erbij als je bestelt, anders €35.
@@ -195,9 +199,12 @@
 					<strong>Formaat:</strong> vanaf 25 personen in twee etages, vanaf 50 personen ook in drie.
 				</li>
 				<li>
-					<strong>Prijs:</strong> richtprijs €11,50 per persoon, excl. btw. Bezorgen is inbegrepen tot 30km vanaf hilversum, daarbuiten rekenen we extra reiskosten per km.
+					<strong>Prijs:</strong> richtprijs €11,50 per persoon, excl. btw. Bezorgen is inbegrepen tot
+					30km vanaf hilversum, daarbuiten rekenen we extra reiskosten per km.
 				</li>
 			</BlogSummary>
+
+			<BlogTopCta event="bruidstaart_klassiek" />
 
 			<figure class="mt-10 overflow-hidden rounded-xl bg-muted">
 				<div class="aspect-3/2">
@@ -219,9 +226,10 @@
 					Zo verloopt het proces van een custom bruidstaart
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Zodra we jullie aanvraag binnenkrijgen plannen we snel een online (video)gesprek in.
-					We bespreken jullie ideeen voor de dag en de taart, het thema, de andere styling en komen tot een wensenlijst voor de bruidstaart.
-					Met wat extra inspiratiefoto's of een moodboard maakt Charlotte dan een plan en offerte.
+					Zodra we jullie aanvraag binnenkrijgen plannen we snel een online (video)gesprek in. We
+					bespreken jullie ideeen voor de dag en de taart, het thema, de andere styling en komen tot
+					een wensenlijst voor de bruidstaart. Met wat extra inspiratiefoto's of een moodboard maakt
+					Charlotte dan een plan en offerte.
 				</p>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Dit kan je allemaal kiezen en bepalen:
@@ -230,20 +238,21 @@
 					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
 				>
 					<li>
-						<strong>De smaak van elke laag:</strong> Afhankelijk van de grootte kan je zo soms wel 4 smaken aan je gasten serveren.
-						Van klassiek met rood fruit of chocolade tot gezouten karamel en thee.
+						<strong>De smaak van elke laag:</strong> Afhankelijk van de grootte kan je zo soms wel 4 smaken
+						aan je gasten serveren. Van klassiek met rood fruit of chocolade tot gezouten karamel en thee.
 					</li>
 					<li>
 						<strong>De afwerking:</strong> botercrème in elke kleur die je wilt, strak afgesmeerd of juist
 						rustiek, opgespoten of semi-naked. Jij bepaalt de look.
 					</li>
 					<li>
-						<strong>De details:</strong> verse bloemen, vers fruit, parels, een pipingtechniek
-						of een topper met speciale betekenis. Het wordt helemaal zoals je bedacht hebt.
+						<strong>De details:</strong> verse bloemen, vers fruit, parels, een pipingtechniek of een
+						topper met speciale betekenis. Het wordt helemaal zoals je bedacht hebt.
 					</li>
 					<li>
 						<strong>Het formaat:</strong> vanaf 25 personen maken we twee etages, vanaf 50 personen kan
-						het ook in drie. Hoeveel porties erin zitten, hangt af van hoe breed de etages zijn en wij zullen je helpen met het bepalen van de juiste grootte.
+						het ook in drie. Hoeveel porties erin zitten, hangt af van hoe breed de etages zijn en wij
+						zullen je helpen met het bepalen van de juiste grootte.
 					</li>
 				</ul>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
@@ -293,9 +302,11 @@
 				<ul
 					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
 				>
-    				<li>
-    					<strong>Smaken tijdelijk niet vermeld:</strong> Wij zijn druk bezig met receptontwikkeling van onze nieuwe smaken. Hierdoor hebben wij tijdelijk geen smaken op de website staan. Stuur ons een berichtje om een proefdoosje op te halen met de nieuwe combinaties.
-    				</li>
+					<li>
+						<strong>Smaken tijdelijk niet vermeld:</strong> Wij zijn druk bezig met receptontwikkeling
+						van onze nieuwe smaken. Hierdoor hebben wij tijdelijk geen smaken op de website staan. Stuur
+						ons een berichtje om een proefdoosje op te halen met de nieuwe combinaties.
+					</li>
 					<!-- <li>
 						<strong>Passie witte choco:</strong> vanille witte chocoladecake met een passievruchten-curd
 						en witte chocolade ganache.
@@ -336,16 +347,19 @@
 			</section>
 
 			<BlogOtherCakes ids={['tiramisutaart', 'italiaans']} event="bruidstaart_klassiek">
-				Liever iets anders? Wij maken ook een tiramisutaart en een Italiaanse millefoglie. Echte showstoppers die
-				we ter plekke opbouwen.
+				Liever iets anders? Wij maken ook een tiramisutaart en een Italiaanse millefoglie. Echte
+				showstoppers die we ter plekke opbouwen.
 			</BlogOtherCakes>
 
-			<section class="mt-12 space-y-4">
+			<section
+				class="mt-12 space-y-4"
+				use:trackInView={{ event: 'blog_bruidstaart_klassiek_prices_view' }}
+			>
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Wat een bruidstaart kost</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Een klassieke bruidstaart maken we helemaal op maat, dus de prijs hangt af van het aantal
-					etages, de afwerking, de bloemen en andere extra's die jullie kiezen. Als richtprijs kun je uitgaan van zo'n
-					€11,50 per persoon (excl. btw). Je krijgt altijd een offerte op maat,
+					etages, de afwerking, de bloemen en andere extra's die jullie kiezen. Als richtprijs kun
+					je uitgaan van zo'n €11,50 per persoon (excl. btw). Je krijgt altijd een offerte op maat,
 					op basis van jullie moodboard en ons gesprek. Dit kan ook lager uitvallen.
 				</p>
 				<div class="rounded-xl border border-border px-5 py-4">
@@ -358,17 +372,18 @@
 						Bezorgen is inbegrepen. Het serveren wordt gedaan door de locatie.
 					</p>
 					<p class="mt-2 text-xs leading-relaxed text-muted-foreground">
-						Reiskosten zijn inbegrepen tot ~30km rondom Hilversum (Het Gooi, Amersfoort, Amsterdam en
-						Utrecht). Hierbuiten brengen wij reiskosten in rekening voor de extra kilometers.
+						Reiskosten zijn inbegrepen tot ~30km rondom Hilversum (Het Gooi, Amersfoort, Amsterdam
+						en Utrecht). Hierbuiten brengen wij reiskosten in rekening voor de extra kilometers.
 					</p>
 				</div>
 			</section>
 
-			<BlogCta
+			<BlogContactForm
 				event="bruidstaart_klassiek"
 				heading="Een klassieke bruidstaart op jullie dag? Stuur ons je datum."
-				body="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: een klassieke bruidstaart, een Italiaanse millefoglie, of de taart samen met live hapjes."
-				waText="Hoi! Ik heb een vraag over een klassieke bruidstaart van Hangende Hapjes 👋"
+				intro="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: een klassieke bruidstaart, een Italiaanse millefoglie, of de taart samen met live hapjes."
+				preselect="bruidstaart"
+				cards={['bruidstaart', 'millefeuille', 'tiramisu-taart']}
 			/>
 
 			<BlogFaqSection
@@ -377,5 +392,9 @@
 			/>
 		</article>
 	</main>
+	<BlogStickyCta
+		event="bruidstaart_klassiek"
+		waText="Hoi! Ik heb een vraag over een klassieke bruidstaart van Hangende Hapjes 👋"
+	/>
 	<Footer t={nl} />
 </div>

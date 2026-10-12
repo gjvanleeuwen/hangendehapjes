@@ -44,7 +44,8 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 			phone: lead.phone,
 			serviceType: lead.serviceType,
 			choice: lead.choice,
-			locale: lead.locale
+			locale: lead.locale,
+			firstTouch: lead.attribution
 		});
 	} catch (err) {
 		console.error('[contact/lead] could not save lead', err);

@@ -4,6 +4,8 @@ import {
 	OPS_AUDIT_LIMIT,
 	TERMS_VERSION,
 	clientVisibleQuotes,
+	invoicePaymentStatus,
+	portalExpiryAfterEvent,
 	termsSummaryFor,
 	toPublicQuote,
 	type OpsAuditEntry
@@ -41,6 +43,18 @@ const publicDeal = (deal: Awaited<ReturnType<typeof getDealByAcceptanceToken>>) 
 		finalPaymentLink: deal.finalPaymentLink,
 		finalPaymentStatus: deal.finalPaymentStatus,
 		quoteVersions: clientVisibleQuotes(deal).map(toPublicQuote),
+		// Facturen we put in the portal: just enough for the list. The full
+		// document is on its own page.
+		invoices: deal.invoices
+			.map((inv) => ({
+				id: inv.id,
+				number: inv.number,
+				date: inv.doc.date,
+				invoiceType: inv.doc.invoiceType,
+				amountDue: inv.amountDue,
+				paid: invoicePaymentStatus(inv, deal) === 'paid'
+			}))
+			.sort((a, b) => a.date.localeCompare(b.date)),
 		activeQuoteId: deal.activeQuoteId,
 		portalQuestionsEnabled: deal.portalQuestionsEnabled,
 		// `notes` is internal and deliberately absent here; `portalNote` is the
@@ -165,6 +179,10 @@ export const actions: Actions = {
 			acceptedUserAgent: signerUserAgent,
 			acceptanceSnapshot
 		};
+		// Signed: keep this portal open until three weeks after the event, for
+		// the practical questions, the facturen and the payments.
+		const until = portalExpiryAfterEvent(deal.eventDate, deal.acceptanceExpiresAt);
+		if (until) fields.acceptanceExpiresAt = until;
 
 		await updateDeal(deal.id, fields);
 

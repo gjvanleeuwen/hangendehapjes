@@ -13,34 +13,23 @@
 // in één matrix (config.hourCurves): elke rij op dezelfde ankers 25/50/100/200/400
 // porties. Alleen setupHours (vast p.p.) en portionsPerHour (looptempo) staan los.
 //
-// Prijs = som over fasen van (uren x tarief van die fase)
+// Prijs = som over fasen van (uren x tarief van die fase), zonder reizen
 //       + materiaal (kostprijs x markup)
-//       + basisbedrag (eventBaseFee, dekt de vrije reisstraal)
-//       + reis (retour-km boven de vrije straal x costPerKm)
-//       + extra persoon (hun setup + hun reistijd boven de vrije straal)
+//       + inbegrepen reis (basisbedrag voor de vrije straal, in de productprijs)
+//       + extra persoon (hun setup en wachttijd)
+//       + reiskosten: retour-km BOVEN de vrije straal x km-prijs, als losse regel
 //
-// calculateInternals geeft per fase uren, tarief en bedrag terug, plus twee
-// controles: labourGap (opbrengst min wat de fase-tarieven vragen, hoort 0 te
-// zijn tenzij er korting op zit) en travelGap (reismarge min reisuren x tarief).
+// Reis (sinds okt 2026). Binnen 30 km van Hilversum (60 retour-km) is reizen
+// inbegrepen: een vast basisbedrag (vrije km x standaard km-prijs) zit in elke
+// productprijs, want die rit maken we op elke klus. Daarboven staat een losse
+// regel "Reiskosten" op de offerte tegen een km-prijs die we per klant kiezen
+// tussen kmPriceMin en kmPriceMax (EUR 0,45 tot 0,85). Het reistarief per uur
+// stuurt de prijs niet; we rekenen wel terug wat basisbedrag + reiskosten na
+// autokosten per rij-uur opleveren. Autokosten tellen voor ELKE km, ook de vrije.
 //
-// Reis. Voorheen zat er een vaste 1,5 u rijtijd in het basistarief, ongeacht
-// afstand. Dat betekende dat een klus om de hoek 1,5 u rijtijd betaalde die er
-// niet was, en een klus op 150 km 4,3 u rijtijd maakte waarvan er 1,5 u betaald
-// werd. Het gerealiseerde tarief zakte daardoor van ~EUR 107/u (0 km) naar
-// ~EUR 62/u (200 km).
-//
-// Nu betaalt afstand zichzelf, met een vrije straal eromheen zodat we naar buiten
-// toe een all-in prijs kunnen blijven noemen:
-//
-//   * eventBaseFee is een vast bedrag per klus dat de vrije straal financiert.
-//     Het staat niet als losse regel op de offerte maar zit in de productregels.
-//   * freeRoundTripKm zijn de retour-km die daarmee betaald zijn. Daarbinnen is
-//     de reis "inbegrepen" en zien we alleen het all-in bedrag.
-//   * Daarboven telt costPerKm per retour-km, voor ons en voor een extra persoon.
-//
-// Op 60 vrije retour-km (30 km enkele reis) dekt EUR 45 de rit tot ~20 km; op de
-// rand van de straal leggen we ~EUR 24 toe. Dat is bewust: Amsterdam, Utrecht en
-// het hele Gooi vallen erbinnen en houden daarmee een all-in prijs.
+// calculateInternals geeft per fase uren, tarief en bedrag terug, plus de
+// controle labourGap (opbrengst min wat de fase-tarieven vragen; hoort 0 te zijn
+// tenzij er korting op zit) en travelRateRealised (wat rijden per uur oplevert).
 // ---------------------------------------------------------------------------
 
 export type Product = 'tiramisu' | 'burrata';
@@ -164,7 +153,7 @@ export const STAGE_SOURCE: Record<Stage, string> = {
 	service: 'porties ÷ porties-per-uur, of de opbouwrij bij taart',
 	standby: 'per offerte instelbaar, per persoon',
 	cleanup: 'urenmatrix, vlak; hapjes en taart apart',
-	travel: 'retour-km ÷ gemiddelde snelheid'
+	travel: 'retour-km ÷ gemiddelde snelheid; betaald via de km-prijs'
 };
 
 export interface PricingConfig {
@@ -185,25 +174,19 @@ export interface PricingConfig {
 	defaultStandbyHours: number;
 
 	// --- Reis --------------------------------------------------------------
-	// Eén tarief per retour-kilometer dat zowel de rijtijd als de auto dekt.
-	// costPerKm hoort ongeveer gelijk te zijn aan
-	//   vehicleCostPerKm + hourlyRates.travel / travelSpeedKmh
-	// (zie derivedCostPerKm). Het is een losse dial zodat het bedrag dat we
-	// communiceren een rond getal kan zijn.
-	travelSpeedKmh: number; // gemiddelde snelheid, voor de afleiding en de uren
-	vehicleCostPerKm: number; // brandstof en slijtage
-	costPerKm: number; // wat de klant per retour-km betaalt boven de vrije straal
-	// Laat costPerKm en het basisbedrag zichzelf afleiden uit de reisaannames, zodat
-	// de reis per definitie zijn eigen uren dekt en het blended tarief niet stiekem
-	// wegzakt zodra je aan het reistarief draait. Zet uit als je een rond bedrag
-	// wilt communiceren en het verschil bewust voor lief neemt.
-	autoCostPerKm: boolean;
-	autoEventBaseFee: boolean;
-	freeRoundTripKm: number; // vrije retour-km voordat we gaan rekenen
-	// Vast bedrag per klus dat de vrije straal betaalt. Zit in de productregels
-	// en komt dus nooit als losse regel op de offerte. Dichtbij houden we er iets
-	// van over, op de rand van de straal leggen we toe.
-	eventBaseFee: number;
+	// De klant betaalt een vaste prijs per retour-km als losse offerteregel. Die
+	// kies je per offerte tussen kmPriceMin en kmPriceMax; kmPriceDefault is de
+	// startwaarde. hourlyRates.travel telt NIET mee in de prijs, alleen als
+	// ijkpunt voor wat het rijden per uur zou moeten opleveren.
+	travelSpeedKmh: number; // gemiddelde snelheid, voor de rij-uren
+	vehicleCostPerKm: number; // brandstof en slijtage: onze kostprijs per km
+	kmPriceDefault: number;
+	kmPriceMin: number;
+	kmPriceMax: number;
+	// Retour-km die inbegrepen zijn (60 = 30 km enkele reis rond Hilversum). Het
+	// basisbedrag dat ze betaalt is freeRoundTripKm x kmPriceDefault en zit in
+	// de productprijs van elke offerte.
+	freeRoundTripKm: number;
 
 	// --- Team --------------------------------------------------------------
 	mandatoryExtraPersonAt: number;
@@ -227,7 +210,7 @@ export interface PricingConfig {
 	volumeDiscountThreshold: number;
 	volumeDiscountPercent: number;
 
-	// Kleine-klus-korting. De vaste overhead (opbouw, wachten, nazorg, basisbedrag)
+	// Kleine-klus-korting. De vaste overhead (opbouw, wachten, nazorg)
 	// is bij 50 porties ~47% van de prijs en bij 400 nog maar ~11%. Volledig
 	// doorbelasten geeft een instapprijs boven de 10 euro per portie incl. btw, en
 	// dat is als etalageprijs te duur. We nemen daar bewust een lager uurtarief
@@ -252,12 +235,11 @@ export const DEFAULT_HOUR_CURVES: Record<HourCurveKey, Tier> = {
 	prepTiramisu: { 25: 1.25, 50: 1.25, 100: 2, 200: 3.5, 400: 6.5 },
 	// Gelijkgetrokken met tiramisu — eerdere burrata-prep was te laag ingeschat.
 	prepBurrata: { 25: 1.25, 50: 1.25, 100: 2, 200: 3.5, 400: 6.5 },
-	// NIET GEMETEN. Deze rij is een kopie van wat de tiramisu-taart aan prep kost
-	// (hapjesprep op 2x portiegrootte), omdat we van de millefeuille nog geen echte
-	// klus geklokt hebben. De eerdere curve liep op tot 5u bij 100 personen, wat
-	// puur een aanname was en de millefeuille ~EUR 128 duurder maakte dan de taart.
+	// NIET GEMETEN. Begonnen als kopie van de tiramisu-taart-prep en in okt 2026
+	// iets opgehoogd zodat de calculator binnen de vrije straal uitkomt op de
+	// prijzen uit de blog (25 -> ~395, 50 -> ~495, 100 -> ~845 excl. btw).
 	// Zodra je er een klokt: alleen deze rij aanpassen.
-	prepMillefeuille: { 25: 1.25, 50: 2, 100: 3.5, 200: 6.5, 400: 12.5 },
+	prepMillefeuille: { 25: 1.5, 50: 2.25, 100: 4.25, 200: 7.25, 400: 13.25 },
 	// 45 min bij 50 personen, 1u15 bij 100. Daarboven dezelfde helping doorgetrokken.
 	buildTaart: { 25: 0.75, 50: 0.75, 100: 1.25, 200: 2.25, 400: 4.25 },
 	// Nazorg is vlak: het is de vaatwasser inruimen en spullen terugzetten, en dat
@@ -278,9 +260,10 @@ export const DEFAULT_CONFIG: PricingConfig = {
 		setup: 85,
 		service: 85,
 		// Wachten is geen werken, maar je staat er wel en kunt niks anders doen.
-		// Daarom tussen het werktarief en het reistarief in.
+		// Daarom onder het werktarief.
 		standby: 65,
 		cleanup: 85,
+		// Alleen nog een ijkpunt: de km-prijs bepaalt wat rijden oplevert.
 		travel: 50
 	},
 	hourCurves: {
@@ -304,17 +287,12 @@ export const DEFAULT_CONFIG: PricingConfig = {
 	// afschrijving, verzekering en wegenbelasting in. Die kosten lopen door of we nu
 	// rijden of niet, dus we belasten ze niet per klus door.
 	vehicleCostPerKm: 0.25,
-	// 0,45 + 50/70 = 1,164 -> afgerond op een communiceerbare 1,15.
-	costPerKm: 1.15,
-	autoCostPerKm: true,
-	autoEventBaseFee: true,
-	// 60 retour-km = 30 km enkele reis. Amsterdam, Utrecht, Amersfoort, Almere en
-	// het hele Gooi vallen erbinnen, dus daar noemen we gewoon één all-in prijs.
+	// Per klant te kiezen tussen 0,45 en 0,85. 0,65 is het midden.
+	kmPriceDefault: 0.65,
+	kmPriceMin: 0.45,
+	kmPriceMax: 0.85,
+	// 30 km enkele reis: het Gooi, Amsterdam, Utrecht, Amersfoort en Almere.
 	freeRoundTripKm: 60,
-	// EUR 45 is precies het gat tussen dit model op 0 km en de oude prijslijst
-	// (50 -> 382 vs 425, 100 -> 606 vs 650). De prijslijst blijft dus staan waar
-	// hij stond en betaalt vanaf nu de vrije straal.
-	eventBaseFee: 45,
 	mandatoryExtraPersonAt: 125,
 	extraPersonMinPortions2: 250,
 	extraPersonChargeFactor: 0.6,
@@ -343,8 +321,6 @@ export function cloneConfig(config: PricingConfig): PricingConfig {
 	};
 }
 
-// Wat costPerKm zou moeten zijn als je hem puur uit de aannames afleidt.
-// De calculator zet dit naast de ingestelde waarde zodat drift zichtbaar is.
 // Korting op kleine klussen: vol tot reliefFullAt, lineair uitdovend naar nul bij
 // reliefZeroAt, daarboven niets. Bewust een korting en geen verlaging van de uren,
 // zodat in de urenmatrix blijft staan wat het werk echt kost.
@@ -364,25 +340,24 @@ export function smallOrderRelief(portions: number, config: PricingConfig): numbe
 	return round2(config.smallOrderReliefMax * (1 - eased));
 }
 
-// Wat de klant feitelijk per retour-km betaalt: afgeleid uit de reisaannames of
-// de handmatig ingestelde waarde.
-export function effectiveCostPerKm(config: PricingConfig): number {
-	return config.autoCostPerKm ? derivedCostPerKm(config) : config.costPerKm;
+// De km-prijs voor deze offerte: wat je kiest, binnen de afgesproken bandbreedte.
+export function clampKmPrice(kmPrice: number | undefined, config: PricingConfig): number {
+	const v = kmPrice ?? config.kmPriceDefault;
+	if (!Number.isFinite(v)) return config.kmPriceDefault;
+	return Math.round(Math.min(config.kmPriceMax, Math.max(config.kmPriceMin, v)) * 100) / 100;
 }
 
-// Het basisbedrag financiert de vrije straal. Afgeleid betekent: precies wat die
-// vrije retour-km zouden kosten, zodat een rit tot aan de rand van de straal
-// zichzelf betaalt in plaats van marge te kosten.
-export function effectiveEventBaseFee(config: PricingConfig): number {
-	if (!config.autoEventBaseFee) return config.eventBaseFee;
-	return round2(config.freeRoundTripKm * effectiveCostPerKm(config));
+// Het vaste bedrag voor de inbegrepen reis. Bewust op de standaard km-prijs en
+// niet op de per-klant km-prijs, zodat de productprijs niet meeschuift met de
+// km-prijs die je voor iemand kiest.
+export function includedTravelFee(config: PricingConfig): number {
+	return round2(Math.max(0, config.freeRoundTripKm) * config.kmPriceDefault);
 }
 
-export function derivedCostPerKm(config: PricingConfig): number {
-	const perKm =
-		config.vehicleCostPerKm +
-		(config.travelSpeedKmh > 0 ? config.hourlyRates.travel / config.travelSpeedKmh : 0);
-	return Math.round(perKm * 1000) / 1000;
+// Wat een km-prijs per rij-uur oplevert na autokosten, voor één auto. Ijkpunt bij
+// het kiezen van de km-prijs, los van een specifieke offerte.
+export function drivingRatePerHour(kmPrice: number, config: PricingConfig): number {
+	return round2((kmPrice - config.vehicleCostPerKm) * config.travelSpeedKmh);
 }
 
 function interp(x: number, x0: number, x1: number, y0: number, y1: number): number {
@@ -459,7 +434,7 @@ export interface PriceBreakdown {
 	productLines: ProductLine[];
 	labourFee: number; // uren x uurtarief
 	materialsFee: number; // materiaal doorbelast aan de klant
-	baseFee: number; // vast bedrag per klus, betaalt de vrije reisstraal
+	baseFee: number; // inbegrepen reis (vrije straal), zit in de productregel(s)
 	mixDeduction: number;
 	smallOrderRelief: number; // korting op kleine klussen, zie smallOrderRelief()
 	volumeDiscount: number;
@@ -468,9 +443,11 @@ export interface PriceBreakdown {
 	extraPersonMandatory: boolean;
 	extraPersonSetupHours: number;
 	extraPersonTravelHours: number;
-	travelFee: number;
-	travelChargedKm: number;
+	travelFee: number; // losse offerteregel: chargedKm x kmPrice
+	kmPrice: number;
 	roundTripKm: number;
+	chargedKm: number; // retour-km boven de vrije straal
+	productTotal: number; // total min reiskosten: wat in de productregel(s) staat
 	total: number;
 	perPortion: number;
 	allowedExtraPeople: number;
@@ -509,42 +486,34 @@ function extraPersonResult(
 	return { mandatory, allowedExtra, cappedExtra, warnings };
 }
 
-// Reis: retour-km boven de vrije straal tegen één tarief dat rijtijd en auto dekt.
-// chargedHoursPerPerson zijn de reisuren die daadwerkelijk doorbelast worden; binnen
-// de vrije straal is dat 0, want daar betaalt eventBaseFee de rit al.
-function travelResult(
-	oneWayKm: number,
-	config: PricingConfig
-): {
+// Reis: de retour-km boven de vrije straal tegen de gekozen km-prijs, per auto.
+// Een extra persoon rijdt mee in dezelfde auto, dus de km tellen één keer.
+type TravelResult = {
 	roundTripKm: number;
-	travelChargedKm: number;
+	chargedKm: number;
 	travelFee: number;
-	chargedHoursPerPerson: number;
-} {
+	kmPrice: number;
+};
+
+function travelResult(oneWayKm: number, kmPrice: number, config: PricingConfig): TravelResult {
 	const roundTripKm = Math.max(0, oneWayKm) * 2;
-	const travelChargedKm = Math.max(0, roundTripKm - config.freeRoundTripKm);
-	const travelFee = round2(travelChargedKm * effectiveCostPerKm(config));
-	const chargedHoursPerPerson =
-		config.travelSpeedKmh > 0 ? travelChargedKm / config.travelSpeedKmh : 0;
-	return { roundTripKm, travelChargedKm, travelFee, chargedHoursPerPerson };
+	const chargedKm = Math.max(0, roundTripKm - Math.max(0, config.freeRoundTripKm));
+	return { roundTripKm, chargedKm, travelFee: round2(chargedKm * kmPrice), kmPrice };
 }
 
-// De extra persoon kost ons alleen zijn eigen setup en zijn eigen reistijd —
-// prep, service en nazorg zijn totaal werk dat sowieso gedaan moet worden en
-// verdeeld wordt over het team, dus dat rekenen we niet dubbel. Zijn reistijd
-// telt op de doorbelaste km, niet op de totale: binnen de vrije straal rijden we
-// in dezelfde auto en zit die rit al in het basisbedrag.
+// De extra persoon kost ons alleen zijn eigen setup en wachttijd. Prep, service
+// en nazorg zijn totaal werk dat over het team verdeeld wordt, dus dat rekenen
+// we niet dubbel. Zijn rijtijd zit in de km-prijs: de prijs volgt de km, niet
+// de uren.
 function extraPersonFeeFor(
 	cappedExtra: number,
-	chargedTravelHoursPerPerson: number,
 	standbyHoursPerPerson: number,
 	config: PricingConfig
 ): number {
 	if (cappedExtra <= 0) return 0;
 	const perPerson =
 		config.setupHours * config.hourlyRates.setup +
-		standbyHoursPerPerson * config.hourlyRates.standby +
-		chargedTravelHoursPerPerson * config.hourlyRates.travel;
+		standbyHoursPerPerson * config.hourlyRates.standby;
 	return round2(cappedExtra * perPerson * config.extraPersonChargeFactor);
 }
 
@@ -575,12 +544,7 @@ function assemble(input: {
 	ep: ExtraPersonResult;
 	extraPersonFee: number;
 	extraPersonTravelHours: number;
-	travel: {
-		roundTripKm: number;
-		travelChargedKm: number;
-		travelFee: number;
-		chargedHoursPerPerson: number;
-	};
+	travel: TravelResult;
 	config: PricingConfig;
 	warnings: string[];
 	reliefOverride?: number;
@@ -601,7 +565,8 @@ function assemble(input: {
 		config.volumeDiscountPercent > 0 && totalPortions >= config.volumeDiscountThreshold;
 	const volumeDiscount = discountApplies ? round2((base * config.volumeDiscountPercent) / 100) : 0;
 
-	const total = round2(base - volumeDiscount + input.extraPersonFee + input.travel.travelFee);
+	const productTotal = round2(base - volumeDiscount + input.extraPersonFee);
+	const total = round2(productTotal + input.travel.travelFee);
 
 	return {
 		totalPortions,
@@ -618,8 +583,10 @@ function assemble(input: {
 		extraPersonSetupHours: input.ep.cappedExtra > 0 ? config.setupHours : 0,
 		extraPersonTravelHours: input.ep.cappedExtra > 0 ? round2(input.extraPersonTravelHours) : 0,
 		travelFee: input.travel.travelFee,
-		travelChargedKm: input.travel.travelChargedKm,
+		kmPrice: input.travel.kmPrice,
 		roundTripKm: input.travel.roundTripKm,
+		chargedKm: input.travel.chargedKm,
+		productTotal,
 		total,
 		perPortion: totalPortions > 0 ? round2(total / totalPortions) : 0,
 		allowedExtraPeople: input.ep.allowedExtra,
@@ -641,6 +608,7 @@ export function calculatePrice(input: {
 	burrataIngredientCost?: number;
 	standbyHours?: number;
 	smallOrderReliefOverride?: number;
+	kmPrice?: number; // EUR per retour-km, binnen kmPriceMin..kmPriceMax
 }): PriceBreakdown {
 	const { tiraPortions, burrPortions, extraPeople, oneWayKm, config } = input;
 	const standbyPerPerson = Math.max(0, input.standbyHours ?? config.defaultStandbyHours);
@@ -664,7 +632,7 @@ export function calculatePrice(input: {
 	const people = 1 + ep.cappedExtra;
 
 	const travelHoursPerPerson = travelHoursFor(oneWayKm, config);
-	const travel = travelResult(oneWayKm, config);
+	const travel = travelResult(oneWayKm, clampKmPrice(input.kmPrice, config), config);
 
 	// --- Uren ---------------------------------------------------------------
 	// Prep is per product (twee soorten = twee keer de keuken in), service en
@@ -702,13 +670,8 @@ export function calculatePrice(input: {
 		config
 	);
 	const materialsFee = (ingredientsTira + ingredientsBurr + packaging) * config.materialsMarkup;
-	const baseFee = totalPortions > 0 ? effectiveEventBaseFee(config) : 0;
-	const extraPersonFee = extraPersonFeeFor(
-		ep.cappedExtra,
-		travel.chargedHoursPerPerson,
-		standbyPerPerson,
-		config
-	);
+	const baseFee = totalPortions > 0 ? includedTravelFee(config) : 0;
+	const extraPersonFee = extraPersonFeeFor(ep.cappedExtra, standbyPerPerson, config);
 
 	if (hours.travel > hours.billable && totalPortions > 0) {
 		warnings.push(
@@ -718,9 +681,9 @@ export function calculatePrice(input: {
 
 	const productLines: ProductLine[] = [];
 	if (tiraPortions > 0 || burrPortions > 0) {
-		// De prijs is één geheel (uren + materiaal + basisbedrag). We splitsen hem
-		// naar rato van de porties over de regels zodat de offerte per soort
-		// leesbaar blijft en het basisbedrag nergens als losse post opduikt.
+		// De prijs is één geheel (uren + materiaal + inbegrepen reis). We splitsen
+		// hem naar rato van de porties over de regels zodat de offerte per soort
+		// leesbaar blijft. Reiskosten boven de straal zijn een eigen regel.
 		const linesTotal = labourFee + materialsFee + baseFee;
 		if (tiraPortions > 0 && burrPortions > 0) {
 			const tiraPart = round2((linesTotal * tiraPortions) / totalPortions);
@@ -747,7 +710,7 @@ export function calculatePrice(input: {
 		baseFee,
 		ep,
 		extraPersonFee,
-		extraPersonTravelHours: travel.chargedHoursPerPerson,
+		extraPersonTravelHours: ep.cappedExtra > 0 ? travelHoursPerPerson : 0,
 		travel,
 		config,
 		reliefOverride: input.smallOrderReliefOverride,
@@ -819,10 +782,9 @@ export interface InternalBreakdown {
 	// ingestelde tarief zolang er niets weggegeven wordt, en zakt zichtbaar zodra
 	// de kleine-klus-korting of een andere korting aanslaat.
 	labourRateRealisedAfterDiscounts: number;
-	// Idem voor reizen: km-opbrengst min autokosten versus reisuren x reistarief.
-	travelValue: number;
+	// Reizen: reiskosten-regel min autokosten, en wat dat per rij-mensuur oplevert.
+	// Rijden er twee mee, dan delen ze het.
 	travelMargin: number;
-	travelGap: number;
 	travelRateRealised: number;
 	// Alles bij elkaar, inclusief reistijd — het getal dat vroeger wegzakte bij afstand.
 	blendedRatePerPerson: number;
@@ -841,16 +803,12 @@ export function calculateInternals(
 		return { stage, hours, rate: r[stage], amount: round2(hours * r[stage]) };
 	});
 
-	// Reisomzet dekt de auto en de rijtijd; wat overblijft hoort bij het werk.
-	// Het basisbedrag telt hier mee: het is de vrije straal, dus reisomzet. Zonder
-	// die regel zou travelGap binnen de straal altijd negatief lijken en labourGap
-	// even hard positief.
-	const travelRevenue =
-		result.travelFee +
-		result.baseFee +
-		result.extraPersonTravelHours * result.effectiveExtraPeople * r.travel;
+	// Reisomzet is precies de reiskosten-regel; wat na de auto overblijft is
+	// wat het rijden oplevert. Al het andere hoort bij het werk.
+	// Reisomzet = inbegrepen reis + reiskosten-regel. Autokosten tellen over
+	// alle km, ook binnen de vrije straal.
+	const travelRevenue = result.baseFee + result.travelFee;
 	const travelMargin = travelRevenue - costs.vehicle;
-	const travelValue = result.hours.travel * r.travel;
 	const labourRevenue = result.total - costs.ingredients - costs.packaging - travelRevenue;
 	const labourValue = stages
 		.filter((s) => s.stage !== 'travel')
@@ -869,9 +827,7 @@ export function calculateInternals(
 		labourGap: round2(labourRevenue - labourValue),
 		labourRateRealisedAfterDiscounts:
 			result.hours.billable > 0 ? round2(labourRevenue / result.hours.billable) : 0,
-		travelValue: round2(travelValue),
 		travelMargin: round2(travelMargin),
-		travelGap: round2(travelMargin - travelValue),
 		travelRateRealised: result.hours.travel > 0 ? round2(travelMargin / result.hours.travel) : 0,
 		blendedRatePerPerson: result.hours.total > 0 ? round2(grossProfit / result.hours.total) : 0
 	};
@@ -985,6 +941,7 @@ export function calculateSpecialPrice(input: {
 	fruitCostPerPortion?: number;
 	standbyHours?: number;
 	smallOrderReliefOverride?: number;
+	kmPrice?: number; // EUR per retour-km, binnen kmPriceMin..kmPriceMax
 }): PriceBreakdown {
 	const { variant, oneWayKm, config } = input;
 	const n = Math.max(0, Math.round(input.portions));
@@ -1010,7 +967,7 @@ export function calculateSpecialPrice(input: {
 	const people = 1;
 
 	const travelHoursPerPerson = travelHoursFor(oneWayKm, config);
-	const travel = travelResult(oneWayKm, config);
+	const travel = travelResult(oneWayKm, clampKmPrice(input.kmPrice, config), config);
 
 	// --- Uren ---------------------------------------------------------------
 	const prep = specialPrepHours(variant, n, config);
@@ -1045,13 +1002,8 @@ export function calculateSpecialPrice(input: {
 		config
 	);
 	const materialsFee = (ingredients + packaging) * config.materialsMarkup;
-	const baseFee = n > 0 ? effectiveEventBaseFee(config) : 0;
-	const extraPersonFee = extraPersonFeeFor(
-		ep.cappedExtra,
-		travel.chargedHoursPerPerson,
-		standbyPerPerson,
-		config
-	);
+	const baseFee = n > 0 ? includedTravelFee(config) : 0;
+	const extraPersonFee = extraPersonFeeFor(ep.cappedExtra, standbyPerPerson, config);
 
 	if (hours.travel > hours.billable && n > 0) {
 		warnings.push(
@@ -1081,7 +1033,7 @@ export function calculateSpecialPrice(input: {
 		baseFee,
 		ep,
 		extraPersonFee,
-		extraPersonTravelHours: travel.chargedHoursPerPerson,
+		extraPersonTravelHours: 0,
 		travel,
 		config,
 		reliefOverride: input.smallOrderReliefOverride,

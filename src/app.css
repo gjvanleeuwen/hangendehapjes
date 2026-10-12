@@ -180,3 +180,10 @@
 		@apply font-sans;
 	}
 }
+
+/* In-page jumps (#aanvraag, #contact) glide instead of snapping. */
+@media (prefers-reduced-motion: no-preference) {
+	html {
+		scroll-behavior: smooth;
+	}
+}

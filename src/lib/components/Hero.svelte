@@ -82,7 +82,7 @@
 		</h1>
 		<p class="mt-6 max-w-xl text-base text-background/85 md:text-lg">{t.hero.subtitle}</p>
 		<div class="mt-8 flex flex-wrap gap-3">
-			<Button href="#products" size="lg">
+			<Button href="#products" size="lg" data-umami-event="hero_products">
 				{t.hero.secondaryCta}
 			</Button>
 		</div>

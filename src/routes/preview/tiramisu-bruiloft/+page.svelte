@@ -6,7 +6,7 @@
 	import DiagonalSplit from '$lib/components/DiagonalSplit.svelte';
 	import BlogReviewTeaser from '$lib/blog/BlogReviewTeaser.svelte';
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
-	import BlogCta from '$lib/blog/BlogCta.svelte';
+	import BlogContactForm from '$lib/blog/BlogContactForm.svelte';
 	import { nl } from '$lib/i18n/nl';
 	import { SITE_URL } from '$lib/site-config';
 	import { BLOG_FAQS_NL, type BlogFaq } from '$lib/blog/faqs';
@@ -501,11 +501,12 @@
 			</section>
 			<BlogReviewTeaser reviews={toetjesReviews} />
 
-			<BlogCta
+			<BlogContactForm
 				event="tiramisu_preview"
 				heading="Tiramisutaart of hangende hapjes op jullie bruiloft?"
-				body="Stuur ons jullie datum, locatie en aantal gasten. Vertel gerust of jullie aan een tiramisutaart of hangende hapjes denken. Nog niet zeker? Dan denken we mee. Binnen 1–2 dagen ontvangen jullie een voorstel op maat."
-				waText="Hoi! Ik heb een vraag over tiramisu van Hangende Hapjes 👋"
+				intro="Stuur ons jullie datum, locatie en aantal gasten. Vertel gerust of jullie aan een tiramisutaart of hangende hapjes denken. Nog niet zeker? Dan denken we mee. Binnen 1–2 dagen ontvangen jullie een voorstel op maat."
+				preselect="tiramisu-taart"
+				cards={['tiramisu-taart', 'tiramisu-live']}
 			/>
 
 			<BlogFaqSection

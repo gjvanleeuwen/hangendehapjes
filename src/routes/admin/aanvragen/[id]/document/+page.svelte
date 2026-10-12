@@ -7,14 +7,9 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import { BUSINESS } from '$lib/admin/business';
 	import { enhance } from '$app/forms';
-	import {
-		calcTotals,
-		formatBtw,
-		formatDateNL,
-		formatEUR,
-		lineDiscountAmount,
-		lineSubtotal
-	} from '$lib/admin/calc';
+	import { formatEUR } from '$lib/admin/calc';
+	import { docFigures } from '$lib/admin/document';
+	import DocumentView from '$lib/admin/DocumentView.svelte';
 	import type { BtwRate, DocumentKind, DocumentState, InvoiceType } from '$lib/admin/types';
 
 	let { data, form } = $props();
@@ -26,7 +21,15 @@
 	let sequence = $state(untrack(() => data.sequence));
 	let invoicePrefix = $state(untrack(() => data.invoicePrefix));
 
+	// Texts start from the last saved offerte / factuur (any aanvraag); the
+	// hardcoded versions below are only the fallback for the very first one.
+	const latest = untrack(() => data.latestTexts);
+	const latestFor = (kind: DocumentKind) =>
+		kind === 'offerte' ? latest.offerte : kind === 'factuur' ? latest.factuur : null;
+
 	const defaultTerms = (kind: DocumentKind) => {
+		const saved = latestFor(kind);
+		if (saved) return saved.terms;
 		if (kind === 'offerte') {
 			return [
 				'Voor deze offerte houden wij de evenementdatum vast tot de verloopdatum (14 dagen na verzenden). Bij akkoord vragen wij een aanbetaling van 50% van het totaalbedrag. De boeking is definitief zodra de aanbetaling is ontvangen. De aanbetaling wordt verrekend met de eindfactuur. Het resterende bedrag kan voldaan worden binnen 14 dagen na het evenement.',
@@ -45,6 +48,8 @@
 	// nergens ziet als we het niet opschrijven. Het staat er niet om te verkopen
 	// maar omdat "all-in" pas iets betekent als je benoemt wat erin zit.
 	const defaultNotes = (kind: DocumentKind) => {
+		const saved = latestFor(kind);
+		if (saved) return saved.notes;
 		if (kind !== 'offerte') return '';
 		return [
 			'Inbegrepen, zonder meerprijs:',
@@ -57,6 +62,8 @@
 	};
 
 	const defaultFooterNote = (kind: DocumentKind) => {
+		const saved = latestFor(kind);
+		if (saved) return saved.footerNote;
 		if (kind === 'offerte') return `Vragen over deze offerte? Mail ons op ${BUSINESS.email}.`;
 		if (kind === 'factuur') return `Vragen over deze factuur? Mail ons op ${BUSINESS.email}.`;
 		return '';
@@ -120,8 +127,8 @@
 		priorInvoiceNumber: '',
 		priorInvoiceDate: '',
 		priorInvoiceAmount: 0,
-		paymentInstructions: DEFAULT_PAYMENT_INSTRUCTIONS,
-		paymentTermDays: 14
+		paymentInstructions: latest.factuur?.paymentInstructions || DEFAULT_PAYMENT_INSTRUCTIONS,
+		paymentTermDays: latest.factuur?.paymentTermDays ?? 14
 	});
 
 	$effect(() => {
@@ -146,17 +153,12 @@
 		label: deal?.choice || 'Offerte'
 	});
 
-	const termsParts = $derived(
-		doc.terms.split('\n').map((line) => {
-			const phrase = 'algemene voorwaarden';
-			const index = line.toLowerCase().indexOf(phrase);
-			return {
-				before: index >= 0 ? line.slice(0, index) : line,
-				link: index >= 0 ? line.slice(index, index + phrase.length) : '',
-				after: index >= 0 ? line.slice(index + phrase.length) : ''
-			};
-		})
-	);
+	// The URL (?kind=…) is the source of truth, so the Offerte/Factuur tabs in the
+	// aanvraag header and the switch on this page always agree.
+	$effect(() => {
+		const k = page.url.searchParams.get('kind');
+		if (k === 'offerte' || k === 'factuur' || k === 'kwitantie') untrack(() => setKind(k));
+	});
 
 	function setKind(kind: DocumentKind) {
 		if (doc.kind === kind) return;
@@ -174,16 +176,17 @@
 		try {
 			const raw = sessionStorage.getItem('hh_calculator_prefill');
 			if (!raw) return;
-			const data = JSON.parse(raw) as {
-				description: string;
-				qty: number;
-				unitPrice: number;
-				btwRate: BtwRate;
+			type PrefillLine = { description: string; qty: number; unitPrice: number; btwRate: BtwRate };
+			// The calculator sends `lineItems` (product + reiskosten). Older tabs may
+			// still hold the single-line shape, so accept both.
+			const data = JSON.parse(raw) as Partial<PrefillLine> & {
+				lineItems?: PrefillLine[];
 				costs?: number | null;
 				timeSpent?: Record<string, number>;
 			};
-			const { costs, timeSpent, ...lineItem } = data;
-			doc.lineItems = [{ ...lineItem, discountPct: 0 }];
+			const { costs, timeSpent, lineItems, ...single } = data;
+			const lines: PrefillLine[] = lineItems?.length ? lineItems : [single as PrefillLine];
+			doc.lineItems = lines.map((l) => ({ ...l, discountPct: 0 }));
 			calculatorMeta.costs = costs ?? null;
 			calculatorMeta.timeSpent = timeSpent ?? {};
 			sessionStorage.removeItem('hh_calculator_prefill');
@@ -192,63 +195,15 @@
 		}
 	});
 
-	const totals = $derived(
-		calcTotals($state.snapshot(doc).lineItems, {
-			mode: doc.discountMode,
-			value: doc.discountValue
-		})
-	);
-
-	// Wat er onder aan de factuur daadwerkelijk te betalen valt. Bij een
-	// aanbetalingsfactuur is dat een percentage van het totaal; bij een eindfactuur
-	// het totaal min wat er al gefactureerd is (inclusief btw, anders reken je de
-	// btw over dat deel twee keer).
-	const prepaymentAmount = $derived(
-		Math.round(totals.total * (Math.max(0, Math.min(100, doc.prepaymentPct)) / 100) * 100) / 100
-	);
-	const amountDue = $derived(
-		doc.kind !== 'factuur'
-			? totals.total
-			: doc.invoiceType === 'aanbetaling'
-				? prepaymentAmount
-				: doc.invoiceType === 'eind'
-					? Math.round((totals.total - Math.max(0, doc.priorInvoiceAmount)) * 100) / 100
-					: totals.total
-	);
-
-	const invoiceTypeLabel = $derived(
-		doc.invoiceType === 'aanbetaling'
-			? `Aanbetalingsfactuur (${doc.prepaymentPct}%)`
-			: doc.invoiceType === 'eind'
-				? 'Eindfactuur'
-				: 'Factuur'
-	);
-
-	/** Placeholders zodat de betaalinstructie meebeweegt met de gegevens. */
-	const paymentInstructionsText = $derived(
-		doc.paymentInstructions
-			.replaceAll('{IBAN}', doc.issuer.iban || '—')
-			.replaceAll('{NAAM}', doc.issuer.legalName || doc.issuer.name || '—')
-			.replaceAll('{MERK}', doc.issuer.name || '—')
-			.replaceAll('{NUMMER}', doc.number || '—')
-			.replaceAll('{BEDRAG}', formatEUR(amountDue))
-			.replaceAll('{DAGEN}', String(doc.paymentTermDays))
-	);
-
-	const headingLabel = $derived(
-		doc.kind === 'offerte' ? 'Offerte' : doc.kind === 'factuur' ? 'Factuur' : 'Kwitantie'
-	);
-	const calculatorHref = $derived(`/admin/calculator${deal ? `?deal=${deal.id}` : ''}`);
-
-	const allNoVat = $derived(doc.lineItems.every((l) => l.btwRate === 'none'));
-	const showBtwColumn = $derived(doc.kind !== 'kwitantie' && !allNoVat);
-	const showBtwBreakdown = $derived(doc.kind !== 'kwitantie' && totals.btwGroups.length > 0);
-
-	const hasDiscount = $derived(totals.lineDiscountTotal > 0 || totals.totalDiscount > 0);
-	const showSummaryDetail = $derived(showBtwBreakdown || hasDiscount);
-	const totalDiscountLabel = $derived(
-		doc.discountMode === 'pct' ? `Korting ${doc.discountValue}%` : 'Korting'
-	);
+	// Totals, amount due and labels: shared with the preview and the klantportaal.
+	const figures = $derived(docFigures(doc));
+	const totals = $derived(figures.totals);
+	const prepaymentAmount = $derived(figures.prepaymentAmount);
+	const amountDue = $derived(figures.amountDue);
+	const paymentInstructionsText = $derived(figures.paymentInstructionsText);
+	const headingLabel = $derived(figures.headingLabel);
+	const allNoVat = $derived(figures.allNoVat);
+	const calculatorHref = $derived(`/admin/aanvragen/${deal.id}/calculator`);
 
 	function addLine() {
 		const fallbackRate: BtwRate = allNoVat ? 'none' : 9;
@@ -312,24 +267,21 @@
 <div class="grid gap-8 lg:grid-cols-[1.2fr_minmax(0,560px)] print:block">
 	<!-- Editor -->
 	<section class="space-y-6 print:hidden">
-		<div>
-			<h1 class="font-heading text-2xl">{headingLabel}</h1>
-			{#if deal}
-				<p class="mt-1 text-sm text-muted-foreground">
-					Opslaan op aanvraag van <strong>{deal.name}</strong>.
-				</p>
-			{/if}
-			<div class="mt-3 flex flex-wrap gap-2">
-				{#each ['offerte', 'factuur', 'kwitantie'] as const as k}
-					<button
-						type="button"
-						onclick={() => setKind(k)}
-						class="border px-3 py-1.5 text-sm capitalize transition {doc.kind === k
+		<div class="flex flex-wrap items-center justify-between gap-2">
+			<h1 class="font-heading text-xl">{headingLabel}</h1>
+			<!-- Offerte and factuur are tabs in the aanvraag header; kwitantie is the odd one out. -->
+			<div class="flex gap-1 text-xs">
+				{#each ['offerte', 'factuur', 'kwitantie'] as const as k (k)}
+					<a
+						href="?kind={k}"
+						data-sveltekit-replacestate
+						data-sveltekit-noscroll
+						class="rounded-md border px-2 py-1 capitalize {doc.kind === k
 							? 'border-primary bg-primary text-primary-foreground'
 							: 'hover:bg-muted'}"
 					>
 						{k}
-					</button>
+					</a>
 				{/each}
 			</div>
 		</div>
@@ -342,6 +294,11 @@
 		{#if form?.savedQuote}
 			<div class="border border-primary/30 bg-primary/5 p-3 text-sm">
 				Offerteversie opgeslagen op de aanvraag.
+			</div>
+		{/if}
+		{#if form?.savedInvoice}
+			<div class="border border-primary/30 bg-primary/5 p-3 text-sm">
+				Factuur {form.savedInvoice} staat in het klantportaal.
 			</div>
 		{/if}
 
@@ -631,7 +588,7 @@
 									disabled={doc.kind === 'kwitantie'}
 									class="h-9 w-full border border-input bg-background px-2 text-sm disabled:opacity-50"
 								>
-									{#each btwOptions as opt}
+									{#each btwOptions as opt (opt.value)}
 										<option value={opt.value}>{opt.label}</option>
 									{/each}
 								</select>
@@ -739,246 +696,34 @@
 					<Button type="submit" variant="outline">Opslaan als actieve offerte op portal</Button>
 				</form>
 			{/if}
+			{#if doc.kind === 'factuur'}
+				<!-- Keeps the editor as it is after saving: you often print right after. -->
+				<form
+					method="POST"
+					action="?/saveInvoice"
+					use:enhance={() =>
+						async ({ update }) => {
+							await update({ reset: false });
+						}}
+				>
+					<input type="hidden" name="dealId" value={deal.id} />
+					<input type="hidden" name="doc" value={JSON.stringify($state.snapshot(doc))} />
+					<Button
+						type="submit"
+						variant="outline"
+						disabled={!doc.number}
+						title={doc.number ? '' : 'Geef de factuur eerst een nummer'}
+					>
+						Zet in klantportaal
+					</Button>
+				</form>
+			{/if}
 		</div>
 	</section>
 
-	<!--
-		Afrekening onder het totaal. Bij een aanbetaling factureren we een deel van
-		het totaal; bij een eindfactuur trekken we de eerder gefactureerde aanbetaling
-		er inclusief btw weer af, met verwijzing naar dat factuurnummer. Zo klopt de
-		btw-afdracht over beide facturen samen precies één keer.
-	-->
-	{#snippet invoiceSettlement()}
-		{#if doc.kind === 'factuur' && doc.invoiceType === 'aanbetaling'}
-			<tr>
-				<td class="py-1 pr-6">Aanbetaling {doc.prepaymentPct}% van het totaal</td>
-				<td class="py-1 text-right tabular-nums">{formatEUR(prepaymentAmount)}</td>
-			</tr>
-			<tr class="border-t border-neutral-400 font-medium">
-				<td class="py-2 pr-6">Nu te voldoen</td>
-				<td class="py-2 text-right tabular-nums">{formatEUR(amountDue)}</td>
-			</tr>
-		{:else if doc.kind === 'factuur' && doc.invoiceType === 'eind'}
-			<tr>
-				<td class="py-1 pr-6">
-					Reeds gefactureerd{#if doc.priorInvoiceNumber}
-						— factuur {doc.priorInvoiceNumber}{/if}{#if doc.priorInvoiceDate}
-						d.d. {formatDateNL(doc.priorInvoiceDate)}{/if} (incl. btw)
-				</td>
-				<td class="py-1 text-right tabular-nums">−{formatEUR(doc.priorInvoiceAmount)}</td>
-			</tr>
-			<tr class="border-t border-neutral-400 font-medium">
-				<td class="py-2 pr-6">Nog te voldoen</td>
-				<td class="py-2 text-right tabular-nums">{formatEUR(amountDue)}</td>
-			</tr>
-		{/if}
-	{/snippet}
-
 	<!-- Preview / printable -->
 	<section class="bg-white text-black shadow-sm print:shadow-none">
-		<article class="doc mx-auto p-10 print:p-0">
-			<header class="flex items-start justify-between gap-6">
-				<div>
-					<div
-						class="font-wordmark text-2xl font-bold tracking-[0.08em] whitespace-nowrap uppercase"
-						style="color: var(--brand-magenta);"
-					>
-						{doc.issuer.name}
-					</div>
-					<div class="mt-3 text-sm leading-tight">
-						{#if doc.issuer.legalName}<div>{doc.issuer.legalName}</div>{/if}
-						{#if doc.issuer.addressLine1}<div>{doc.issuer.addressLine1}</div>{/if}
-						{#if doc.issuer.addressLine2}<div>{doc.issuer.addressLine2}</div>{/if}
-						{#if doc.issuer.email}<div>{doc.issuer.email}</div>{/if}
-					</div>
-				</div>
-				<div class="text-right">
-					<div class="font-heading text-3xl uppercase">{headingLabel}</div>
-					{#if doc.kind === 'factuur' && doc.invoiceType !== 'volledig'}
-						<div class="text-sm font-medium">{invoiceTypeLabel}</div>
-					{/if}
-					{#if doc.kind === 'factuur'}
-						<div class="text-sm">
-							Factuurnummer: <span class="font-medium">{doc.number || '—'}</span>
-						</div>
-					{:else if doc.number}
-						<div class="text-sm">Ref: <span class="font-medium">{doc.number}</span></div>
-					{/if}
-					<div class="text-sm">Datum: {formatDateNL(doc.date) || '—'}</div>
-					{#if doc.eventDate}
-						<div class="text-sm">Eventdatum: {formatDateNL(doc.eventDate)}</div>
-					{/if}
-					{#if doc.kind === 'offerte' && doc.validUntil}
-						<div class="text-sm">Geldig t/m: {formatDateNL(doc.validUntil)}</div>
-					{/if}
-					{#if doc.kind === 'kwitantie' && doc.paidOn}
-						<div class="text-sm">Voldaan op: {formatDateNL(doc.paidOn)}</div>
-					{/if}
-				</div>
-			</header>
-
-			<div class="mt-8">
-				<div class="text-xs tracking-wide text-neutral-500 uppercase">Aan</div>
-				<div class="mt-1 text-sm leading-tight">
-					{#if doc.recipient.name}<div class="font-medium">{doc.recipient.name}</div>{/if}
-					{#if doc.recipient.company}<div>{doc.recipient.company}</div>{/if}
-					{#if doc.recipient.address}
-						<div class="whitespace-pre-line">{doc.recipient.address}</div>
-					{/if}
-				</div>
-			</div>
-
-			<table class="mt-8 w-full border-collapse text-sm">
-				<thead>
-					<tr class="border-b border-neutral-300 text-left">
-						<th class="py-2 pr-2 font-medium">Omschrijving</th>
-						<th class="py-2 pr-2 text-right font-medium">Aantal</th>
-						<th class="py-2 pr-2 text-right font-medium">Prijs</th>
-						{#if showBtwColumn}
-							<th class="py-2 pr-2 text-right font-medium">BTW</th>
-						{/if}
-						<th class="py-2 text-right font-medium">Totaal</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each doc.lineItems as item (item)}
-						<tr class="align-top {item.discountPct > 0 ? '' : 'border-b border-neutral-200'}">
-							<td class="py-2 pr-2">{item.description || '—'}</td>
-							<td class="py-2 pr-2 text-right tabular-nums">{item.qty}</td>
-							<td class="py-2 pr-2 text-right tabular-nums">{formatEUR(item.unitPrice)}</td>
-							{#if showBtwColumn}
-								<td class="py-2 pr-2 text-right tabular-nums">{formatBtw(item.btwRate)}</td>
-							{/if}
-							<td class="py-2 text-right tabular-nums">{formatEUR(lineSubtotal(item))}</td>
-						</tr>
-						{#if item.discountPct > 0}
-							<tr class="border-b border-neutral-200 align-top text-neutral-600">
-								<td class="pb-2 pl-3 text-xs" colspan={showBtwColumn ? 4 : 3}>
-									Korting {item.discountPct}%
-								</td>
-								<td class="pb-2 text-right text-xs tabular-nums">
-									−{formatEUR(lineDiscountAmount(item))}
-								</td>
-							</tr>
-						{/if}
-					{/each}
-				</tbody>
-			</table>
-
-			<div class="mt-4 flex justify-end">
-				<table class="text-sm">
-					<tbody>
-						{#if showSummaryDetail}
-							<tr>
-								<td class="py-1 pr-6">Subtotaal</td>
-								<td class="py-1 text-right tabular-nums">{formatEUR(totals.grossSubtotal)}</td>
-							</tr>
-							{#if totals.lineDiscountTotal > 0}
-								<tr class="text-neutral-600">
-									<td class="py-1 pr-6">Korting op regels</td>
-									<td class="py-1 text-right tabular-nums"
-										>−{formatEUR(totals.lineDiscountTotal)}</td
-									>
-								</tr>
-							{/if}
-							{#if totals.totalDiscount > 0}
-								<tr class="text-neutral-600">
-									<td class="py-1 pr-6">{totalDiscountLabel}</td>
-									<td class="py-1 text-right tabular-nums">−{formatEUR(totals.totalDiscount)}</td>
-								</tr>
-							{/if}
-							{#if showBtwBreakdown}
-								{#if hasDiscount}
-									<tr>
-										<td class="py-1 pr-6">Subtotaal na korting</td>
-										<td class="py-1 text-right tabular-nums">{formatEUR(totals.subtotal)}</td>
-									</tr>
-								{/if}
-								{#each totals.btwGroups as g}
-									<tr>
-										<td class="py-1 pr-6">BTW {g.rate}% over {formatEUR(g.base)}</td>
-										<td class="py-1 text-right tabular-nums">{formatEUR(g.tax)}</td>
-									</tr>
-								{/each}
-								{#if totals.noVatBase > 0}
-									<tr>
-										<td class="py-1 pr-6 text-neutral-600"
-											>Geen BTW over {formatEUR(totals.noVatBase)}</td
-										>
-										<td class="py-1 text-right tabular-nums">—</td>
-									</tr>
-								{/if}
-							{/if}
-							<tr class="border-t border-neutral-400 font-medium">
-								<td class="py-2 pr-6">
-									{doc.kind === 'kwitantie' ? 'Totaal voldaan' : 'Totaal'}
-								</td>
-								<td class="py-2 text-right tabular-nums">{formatEUR(totals.total)}</td>
-							</tr>
-							{@render invoiceSettlement()}
-						{:else}
-							<tr class="border-t border-neutral-400 font-medium">
-								<td class="py-2 pr-6">
-									{doc.kind === 'kwitantie' ? 'Totaal voldaan' : 'Totaal'}
-								</td>
-								<td class="py-2 text-right tabular-nums">{formatEUR(totals.total)}</td>
-							</tr>
-							{@render invoiceSettlement()}
-						{/if}
-					</tbody>
-				</table>
-			</div>
-
-			{#if doc.kind !== 'kwitantie' && allNoVat && doc.lineItems.length > 0}
-				<div class="mt-3 text-right text-xs text-neutral-600">Geen BTW van toepassing.</div>
-			{/if}
-
-			{#if doc.notes}
-				<div class="mt-8">
-					<div class="text-xs tracking-wide text-neutral-500 uppercase">Notities</div>
-					<div class="mt-1 text-sm whitespace-pre-line">{doc.notes}</div>
-				</div>
-			{/if}
-
-			{#if doc.kind !== 'kwitantie' && doc.terms}
-				<div class="mt-8 text-[10px] leading-relaxed text-neutral-600">
-					<div class="tracking-wide text-neutral-500 uppercase">Betaling & voorwaarden</div>
-					<div class="mt-1">
-						{#each termsParts as part}
-							<p>
-								{part.before}{#if part.link}<a class="underline" href="/terms">{part.link}</a
-									>{/if}{part.after}
-							</p>
-						{/each}
-					</div>
-				</div>
-			{/if}
-
-			<footer
-				class="mt-12 border-t border-neutral-300 pt-4 text-xs leading-relaxed text-neutral-600"
-			>
-				{#if doc.kind === 'factuur'}
-					<div>{paymentInstructionsText}</div>
-					{#if doc.footerNote}
-						<div class="mt-2">{doc.footerNote}</div>
-					{/if}
-					<div class="mt-2 flex flex-wrap gap-x-4">
-						<span>{doc.issuer.legalName || doc.issuer.name}</span>
-						{#if doc.issuer.email}<span>{doc.issuer.email}</span>{/if}
-						{#if doc.issuer.iban}<span>IBAN {doc.issuer.iban}</span>{/if}
-						{#if doc.issuer.kvk}<span>KvK {doc.issuer.kvk}</span>{/if}
-						{#if doc.issuer.btwId}<span>BTW {doc.issuer.btwId}</span>{/if}
-					</div>
-				{:else if doc.kind === 'offerte'}
-					<div>{doc.footerNote}</div>
-				{:else}
-					<div>
-						{doc.footerNote ||
-							`Bedankt! Deze kwitantie bevestigt ontvangst van ${formatEUR(totals.total)}.`}
-					</div>
-				{/if}
-			</footer>
-		</article>
+		<DocumentView {doc} />
 	</section>
 </div>
 
@@ -989,16 +734,9 @@
 		opacity: 0.8;
 	}
 
-	.doc {
-		font-family: 'Raleway Variable', system-ui, sans-serif;
-		max-width: 560px;
-	}
 	@media print {
 		:global(body) {
 			background: white;
-		}
-		.doc {
-			max-width: none;
 		}
 	}
 	@page {

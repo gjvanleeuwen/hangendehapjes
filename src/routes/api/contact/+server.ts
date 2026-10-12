@@ -7,6 +7,7 @@ import { notifyError } from '$lib/server/notify';
 import { PayloadSchema, CallbackSchema, type Clean } from '$lib/server/contact-schema';
 import { createDeal, toDateOrNull, type DealInput } from '$lib/server/deals';
 import { completeLead } from '$lib/server/leads';
+import { describeAttribution } from '$lib/attribution';
 import type { RequestHandler } from './$types';
 
 const CONTACT_TO = 'info@hangendehapjes.nl';
@@ -134,6 +135,7 @@ const captureDeal = (clean: Clean, extra: Partial<DealInput> = {}) => {
 				email: clean.email,
 				phone: clean.phone,
 				source: clean.referral,
+				firstTouch: clean.attribution,
 				eventDate: toDateOrNull(clean.eventDate),
 				eventDateText: clean.eventDate,
 				location: clean.location,
@@ -225,6 +227,7 @@ const handleCallback = async (raw: unknown, ip: string, now: number): Promise<Re
 			name: '',
 			email,
 			phone,
+			firstTouch: clean.attribution,
 			message: isEmail
 				? 'Terugbelverzoek via de site — wil graag gemaild worden met meer info.'
 				: 'Terugbelverzoek via de site — wil graag teruggebeld worden met meer info.',
@@ -272,7 +275,8 @@ const handleCallback = async (raw: unknown, ip: string, now: number): Promise<Re
 		'Terugbelverzoek via de site.',
 		isEmail ? `E-mail: ${email}` : `Telefoon: ${phone}`,
 		`Voorkeur: ${isEmail ? 'mailen' : 'bellen'}`,
-		`Taal: ${clean.locale}`
+		`Taal: ${clean.locale}`,
+		...(clean.attribution ? [`Bron (site): ${describeAttribution(clean.attribution)}`] : [])
 	];
 
 	const token = env.POSTMARK_TOKEN;
@@ -428,6 +432,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 		`Wat: ${serviceTypeLabel(clean.serviceType, clean.locale !== 'en')} — ${clean.choice}`,
 		serving ? `Geserveerd: ${serving}` : null,
 		clean.referral ? `Hoe ons gevonden: ${clean.referral}` : null,
+		clean.attribution ? `Bron (site): ${describeAttribution(clean.attribution)}` : null,
 		`Taal: ${clean.locale}`,
 		'',
 		'Bericht:',

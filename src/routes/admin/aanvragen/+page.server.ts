@@ -1,393 +1,51 @@
-import { fail } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
+import { isCalendarEvent } from '$lib/deals';
 import { isDbConfigured } from '$lib/server/db';
-import { dismissLead, listOpenLeads } from '$lib/server/leads';
+import { listOpenLeads } from '$lib/server/leads';
+import { listDeals } from '$lib/server/deals';
 import {
-	createDeal,
-	deleteDeal,
-	deleteQuoteVersion,
-	getDeal,
-	listDeals,
-	setQuoteVisibility,
-	toDateOrNull,
-	updateDeal,
-	DEAL_STATUSES,
-	quoteDealFields,
-	type DealInput,
-	type DealStatus
-} from '$lib/server/deals';
-import {
-	activeQuoteOf,
-	normalizeOpsQuestions,
-	normalizePaymentTerm,
-	PREPAYMENT_STATUSES,
-	TIME_PHASES,
-	computeMetrics,
-	periodLeadTrend,
-	type OpsQuestion
-} from '$lib/deals';
+	addDays,
+	deleteDealAction,
+	convertLeadAction,
+	dismissLeadAction,
+	extendAcceptanceAction,
+	logFollowUpAction,
+	todayStr,
+	updateDealAction
+} from '$lib/server/admin/deal-actions';
 import type { Actions, PageServerLoad } from './$types';
-
-const todayStr = () => new Date().toISOString().slice(0, 10);
-
-const addDays = (iso: string, days: number) => {
-	const d = new Date(`${iso}T00:00:00Z`);
-	d.setUTCDate(d.getUTCDate() + days);
-	return d.toISOString().slice(0, 10);
-};
 
 export const load: PageServerLoad = async ({ url }) => {
 	const dbConfigured = isDbConfigured();
 	const deals = dbConfigured ? await listDeals() : [];
-	// Half-finished contact forms (step 1 only). Best-effort: never break the page.
+	// Half-finished contact forms: the earliest stage of an aanvraag, shown in
+	// the same list. Best-effort: never break the page.
 	const leads = dbConfigured ? await listOpenLeads().catch(() => []) : [];
 	const today = todayStr();
-	const soon = addDays(today, 7); // "verloopt binnenkort" window for table colouring
+	const soon = addDays(today, 7); // "verloopt" window for the chips and the geldig tot colour
 
+	// Agenda on top of the list: booked and in-optie deals with a date, plus the
+	// secret ICS link for subscribing from a phone or Google Agenda.
+	const events = deals.filter((d) => isCalendarEvent(d) && d.eventDate);
 	const calToken = env.CALENDAR_TOKEN;
 	const calendarUrl = calToken
 		? `${url.origin}/admin/calendar.ics?token=${encodeURIComponent(calToken)}`
 		: null;
 
-	return {
-		deals,
-		leads,
-		today,
-		soon,
-		dbConfigured,
-		calendarUrl,
-		origin: url.origin,
-		metrics: computeMetrics(deals),
-		trend: periodLeadTrend(deals, 14, new Date().toISOString())
-	};
-};
-
-const str = (fd: FormData, key: string, max = 1000): string =>
-	String(fd.get(key) ?? '')
-		.trim()
-		.slice(0, max);
-
-const amountOrNull = (fd: FormData, key: string): number | null => {
-	const raw = String(fd.get(key) ?? '')
-		.replace(',', '.')
-		.trim();
-	if (!raw) return null;
-	const n = Number(raw);
-	return Number.isFinite(n) && n >= 0 ? n : null;
-};
-
-const optionalDateTime = (fd: FormData, key: string): string | null => {
-	const value = str(fd, key, 25);
-	if (!value) return null;
-	const d = new Date(`${value}T23:59:59.999Z`);
-	return Number.isNaN(d.getTime()) ? null : d.toISOString();
-};
-
-const statusOf = (fd: FormData): DealStatus => {
-	const s = String(fd.get('status') ?? 'nieuw');
-	return (DEAL_STATUSES as readonly string[]).includes(s) ? (s as DealStatus) : 'nieuw';
-};
-
-const paymentStatusOf = (fd: FormData, key: string): string => {
-	const s = String(fd.get(key) ?? 'not_sent');
-	return (PREPAYMENT_STATUSES as readonly string[]).includes(s) ? s : 'not_sent';
-};
-
-const makeToken = () => {
-	const bytes = new Uint8Array(24);
-	crypto.getRandomValues(bytes);
-	return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
-};
-
-const hoursOrZero = (raw: string): number => {
-	const n = Number(raw.replace(',', '.').trim());
-	return Number.isFinite(n) && n > 0 ? n : 0;
-};
-
-// Read time_<phase> inputs from the full editor into a { phase: hours } object.
-const parseTimeSpent = (fd: FormData): Record<string, number> => {
-	const out: Record<string, number> = {};
-	for (const p of TIME_PHASES) {
-		const h = hoursOrZero(String(fd.get(`time_${p.key}`) ?? ''));
-		if (h > 0) out[p.key] = h;
-	}
-	return out;
-};
-
-const cleanQuestionKey = (value: string): string =>
-	value
-		.trim()
-		.replace(/[^a-zA-Z0-9_-]/g, '')
-		.slice(0, 60);
-
-const parseOpsQuestionsConfig = (fd: FormData): OpsQuestion[] => {
-	const questions: OpsQuestion[] = [];
-	const keys = fd.getAll('opsQuestionKey').map((v) => cleanQuestionKey(String(v)));
-
-	for (const key of keys) {
-		if (!key) continue;
-		const label = str(fd, `opsQuestionLabel_${key}`, 240);
-		if (!label) continue;
-		questions.push({
-			key,
-			label,
-			enabled: fd.get(`opsQuestionEnabled_${key}`) === 'yes'
-		});
-	}
-
-	for (let i = 1; i <= 3; i += 1) {
-		const label = str(fd, `opsQuestionNewLabel_${i}`, 240);
-		if (!label) continue;
-		questions.push({
-			key: `custom_${Date.now()}_${i}`,
-			label,
-			enabled: true
-		});
-	}
-
-	return normalizeOpsQuestions(questions);
+	return { deals, leads, today, soon, dbConfigured, events, calendarUrl };
 };
 
 export const actions: Actions = {
-	// Manual add + backfill of past aanvragen.
-	create: async ({ request }) => {
-		if (!isDbConfigured()) return fail(503, { error: 'Geen database geconfigureerd.' });
-
-		const fd = await request.formData();
-		const name = str(fd, 'name', 100);
-		if (!name) return fail(400, { error: 'Naam is verplicht.', form: 'create' });
-
-		const input: DealInput = {
-			name,
-			email: str(fd, 'email', 254),
-			phone: str(fd, 'phone', 30),
-			source: str(fd, 'source', 200),
-			attribution: str(fd, 'attribution', 200),
-			eventDate: toDateOrNull(str(fd, 'eventDate', 25)),
-			eventDateText: str(fd, 'eventDate', 25),
-			location: str(fd, 'location', 200),
-			guests: str(fd, 'guests', 10),
-			serviceType: str(fd, 'serviceType', 20),
-			choice: str(fd, 'choice', 120),
-			status: statusOf(fd),
-			paymentTerm: normalizePaymentTerm(fd.get('paymentTerm')),
-			offerteAmount: amountOrNull(fd, 'offerteAmount'),
-			btwAmount: amountOrNull(fd, 'btwAmount'),
-			costs: amountOrNull(fd, 'costs'),
-			offerteVerstuurdOp: toDateOrNull(str(fd, 'offerteVerstuurdOp', 25)),
-			geldigTot: toDateOrNull(str(fd, 'geldigTot', 25)),
-			geaccepteerdOp: toDateOrNull(str(fd, 'geaccepteerdOp', 25)),
-			message: str(fd, 'message', 5000),
-			notes: str(fd, 'notes', 5000),
-			origin: 'manual'
-		};
-
-		// Backfill: stamp the real original date so funnel metrics land in the
-		// right month. Empty → defaults to now().
-		const createdDate = toDateOrNull(str(fd, 'createdAt', 25));
-		if (createdDate) input.createdAt = `${createdDate}T12:00:00Z`;
-
-		try {
-			await createDeal(input);
-		} catch (err) {
-			return fail(500, { error: `Opslaan mislukt: ${(err as Error).message}`, form: 'create' });
-		}
-		return { created: true };
-	},
-
-	update: async ({ request }) => {
-		if (!isDbConfigured()) return fail(503, { error: 'Geen database geconfigureerd.' });
-
-		const fd = await request.formData();
-		const id = str(fd, 'id', 64);
-		if (!id) return fail(400, { error: 'id ontbreekt.' });
-
-		const existing = await getDeal(id);
-		if (!existing) return fail(404, { error: 'Aanvraag niet gevonden.' });
-
-		// Build a partial update from whichever fields the submitted form carried.
-		// The quick status form sends only id+status; the full editor sends all.
-		const fields: Partial<DealInput> = {};
-		if (fd.has('status')) fields.status = statusOf(fd);
-		if (fd.has('name')) fields.name = str(fd, 'name', 100);
-		if (fd.has('email')) fields.email = str(fd, 'email', 254);
-		if (fd.has('phone')) fields.phone = str(fd, 'phone', 30);
-		if (fd.has('source')) fields.source = str(fd, 'source', 200);
-		if (fd.has('attribution')) fields.attribution = str(fd, 'attribution', 200);
-		if (fd.has('eventDate')) {
-			fields.eventDate = toDateOrNull(str(fd, 'eventDate', 25));
-			fields.eventDateText = str(fd, 'eventDate', 25);
-		}
-		if (fd.has('location')) fields.location = str(fd, 'location', 200);
-		if (fd.has('guests')) fields.guests = str(fd, 'guests', 10);
-		if (fd.has('serviceType')) fields.serviceType = str(fd, 'serviceType', 20);
-		if (fd.has('choice')) fields.choice = str(fd, 'choice', 120);
-		if (fd.has('offerteAmount')) fields.offerteAmount = amountOrNull(fd, 'offerteAmount');
-		if (fd.has('btwAmount')) fields.btwAmount = amountOrNull(fd, 'btwAmount');
-		if (fd.has('costs')) fields.costs = amountOrNull(fd, 'costs');
-		// The full editor always submits the time inputs; the quick status form
-		// does not — gate on the first phase field being present.
-		if (fd.has(`time_${TIME_PHASES[0].key}`)) fields.timeSpent = parseTimeSpent(fd);
-		if (fd.has('offerteVerstuurdOp'))
-			fields.offerteVerstuurdOp = toDateOrNull(str(fd, 'offerteVerstuurdOp', 25));
-		if (fd.has('geldigTot')) fields.geldigTot = toDateOrNull(str(fd, 'geldigTot', 25));
-		if (fd.has('geaccepteerdOp'))
-			fields.geaccepteerdOp = toDateOrNull(str(fd, 'geaccepteerdOp', 25));
-		if (fd.has('paymentTerm')) fields.paymentTerm = normalizePaymentTerm(fd.get('paymentTerm'));
-		if (fd.has('acceptanceEnabled'))
-			fields.acceptanceEnabled = str(fd, 'acceptanceEnabled', 10) === 'true';
-		if (fd.has('acceptanceExpiresAt'))
-			fields.acceptanceExpiresAt = optionalDateTime(fd, 'acceptanceExpiresAt');
-		if (fd.has('prepaymentAmount')) fields.depositAmount = amountOrNull(fd, 'prepaymentAmount');
-		if (fd.has('prepaymentLink')) fields.depositLink = str(fd, 'prepaymentLink', 500);
-		if (fd.has('prepaymentStatus')) fields.depositStatus = paymentStatusOf(fd, 'prepaymentStatus');
-		if (fd.has('depositAmount')) fields.depositAmount = amountOrNull(fd, 'depositAmount');
-		if (fd.has('depositLink')) fields.depositLink = str(fd, 'depositLink', 500);
-		if (fd.has('depositStatus')) fields.depositStatus = paymentStatusOf(fd, 'depositStatus');
-		if (fd.has('finalPaymentAmount'))
-			fields.finalPaymentAmount = amountOrNull(fd, 'finalPaymentAmount');
-		if (fd.has('finalPaymentLink')) fields.finalPaymentLink = str(fd, 'finalPaymentLink', 500);
-		if (fd.has('finalPaymentStatus'))
-			fields.finalPaymentStatus = paymentStatusOf(fd, 'finalPaymentStatus');
-		if (fd.has('activeQuoteId')) {
-			const activeQuoteId = str(fd, 'activeQuoteId', 80);
-			fields.activeQuoteId = activeQuoteId;
-			const activeQuote = existing.quoteVersions.find((q) => q.id === activeQuoteId);
-			if (activeQuote) Object.assign(fields, quoteDealFields(activeQuote));
-		}
-		if (fd.has('portalQuestionsEnabled'))
-			fields.portalQuestionsEnabled = str(fd, 'portalQuestionsEnabled', 10) === 'true';
-		if (fd.has('opsQuestionsConfig')) fields.opsQuestions = parseOpsQuestionsConfig(fd);
-		if (fd.has('notes')) fields.notes = str(fd, 'notes', 5000);
-		if (fd.has('portalNote')) fields.portalNote = str(fd, 'portalNote', 2000);
-
-		// Convenience auto-stamps when advancing the pipeline and the date wasn't
-		// part of this form (so we never overwrite a value the user just cleared).
-		const today = todayStr();
-		// Sending an offerte or putting a date in option both start the 14-day
-		// hold window (offerte_verstuurd_op → geldig_tot). We handle freeing the
-		// date manually via the "verloopt binnenkort" list.
-		if (
-			(fields.status === 'offerte_verstuurd' || fields.status === 'in_optie') &&
-			!fd.has('offerteVerstuurdOp') &&
-			!existing.offerteVerstuurdOp
-		) {
-			fields.offerteVerstuurdOp = today;
-			if (!existing.geldigTot) fields.geldigTot = addDays(today, 14);
-		}
-		if (fields.status === 'geaccepteerd' && !fd.has('geaccepteerdOp') && !existing.geaccepteerdOp) {
-			fields.geaccepteerdOp = today;
-		}
-
-		try {
-			await updateDeal(id, fields);
-		} catch (err) {
-			return fail(500, { error: `Bijwerken mislukt: ${(err as Error).message}` });
-		}
-		return { updated: true };
-	},
-
-	generateAcceptance: async ({ request }) => {
-		if (!isDbConfigured()) return fail(503, { error: 'Geen database geconfigureerd.' });
-
-		const fd = await request.formData();
-		const id = str(fd, 'id', 64);
-		if (!id) return fail(400, { error: 'id ontbreekt.' });
-
-		const existing = await getDeal(id);
-		if (!existing) return fail(404, { error: 'Aanvraag niet gevonden.' });
-
-		const expires = new Date();
-		expires.setUTCDate(expires.getUTCDate() + 30);
-		expires.setUTCHours(23, 59, 59, 999);
-
-		try {
-			await updateDeal(id, {
-				acceptanceToken: makeToken(),
-				acceptanceEnabled: true,
-				acceptanceExpiresAt: expires.toISOString()
-			});
-		} catch (err) {
-			return fail(500, { error: `Acceptatielink maken mislukt: ${(err as Error).message}` });
-		}
-		return { generatedAcceptance: true };
-	},
-
-	// Keep an older revision out of the client portal without losing it here.
-	setQuoteVisibility: async ({ request }) => {
-		if (!isDbConfigured()) return fail(503, { error: 'Geen database geconfigureerd.' });
-
-		const fd = await request.formData();
-		const id = str(fd, 'id', 64);
-		const quoteId = str(fd, 'quoteId', 80);
-		if (!id || !quoteId) return fail(400, { error: 'id of quoteId ontbreekt.' });
-
-		const hidden = str(fd, 'hidden', 10) === 'true';
-
-		try {
-			const updated = await setQuoteVisibility(id, quoteId, hidden);
-			if (!updated) return fail(404, { error: 'Offerte niet gevonden.' });
-		} catch (err) {
-			return fail(500, { error: `Zichtbaarheid aanpassen mislukt: ${(err as Error).message}` });
-		}
-		return { quoteVisibilityChanged: true };
-	},
-
-	deleteQuote: async ({ request }) => {
-		if (!isDbConfigured()) return fail(503, { error: 'Geen database geconfigureerd.' });
-
-		const fd = await request.formData();
-		const id = str(fd, 'id', 64);
-		const quoteId = str(fd, 'quoteId', 80);
-		if (!id || !quoteId) return fail(400, { error: 'id of quoteId ontbreekt.' });
-
-		const existing = await getDeal(id);
-		if (!existing) return fail(404, { error: 'Aanvraag niet gevonden.' });
-
-		// Once a client has signed, the active quote is what they signed for.
-		// Verbergen is still fine; weggooien is not. Resolved the same way the
-		// portal resolves it, so a deal with an empty activeQuoteId but an
-		// `active`-flagged version is still protected.
-		if (existing.acceptedTermsAt && activeQuoteOf(existing)?.id === quoteId) {
-			return fail(400, {
-				error:
-					'Deze offerte is al geaccepteerd door de klant en kan niet verwijderd worden. Verberg hem in plaats daarvan.'
-			});
-		}
-
-		try {
-			const updated = await deleteQuoteVersion(id, quoteId);
-			if (!updated) return fail(404, { error: 'Offerte niet gevonden.' });
-		} catch (err) {
-			return fail(500, { error: `Offerte verwijderen mislukt: ${(err as Error).message}` });
-		}
-		return { quoteDeleted: true };
-	},
-
-	delete: async ({ request }) => {
-		if (!isDbConfigured()) return fail(503, { error: 'Geen database geconfigureerd.' });
-		const fd = await request.formData();
-		const id = str(fd, 'id', 64);
-		if (!id) return fail(400, { error: 'id ontbreekt.' });
-		try {
-			await deleteDeal(id);
-		} catch (err) {
-			return fail(500, { error: `Verwijderen mislukt: ${(err as Error).message}` });
-		}
-		return { deleted: true };
-	},
-
-	/** Hide a half-finished contact form from the follow-up list. */
-	dismissLead: async ({ request }) => {
-		if (!isDbConfigured()) return fail(503, { error: 'Geen database geconfigureerd.' });
-		const fd = await request.formData();
-		const id = str(fd, 'id', 64);
-		if (!id) return fail(400, { error: 'id ontbreekt.' });
-		try {
-			await dismissLead(id);
-		} catch (err) {
-			return fail(500, { error: `Wegklikken mislukt: ${(err as Error).message}` });
-		}
-		return { leadDismissed: true };
+	update: updateDealAction,
+	delete: deleteDealAction,
+	dismissLead: dismissLeadAction,
+	logFollowUp: logFollowUpAction,
+	extendAcceptance: extendAcceptanceAction,
+	convertLead: async (event) => {
+		const result = await convertLeadAction(event);
+		if (!('id' in result)) return result;
+		// Straight to the new aanvraag, so you can file the rest right away.
+		redirect(303, result.id ? `/admin/aanvragen/${result.id}` : '/admin/aanvragen');
 	}
 };

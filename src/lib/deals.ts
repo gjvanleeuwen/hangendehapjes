@@ -2,15 +2,18 @@
 // can be used from both server code and Svelte components. The actual database
 // access lives in $lib/server/deals.ts.
 import { calcTotals, round2 } from '$lib/admin/calc';
+import type { DocumentState } from '$lib/admin/types';
 
 export const DEAL_STATUSES = [
 	'nieuw',
 	'offerte_verstuurd',
 	'in_optie',
 	'geaccepteerd',
+	'geleverd',
+	'factuur_verstuurd',
+	'afgerond',
 	'afgewezen',
-	'afgewezen_intern',
-	'afgerond'
+	'afgewezen_intern'
 ] as const;
 
 export type DealStatus = (typeof DEAL_STATUSES)[number];
@@ -20,10 +23,98 @@ export const STATUS_LABELS: Record<DealStatus, string> = {
 	offerte_verstuurd: 'Offerte verstuurd',
 	in_optie: 'In optie',
 	geaccepteerd: 'Geaccepteerd',
+	geleverd: 'Geleverd', // event is geweest
+	factuur_verstuurd: 'Factuur verstuurd',
+	// Stored as 'afgerond' (the old catch-all "klaar" status) so existing rows
+	// need no migration: the last step of a booking is now "fully paid".
+	afgerond: 'Betaald (afgerond)',
 	afgewezen: 'Afgewezen (klant)', // klant wilde niet / koos iemand anders
-	afgewezen_intern: 'Afgewezen (wij)', // wij konden niet — geen capaciteit / datum bezet
-	afgerond: 'Afgerond'
+	afgewezen_intern: 'Afgewezen (wij)' // wij konden niet — geen capaciteit / datum bezet
 };
+
+// A booking, from yes to fully paid. Every one of these counts as won.
+export const WON_STATUSES = ['geaccepteerd', 'geleverd', 'factuur_verstuurd', 'afgerond'] as const;
+
+// Why a client said no. One click in the admin; the funnel report groups on it.
+export const LOST_REASONS = [
+	'',
+	'prijs',
+	'andere_leverancier',
+	'datum_vervallen',
+	'geen_reactie',
+	'anders'
+] as const;
+export type LostReason = (typeof LOST_REASONS)[number];
+export const LOST_REASON_LABELS: Record<LostReason, string> = {
+	'': 'Onbekend',
+	prijs: 'Te duur',
+	andere_leverancier: 'Andere leverancier gekozen',
+	datum_vervallen: 'Feest gaat niet door / datum veranderd',
+	geen_reactie: 'Geen reactie meer',
+	anders: 'Anders (zie notitie)'
+};
+
+// Why WE said no ('afgewezen_intern'). Stored in the same lost_reason column;
+// the funnel report only reads it for 'afgewezen' (klant), so these never mix
+// into the "why do clients say no" numbers.
+export const DECLINE_REASONS = [
+	'',
+	'datum_bezet',
+	'geen_capaciteit',
+	'te_ver',
+	'te_klein',
+	'past_niet',
+	'anders'
+] as const;
+export type DeclineReason = (typeof DECLINE_REASONS)[number];
+export const DECLINE_REASON_LABELS: Record<DeclineReason, string> = {
+	'': 'Onbekend',
+	datum_bezet: 'Datum al bezet',
+	geen_capaciteit: 'Geen tijd of capaciteit',
+	te_ver: 'Te ver weg',
+	te_klein: 'Te klein voor ons',
+	past_niet: 'Past niet bij ons',
+	anders: 'Anders (zie notitie)'
+};
+
+/** Every value the lost_reason column may hold. */
+export const ALL_REASONS: readonly string[] = [...new Set([...LOST_REASONS, ...DECLINE_REASONS])];
+
+/** The reasons that fit a status: client reasons, our reasons, or none. */
+export function reasonOptions(status: string): { value: string; label: string }[] {
+	if (status === 'afgewezen')
+		return LOST_REASONS.map((r) => ({ value: r, label: LOST_REASON_LABELS[r] }));
+	if (status === 'afgewezen_intern')
+		return DECLINE_REASONS.map((r) => ({ value: r, label: DECLINE_REASON_LABELS[r] }));
+	return [];
+}
+
+/** True when the stored reason belongs to this status's list. */
+export const isValidReason = (status: string, reason: string) =>
+	!!reason && reasonOptions(status).some((o) => o.value === reason);
+
+/** A rejected deal (either way) that still has no fitting reason. */
+export const needsReason = (d: Pick<Deal, 'status' | 'lostReason'>) =>
+	(d.status === 'afgewezen' || d.status === 'afgewezen_intern') &&
+	!isValidReason(d.status, d.lostReason);
+
+// How likely an open deal is to book. A gut feeling, set by hand. The weights
+// turn it into a weighted pipeline value on the dashboard.
+export const KANS_LEVELS = ['', 'laag', 'midden', 'hoog'] as const;
+export type Kans = (typeof KANS_LEVELS)[number];
+export const KANS_LABELS: Record<Kans, string> = {
+	'': 'Kans?',
+	laag: 'Laag',
+	midden: 'Midden',
+	hoog: 'Hoog'
+};
+export const KANS_WEIGHTS: Record<Kans, number> = { '': 0.5, laag: 0.2, midden: 0.5, hoog: 0.8 };
+export const kansOf = (d: Pick<Deal, 'kans'>): Kans =>
+	(KANS_LEVELS as readonly string[]).includes(d.kans) ? (d.kans as Kans) : '';
+
+// Days between follow-up steps on an open offerte: herinnering 1 this long after
+// sending, herinnering 2 after that, then bellen.
+export const FOLLOW_UP_DAYS = 7;
 
 export type Deal = {
 	id: string;
@@ -34,6 +125,7 @@ export type Deal = {
 	phone: string;
 	source: string; // what the lead said in the form ("Hoe ons gevonden")
 	attribution: string; // our corrected/known bucket for funnel analysis
+	firstTouch: string; // JSON {first,last} touch the site captured at submit ('' for manual rows)
 	eventDate: string | null; // YYYY-MM-DD
 	eventDateText: string; // original free-text date (e.g. "ergens in september")
 	location: string;
@@ -50,6 +142,17 @@ export type Deal = {
 	offerteVerstuurdOp: string | null; // YYYY-MM-DD
 	geldigTot: string | null; // YYYY-MM-DD
 	geaccepteerdOp: string | null; // YYYY-MM-DD
+	firstReplyOn: string | null; // YYYY-MM-DD, our first answer (auto-stamped when leaving 'nieuw')
+	afgewezenOp: string | null; // YYYY-MM-DD, client said no (auto-stamped on 'afgewezen')
+	factuurVerstuurdOp: string | null; // YYYY-MM-DD (auto-stamped on 'factuur_verstuurd')
+	betaaldOp: string | null; // YYYY-MM-DD, fully paid (auto-stamped on 'afgerond')
+	// Chasing an open offerte: two reminders, then a call to close it out.
+	herinnering1Op: string | null; // YYYY-MM-DD
+	herinnering2Op: string | null; // YYYY-MM-DD
+	gebeldOp: string | null; // YYYY-MM-DD
+	kans: string; // one of KANS_LEVELS: our gut feeling this one books
+	eventSheet: Record<string, unknown>; // saved edits of the printable event sheet
+	lostReason: string; // one of LOST_REASONS
 	acceptanceToken: string;
 	acceptanceEnabled: boolean;
 	acceptanceExpiresAt: string | null; // ISO timestamp
@@ -75,6 +178,7 @@ export type Deal = {
 	finalPaymentLink: string;
 	finalPaymentStatus: string;
 	quoteVersions: QuoteVersion[];
+	invoices: InvoiceRecord[]; // facturen we put in the klantportaal
 	activeQuoteId: string;
 	portalQuestionsEnabled: boolean;
 	portalNote: string; // free note shown to the client in the portal
@@ -93,6 +197,7 @@ export type DealInput = {
 	phone?: string;
 	source?: string;
 	attribution?: string;
+	firstTouch?: string;
 	eventDate?: string | null;
 	eventDateText?: string;
 	location?: string;
@@ -109,6 +214,16 @@ export type DealInput = {
 	offerteVerstuurdOp?: string | null;
 	geldigTot?: string | null;
 	geaccepteerdOp?: string | null;
+	firstReplyOn?: string | null;
+	afgewezenOp?: string | null;
+	factuurVerstuurdOp?: string | null;
+	betaaldOp?: string | null;
+	herinnering1Op?: string | null;
+	herinnering2Op?: string | null;
+	gebeldOp?: string | null;
+	kans?: string;
+	eventSheet?: Record<string, unknown>;
+	lostReason?: string;
 	acceptanceToken?: string;
 	acceptanceEnabled?: boolean;
 	acceptanceExpiresAt?: string | null;
@@ -130,6 +245,7 @@ export type DealInput = {
 	finalPaymentLink?: string;
 	finalPaymentStatus?: string;
 	quoteVersions?: QuoteVersion[];
+	invoices?: InvoiceRecord[];
 	activeQuoteId?: string;
 	portalQuestionsEnabled?: boolean;
 	portalNote?: string;
@@ -267,6 +383,46 @@ export function normalizeQuoteVersions(value: unknown): QuoteVersion[] {
 
 	return out;
 }
+
+/**
+ * A factuur saved on the deal and shown in the klantportaal. We keep the whole
+ * document as it was when saved, so the portal shows exactly that factuur even
+ * if we change our defaults later. Keyed by factuurnummer: saving the same
+ * number again replaces it.
+ */
+export type InvoiceRecord = {
+	id: string;
+	number: string;
+	createdAt: string; // ISO
+	amountDue: number; // what this factuur asks the client to pay
+	doc: DocumentState;
+};
+
+export function normalizeInvoices(value: unknown): InvoiceRecord[] {
+	if (!Array.isArray(value)) return [];
+	const out: InvoiceRecord[] = [];
+	for (const raw of value) {
+		if (!raw || typeof raw !== 'object') continue;
+		const r = raw as Record<string, unknown>;
+		const doc = r.doc as DocumentState | undefined;
+		const number = String(r.number ?? '').slice(0, 40);
+		if (!number || !doc || typeof doc !== 'object' || !Array.isArray(doc.lineItems)) continue;
+		out.push({
+			id: String(r.id ?? number).slice(0, 80),
+			number,
+			createdAt: String(r.createdAt ?? new Date().toISOString()),
+			amountDue: Number(r.amountDue) || 0,
+			doc: { ...doc, kind: 'factuur' }
+		});
+	}
+	return out;
+}
+
+/** Which payment a factuur settles, to show its paid state in the portal. */
+export const invoicePaymentStatus = (
+	inv: InvoiceRecord,
+	d: Pick<Deal, 'depositStatus' | 'finalPaymentStatus'>
+) => (inv.doc.invoiceType === 'aanbetaling' ? d.depositStatus : d.finalPaymentStatus);
 
 export function activeQuoteOf(
 	deal: Pick<Deal, 'quoteVersions' | 'activeQuoteId'>
@@ -519,19 +675,17 @@ export const isOfferteSent = (d: Pick<Deal, 'status' | 'offerteVerstuurdOp'>) =>
 	(!!d.offerteVerstuurdOp ||
 		d.status === 'offerte_verstuurd' ||
 		d.status === 'in_optie' ||
-		d.status === 'geaccepteerd' ||
-		d.status === 'afgerond');
+		isWon(d));
 
 export const isWon = (d: Pick<Deal, 'status'>) =>
-	d.status === 'geaccepteerd' || d.status === 'afgerond';
+	(WON_STATUSES as readonly string[]).includes(d.status);
 
 // Offerte out, awaiting a final yes/no — counts toward "pending sales".
 export const isPending = (d: Pick<Deal, 'status'>) =>
 	d.status === 'offerte_verstuurd' || d.status === 'in_optie';
 
 // Shown on the agenda calendar / ICS feed (a provisional hold or a real booking).
-export const isCalendarEvent = (d: Pick<Deal, 'status'>) =>
-	d.status === 'in_optie' || d.status === 'geaccepteerd' || d.status === 'afgerond';
+export const isCalendarEvent = (d: Pick<Deal, 'status'>) => d.status === 'in_optie' || isWon(d);
 
 // Prefer our corrected attribution bucket; fall back to what the lead said.
 export const effectiveSource = (d: Pick<Deal, 'source' | 'attribution'>) =>
@@ -594,6 +748,7 @@ export type Metrics = {
 	pendingTakeHome: number; // potential take-home if all pending offertes land
 	optieValue: number; // offerteAmount of deals specifically in optie
 	optieTakeHome: number; // take-home of deals specifically in optie
+	weightedPendingValue: number; // pendingValue weighted by each deal's kans
 	vat: number; // BTW on won sales
 	costs: number; // costs on won deals
 	takeHome: number; // revenue excl. BTW − costs, over won deals
@@ -624,6 +779,10 @@ export function computeMetrics(deals: Deal[], monthsBack = 6): Metrics {
 	const optieDeals = deals.filter((d) => d.status === 'in_optie');
 	const optieValue = optieDeals.reduce((sum, d) => sum + (d.offerteAmount ?? 0), 0);
 	const optieTakeHome = optieDeals.reduce((sum, d) => sum + dealTakeHome(d), 0);
+	const weightedPendingValue = pendingDeals.reduce(
+		(sum, d) => sum + (d.offerteAmount ?? 0) * KANS_WEIGHTS[kansOf(d)],
+		0
+	);
 
 	const months = new Map<string, MonthMetric>();
 	for (const d of deals) {
@@ -682,6 +841,7 @@ export function computeMetrics(deals: Deal[], monthsBack = 6): Metrics {
 		pendingTakeHome,
 		optieValue,
 		optieTakeHome,
+		weightedPendingValue,
 		vat,
 		costs,
 		takeHome,
@@ -784,4 +944,25 @@ export function toDateOrNull(value: string | null | undefined): string | null {
 		return null;
 	}
 	return `${y}-${mo}-${d}`;
+}
+
+// After an akkoord the klantlink stays open until this many days after the
+// event: long enough for the practical questions, the eindfactuur and paying
+// it, also when we mark payments that came in outside the link.
+export const PORTAL_DAYS_AFTER_EVENT = 21;
+
+/**
+ * The klantlink end date (ISO, end of day UTC) for a booked event, or null
+ * when the current one already runs that long (we never shorten it) or there
+ * is no event date to count from.
+ */
+export function portalExpiryAfterEvent(
+	eventDate: string | null | undefined,
+	currentExpiry: string | null | undefined
+): string | null {
+	if (!eventDate || !/^\d{4}-\d{2}-\d{2}/.test(eventDate)) return null;
+	const target = new Date(`${eventDate.slice(0, 10)}T23:59:59.999Z`);
+	target.setUTCDate(target.getUTCDate() + PORTAL_DAYS_AFTER_EVENT);
+	const iso = target.toISOString();
+	return currentExpiry && currentExpiry >= iso ? null : iso;
 }

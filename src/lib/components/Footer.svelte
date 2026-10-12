@@ -58,6 +58,7 @@
 			<a
 				class="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
 				href={WHATSAPP_URL}
+				data-umami-event="footer_whatsapp"
 				target="_blank"
 				rel="noopener noreferrer"
 			>
@@ -77,6 +78,7 @@
 			<a
 				class="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground"
 				href="mailto:info@hangendehapjes.nl"
+				data-umami-event="footer_mail"
 			>
 				<MailIcon class="size-4" />
 				info@hangendehapjes.nl
@@ -87,6 +89,7 @@
 					target="_blank"
 					rel="noopener noreferrer"
 					aria-label={t.footer.instagram}
+					data-umami-event="footer_instagram"
 					class="hover:text-foreground"
 				>
 					<svg
@@ -110,6 +113,7 @@
 					target="_blank"
 					rel="noopener noreferrer"
 					aria-label={t.footer.facebook}
+					data-umami-event="footer_facebook"
 					class="hover:text-foreground"
 				>
 					<svg
@@ -131,6 +135,7 @@
 					target="_blank"
 					rel="noopener noreferrer"
 					aria-label={t.footer.tiktok}
+					data-umami-event="footer_tiktok"
 					class="hover:text-foreground"
 				>
 					<svg

@@ -4,6 +4,13 @@ const HEADER_CHARS = /[<>"\\\r\n]/g;
 const CRLF = /[\r\n]/g;
 const CRLF_NORMALIZE = /\r\n/g;
 
+// First/last-touch JSON captured client-side (see $lib/attribution). Opaque
+// here; the endpoint stores it and summarises it for the email.
+const attributionField = v.optional(
+	v.pipe(v.string(), v.maxLength(2000, 'attribution too long')),
+	''
+);
+
 /**
  * Step-1 snapshot sent when a visitor clicks "Volgende": just enough to follow
  * up if they never finish step 2. Same cleaning rules as the full payload.
@@ -41,6 +48,7 @@ export const LeadSchema = v.object({
 		''
 	),
 	locale: v.optional(v.picklist(['nl', 'en']), 'nl'),
+	attribution: attributionField,
 	// Honeypot: bots fill every field. Non-empty means we silently drop it.
 	subject: v.optional(v.string(), '')
 });
@@ -123,6 +131,7 @@ export const PayloadSchema = v.object({
 		v.minLength(1, 'message is required'),
 		v.maxLength(5000, 'message too long')
 	),
+	attribution: attributionField,
 	// Honeypot. Hidden from real users; bots fill every field. Named `subject`
 	// (not `website`/`url`) so password managers don't autofill it and trip real
 	// visitors. Must stay empty — a non-empty value is handled in the endpoint.
@@ -146,6 +155,7 @@ export const CallbackSchema = v.object({
 		v.minLength(3, 'contact is required'),
 		v.maxLength(254, 'contact too long')
 	),
+	attribution: attributionField,
 	// Honeypot — see PayloadSchema.subject.
 	subject: v.optional(v.string(), ''),
 	locale: v.optional(v.picklist(['nl', 'en']), 'nl')

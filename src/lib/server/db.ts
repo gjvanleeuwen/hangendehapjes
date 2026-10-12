@@ -68,6 +68,8 @@ export async function ensureSchema(): Promise<Sql | null> {
 					phone                text NOT NULL DEFAULT '',
 					source               text NOT NULL DEFAULT '',
 					attribution          text NOT NULL DEFAULT '',
+					-- JSON {first,last} touch captured by the site at submit (see $lib/attribution)
+					first_touch          text NOT NULL DEFAULT '',
 
 					-- event details
 					event_date           date,
@@ -87,6 +89,10 @@ export async function ensureSchema(): Promise<Sql | null> {
 					offerte_verstuurd_op date,
 					geldig_tot           date,
 					geaccepteerd_op      date,
+					-- funnel timing: when we first answered, when the client said no, and why
+					first_reply_on       date,
+					afgewezen_op         date,
+					lost_reason          text NOT NULL DEFAULT '',
 
 					-- quote acceptance / client portal
 					acceptance_token     text NOT NULL DEFAULT '',
@@ -136,6 +142,18 @@ export async function ensureSchema(): Promise<Sql | null> {
 
 			// Migrations for tables created by an earlier version of the schema.
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS attribution text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS first_touch text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS first_reply_on date`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS afgewezen_op date`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS factuur_verstuurd_op date`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS betaald_op date`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS herinnering_1_op date`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS herinnering_2_op date`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS gebeld_op date`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS kans text NOT NULL DEFAULT ''`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS event_sheet text NOT NULL DEFAULT '{}'`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS invoices text NOT NULL DEFAULT '[]'`;
+			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS lost_reason text NOT NULL DEFAULT ''`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS btw_amount numeric(10,2)`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS costs numeric(10,2)`;
 			await sql`ALTER TABLE deals ADD COLUMN IF NOT EXISTS time_spent text NOT NULL DEFAULT '{}'`;
@@ -209,10 +227,12 @@ export async function ensureSchema(): Promise<Sql | null> {
 					service_type text NOT NULL DEFAULT '',
 					choice       text NOT NULL DEFAULT '',
 					locale       text NOT NULL DEFAULT 'nl',
+					first_touch  text NOT NULL DEFAULT '',
 					completed_at timestamptz,
 					dismissed_at timestamptz
 				);
 			`;
+			await sql`ALTER TABLE contact_leads ADD COLUMN IF NOT EXISTS first_touch text NOT NULL DEFAULT ''`;
 
 			// Keep the status whitelist in sync with DEAL_STATUSES (e.g. adds
 			// 'in_optie'). Drop + re-add so new statuses are always accepted.

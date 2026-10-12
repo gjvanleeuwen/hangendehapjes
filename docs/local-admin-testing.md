@@ -47,10 +47,10 @@ Log in with `ADMIN_PASSWORD`.
 ## 4. Test the acceptance flow
 
 1. Go to `/admin/aanvragen`.
-2. Add or open a deal.
-3. Set event date, offerte amount, aanbetaling amount, and betaallink.
-4. Generate the klantlink.
-5. Keep the klantlink enabled and set an expiry date.
+2. Add a deal via "+ Nieuwe aanvraag" (`/admin/aanvragen/nieuw`) or click a row to open `/admin/aanvragen/[id]`.
+3. Set the event date on the "Contact & event" tab and the offerte amount on "Pijplijn".
+4. On "Offerte & portaal": click "Klantlink maken", fill in the aanbetaling amount and Mollie link, save.
+5. Keep the klantlink on ("Link: Aan") and set an expiry date.
 6. Open the generated `/klantportaal/[token]` link.
 7. Accept terms, fill details, save, and check that the payment button appears.
 

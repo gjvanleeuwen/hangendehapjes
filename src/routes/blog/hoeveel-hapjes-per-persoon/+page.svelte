@@ -12,7 +12,10 @@
 	import { nl } from '$lib/i18n/nl';
 	import { BLOG_FAQS_NL, buildFaqJsonLd, type BlogFaq } from '$lib/blog/faqs';
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
-	import BlogCta from '$lib/blog/BlogCta.svelte';
+	import BlogContactForm from '$lib/blog/BlogContactForm.svelte';
+	import BlogTopCta from '$lib/blog/BlogTopCta.svelte';
+	import BlogStickyCta from '$lib/blog/BlogStickyCta.svelte';
+	import { trackInView } from '$lib/inView';
 
 	const headline = 'Hoeveel hapjes moet je serveren per persoon voor een receptie of bruiloft?';
 	const title = 'Hoeveel hapjes per persoon? Echte cijfers van een caterer | Hangende Hapjes';
@@ -96,7 +99,7 @@
 	{@html faqJsonLdHtml}
 </svelte:head>
 
-<div id="top" class="bg-background text-foreground">
+<div id="top" class="bg-background pb-16 text-foreground md:pb-0">
 	<Nav t={nl} />
 	<main>
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
@@ -116,6 +119,8 @@
 					nodig hebt.
 				</p>
 			</header>
+
+			<BlogTopCta event="hapjes" />
 
 			<section
 				class="mt-10 rounded-lg bg-(--brand-magenta)/8 p-6 data-[state=open]:bg-(--brand-magenta)/12 md:p-8"
@@ -181,7 +186,7 @@
 				</p>
 			</section>
 
-			<section class="mt-12 space-y-4">
+			<section class="mt-12 space-y-4" use:trackInView={{ event: 'blog_hapjes_prices_view' }}>
 				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Kosten Hangende Hapjes</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					In de volgende tabel zie je de verwachte prijzen (excl. BTW) voor de tiramisu en de
@@ -268,10 +273,12 @@
 				</p>
 			</section>
 
-			<BlogCta
+			<BlogContactForm
 				event="hapjes"
 				heading="Plan je feest? Vertel ons hoeveel gasten je verwacht."
-				body="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: hartig, zoet of beide."
+				intro="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: hartig, zoet of beide."
+				preselect="tiramisu-live"
+				cards={['tiramisu-live', 'burrata-live']}
 			/>
 
 			<BlogFaqSection
@@ -280,5 +287,6 @@
 			/>
 		</article>
 	</main>
+	<BlogStickyCta event="hapjes" waText="Hoi! Ik heb een vraag over Hangende Hapjes 👋" />
 	<Footer t={nl} />
 </div>
