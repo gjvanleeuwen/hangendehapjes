@@ -117,3 +117,54 @@ tiramisu-nov26,2026-11-03,2026-11-09,71.20,205
 3. Win rate on ad leads against 20%.
 
 All three hold: scale in January. One fails: fix that one thing, retest with the same setup. Two fail: Instagram ads are not our channel yet; put the time into the organic pages, which already deliver leads at €0.
+
+## Creatives, final
+
+Reset on 13 oktober 2026. The ad sells the feeling of tiramisu on your wedding, in pictures only. The couple in the photos is the audience. We appear on the last card. No text on the images: carousel ads put the words in Ads Manager, one headline under each card and the primary text above, and the profile name and avatar already brand the ad. No video for this test; a new reel comes later (the old cut is parked in `design/ads/reel.ts`).
+
+Built by `bun design/ads/build.ts` from `design/ads/copy.ts` (photos, crops, headlines, primary text). Output in `design/ads/out/<ad>/card-<n>-1080x1350.jpg`, 4:5 for the feed. Set `SIZES` in the build script for 1080x1920 stories versions, `WORDMARK` for a small wordmark top left. Run the script from your own terminal; Chrome cannot start in the Claude Code sandbox.
+
+Prices checked against `/blog/tiramisu-bruiloft`: taart vanaf €375 voor 30 gasten, reiskosten inbegrepen tot ~30 km rond Hilversum.
+
+### The story, three cards
+
+| Card | Photo                                                                                                    | Headline under the card (Ads Manager, Gijs rewrites) |
+| ---- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 1    | `tiramisutaart_bruiloft_aansnijden.jpeg`, the castle couple cutting the taart, Just Married in the cacao | Tiramisutaart op jullie bruiloft                     |
+| 2    | `tiramisutaart_cacao.jpg`, the shoot couple dusting the last cacao                                       | Samen afmaken met cacao                              |
+| 3    | `owners.jpeg`, the two of us with the tray                                                               | Vanaf €375 voor 30 gasten                            |
+
+### Three variants, run at the same time in one ad set
+
+Same story, different opening. Meta splits the budget by performance; after €50 the decision rules above apply per ad.
+
+| Ad name                           | Cards                                                                                    | utm_content |
+| --------------------------------- | ---------------------------------------------------------------------------------------- | ----------- |
+| `tiramisu-nov26 carousel kasteel` | castle, cacao, us                                                                        | `kasteel`   |
+| `tiramisu-nov26 carousel shoot`   | cacao, castle, us                                                                        | `shoot`     |
+| `tiramisu-nov26 carousel split`   | castle and cacao in one diagonal split, the couple tasting ("Een echte showstopper"), us | `split`     |
+
+Kasteel against shoot tells us which opening photo stops the scroll. Kasteel against split tells us whether one picture or the hero-style pair opens better. Three ads at €10 a day will not isolate everything; read it as which package wins.
+
+Links, one per ad, same page:
+
+```
+https://hangendehapjes.nl/blog/tiramisu-bruiloft?utm_source=instagram&utm_medium=paid&utm_campaign=tiramisu-nov26&utm_content=kasteel
+https://hangendehapjes.nl/blog/tiramisu-bruiloft?utm_source=instagram&utm_medium=paid&utm_campaign=tiramisu-nov26&utm_content=shoot
+https://hangendehapjes.nl/blog/tiramisu-bruiloft?utm_source=instagram&utm_medium=paid&utm_campaign=tiramisu-nov26&utm_content=split
+```
+
+### Copy, all three ads (NL only, Gijs rewrites)
+
+The hook is the first sentence of the primary text. Draft:
+
+> Een tiramisutaart als bruidstaart. Wij bouwen hem op locatie op, met jullie namen of Just Married in de cacao, en jullie snijden hem samen aan. Vanaf €375 voor 30 gasten, reiskosten inbegrepen tot 30 km rond Hilversum. Check of jullie datum nog vrij is.
+
+Button: "Meer informatie". Card headlines as in the table above; keep each under about 40 characters so Meta does not truncate them in feed.
+
+### Upload checklist
+
+1. Campaign `tiramisu-nov26`, settings as in "Campaign setup" above, one ad set, three ads instead of two.
+2. Per ad: carousel, three cards in order from `design/ads/out/<ad>/`, the matching link on every card, the headline per card, primary text, button.
+3. Turn off "optimise carousel card order" so the story stays in order.
+4. Preview on a phone in the feed before publishing; the NU Fotograferen watermark on the castle photo stays, as on the site.

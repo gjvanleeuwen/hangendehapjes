@@ -18,7 +18,6 @@
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
 	import BlogContactForm from '$lib/blog/BlogContactForm.svelte';
 	import BlogTopCta from '$lib/blog/BlogTopCta.svelte';
-	import BlogStickyCta from '$lib/blog/BlogStickyCta.svelte';
 	import { trackInView } from '$lib/inView';
 
 	const headline = 'Burrata bar voor jouw feest: live, per gast opgebouwd';
@@ -169,8 +168,8 @@
 	{@html productJsonLdHtml}
 </svelte:head>
 
-<div id="top" class="bg-background pb-16 text-foreground md:pb-0">
-	<Nav t={nl} />
+<div id="top" class="bg-background text-foreground">
+	<Nav t={nl} contactHref="#aanvraag" />
 	<main>
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
 			<header class="space-y-4">
@@ -199,7 +198,7 @@
 				</li>
 			</BlogSummary>
 
-			<BlogTopCta event="burrata" />
+			<BlogTopCta event="burrata" lead="Feest in de planning?" label="Vraag een voorstel aan" />
 
 			<figure class="mt-10 overflow-hidden rounded-xl bg-muted">
 				<div class="aspect-3/2">
@@ -408,7 +407,7 @@
 			<BlogContactForm
 				event="burrata"
 				heading="Burrata op jouw feest? Stuur ons je datum."
-				intro="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: alleen burrata, alleen tiramisu, of beide."
+				intro="Stuur ons je datum, locatie en aantal gasten. Je hoort dezelfde dag nog van ons met een voorstel op maat: alleen burrata, alleen tiramisu, of beide."
 				preselect="burrata-live"
 				cards={['burrata-live', 'tiramisu-live']}
 			/>
@@ -419,6 +418,5 @@
 			/>
 		</article>
 	</main>
-	<BlogStickyCta event="burrata" waText="Hoi! Ik heb een vraag over een burrata bar 👋" />
 	<Footer t={nl} />
 </div>

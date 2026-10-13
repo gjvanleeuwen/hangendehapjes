@@ -171,7 +171,7 @@ export const en: Translations = {
 				id: 'booking',
 				question: 'How does booking work and how far in advance?',
 				answer:
-					'Fill in the contact form with your date, location and number of guests. We’ll get back to you within 1–2 days with a tailored proposal. Sound good? Then the booking is set. We can often turn things around quickly, sometimes even same-day, but to be safe we recommend booking at least 2 to 3 months ahead.'
+					'Fill in the contact form with your date, location and number of guests. You’ll hear from us the same day, with a tailored proposal. Sound good? Then the booking is set. We can often turn things around quickly, sometimes even same-day, but to be safe we recommend booking at least 2 to 3 months ahead.'
 			},
 			{
 				id: 'travel',
@@ -270,8 +270,7 @@ export const en: Translations = {
 	},
 	contact: {
 		heading: 'Book us for your party',
-		intro:
-			'Tell us briefly what you’re planning, then we’ll get back to you within 1–2 days with a proposal.',
+		intro: 'Tell us briefly what you’re planning and you’ll hear from us the same day.',
 		labels: {
 			name: 'Name',
 			email: 'Email',
@@ -340,7 +339,7 @@ export const en: Translations = {
 		submit: 'Send',
 		submitting: 'Sending…',
 		successTitle: 'Thanks!',
-		successBody: 'We usually reply within 1–2 days.',
+		successBody: 'We usually reply the same day.',
 		errorTitle: 'Sending failed',
 		errorBody:
 			'Something went wrong. Try again in a bit, or email us directly at info@hangendehapjes.nl.',

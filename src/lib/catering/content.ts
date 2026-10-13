@@ -119,7 +119,7 @@ const HILVERSUM_NL: LocationContent = {
 	serviceName: 'Live catering in Hilversum',
 	cta: {
 		heading: 'Catering in Hilversum nodig? Stuur ons je datum.',
-		body: 'Geef je datum, locatie en aantal gasten door, dan komen we binnen 1–2 dagen terug met een voorstel op maat. Tiramisu, burrata of allebei: wij denken graag met je mee.',
+		body: 'Geef je datum, locatie en aantal gasten door, dan hoor je dezelfde dag nog van ons met een voorstel op maat. Tiramisu, burrata of allebei: wij denken graag met je mee.',
 		offerButton: 'Vraag een voorstel aan',
 		waButton: 'Stuur een WhatsApp',
 		waText: 'Hoi! Ik wil graag catering in Hilversum bij Hangende Hapjes 👋'
@@ -143,7 +143,7 @@ const HILVERSUM_NL: LocationContent = {
 			id: 'hilversum-zakelijk',
 			question: 'Doen jullie ook bedrijfsfeesten en zakelijke borrels?',
 			answer:
-				'Ja, regelmatig. Je stuurt ons de datum, het aantal gasten en het tijdslot, en binnen 1 à 2 dagen ligt er een offerte met een vaste prijs. Onze prijzen zijn exclusief btw en voor bedrijven vragen we geen aanbetaling: je krijgt de factuur gewoon achteraf. Op locatie hebben we alleen een hoekje, een stopcontact en een kraan nodig, en we stemmen de tijden af op jullie programma, zodat het precies tijdens de borrel of receptie loopt.'
+				'Ja, regelmatig. Je stuurt ons de datum, het aantal gasten en het tijdslot, en dezelfde dag nog ligt er een offerte met een vaste prijs. Onze prijzen zijn exclusief btw en voor bedrijven vragen we geen aanbetaling: je krijgt de factuur gewoon achteraf. Op locatie hebben we alleen een hoekje, een stopcontact en een kraan nodig, en we stemmen de tijden af op jullie programma, zodat het precies tijdens de borrel of receptie loopt.'
 		},
 		BLOG_FAQS_NL.allergies,
 		BLOG_FAQS_NL.leadtime
@@ -219,7 +219,7 @@ const HILVERSUM_EN: LocationContent = {
 	serviceName: 'Live catering in Hilversum',
 	cta: {
 		heading: 'Need catering in Hilversum? Send us your date.',
-		body: "Send us your date, location and guest count, and we'll get back within 1–2 days with a tailored proposal. Tiramisu, burrata or both: we're happy to think along.",
+		body: "Send us your date, location and guest count, and you'll hear from us the same day with a tailored proposal. Tiramisu, burrata or both: we're happy to think along.",
 		offerButton: 'Request a proposal',
 		waButton: 'Send a WhatsApp',
 		waText: 'Hi! I’d love catering in Hilversum from Hangende Hapjes 👋'
@@ -243,7 +243,7 @@ const HILVERSUM_EN: LocationContent = {
 			id: 'hilversum-zakelijk',
 			question: 'Do you also do company parties and business drinks?',
 			answer:
-				'Yes, regularly. Send us the date, the guest count and the time slot, and within 1 to 2 days you’ll have a quote with a fixed price. Our prices are excluding VAT, and for companies we don’t ask for a deposit: you simply get the invoice after the event. On location we only need a corner, a power socket and a tap, and we fit our timing around your programme so it runs exactly during the drinks or reception.'
+				'Yes, regularly. Send us the date, the guest count and the time slot, and the same day you’ll have a quote with a fixed price. Our prices are excluding VAT, and for companies we don’t ask for a deposit: you simply get the invoice after the event. On location we only need a corner, a power socket and a tap, and we fit our timing around your programme so it runs exactly during the drinks or reception.'
 		},
 		{
 			id: 'allergies',

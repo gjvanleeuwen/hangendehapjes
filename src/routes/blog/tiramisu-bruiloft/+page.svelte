@@ -20,7 +20,6 @@
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
 	import BlogContactForm from '$lib/blog/BlogContactForm.svelte';
 	import BlogTopCta from '$lib/blog/BlogTopCta.svelte';
-	import BlogStickyCta from '$lib/blog/BlogStickyCta.svelte';
 	import { trackInView } from '$lib/inView';
 
 	const headline = 'Tiramisu op je bruiloft: als hapje of taart, ter plekke opgebouwd';
@@ -177,8 +176,8 @@
 	{@html productJsonLdHtml}
 </svelte:head>
 
-<div id="top" class="bg-background pb-16 text-foreground md:pb-0">
-	<Nav t={nl} />
+<div id="top" class="bg-background text-foreground">
+	<Nav t={nl} contactHref="#aanvraag" />
 	<main>
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
 			<header class="space-y-4">
@@ -188,6 +187,18 @@
 				<h1 class="font-heading text-3xl tracking-tight md:text-5xl">
 					{headline}
 				</h1>
+				<figure class="overflow-hidden rounded-xl bg-muted">
+					<div class="aspect-2/1 md:aspect-21/9">
+						<Picture
+							src="/images/tiramisutaart_bruiloft_punt.jpeg"
+							alt="Bruidspaar met een punt verse tiramisutaart op een bordje"
+							sizes="(min-width: 768px) 720px, 100vw"
+							loading="eager"
+							fetchpriority="high"
+							class="size-full object-cover"
+						/>
+					</div>
+				</figure>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Tiramisu op je bruiloft kan bij ons op twee manieren. Als <strong>hangend hapje</strong>:
 					Charlotte of Gijs loopt met een dienblad tussen jouw gasten door en bouwt elke portie vers
@@ -473,7 +484,7 @@
 			<BlogContactForm
 				event="tiramisu"
 				heading="Tiramisu op jouw bruiloft? Stuur ons je datum."
-				intro="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: Tiramisu als hangend hapje of als taart, wat past bij jullie?"
+				intro="Stuur ons je datum, locatie en aantal gasten. Je hoort dezelfde dag nog of we nog vrij zijn, met een voorstel erbij: Tiramisu als hangend hapje of als taart, wat past bij jullie?"
 				preselect="tiramisu-taart"
 				cards={['tiramisu-taart', 'tiramisu-live']}
 			/>
@@ -484,9 +495,5 @@
 			/>
 		</article>
 	</main>
-	<BlogStickyCta
-		event="tiramisu"
-		waText="Hoi! Ik heb een vraag over tiramisu van Hangende Hapjes 👋"
-	/>
 	<Footer t={nl} />
 </div>

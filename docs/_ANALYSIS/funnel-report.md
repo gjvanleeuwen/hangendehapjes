@@ -90,7 +90,9 @@ https://hangendehapjes.nl/?utm_source=instagram&utm_medium=paid&utm_campaign=bru
 Click events use `data-umami-event="<surface>_<action>"`:
 
 - Homepage: `nav_offerte`, `hero_products`, `home_offerte`, `home_whatsapp`, `footer_whatsapp`, `footer_mail`, `footer_instagram`, `footer_facebook`, `footer_tiktok`.
-- Blog posts (slug ∈ `tiramisu`, `bruidstaart_klassiek`, `bruidstaart`, `burrata`, `hapjes`): `blog_<slug>_top_offerte` (CTA under the summary), `blog_<slug>_sticky_offerte` and `blog_<slug>_sticky_whatsapp` (mobile bottom bar), `blog_<slug>_prices_view` (price section scrolled into view), `blog_<slug>_andere_taart_<id>`.
+- Blog posts (slug ∈ `tiramisu`, `bruidstaart_klassiek`, `bruidstaart`, `burrata`, `hapjes`): `blog_<slug>_top_offerte` (CTA strip under the summary), `blog_<slug>_prices_view` (price section scrolled into view), `blog_<slug>_andere_taart_<id>`.
 - Location pages: `catering_<slug>_offerte`, `catering_<slug>_whatsapp`.
 
 Form lifecycle events (`contact_view`, `contact_start`, `contact_service_type`, `contact_step`, `contact_submit`, `contact_error`, and `contact_abandon` with `lastField` and `step`) carry `surface` (`home` or `blog_<slug>`) plus `source` / `campaign` / `landing` from the first touch, so in Umami you can build one funnel per page and per channel: prices seen → form seen → started → submitted. The report shows the same funnel per landing page.
+
+> 2026-10-13: the mobile bottom bar (`blog_<slug>_sticky_offerte` / `_sticky_whatsapp`) was removed. The sticky Nav "Contact" button (`nav_offerte`) now points at `#aanvraag` on blog posts, so it covers the same job; older sticky events in Umami are historical only.

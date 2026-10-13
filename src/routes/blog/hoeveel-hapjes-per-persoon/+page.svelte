@@ -14,7 +14,6 @@
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
 	import BlogContactForm from '$lib/blog/BlogContactForm.svelte';
 	import BlogTopCta from '$lib/blog/BlogTopCta.svelte';
-	import BlogStickyCta from '$lib/blog/BlogStickyCta.svelte';
 	import { trackInView } from '$lib/inView';
 
 	const headline = 'Hoeveel hapjes moet je serveren per persoon voor een receptie of bruiloft?';
@@ -99,8 +98,8 @@
 	{@html faqJsonLdHtml}
 </svelte:head>
 
-<div id="top" class="bg-background pb-16 text-foreground md:pb-0">
-	<Nav t={nl} />
+<div id="top" class="bg-background text-foreground">
+	<Nav t={nl} contactHref="#aanvraag" />
 	<main>
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
 			<header class="space-y-4">
@@ -120,7 +119,7 @@
 				</p>
 			</header>
 
-			<BlogTopCta event="hapjes" />
+			<BlogTopCta event="hapjes" lead="Feest in de planning?" label="Vraag een voorstel aan" />
 
 			<section
 				class="mt-10 rounded-lg bg-(--brand-magenta)/8 p-6 data-[state=open]:bg-(--brand-magenta)/12 md:p-8"
@@ -276,7 +275,7 @@
 			<BlogContactForm
 				event="hapjes"
 				heading="Plan je feest? Vertel ons hoeveel gasten je verwacht."
-				intro="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: hartig, zoet of beide."
+				intro="Stuur ons je datum, locatie en aantal gasten. Je hoort dezelfde dag nog van ons met een voorstel op maat: hartig, zoet of beide."
 				preselect="tiramisu-live"
 				cards={['tiramisu-live', 'burrata-live']}
 			/>
@@ -287,6 +286,5 @@
 			/>
 		</article>
 	</main>
-	<BlogStickyCta event="hapjes" waText="Hoi! Ik heb een vraag over Hangende Hapjes 👋" />
 	<Footer t={nl} />
 </div>

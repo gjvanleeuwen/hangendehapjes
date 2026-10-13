@@ -3,8 +3,15 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import StarIcon from '@lucide/svelte/icons/star';
 
-	type Props = { t: Translations; locale?: Locale };
-	let { t, locale = 'nl' }: Props = $props();
+	type Props = {
+		t: Translations;
+		locale?: Locale;
+		/** Where the Contact buttons go. Blog posts pass "#aanvraag" so readers land on the
+		 * inline form instead of jumping away to the homepage. */
+		contactHref?: string;
+	};
+	let { t, locale = 'nl', contactHref }: Props = $props();
+	const contactTarget = $derived(contactHref ?? `${t.nav.homeHref}#contact`);
 
 	// Google rating, shown on every page. Only the score, not the count (yet).
 	const ratings = $derived((t.reviews.items ?? []).map((r) => r.rating));
@@ -35,7 +42,7 @@
 				Hangende Hapjes
 			</a>
 			<Button
-				href="{t.nav.homeHref}#contact"
+				href={contactTarget}
 				size="sm"
 				class="hidden md:inline-flex"
 				data-umami-event="nav_offerte"
@@ -80,12 +87,7 @@
 				<span class="hidden text-muted-foreground/50 md:inline" aria-hidden="true">·</span>
 			{/if}
 			<!-- Mobile: Contact sits between the rating and the language switch. -->
-			<Button
-				href="{t.nav.homeHref}#contact"
-				size="sm"
-				class="md:hidden"
-				data-umami-event="nav_offerte"
-			>
+			<Button href={contactTarget} size="sm" class="md:hidden" data-umami-event="nav_offerte">
 				{t.nav.contact}
 			</Button>
 			<a

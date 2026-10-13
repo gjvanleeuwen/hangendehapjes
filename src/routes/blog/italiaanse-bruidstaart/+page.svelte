@@ -17,7 +17,6 @@
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
 	import BlogContactForm from '$lib/blog/BlogContactForm.svelte';
 	import BlogTopCta from '$lib/blog/BlogTopCta.svelte';
-	import BlogStickyCta from '$lib/blog/BlogStickyCta.svelte';
 	import { trackInView } from '$lib/inView';
 
 	const headline = 'Italiaanse bruidstaart: een millefoglie, vers afgemaakt op locatie';
@@ -179,8 +178,8 @@
 	{@html productJsonLdHtml}
 </svelte:head>
 
-<div id="top" class="bg-background pb-16 text-foreground md:pb-0">
-	<Nav t={nl} />
+<div id="top" class="bg-background text-foreground">
+	<Nav t={nl} contactHref="#aanvraag" />
 	<main>
 		<article class="mx-auto max-w-3xl px-6 py-16 md:py-24">
 			<header class="space-y-4">
@@ -383,7 +382,7 @@
 			<BlogContactForm
 				event="bruidstaart"
 				heading="Een Italiaanse bruidstaart op jullie dag? Stuur ons je datum."
-				intro="Stuur ons je datum, locatie en aantal gasten. We komen binnen 1–2 dagen terug met een voorstel op maat: een millefoglie, een klassieke bruidstaart, of de taart samen met live hapjes."
+				intro="Stuur ons je datum, locatie en aantal gasten. Je hoort dezelfde dag nog of we nog vrij zijn, met een voorstel erbij: een millefoglie, een klassieke bruidstaart, of de taart samen met live hapjes."
 				preselect="millefeuille"
 				cards={['millefeuille', 'bruidstaart', 'tiramisu-taart']}
 			/>
@@ -394,9 +393,5 @@
 			/>
 		</article>
 	</main>
-	<BlogStickyCta
-		event="bruidstaart"
-		waText="Hoi! Ik heb een vraag over een Italiaanse bruidstaart van Hangende Hapjes 👋"
-	/>
 	<Footer t={nl} />
 </div>

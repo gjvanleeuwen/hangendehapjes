@@ -174,7 +174,7 @@ export const nl: Translations = {
 				id: 'booking',
 				question: 'Hoe werkt boeken en moet dat snel?',
 				answer:
-					'Vul het contactformulier in met je datum, locatie en aantal gasten. We komen binnen 1–2 dagen bij je terug met een voorstel op maat. Akkoord? Dan staat de boeking. Wij kunnen snel schakelen, soms zelfs op de dag zelf, maar voor zekerheid raden we aan om minstens 2 à 3 maanden van tevoren te boeken.'
+					'Vul het contactformulier in met je datum, locatie en aantal gasten. Je hoort dezelfde dag nog van ons, met een voorstel op maat. Akkoord? Dan staat de boeking. Wij kunnen snel schakelen, soms zelfs op de dag zelf, maar voor zekerheid raden we aan om minstens 2 à 3 maanden van tevoren te boeken.'
 			},
 			{
 				id: 'travel',
@@ -273,8 +273,7 @@ export const nl: Translations = {
 	},
 	contact: {
 		heading: 'Boek ons voor jouw feest',
-		intro:
-			'Vertel ons kort wat je van plan bent dan komen we binnen 1–2 dagen bij je terug met een voorstel.',
+		intro: 'Vertel ons kort wat je van plan bent, dan hoor je dezelfde dag nog van ons.',
 		labels: {
 			name: 'Naam',
 			email: 'E-mailadres',
@@ -343,7 +342,7 @@ export const nl: Translations = {
 		submit: 'Verstuur',
 		submitting: 'Bezig met versturen…',
 		successTitle: 'Bedankt!',
-		successBody: 'We reageren meestal binnen 1–2 dagen.',
+		successBody: 'We reageren meestal dezelfde dag nog.',
 		errorTitle: 'Versturen mislukt',
 		errorBody:
 			'Er ging iets mis. Probeer het zo nog eens, of mail ons direct op info@hangendehapjes.nl.',
