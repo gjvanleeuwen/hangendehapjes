@@ -1,0 +1,24 @@
+@font-face {
+	font-family: 'Outfit';
+	src: url('../../../node_modules/@fontsource-variable/outfit/files/outfit-latin-wght-normal.woff2') format('woff2');
+	font-weight: 100 900;
+}
+@font-face {
+	font-family: 'Lovelo Line';
+	src: url('../../../static/lovelo/Lovelo Line Bold.otf') format('opentype');
+	font-weight: 700;
+}
+:root {
+	--bone: #f6f4ee;
+	--teal: #004643;
+	--magenta: #d03861;
+	--ink: #0f1a18;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Outfit', sans-serif; color: var(--bone); -webkit-font-smoothing: antialiased; }
+/* Huisstijl van de flyer-voorkant: wordmark in twee regels, eyebrow in
+   kapitalen met veel letterafstand, kop in Outfit 500. */
+.wordmark { font-family: 'Lovelo Line', sans-serif; font-weight: 700; letter-spacing: 0.02em; line-height: 0.95; }
+.eyebrow { font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.85; }
+.title { font-weight: 500; line-height: 1.08; letter-spacing: -0.01em; }
+.url { font-weight: 500; letter-spacing: 0.04em; }

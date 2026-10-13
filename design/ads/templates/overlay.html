@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="nl">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" href="../templates/_fonts.css" />
+		<style>
+			/* 1080x1920, transparante achtergrond, zelfde opmaak als de kaarten.
+			   Tekst blijft uit de bovenste 250 px en onderste 420 px (Reels-UI). */
+			html, body { width: 1080px; height: 1920px; background: transparent; overflow: hidden; }
+			.shade {
+				position: absolute; left: 0; right: 0; bottom: 0; height: 1000px;
+				background: linear-gradient(to bottom, rgb(15 26 24 / 0) 0%, rgb(15 26 24 / 0.5) 55%, rgb(15 26 24 / 0.75) 100%);
+			}
+			.copy { position: absolute; left: 72px; width: 860px; bottom: 440px; text-shadow: 0 3px 24px rgb(15 26 24 / 0.5); }
+			.eyebrow { font-size: 30px; }
+			.title { margin-top: 14px; font-size: 92px; }
+			.brand { position: absolute; left: 72px; top: 300px; font-size: 40px; text-shadow: 0 3px 24px rgb(15 26 24 / 0.5); }
+		</style>
+	</head>
+	<body>
+		<div class="shade"></div>
+		{{brand}}
+		<div class="copy">
+			<p class="eyebrow">{{eyebrow}}</p>
+			<h1 class="title">{{title}}</h1>
+		</div>
+	</body>
+</html>

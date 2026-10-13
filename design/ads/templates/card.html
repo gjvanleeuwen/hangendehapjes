@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="nl">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" href="../templates/_fonts.css" />
+		<style>
+			/* Alleen de foto. 4:5 (1080x1350) voor de feed, 9:16 (1080x1920) voor
+			   stories. Optioneel het wordmark linksboven (WORDMARK in build.ts). */
+			html, body { width: 1080px; height: {{height}}px; background: var(--ink); overflow: hidden; position: relative; }
+			.photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: {{position}}; }
+			/* Split: foto boven, foto onder, diagonale naad van 54% (links) naar 40% (rechts), als de hero op mobiel */
+			.panel { position: absolute; left: 0; width: 100%; display: none; }
+			.panel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+			body.split .photo { display: none; }
+			body.split .panel { display: block; }
+			.panel.top { top: 0; height: 54%; clip-path: polygon(0 0, 100% 0, 100% 74.07%, 0 100%); }
+			.panel.top img { object-position: {{position}}; }
+			.panel.bottom { top: 40%; height: 60%; clip-path: polygon(0 23.33%, 100% 0, 100% 100%, 0 100%); }
+			.panel.bottom img { object-position: {{bottomPosition}}; }
+			.seam { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
+			body.split .seam { display: block; }
+			.wordmark { position: absolute; left: 64px; top: calc(({{height}}px - 1350px) / 2 + 64px); font-size: 40px; text-shadow: 0 2px 16px rgb(15 26 24 / 0.5); display: none; }
+			body.wordmark .wordmark { display: block; }
+		</style>
+	</head>
+	<body class="{{mode}} {{wordmark}}">
+		<img class="photo" src="../assets/{{photo}}" alt="" />
+		<div class="panel top"><img src="../assets/{{photo}}" alt="" /></div>
+		<div class="panel bottom"><img src="../assets/{{bottomPhoto}}" alt="" /></div>
+		<svg class="seam" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+			<line x1="0" y1="54" x2="100" y2="40" stroke="#f6f4ee" stroke-opacity="0.75" stroke-width="4" vector-effect="non-scaling-stroke" />
+		</svg>
+		<div class="wordmark">HANGENDE<br />HAPJES</div>
+	</body>
+</html>
