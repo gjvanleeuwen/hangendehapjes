@@ -5,11 +5,29 @@ const CRLF = /[\r\n]/g;
 const CRLF_NORMALIZE = /\r\n/g;
 
 // First/last-touch JSON captured client-side (see $lib/attribution). Opaque
-// here; the endpoint stores it and summarises it for the email.
+// here; the endpoint stores it and summarises it for the email. Oversized
+// values (long utm tags, click ids) are dropped rather than rejected: tracking
+// metadata must never cost us a real aanvraag.
+const ATTRIBUTION_MAX = 4000;
 const attributionField = v.optional(
-	v.pipe(v.string(), v.maxLength(2000, 'attribution too long')),
+	v.pipe(
+		v.string(),
+		v.transform((s) => (s.length > ATTRIBUTION_MAX ? '' : s))
+	),
 	''
 );
+
+/**
+ * Compact, log-safe summary of why a payload failed validation: which field,
+ * the rule's message, and a short preview of what was received.
+ */
+export function summarizeIssues(issues: readonly v.BaseIssue<unknown>[]) {
+	return issues.map((i) => ({
+		field: i.path?.map((p) => String(p.key)).join('.') || '(root)',
+		message: i.message,
+		received: typeof i.input === 'string' ? i.input.slice(0, 50) : typeof i.input
+	}));
+}
 
 /**
  * Step-1 snapshot sent when a visitor clicks "Volgende": just enough to follow

@@ -4,7 +4,12 @@ import * as v from 'valibot';
 import { env } from '$env/dynamic/private';
 import { dev } from '$app/environment';
 import { notifyError } from '$lib/server/notify';
-import { PayloadSchema, CallbackSchema, type Clean } from '$lib/server/contact-schema';
+import {
+	PayloadSchema,
+	CallbackSchema,
+	summarizeIssues,
+	type Clean
+} from '$lib/server/contact-schema';
 import { createDeal, toDateOrNull, type DealInput } from '$lib/server/deals';
 import { completeLead } from '$lib/server/leads';
 import { sendMetaEvent, type MetaRequestContext } from '$lib/server/meta-capi';
@@ -213,6 +218,8 @@ const buildCallbackConfirmation = (isNl: boolean) =>
 const handleCallback = async (raw: unknown, ip: string, now: number): Promise<Response> => {
 	const result = v.safeParse(CallbackSchema, raw);
 	if (!result.success) {
+		const issues = summarizeIssues(result.issues);
+		console.warn('[contact] 400 invalid_input (callback)', JSON.stringify({ ip, issues }));
 		pruneOlderThan(lastInvalidNotify, now, INVALID_NOTIFY_THROTTLE_MS);
 		const lastNotif = lastInvalidNotify.get(ip) ?? 0;
 		if (now - lastNotif > INVALID_NOTIFY_THROTTLE_MS) {
@@ -222,10 +229,13 @@ const handleCallback = async (raw: unknown, ip: string, now: number): Promise<Re
 				url: '/api/contact',
 				method: 'POST',
 				status: 400,
-				extra: { ip, issues: result.issues.map((i) => i.message) }
+				extra: { ip, issues }
 			});
 		}
-		return json({ ok: false, error: 'invalid_input' }, { status: 400 });
+		return json(
+			{ ok: false, error: 'invalid_input', fields: issues.map((i) => i.field) },
+			{ status: 400 }
+		);
 	}
 
 	const clean = result.output;
@@ -365,7 +375,8 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	let raw: unknown;
 	try {
 		raw = await request.json();
-	} catch {
+	} catch (err) {
+		console.warn('[contact] 400 invalid_body', { ip, err: String(err) });
 		return json({ ok: false, error: 'invalid_body' }, { status: 400 });
 	}
 
@@ -376,6 +387,9 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 
 	const result = v.safeParse(PayloadSchema, raw);
 	if (!result.success) {
+		const issues = summarizeIssues(result.issues);
+		// Always log (Dokploy container logs); Telegram below is throttled per IP.
+		console.warn('[contact] 400 invalid_input', JSON.stringify({ ip, issues }));
 		pruneOlderThan(lastInvalidNotify, now, INVALID_NOTIFY_THROTTLE_MS);
 		const lastNotif = lastInvalidNotify.get(ip) ?? 0;
 		if (now - lastNotif > INVALID_NOTIFY_THROTTLE_MS) {
@@ -385,17 +399,13 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 				url: '/api/contact',
 				method: 'POST',
 				status: 400,
-				extra: {
-					ip,
-					issues: result.issues.map((i) => ({
-						path: i.path?.map((p) => String((p as { key: unknown }).key)).join('.') ?? '',
-						message: i.message,
-						received: typeof i.input === 'string' ? i.input.slice(0, 50) : typeof i.input
-					}))
-				}
+				extra: { ip, issues }
 			});
 		}
-		return json({ ok: false, error: 'invalid_input' }, { status: 400 });
+		return json(
+			{ ok: false, error: 'invalid_input', fields: issues.map((i) => i.field) },
+			{ status: 400 }
+		);
 	}
 
 	const clean = result.output;

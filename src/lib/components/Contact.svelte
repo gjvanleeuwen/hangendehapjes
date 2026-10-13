@@ -15,6 +15,7 @@
 	import { cn } from '$lib/utils.js';
 	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
+	import * as v from 'valibot';
 	import SectionHeading from './SectionHeading.svelte';
 	import Picture from './Picture.svelte';
 	import PlusIcon from '@lucide/svelte/icons/plus';
@@ -80,7 +81,10 @@
 
 	const today = new Date().toISOString().slice(0, 10);
 
-	const emailValid = $derived(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+	// Same check as the server (valibot's email()), trimmed like the server does,
+	// so an address the API would reject never gets past step 1.
+	const emailSchema = v.pipe(v.string(), v.trim(), v.email());
+	const emailValid = $derived(v.is(emailSchema, email));
 	const step1Valid = $derived(
 		choiceKey !== '' &&
 			(choiceKey !== 'anders' || customChoice.trim().length > 0) &&
@@ -305,7 +309,11 @@
 			});
 
 			if (!res.ok) {
-				const data = (await res.json().catch(() => null)) as { error?: string } | null;
+				const data = (await res.json().catch(() => null)) as {
+					error?: string;
+					fields?: string[];
+				} | null;
+				console.warn('[contact] submit failed', res.status, data);
 				const reason =
 					res.status === 429 || data?.error === 'rate_limited'
 						? 'rate_limited'

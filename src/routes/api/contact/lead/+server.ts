@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import * as v from 'valibot';
-import { LeadSchema } from '$lib/server/contact-schema';
+import { LeadSchema, summarizeIssues } from '$lib/server/contact-schema';
 import { upsertLead } from '$lib/server/leads';
 import type { RequestHandler } from './$types';
 
@@ -25,12 +25,20 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 	let raw: unknown;
 	try {
 		raw = await request.json();
-	} catch {
+	} catch (err) {
+		console.warn('[contact/lead] 400 invalid_body', { ip, err: String(err) });
 		return json({ ok: false, error: 'invalid_body' }, { status: 400 });
 	}
 
 	const parsed = v.safeParse(LeadSchema, raw);
-	if (!parsed.success) return json({ ok: false, error: 'invalid_input' }, { status: 400 });
+	if (!parsed.success) {
+		const issues = summarizeIssues(parsed.issues);
+		console.warn('[contact/lead] 400 invalid_input', JSON.stringify({ ip, issues }));
+		return json(
+			{ ok: false, error: 'invalid_input', fields: issues.map((i) => i.field) },
+			{ status: 400 }
+		);
+	}
 	const lead = parsed.output;
 
 	// Honeypot filled: pretend it worked so bots learn nothing.
