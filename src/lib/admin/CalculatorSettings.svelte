@@ -11,23 +11,39 @@
 		drivingRatePerHour,
 		hourCurveAt,
 		includedTravelFee,
+		DISCOUNT_GROUPS,
+		DISCOUNT_GROUP_LABELS,
+		discountGroupFor,
+		discountPctAt,
 		type InternalBreakdown,
-		type PricingConfig
+		type PricingConfig,
+		type SpecialVariant
 	} from '$lib/admin/pricing';
+	import DiscountSketch from '$lib/admin/DiscountSketch.svelte';
 
 	// Everything you set once and rarely touch: rates per phase, the hour matrix
 	// and the remaining assumptions. Lives folded away under the calculator.
 	let {
 		config = $bindable(),
-		standbyHours = $bindable(),
 		internals,
-		totalPortions
+		totalPortions,
+		sketchProduct,
+		fruitCost,
+		burrataIngredientCost
 	}: {
 		config: PricingConfig;
-		standbyHours: number;
 		internals: InternalBreakdown;
 		totalPortions: number;
+		sketchProduct: 'tiramisu' | 'burrata' | SpecialVariant;
+		fruitCost: number;
+		burrataIngredientCost: number;
 	} = $props();
+
+	const activeGroup = $derived(
+		discountGroupFor(
+			sketchProduct === 'tiramisu' || sketchProduct === 'burrata' ? undefined : sketchProduct
+		)
+	);
 
 	// Generic number fields: these keys all hold plain numbers.
 	type NumKey = keyof PricingConfig;
@@ -39,34 +55,21 @@
 
 	const fmtHours = (h: number) => h.toFixed(2).replace('.', ',') + 'u';
 
-	// Travel is priced per km now; its hourly rate is only a benchmark, shown below.
-	const workStages = $derived(internals.stages.filter((s) => s.stage !== 'travel'));
-
 	const numberFields: { key: keyof PricingConfig; label: string; step: number; hint?: string }[] = [
 		{ key: 'portionsPerHour', label: 'Porties per uur (lopen)', step: 5 },
-		{ key: 'tiramisuCakePrepFactor', label: 'Taart-prep factor (×)', step: 0.05 },
-		{ key: 'materialsMarkup', label: 'Materiaal-markup (×)', step: 0.05 },
-		{ key: 'mixSharedDeduction', label: 'Mix gedeelde aftrek (€)', step: 5 },
-		{ key: 'mandatoryExtraPersonAt', label: '2e persoon verplicht vanaf', step: 5 },
-		{ key: 'extraPersonMinPortions2', label: '+2 toegestaan vanaf', step: 5 },
 		{
-			key: 'extraPersonChargeFactor',
-			label: '2e persoon doorbelasten (×)',
-			step: 0.05,
-			hint: 'Onder 1 leg je bewust toe.'
+			key: 'extraCostPer10Persons',
+			label: 'Vaste extra kosten (€ per 10 personen)',
+			step: 0.25,
+			hint: 'Voor alle varianten, naar rato.'
 		},
-		{ key: 'volumeDiscountPercent', label: 'Volumekorting (%)', step: 1 },
-		{ key: 'volumeDiscountThreshold', label: 'Volumekorting vanaf', step: 50 },
-		{ key: 'smallOrderReliefMax', label: 'Kleine-klus-korting (€)', step: 5 },
-		{ key: 'smallOrderReliefFullAt', label: 'Volle korting t/m', step: 5 },
-		{ key: 'smallOrderReliefZeroAt', label: 'Korting weg vanaf', step: 5 },
-		{ key: 'cakeboardPrice', label: 'Cakeboard prijs (€)', step: 0.25 },
-		{ key: 'cakeboardPerPersons', label: 'Cakeboard per (personen)', step: 1 }
+		{ key: 'mandatoryExtraPersonAt', label: '2e persoon verplicht vanaf', step: 5 },
+		{ key: 'extraPersonMinPortions2', label: '+2 toegestaan vanaf', step: 5 }
 	];
 
 	const travelFields: { key: keyof PricingConfig; label: string; step: number }[] = [
 		{ key: 'travelSpeedKmh', label: 'Gem. snelheid (km/u)', step: 5 },
-		{ key: 'vehicleCostPerKm', label: 'Autokosten per km (€)', step: 0.01 },
+		{ key: 'vehicleCostPerKm', label: 'Autokosten (€ per km)', step: 0.01 },
 		{ key: 'kmPriceDefault', label: 'Km-prijs standaard (€)', step: 0.05 },
 		{ key: 'kmPriceMin', label: 'Km-prijs minimaal (€)', step: 0.05 },
 		{ key: 'kmPriceMax', label: 'Km-prijs maximaal (€)', step: 0.05 },
@@ -89,30 +92,21 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each workStages as s (s.stage)}
+				{#each internals.stages as s (s.stage)}
 					<tr class="border-t">
 						<td class="py-1.5">
 							<div>{STAGE_LABELS[s.stage]}</div>
 							<div class="text-xs text-muted-foreground">{STAGE_SOURCE[s.stage]}</div>
 						</td>
 						<td class="py-1.5 pl-2 text-right tabular-nums">
-							{#if s.stage === 'standby'}
+							{#if s.stage === 'onsite'}
 								<Input
 									type="number"
 									min="0"
 									step="0.25"
 									class="h-8 w-20 text-right"
-									aria-label="Wachttijd per persoon"
-									bind:value={standbyHours}
-								/>
-							{:else if s.stage === 'setup'}
-								<Input
-									type="number"
-									min="0"
-									step="0.25"
-									class="h-8 w-20 text-right"
-									aria-label="Opbouw per persoon"
-									bind:value={config.setupHours}
+									aria-label="Uren op locatie per persoon"
+									bind:value={config.onsiteHours}
 								/>
 							{:else}
 								{fmtHours(s.hours)}
@@ -134,8 +128,8 @@
 			</tbody>
 		</table>
 		<p class="mt-2 text-xs text-muted-foreground">
-			Opbouw en wachttijd zijn uren per persoon. Wachttijd verschilt per klus, dus zet je per
-			offerte.
+			Op locatie is opbouwen, wachten en inpakken samen, in uren per persoon. Een vaste aanname voor
+			het kostenprofiel, niet iets wat je per offerte bijstelt.
 		</p>
 
 		<div class="mt-4 mb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
@@ -155,24 +149,13 @@
 					/>
 				</div>
 			{/each}
-			<div class="space-y-1.5">
-				<Label for="cs-travelrate">Ijkpunt rijden (€/u)</Label>
-				<Input
-					id="cs-travelrate"
-					type="number"
-					min="0"
-					step="5"
-					bind:value={config.hourlyRates.travel}
-				/>
-			</div>
 		</div>
 		<p class="mt-2 text-xs text-muted-foreground">
 			Inbegrepen reis: {config.freeRoundTripKm} km retour × {formatEUR(config.kmPriceDefault)} =
 			{formatEUR(includedTravelFee(config))} in elke productprijs.
 		</p>
 		<p class="mt-1 text-xs text-muted-foreground">
-			Het ijkpunt stuurt de prijs niet. Het laat zien of een km-prijs genoeg oplevert: bij
-			{formatEUR(config.kmPriceMin)} is dat {formatEUR(
+			Wat een km-prijs per rij-uur oplevert: bij {formatEUR(config.kmPriceMin)} is dat {formatEUR(
 				drivingRatePerHour(config.kmPriceMin, config)
 			)}/u rijden, bij {formatEUR(config.kmPriceMax)}
 			{formatEUR(drivingRatePerHour(config.kmPriceMax, config))}/u, na autokosten.
@@ -219,9 +202,98 @@
 			</table>
 		</div>
 		<p class="mt-2 text-xs text-muted-foreground">
-			Lineair tussen de ankers, onder 25 vlak, boven 400 doorgetrokken. Taart-prep volgt de
-			tiramisu-curve op {config.tiramisuCakePrepFactor}× portiegrootte; lopen volgt porties per uur.
+			Lineair tussen de ankers, onder 25 vlak, boven 400 doorgetrokken. Lopen volgt porties per uur.
 		</p>
+	</div>
+
+	<div class="lg:col-span-2">
+		<div class="mb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+			Kortingscurve: korting in % per aantal porties
+		</div>
+		<div class="grid gap-6 lg:grid-cols-[minmax(0,420px)_1fr]">
+			<div>
+				<div class="overflow-x-auto">
+					<table class="w-full min-w-[380px] text-sm">
+						<thead class="text-xs text-muted-foreground">
+							<tr>
+								<th class="pb-1 text-left font-normal">Groep</th>
+								{#each HOUR_TIER_POINTS as pt (pt)}
+									<th class="pb-1 text-right font-normal">@{pt}</th>
+								{/each}
+								<th class="pb-1 pl-2 text-right font-normal">nu</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each DISCOUNT_GROUPS as g (g)}
+								<tr class="border-t {g === activeGroup ? 'bg-muted/50' : ''}">
+									<td class="py-1 pr-2 text-xs">{DISCOUNT_GROUP_LABELS[g]}</td>
+									{#each HOUR_TIER_POINTS as pt (pt)}
+										<td class="py-1 pl-1">
+											<Input
+												type="number"
+												min="0"
+												max="100"
+												step="0.5"
+												class="h-8 text-right"
+												aria-label="Korting {DISCOUNT_GROUP_LABELS[g]} bij {pt} porties"
+												bind:value={config.discountCurves[g][pt]}
+											/>
+										</td>
+									{/each}
+									<td class="py-1 pl-2 text-right text-xs text-muted-foreground tabular-nums">
+										{discountPctAt(config, g, totalPortions)}%
+									</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+				<p class="mt-2 text-xs text-muted-foreground">
+					Lineair tussen de ankers, vlak onder 25 en boven 400. De korting gaat van de productprijs
+					af, inclusief extra persoon en inbegrepen reis. De losse reiskostenregel blijft heel. De
+					startwaarden brengen de calculator op de websiteprijzen.
+				</p>
+
+				<div class="mt-4 mb-1 text-xs font-medium text-muted-foreground">
+					Tweede top bij hapjes: de verplichte tweede persoon
+				</div>
+				<div class="grid grid-cols-2 gap-3">
+					<div class="space-y-1.5">
+						<Label for="cs-epd-pct">Extra korting vanaf {config.mandatoryExtraPersonAt} (%)</Label>
+						<Input
+							id="cs-epd-pct"
+							type="number"
+							min="0"
+							max="100"
+							step="0.5"
+							bind:value={config.extraPersonDiscountPct}
+						/>
+					</div>
+					<div class="space-y-1.5">
+						<Label for="cs-epd-zero">Uitgedoofd bij (porties)</Label>
+						<Input
+							id="cs-epd-zero"
+							type="number"
+							min="0"
+							step="5"
+							bind:value={config.extraPersonDiscountZeroAt}
+						/>
+					</div>
+				</div>
+				<p class="mt-2 text-xs text-muted-foreground">
+					Vanaf {config.mandatoryExtraPersonAt} porties komt er in één keer een tweede persoon bij. Die
+					stap vangt de curve op met een sprong in de korting op de drempel, die daarna lineair uitdooft.
+					Daarom heeft de hapjescurve twee toppen: één voor kleine klussen en één op de drempel.
+				</p>
+			</div>
+			<DiscountSketch
+				config={$state.snapshot(config) as PricingConfig}
+				product={sketchProduct}
+				currentPortions={totalPortions}
+				{fruitCost}
+				{burrataIngredientCost}
+			/>
+		</div>
 	</div>
 
 	<div class="lg:col-span-2">

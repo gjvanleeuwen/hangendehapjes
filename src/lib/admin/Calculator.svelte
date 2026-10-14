@@ -23,7 +23,6 @@
 		clampKmPrice,
 		cloneConfig,
 		minPortionsForSpecialVariant,
-		smallOrderRelief,
 		specialIngredientCostPerPortion,
 		type PricingConfig,
 		type SpecialVariant
@@ -39,10 +38,9 @@
 	let fruitCost = $state(MILLEFEUILLE_DEFAULT_FRUIT_COST_PER_PORTION);
 	let extraPeople = $state(0);
 	let oneWayKm = $state(20);
-	let standbyHours = $state(DEFAULT_CONFIG.defaultStandbyHours);
-	// Kleine-klus-korting: null = volg de curve, een getal = handmatig voor deze offerte.
-	let reliefOverride = $state<number | null>(null);
 	let burrToppings = $state<string[]>([...DEFAULT_BURRATA_TOPPINGS]);
+	// Korting: null = volg de curve, een getal = handmatig percentage voor deze offerte.
+	let discountOverride = $state<number | null>(null);
 	// Set when the calculator runs inside an aanvraag; empty for the general one.
 	let { dealId = '' }: { dealId?: string } = $props();
 
@@ -88,9 +86,8 @@
 					oneWayKm,
 					config: $state.snapshot(config),
 					fruitCostPerPortion: fruitCost,
-					standbyHours,
-					smallOrderReliefOverride: reliefOverride ?? undefined,
-					kmPrice
+					kmPrice,
+					discountPctOverride: discountOverride ?? undefined
 				})
 			: calculatePrice({
 					tiraPortions,
@@ -99,9 +96,8 @@
 					oneWayKm,
 					config: $state.snapshot(config),
 					burrataIngredientCost: burrCostPerPortion,
-					standbyHours,
-					smallOrderReliefOverride: reliefOverride ?? undefined,
-					kmPrice
+					kmPrice,
+					discountPctOverride: discountOverride ?? undefined
 				})
 	);
 
@@ -110,8 +106,6 @@
 	const fmtHours = (h: number) => h.toFixed(2).replace('.', ',') + 'u';
 	const round2 = (n: number) => Math.round(n * 100) / 100;
 	const eur2 = (n: number) => n.toFixed(2).replace('.', ',');
-
-	const curveRelief = $derived(smallOrderRelief(portions, $state.snapshot(config)));
 
 	// Alles in het model rekent excl. btw; 9% is de normale stand voor catering.
 	let btwPercent = $state<0 | 9 | 21>(9);
@@ -124,17 +118,9 @@
 	const KM_PRESETS = [0.45, 0.55, 0.65, 0.75, 0.85];
 	const usedKmPrice = $derived(clampKmPrice(kmPrice, config));
 
-	// Wijkt de opbrengst af van wat de fase-tarieven voorschrijven? Bewuste kortingen
-	// verklaren dat gat; wat dan nog overblijft hoort 0 te zijn.
-	const unexplainedGap = $derived(
-		round2(
-			internals.labourGap + result.smallOrderRelief + result.mixDeduction + result.volumeDiscount
-		)
-	);
-	const rateDrift = $derived(Math.abs(unexplainedGap) > 0.5);
-	const travelBelowBenchmark = $derived(
-		result.hours.travel > 0 && internals.travelRateRealised < config.hourlyRates.travel
-	);
+	// Controle: opbrengst min uurtarieven hoort precies de korting te zijn. Een euro
+	// speling voor afronding van de uren.
+	const rateDrift = $derived(Math.abs(internals.unexplainedGap) > 1);
 
 	const productDescription = $derived.by(() => {
 		const toppingLabels = BURRATA_TOPPINGS.filter((t) => burrToppings.includes(t.key)).map(
@@ -201,7 +187,7 @@
 			timeSpent: {
 				voorbereiding: result.hours.prep,
 				reizen: result.hours.travel,
-				event: round2(result.hours.setup + result.hours.service + result.hours.standby),
+				event: round2(result.hours.onsite + result.hours.service),
 				afhandeling: result.hours.cleanup
 			}
 		};
@@ -289,10 +275,6 @@
 							</p>
 						</div>
 					{/if}
-					<div class="space-y-1.5">
-						<Label for="standby">Wachten op locatie (u p.p.)</Label>
-						<Input id="standby" type="number" min="0" step="0.25" bind:value={standbyHours} />
-					</div>
 				</div>
 
 				{#if !isSpecial}
@@ -386,14 +368,11 @@
 				{#if result.roundTripKm > 0}
 					<p class="text-sm">
 						Reis levert {formatEUR(result.baseFee + result.travelFee)} op excl. btw. Na
-						{formatEUR(result.materials.vehicle)} autokosten verdien je
+						{formatEUR(result.materials.vehicle)} autokosten ({result.roundTripKm} km × {formatEUR(
+							config.vehicleCostPerKm
+						)}/km) verdien je
 						<strong class="tabular-nums">{formatEUR(internals.travelRateRealised)}/u</strong>
 						rijden{internals.people > 1 ? ` (gedeeld over ${internals.people} personen)` : ''}.
-						{#if travelBelowBenchmark}
-							<span class="text-amber-700">
-								Onder je ijkpunt van {formatEUR(config.hourlyRates.travel)}/u.
-							</span>
-						{/if}
 					</p>
 				{/if}
 				{#if usedKmPrice !== kmPrice}
@@ -443,27 +422,33 @@
 					</select>
 				</div>
 				<div class="mt-2 flex flex-wrap items-center gap-2 text-sm">
-					<Label for="reliefnow" class="text-muted-foreground">Kleine-klus-korting</Label>
+					<Label for="discountnow" class="text-muted-foreground">Korting (%)</Label>
 					<Input
-						id="reliefnow"
+						id="discountnow"
 						type="number"
 						min="0"
-						step="5"
-						class="h-8 w-24 text-right"
-						value={result.smallOrderRelief}
+						max="100"
+						step="0.5"
+						class="h-8 w-20 text-right"
+						value={result.discountPct}
 						oninput={(e) => {
 							const v = e.currentTarget.value;
-							reliefOverride = v === '' ? null : Number(v);
+							discountOverride = v === '' ? null : Number(v);
 						}}
 					/>
-					{#if reliefOverride !== null}
+					<span class="text-xs text-muted-foreground tabular-nums">
+						−{formatEUR(result.discount)} excl. btw
+					</span>
+					{#if discountOverride !== null}
 						<button
 							type="button"
 							class="text-xs text-muted-foreground underline hover:text-foreground"
-							onclick={() => (reliefOverride = null)}
+							onclick={() => (discountOverride = null)}
 						>
-							terug naar {formatEUR(curveRelief)}
+							terug naar curve ({result.discountPctCurve}%)
 						</button>
+					{:else}
+						<span class="text-xs text-muted-foreground">volgens de curve</span>
 					{/if}
 				</div>
 			</div>
@@ -519,27 +504,27 @@
 						<tr>
 							<td class="py-1 text-muted-foreground">
 								Materiaal{isSpecial
-									? ` (${formatEUR(specialIngredientCostPerPortion(mode as SpecialVariant, fruitCost))} p.p. + cakeboards)`
+									? ` (${formatEUR(specialIngredientCostPerPortion(mode as SpecialVariant, fruitCost))} p.p.)`
 									: ` (tiramisu ${formatEUR(INGREDIENT_COST_PER_PORTION.tiramisu)}, burrata ${formatEUR(burrCostPerPortion)}, verpakking ${formatEUR(PACKAGING_COST_PER_PORTION)} p.p.)`}
 							</td>
-							<td class="py-1 text-right tabular-nums">{formatEUR(result.materialsFee)}</td>
+							<td class="py-1 text-right tabular-nums">
+								{formatEUR(result.materialsFee - result.materials.extra)}
+							</td>
+						</tr>
+						<tr>
+							<td class="py-1 text-muted-foreground">
+								Vaste extra kosten, {formatEUR(config.extraCostPer10Persons)} per 10 personen
+							</td>
+							<td class="py-1 text-right tabular-nums">
+								{formatEUR(result.materials.extra)}
+							</td>
 						</tr>
 						{#if result.extraPersonFee > 0}
 							<tr>
 								<td class="py-1 text-muted-foreground">
-									Extra persoon ({result.effectiveExtraPeople}×), opbouw + wachten
+									Extra persoon ({result.effectiveExtraPeople}×), uren op locatie
 								</td>
 								<td class="py-1 text-right tabular-nums">{formatEUR(result.extraPersonFee)}</td>
-							</tr>
-						{/if}
-						{#if result.smallOrderRelief + result.mixDeduction + result.volumeDiscount > 0}
-							<tr>
-								<td class="py-1 text-muted-foreground">Kortingen</td>
-								<td class="py-1 text-right tabular-nums">
-									−{formatEUR(
-										result.smallOrderRelief + result.mixDeduction + result.volumeDiscount
-									)}
-								</td>
 							</tr>
 						{/if}
 						<tr>
@@ -548,6 +533,16 @@
 							</td>
 							<td class="py-1 text-right tabular-nums">{formatEUR(result.baseFee)}</td>
 						</tr>
+						{#if result.discount > 0}
+							<tr>
+								<td class="py-1 text-muted-foreground">
+									Korting {result.discountPct}% op de productprijs{discountOverride === null
+										? ' (curve)'
+										: ' (handmatig)'}
+								</td>
+								<td class="py-1 text-right tabular-nums">−{formatEUR(result.discount)}</td>
+							</tr>
+						{/if}
 						{#if result.travelFee > 0}
 							<tr>
 								<td class="py-1 text-muted-foreground">
@@ -564,7 +559,9 @@
 							<td class="py-1 text-muted-foreground">
 								Kosten: eten en verpakking {formatEUR(
 									internals.costs.ingredients + internals.costs.packaging
-								)}, auto {formatEUR(internals.costs.vehicle)}
+								)}, extra {formatEUR(internals.costs.extra)}, auto {result.roundTripKm} km × {formatEUR(
+									config.vehicleCostPerKm
+								)}/km = {formatEUR(internals.costs.vehicle)}
 							</td>
 							<td class="py-1 text-right tabular-nums">−{formatEUR(internals.costs.total)}</td>
 						</tr>
@@ -576,14 +573,14 @@
 				</table>
 				<div class="mt-3 space-y-1 border-t pt-3 text-xs text-muted-foreground">
 					<div>
-						Werkuren leveren {formatEUR(internals.labourRateRealisedAfterDiscounts)}/u op, rijden {formatEUR(
+						Werkuren leveren {formatEUR(internals.labourRateRealised)}/u op, rijden {formatEUR(
 							internals.travelRateRealised
 						)}/u.
 					</div>
 					<div class={rateDrift ? 'font-medium text-amber-700' : ''}>
 						{rateDrift
-							? `Let op: ${formatEUR(unexplainedGap)} verschil tussen opbrengst en fase-tarieven dat niet door een korting komt.`
-							: 'Werk klopt met de fase-tarieven (kortingen verrekend).'}
+							? `Let op: ${formatEUR(internals.unexplainedGap)} verschil tussen opbrengst en uurtarieven dat niet door de korting komt.`
+							: 'Werk klopt met de uurtarieven, korting verrekend.'}
 					</div>
 				</div>
 			</details>
@@ -592,6 +589,13 @@
 
 	<details class="border p-4">
 		<summary class="cursor-pointer text-sm font-medium">Tarieven &amp; aannames</summary>
-		<CalculatorSettings bind:config bind:standbyHours {internals} totalPortions={portions} />
+		<CalculatorSettings
+			bind:config
+			{internals}
+			totalPortions={portions}
+			sketchProduct={mode === 'hapjes' ? (hapjesKind === 'tira' ? 'tiramisu' : 'burrata') : mode}
+			{fruitCost}
+			burrataIngredientCost={burrCostPerPortion}
+		/>
 	</details>
 </div>
