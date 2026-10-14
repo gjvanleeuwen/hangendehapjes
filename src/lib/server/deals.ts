@@ -312,13 +312,13 @@ export async function listDeals(): Promise<Deal[]> {
 	return rows.map(rowToDeal);
 }
 
-/** Accepted/finished deals that have a real calendar date — for the ICS feed. */
+/** Pending (offerte/optie) and accepted/finished deals with a real calendar date, for the ICS feed. */
 export async function listEventDeals(): Promise<Deal[]> {
 	const sql = await ensureSchema();
 	if (!sql) return [];
 	const rows = await sql`
 		SELECT * FROM deals
-		WHERE event_date IS NOT NULL AND status IN ('in_optie', 'geaccepteerd', 'geleverd', 'factuur_verstuurd', 'afgerond')
+		WHERE event_date IS NOT NULL AND status IN ('offerte_verstuurd', 'in_optie', 'geaccepteerd', 'geleverd', 'factuur_verstuurd', 'afgerond')
 		ORDER BY event_date
 	`;
 	return rows.map(rowToDeal);

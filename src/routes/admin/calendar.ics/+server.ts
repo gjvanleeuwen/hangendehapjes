@@ -50,9 +50,15 @@ const serviceLabel = (d: Deal) =>
 
 function buildEvent(d: Deal, stamp: string): string[] {
 	const date = d.eventDate as string; // guaranteed by the query
-	const tentative = d.status === 'in_optie';
+	const tentative = d.status === 'in_optie' || d.status === 'offerte_verstuurd';
+	const prefix =
+		d.status === 'offerte_verstuurd'
+			? '📨 (offerte) '
+			: d.status === 'in_optie'
+				? '🕒 (optie) '
+				: '🍽 ';
 	const titleBits = [d.name, serviceLabel(d)].filter(Boolean).join(' — ');
-	const summary = `${tentative ? '🕒 (optie) ' : '🍽 '}${titleBits}${d.guests ? ` (${d.guests}p)` : ''}`;
+	const summary = `${prefix}${titleBits}${d.guests ? ` (${d.guests}p)` : ''}`;
 
 	const descLines = [
 		d.choice ? `Keuze: ${d.choice}` : null,
