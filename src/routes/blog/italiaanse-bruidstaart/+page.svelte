@@ -311,7 +311,7 @@
 					Gegarandeerd een succes, we weten het uit ervaring.
 				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Op onze eigen bruiloft hadden we een mega milefeille voor 100 personen. Samen het fruit
+					Op onze eigen bruiloft hadden we een mega millefeuille voor 100 personen. Samen het fruit
 					leggen was echt een hoogtepunt en de gasten vonden het genieten. Wij weten precies hoe we
 					het moeten maken en leveren zodat het ook voor jullie perfect is!
 				</p>
