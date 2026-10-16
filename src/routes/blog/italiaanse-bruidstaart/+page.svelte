@@ -330,7 +330,7 @@
 
 			<BlogOtherCakes ids={['tiramisutaart', 'klassiek']} event="bruidstaart">
 				Wij leveren ook een tiramisutaart die we ter plekke opbouwen, en klassieke hoge
-				bruidstaarten in 8 smaken.
+				bruidstaarten in 6 smaken.
 			</BlogOtherCakes>
 
 			<section class="mt-12 space-y-4" use:trackInView={{ event: 'blog_bruidstaart_prices_view' }}>
@@ -384,7 +384,7 @@
 				heading="Een Italiaanse bruidstaart op jullie dag? Stuur ons je datum."
 				intro="Stuur ons je datum, locatie en aantal gasten. Je hoort dezelfde dag nog of we nog vrij zijn, met een voorstel erbij: een millefoglie, een klassieke bruidstaart, of de taart samen met live hapjes."
 				preselect="millefeuille"
-				cards={['millefeuille', 'bruidstaart', 'tiramisu-taart']}
+				cards={['millefeuille', 'bruidstaart', 'tiramisu-taart', 'anders']}
 			/>
 
 			<BlogFaqSection

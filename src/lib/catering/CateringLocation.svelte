@@ -3,10 +3,12 @@
 	import Nav from '$lib/components/Nav.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import Picture from '$lib/components/Picture.svelte';
+	import PhotoCollage from '$lib/components/PhotoCollage.svelte';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
 	import BlogReviewTeaser from '$lib/blog/BlogReviewTeaser.svelte';
+	import FeaturedReview from '$lib/blog/FeaturedReview.svelte';
 	import { buildFaqJsonLd } from '$lib/blog/faqs';
 	import { jsonLdScript } from '$lib/seo';
 	import {
@@ -236,7 +238,13 @@
 				</div>
 			</section>
 
-			{#each content.sections as section (section.heading)}
+			{#each content.sections as section, sectionIndex (section.heading ?? sectionIndex)}
+				{@const featured = section.featuredReview
+					? t.reviews.items.find((review) => review.name === section.featuredReview)
+					: undefined}
+				{#if featured}
+					<FeaturedReview review={featured} locale={langTag} sourceLabel="Google review" />
+				{/if}
 				{#if section.reviewProductId}
 					<BlogReviewTeaser
 						reviews={reviewsFor(section.reviewProductId)}
@@ -247,24 +255,58 @@
 						numberLocale={langTag}
 					/>
 				{/if}
-				<section class="mt-12 space-y-4">
-					<h2 class="font-heading text-2xl tracking-tight md:text-3xl">{section.heading}</h2>
-					{#each section.body as paragraph (paragraph)}
-						<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-							<!-- eslint-disable-next-line svelte/no-at-html-tags -- first-party static copy -->
-							{@html paragraph}
-						</p>
-					{/each}
-					{#if section.bullets}
-						<ul
-							class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
-						>
-							{#each section.bullets as bullet (bullet)}
-								<li>{bullet}</li>
-							{/each}
-						</ul>
-					{/if}
-				</section>
+				{#if section.heading}
+					<section class="mt-12 space-y-4">
+						<h2 class="font-heading text-2xl tracking-tight md:text-3xl">{section.heading}</h2>
+						{#each section.body as paragraph (paragraph)}
+							<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
+								<!-- eslint-disable-next-line svelte/no-at-html-tags -- first-party static copy -->
+								{@html paragraph}
+							</p>
+						{/each}
+						{#if section.table}
+							<div class="overflow-x-auto">
+								<table class="w-full border-collapse text-sm md:text-base">
+									<thead>
+										<tr class="border-b border-border text-left">
+											{#each section.table.head as cell, c (c)}
+												<th class="py-3 pr-4 font-heading font-semibold last:pr-0">{cell}</th>
+											{/each}
+										</tr>
+									</thead>
+									<tbody class="text-muted-foreground">
+										{#each section.table.rows as row, r (r)}
+											<tr class="border-b border-border/60 last:border-b-0">
+												{#each row as cell, c (c)}
+													<td class={['py-3 pr-4 last:pr-0', c === 0 && 'text-foreground']}
+														>{cell}</td
+													>
+												{/each}
+											</tr>
+										{/each}
+									</tbody>
+								</table>
+							</div>
+							{#if section.table.note}
+								<p class="text-sm leading-relaxed text-muted-foreground md:text-base">
+									{section.table.note}
+								</p>
+							{/if}
+						{/if}
+						{#if section.bullets}
+							<ul
+								class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
+							>
+								{#each section.bullets as bullet (bullet)}
+									<li>{bullet}</li>
+								{/each}
+							</ul>
+						{/if}
+						{#if section.gallery}
+							<PhotoCollage images={section.gallery} />
+						{/if}
+					</section>
+				{/if}
 			{/each}
 
 			<section class="mt-12 flex items-center gap-4">

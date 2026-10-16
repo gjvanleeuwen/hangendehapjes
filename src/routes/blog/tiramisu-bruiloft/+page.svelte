@@ -134,7 +134,7 @@
 			id: 'tiramisu-taart',
 			question: 'Maken jullie ook andere (italiaanse) bruidstaarten?',
 			answer:
-				'Ja! Charlotte heeft veel patisserie-ervaring en maakt naast de tiramisutaart nog twee bruidstaarten. Een Italiaanse millefoglie (of mille-feuille) met knapperig bladerdeeg, Zwitserse room en vers rood fruit, vanaf 25 personen. Die maken we op locatie af, en het laatste fruit mogen jullie zelf leggen. En een klassieke hoge bruidstaart op maat, ook vanaf 25 personen, met 8 smaken om per laag uit te kiezen, waaronder tiramisu. Hierboven bij "Liever een andere bruidstaart?" lees je meer over allebei.'
+				'Ja! Charlotte heeft veel patisserie-ervaring en maakt naast de tiramisutaart nog twee bruidstaarten. Een Italiaanse millefoglie (of mille-feuille) met knapperig bladerdeeg, Zwitserse room en vers rood fruit, vanaf 25 personen. Die maken we op locatie af, en het laatste fruit mogen jullie zelf leggen. En een klassieke hoge bruidstaart op maat, ook vanaf 25 personen, met 6 smaken om per laag uit te kiezen. Hierboven bij "Liever een andere bruidstaart?" lees je meer over allebei.'
 		}
 	];
 
@@ -486,7 +486,7 @@
 				heading="Tiramisu op jouw bruiloft? Stuur ons je datum."
 				intro="Stuur ons je datum, locatie en aantal gasten. Je hoort dezelfde dag nog of we nog vrij zijn, met een voorstel erbij: Tiramisu als hangend hapje of als taart, wat past bij jullie?"
 				preselect="tiramisu-taart"
-				cards={['tiramisu-taart', 'tiramisu-live']}
+				cards={['tiramisu-taart', 'tiramisu-live', 'anders']}
 			/>
 
 			<BlogFaqSection

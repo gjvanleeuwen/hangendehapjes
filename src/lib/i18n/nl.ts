@@ -7,7 +7,7 @@ const BORREL_IMAGE = '/images/burrata_closeup.jpeg';
 
 export const nl: Translations = {
 	meta: {
-		title: 'Hangende Hapjes | Live catering voor jouw bruiloft of evenement',
+		title: 'Live hapjes catering op locatie | Hangende Hapjes',
 		description:
 			'Verse tiramisu, bruidstaarten en hartige snacks, ter plekke gemaakt voor jouw gasten. Hapjes en borrel catering voor bruiloften, recepties en zakelijke events.'
 	},
@@ -122,7 +122,7 @@ export const nl: Translations = {
 					id: 'klassiek',
 					kicker: 'Klassiek · op maat',
 					name: 'Klassieke bruidstaart',
-					pitch: 'Botercrèmetaart in 8 smaken, met afwerking en bloemen naar keuze.',
+					pitch: 'Botercrèmetaart in 6 smaken, met afwerking en bloemen naar keuze.',
 					priceFrom: 'Vanaf €11,50',
 					priceNote: 'per persoon',
 					href: '/blog/bruidstaart',
@@ -379,6 +379,14 @@ export const nl: Translations = {
 			{
 				label: 'Catering in Hilversum',
 				href: '/catering/hilversum'
+			},
+			{
+				label: 'Catering voor je bruiloft',
+				href: '/catering/bruiloft'
+			},
+			{
+				label: 'Catering voor je bedrijfsfeest',
+				href: '/catering/bedrijfsfeest'
 			},
 			{
 				label: 'Hoeveel hapjes per persoon',

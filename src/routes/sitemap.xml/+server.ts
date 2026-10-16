@@ -15,14 +15,19 @@ type UrlEntry = {
 	alternates?: { nl: string; en: string };
 };
 
-const cateringNl = SITE_URL + '/catering/hilversum';
-const cateringEn = SITE_URL + '/en/catering/hilversum';
+const cateringPages = ['hilversum', 'bruiloft', 'bedrijfsfeest'].flatMap((slug): UrlEntry[] => {
+	const nl = `${SITE_URL}/catering/${slug}`;
+	const en = `${SITE_URL}/en/catering/${slug}`;
+	return [
+		{ loc: nl, priority: '0.8', alternates: { nl, en } },
+		{ loc: en, priority: '0.7', alternates: { nl, en } }
+	];
+});
 
 const urls: UrlEntry[] = [
 	{ loc: altUrlNl, priority: '1.0', alternates: { nl: altUrlNl, en: altUrlEn } },
 	{ loc: altUrlEn, priority: '0.8', alternates: { nl: altUrlNl, en: altUrlEn } },
-	{ loc: cateringNl, priority: '0.8', alternates: { nl: cateringNl, en: cateringEn } },
-	{ loc: cateringEn, priority: '0.7', alternates: { nl: cateringNl, en: cateringEn } },
+	...cateringPages,
 	{ loc: SITE_URL + '/blog/hoeveel-hapjes-per-persoon', priority: '0.7' },
 	{ loc: SITE_URL + '/blog/tiramisu-bruiloft', priority: '0.7' },
 	{ loc: SITE_URL + '/blog/burrata-catering', priority: '0.7' },

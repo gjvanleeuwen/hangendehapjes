@@ -12,6 +12,7 @@
 	import { nl } from '$lib/i18n/nl';
 	import { BLOG_FAQS_NL, buildFaqJsonLd, type BlogFaq } from '$lib/blog/faqs';
 	import BlogFaqSection from '$lib/blog/BlogFaqSection.svelte';
+	import PhotoCollage from '$lib/components/PhotoCollage.svelte';
 	import BlogContactForm from '$lib/blog/BlogContactForm.svelte';
 	import BlogTopCta from '$lib/blog/BlogTopCta.svelte';
 	import { trackInView } from '$lib/inView';
@@ -183,6 +184,23 @@
 					beurt komt. Je kunt tiramisu en burrata ook combineren op één evenement: burrata bij de
 					borrel of als voorgerecht, tiramisu als dessert of midnight snack.
 				</p>
+				<PhotoCollage
+					images={[
+						{
+							src: '/images/charlotte_evenement.jpeg',
+							alt: 'Charlotte geeft een gast een vers opgemaakte portie vanaf het hangende dienblad'
+						},
+						{
+							src: '/images/gijs_3.jpeg',
+							alt: 'Gijs met het hangende dienblad om de nek, klaar om een portie af te maken'
+						},
+						{
+							src: '/images/tiramisu_dienblad_gijs.jpeg',
+							alt: 'Gijs strooit cacao over een verse portie tiramisu boven het dienblad'
+						}
+					]}
+					caption="Eén portie staat gelijk aan ongeveer 2 à 3 standaard hapjes."
+				/>
 			</section>
 
 			<section class="mt-12 space-y-4" use:trackInView={{ event: 'blog_hapjes_prices_view' }}>
@@ -268,8 +286,29 @@
 				</ul>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Vaak verzorgt de locatie of avondcateraar de basis, en verrijken wij het evenement met een
-					live, persoonlijke component op het moment dat jij kiest.
+					live, persoonlijke component op het moment dat jij kiest. Zo werkt dat op
+					<a href="/catering/bruiloft" class="underline hover:text-foreground">een bruiloft</a>
+					en op
+					<a href="/catering/bedrijfsfeest" class="underline hover:text-foreground"
+						>een bedrijfsfeest</a
+					>.
 				</p>
+				<PhotoCollage
+					images={[
+						{
+							src: '/images/gijs_evenement.jpeg',
+							alt: 'Gijs maakt een burrata-bowl af met saus, tussen de gasten van een evenement'
+						},
+						{
+							src: '/images/hero.jpeg',
+							alt: 'Charlotte met het hangende dienblad om de nek tussen de gasten van een borrel'
+						},
+						{
+							src: '/images/owners.jpeg',
+							alt: 'Charlotte en Gijs van Hangende Hapjes samen met hun hangende dienblad'
+						}
+					]}
+				/>
 			</section>
 
 			<BlogContactForm

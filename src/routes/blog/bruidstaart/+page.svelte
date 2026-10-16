@@ -9,8 +9,6 @@
 		BUILD_DATE,
 		OG_IMAGE_HEIGHT,
 		OG_IMAGE_WIDTH,
-		PRODUCT_MIN_PORTIONS,
-		PRODUCT_PRICES_EUR_FROM,
 		SITE_NAME,
 		SITE_URL
 	} from '$lib/site-config';
@@ -21,14 +19,16 @@
 	import BlogTopCta from '$lib/blog/BlogTopCta.svelte';
 	import { trackInView } from '$lib/inView';
 
-	const headline = 'Bruidstaart op maat: Perfect voor jullie dag';
-	const title = 'Bruidstaart op maat: inclusief proeven';
+	const headline = 'Klassieke bruidstaart bestellen, helemaal op maat';
+	const title = 'Klassieke bruidstaart bestellen: op maat en eerst proeven';
 	const description =
-		'Een klassieke bruidstaart op maat? wij bakken botercrèmetaarten in 6 smaken, met afwerking naar keuze. Proeven zit bij de prijs in.';
+		'Een klassieke bruidstaart bestellen? Wij bakken botercrèmetaarten op maat in 6 smaken, met afwerking naar keuze. Eerst proeven, richtprijs €11,50 p.p.';
 	const slug = '/blog/bruidstaart';
 	const canonical = SITE_URL + slug;
 	const ogImage = SITE_URL + '/og-blog-bruidstaart.jpg';
-	const serviceId = SITE_URL + '/#service-toetjes';
+	// Own ID: the classic cake is a different product (and price) than the tiramisu.
+	const serviceId = SITE_URL + '/#service-bruidstaart-klassiek';
+	const PRICE_PER_PERSON_EUR = 11.5;
 	const datePublished = '2026-06-29';
 
 	const articleJsonLd = {
@@ -61,7 +61,7 @@
 		'@context': 'https://schema.org',
 		'@type': ['Service', 'Product'],
 		'@id': serviceId,
-		name: 'Bruidstaart op maat (catering)',
+		name: 'Klassieke bruidstaart op maat',
 		description,
 		image: ogImage,
 		brand: { '@type': 'Brand', name: SITE_NAME },
@@ -74,16 +74,17 @@
 		offers: {
 			'@type': 'Offer',
 			priceCurrency: 'EUR',
-			price: PRODUCT_PRICES_EUR_FROM.toetjes,
+			price: PRICE_PER_PERSON_EUR,
 			availability: 'https://schema.org/InStock',
 			priceSpecification: {
 				'@type': 'UnitPriceSpecification',
-				price: PRODUCT_PRICES_EUR_FROM.toetjes,
+				price: PRICE_PER_PERSON_EUR,
 				priceCurrency: 'EUR',
+				valueAddedTaxIncluded: false,
 				referenceQuantity: {
 					'@type': 'QuantitativeValue',
-					value: PRODUCT_MIN_PORTIONS,
-					unitText: 'portions'
+					value: 1,
+					unitText: 'person'
 				}
 			}
 		}
@@ -100,7 +101,7 @@
 			id: 'bruidstaart-proeven',
 			question: 'Kunnen we de bruidstaart eerst proeven?',
 			answer:
-				'Ja, dat hoort erbij. Je proeft alle zes smaken, zodat jullie per laag kunnen kiezen. Bestel je daarna de taart, dan zit de proeverij bij de prijs in. Zie je ervan af, dan rekenen we €35.'
+				'Ja, proeven hoort bij het bestellen: zo kiezen jullie de smaken. Je proeft alle zes smaken en kiest per laag wat je wilt. Bestel je daarna de taart, dan zit de proeverij bij de prijs in. Zie je ervan af, dan rekenen we €35.'
 		},
 		{
 			id: 'bruidstaart-bloemen',
@@ -130,6 +131,17 @@
 	];
 
 	const faqJsonLd = buildFaqJsonLd(faqList, { id: canonical + '#faq' });
+
+	/** Indicative sizes from the facts above: 2 tiers from 25 guests, 3 possible from 50. */
+	const GUEST_ROWS = [
+		{ guests: 25, tiers: '2' },
+		{ guests: 50, tiers: '2 of 3' },
+		{ guests: 75, tiers: '2 of 3' },
+		{ guests: 100, tiers: '2 of 3' }
+	];
+
+	/** Rounded to €5, written like the rest of the site: €1.150 (no space after €). */
+	const formatEur = (value: number) => '€' + (Math.round(value / 5) * 5).toLocaleString('nl-NL');
 
 	const articleJsonLdHtml = jsonLdScript(articleJsonLd);
 	const faqJsonLdHtml = jsonLdScript(faqJsonLd);
@@ -192,14 +204,16 @@
 					Charlotte de taart in jullie kleur en stijl.
 				</li>
 				<li>
-					<strong>6 smaken:</strong> per laag te kiezen. Proeven zit erbij als je bestelt, anders €35.
+					<strong>6 smaken:</strong> per laag te kiezen na een proeverij. Bestel je de taart, dan zit
+					het proeven in de prijs, anders €35.
 				</li>
 				<li>
 					<strong>Formaat:</strong> vanaf 25 personen in twee etages, vanaf 50 personen ook in drie.
 				</li>
 				<li>
-					<strong>Prijs:</strong> richtprijs €11,50 per persoon, excl. btw. Bezorgen is inbegrepen tot
-					30km vanaf hilversum, daarbuiten rekenen we extra reiskosten per km.
+					<strong>Prijs:</strong> richtprijs €11,50 per persoon, excl. btw. Voor 50 gasten is dat ongeveer
+					€575. Elke taart is op maat, dus dit is een indicatie. Bezorgen is inbegrepen tot 30km vanaf
+					Hilversum, daarbuiten rekenen we extra reiskosten per km.
 				</li>
 			</BlogSummary>
 
@@ -292,11 +306,14 @@
 			</section>
 
 			<section class="mt-12 space-y-4">
-				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Eerst proeven</h2>
+				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">
+					Bruidstaart proeven: zo kiezen jullie de smaken
+				</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
-					Welke smaak wordt het? Dat kies je het makkelijkst door te proeven. Je proeft alle zes
-					smaken, zodat jullie per laag kunnen kiezen. Bestel je daarna de taart, dan zit de
-					proeverij bij de prijs in. Zie je ervan af, dan rekenen we €35.
+					Welke smaak wordt het? Dat kies je het makkelijkst door te proeven. De proeverij hoort bij
+					het bestellen van jullie taart: je proeft alle zes smaken en kiest per laag wat je wilt.
+					Bestel je daarna de taart, dan zit de proeverij bij de prijs in. Zie je ervan af, dan
+					rekenen we €35.
 				</p>
 				<ul
 					class="ml-6 list-disc space-y-2 text-base leading-relaxed text-muted-foreground md:text-lg"
@@ -354,12 +371,40 @@
 				class="mt-12 space-y-4"
 				use:trackInView={{ event: 'blog_bruidstaart_klassiek_prices_view' }}
 			>
-				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Wat een bruidstaart kost</h2>
+				<h2 class="font-heading text-2xl tracking-tight md:text-3xl">Wat kost een bruidstaart?</h2>
 				<p class="text-base leading-relaxed text-muted-foreground md:text-lg">
 					Een klassieke bruidstaart maken we helemaal op maat, dus de prijs hangt af van het aantal
 					etages, de afwerking, de bloemen en andere extra's die jullie kiezen. Als richtprijs kun
 					je uitgaan van zo'n €11,50 per persoon (excl. btw). Je krijgt altijd een offerte op maat,
 					op basis van jullie moodboard en ons gesprek. Dit kan ook lager uitvallen.
+				</p>
+				<h3 class="font-heading text-xl tracking-tight">
+					Hoeveel taart voor jullie aantal gasten?
+				</h3>
+				<div class="overflow-x-auto">
+					<table class="w-full border-collapse text-sm md:text-base">
+						<thead>
+							<tr class="border-b border-border text-left">
+								<th class="py-3 pr-4 font-heading font-semibold">Gasten</th>
+								<th class="py-3 pr-4 font-heading font-semibold">Etages</th>
+								<th class="py-3 font-heading font-semibold">Indicatie, excl. btw</th>
+							</tr>
+						</thead>
+						<tbody class="text-muted-foreground">
+							{#each GUEST_ROWS as row (row.guests)}
+								<tr class="border-b border-border/60 last:border-b-0">
+									<td class="py-3 pr-4 text-foreground">{row.guests}</td>
+									<td class="py-3 pr-4">{row.tiers}</td>
+									<td class="py-3">ongeveer {formatEur(row.guests * PRICE_PER_PERSON_EUR)}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+				<p class="text-sm leading-relaxed text-muted-foreground md:text-base">
+					Dit zijn indicaties op basis van de richtprijs van €11,50 per persoon. Omdat we elke taart
+					op maat maken, hangt de echte prijs af van de breedte en hoogte van de etages, de
+					afwerking en de bloemen. In de offerte zie je precies wat jullie taart kost.
 				</p>
 				<div class="rounded-xl border border-border px-5 py-4">
 					<h3 class="font-heading text-lg tracking-tight">Klassieke bruidstaart</h3>
@@ -382,7 +427,7 @@
 				heading="Een klassieke bruidstaart op jullie dag? Stuur ons je datum."
 				intro="Stuur ons je datum, locatie en aantal gasten. Je hoort dezelfde dag nog of we nog vrij zijn, met een voorstel erbij: een klassieke bruidstaart, een Italiaanse millefoglie, of de taart samen met live hapjes."
 				preselect="bruidstaart"
-				cards={['bruidstaart', 'millefeuille', 'tiramisu-taart']}
+				cards={['bruidstaart', 'millefeuille', 'tiramisu-taart', 'anders']}
 			/>
 
 			<BlogFaqSection

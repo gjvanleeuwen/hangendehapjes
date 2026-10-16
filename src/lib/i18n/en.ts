@@ -7,7 +7,7 @@ const BORREL_IMAGE = '/images/burrata_closeup.jpeg';
 
 export const en: Translations = {
 	meta: {
-		title: 'Hangende Hapjes | Live catering for your wedding or event',
+		title: 'Live bites catering on location | Hangende Hapjes',
 		description:
 			'Fresh tiramisu and burrata bowls, made on the spot for your guests. Bites & drinks catering for weddings, receptions and corporate events. From €425.'
 	},
@@ -120,7 +120,7 @@ export const en: Translations = {
 					id: 'klassiek',
 					kicker: 'Classic · made to order',
 					name: 'Classic wedding cake',
-					pitch: 'Buttercream cake in 8 flavours, with the finish and flowers of your choice.',
+					pitch: 'Buttercream cake in 6 flavours, with the finish and flowers of your choice.',
 					priceFrom: 'From €11.50',
 					priceNote: 'per person',
 					href: '/blog/bruidstaart',
@@ -358,6 +358,14 @@ export const en: Translations = {
 			{
 				label: 'Catering in Hilversum',
 				href: '/en/catering/hilversum'
+			},
+			{
+				label: 'Wedding catering',
+				href: '/en/catering/bruiloft'
+			},
+			{
+				label: 'Company party catering',
+				href: '/en/catering/bedrijfsfeest'
 			}
 		]
 	}

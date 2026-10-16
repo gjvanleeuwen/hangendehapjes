@@ -25,3 +25,4 @@ vite.config.ts.timestamp-*
 # Funnel report inputs/outputs (Umami/GSC exports, deal dumps, generated reports)
 /data
 /reports
+__pycache__/

@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Hangende Hapjes SEO research</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-0: #f4f4f2; --surface-1: #fcfcfb; --surface-2: #efeeeb;
+    --grid: #e4e3df; --border: #dddcd7;
+    --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #77766f;
+    --series-1: #2a78d6; --series-2: #eb6834;
+    --accent: #2a78d6; --warn-bg: #fff4d6; --warn-ink: #6b4a00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --surface-0: #121211; --surface-1: #1a1a19; --surface-2: #242422;
+      --grid: #30302d; --border: #3a3a37;
+      --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #94938a;
+      --series-1: #3987e5; --series-2: #d95926;
+      --accent: #5a9cec; --warn-bg: #3a2f10; --warn-ink: #f3d68a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+         background: var(--surface-0); color: var(--text-primary); }
+  header { padding: 20px 28px 0; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  h3 { font-size: 14px; margin: 18px 0 8px; }
+  .meta { color: var(--text-secondary); font-size: 13px; }
+  .banner { margin: 12px 0 0; padding: 8px 12px; border-radius: 8px; background: var(--warn-bg); color: var(--warn-ink); }
+  nav { display: flex; gap: 4px; padding: 14px 28px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  nav button { border: 0; background: none; color: var(--text-secondary); padding: 8px 12px; font: inherit;
+               cursor: pointer; border-bottom: 2px solid transparent; }
+  nav button[aria-selected="true"] { color: var(--text-primary); border-bottom-color: var(--accent); font-weight: 600; }
+  main { padding: 20px 28px 60px; max-width: 1400px; }
+  section[hidden] { display: none; }
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 16px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .tile .v { font-size: 24px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .tile .l { color: var(--text-secondary); font-size: 12px; }
+  .muted { color: var(--text-muted); }
+  .small { font-size: 12px; }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  input[type=search], select { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);
+                               background: var(--surface-1); color: var(--text-primary); min-width: 220px; }
+  .chip { border: 1px solid var(--border); background: var(--surface-1); color: var(--text-secondary); border-radius: 999px;
+          padding: 4px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--text-primary); color: var(--surface-1); border-color: var(--text-primary); }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  th { font-size: 12px; color: var(--text-secondary); font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap;
+       position: sticky; top: 0; background: var(--surface-1); }
+  th[data-sort]::after { content: attr(data-sort); color: var(--text-muted); margin-left: 4px; }
+  td.num, th.num { text-align: right; }
+  .tablewrap { max-height: 70vh; overflow: auto; }
+  .more { margin-top: 8px; }
+  .pill { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 999px; background: var(--surface-2);
+          color: var(--text-secondary); margin: 0 4px 2px 0; white-space: nowrap; }
+  .pill.ours { outline: 1px solid var(--accent); color: var(--text-primary); }
+  details { border-bottom: 1px solid var(--grid); padding: 6px 0; }
+  summary { cursor: pointer; }
+  ol, ul { margin: 4px 0; padding-left: 20px; }
+  a { color: var(--accent); }
+  /* bar chart */
+  .bars { display: grid; grid-template-columns: minmax(120px, max-content) 1fr; gap: 6px 10px; align-items: center; }
+  .bars .lab { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+  .bars .track { position: relative; height: 18px; display: flex; align-items: center; gap: 6px; }
+  .bars .bar { height: 16px; background: var(--series-1); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .bars .bar:hover, .bars .bar:focus { filter: brightness(1.15); outline: none; }
+  .bars .val { font-size: 12px; color: var(--text-primary); white-space: nowrap; }
+  .hit { cursor: default; }
+  #tip { position: fixed; pointer-events: none; z-index: 10; background: var(--surface-1); border: 1px solid var(--border);
+         border-radius: 8px; padding: 6px 10px; font-size: 12px; box-shadow: 0 4px 16px rgb(0 0 0 / .12); display: none; max-width: 320px; }
+  #tip strong { display: block; font-size: 13px; }
+  .key { display: inline-block; width: 12px; height: 2px; vertical-align: middle; margin-right: 6px; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+  svg text { fill: var(--text-muted); font-size: 11px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Hangende Hapjes SEO research</h1>
+  <div class="meta" id="meta"></div>
+  <div id="banners"></div>
+</header>
+<nav id="tabs" role="tablist"></nav>
+<main id="main"></main>
+<div id="tip" role="tooltip"></div>
+<script>
+const DATA = /*__DATA__*/null;
+
+// --- tiny DOM helpers (all data goes in via textContent) ---------------------------
+function el(tag, attrs, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === undefined || v === null || v === false) continue;
+    if (k === "class") node.className = v;
+    else if (k.startsWith("on")) node.addEventListener(k.slice(2), v);
+    else node.setAttribute(k, v === true ? "" : v);
+  }
+  for (const c of children.flat()) {
+    if (c === null || c === undefined || c === false) continue;
+    node.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return node;
+}
+const fmt = (n) => n === null || n === undefined || n === "" ? "–" : typeof n === "number" ? n.toLocaleString("nl-NL") : n;
+const compact = (n) => n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? (n / 1e3).toFixed(n >= 1e4 ? 0 : 1) + "K" : String(Math.round(n));
+const pills = (list, isOurs) => (list || []).map((t) => el("span", { class: "pill" + (isOurs && isOurs(t) ? " ours" : "") }, t));
+const ours = (d) => d === "hangendehapjes.nl" || String(d).endsWith(".hangendehapjes.nl");
+
+const tip = document.getElementById("tip");
+function showTip(evt, value, label) {
+  tip.replaceChildren(el("strong", {}, value), el("span", { class: "muted" }, label));
+  tip.style.display = "block";
+  const r = evt.target.getBoundingClientRect ? evt.target.getBoundingClientRect() : { left: 0, top: 0 };
+  const x = evt.clientX ?? r.left + r.width / 2, y = evt.clientY ?? r.top;
+  tip.style.left = Math.min(x + 14, innerWidth - tip.offsetWidth - 8) + "px";
+  tip.style.top = Math.max(8, y - tip.offsetHeight - 10) + "px";
+}
+const hideTip = () => (tip.style.display = "none");
+
+// --- sortable, filterable table ---------------------------------------------------
+function table(columns, rows, opts = {}) {
+  const pageSize = opts.pageSize || 100;
+  let sortKey = opts.sort || null, dir = -1, query = "", shown = pageSize;
+  const extraFilter = { fn: () => true };
+  const tbody = el("tbody");
+  const count = el("span", { class: "muted small" });
+  const more = el("button", { class: "chip more", onclick: () => { shown += pageSize * 2; render(); } }, "show more");
+  const head = el("tr", {}, columns.map((c) => {
+    const th = el("th", { class: c.num ? "num" : "", title: c.help || "" }, c.label);
+    th.addEventListener("click", () => { dir = sortKey === c.key ? -dir : (c.num ? -1 : 1); sortKey = c.key; render(); });
+    c.th = th;
+    return th;
+  }));
+  function value(row, c) { return c.value ? c.value(row) : row[c.key]; }
+  function render() {
+    const q = query.toLowerCase();
+    let list = rows.filter((r) => extraFilter.fn(r) && (!q || JSON.stringify(r).toLowerCase().includes(q)));
+    if (sortKey) {
+      const c = columns.find((x) => x.key === sortKey);
+      list = [...list].sort((a, b) => {
+        const va = value(a, c), vb = value(b, c);
+        if (va === vb) return 0;
+        if (va === null || va === undefined) return 1;
+        if (vb === null || vb === undefined) return -1;
+        return (va > vb ? 1 : -1) * dir;
+      });
+    }
+    columns.forEach((c) => c.th.removeAttribute("data-sort"));
+    if (sortKey) columns.find((x) => x.key === sortKey).th.setAttribute("data-sort", dir > 0 ? "▲" : "▼");
+    tbody.replaceChildren(...list.slice(0, shown).map((r) => el("tr", {}, columns.map((c) =>
+      el("td", { class: c.num ? "num" : "" }, c.render ? c.render(r) : fmt(value(r, c)))))));
+    count.textContent = `${fmt(list.length)} rows`;
+    more.hidden = list.length <= shown;
+  }
+  const search = el("input", { type: "search", placeholder: opts.placeholder || "Filter…",
+    oninput: (e) => { query = e.target.value; shown = pageSize; render(); } });
+  const wrap = el("div", {},
+    el("div", { class: "controls" }, opts.noSearch ? null : search, opts.controls || null, count),
+    el("div", { class: "tablewrap" }, el("table", {}, el("thead", {}, head), tbody)), more);
+  wrap.setFilter = (fn) => { extraFilter.fn = fn; shown = pageSize; render(); };
+  render();
+  return wrap;
+}
+
+// --- horizontal bar chart (single series, value at tip, hover + focus tooltip) -----
+function bars(items, opts = {}) {
+  const max = Math.max(1, ...items.map((i) => i.value));
+  const f = opts.format || fmt;
+  return el("div", { class: "bars", role: "list" }, items.flatMap((i) => [
+    el("div", { class: "lab", title: i.label }, i.label),
+    el("div", { class: "track", role: "listitem" },
+      el("div", { class: "bar hit", tabindex: "0", style: `width:${Math.max(0.4, (i.value / max) * 85)}%`,
+        "aria-label": `${i.label}: ${f(i.value)}`,
+        onpointermove: (e) => showTip(e, f(i.value), i.tip || i.label), onpointerleave: hideTip,
+        onfocus: (e) => showTip(e, f(i.value), i.tip || i.label), onblur: hideTip }),
+      el("span", { class: "val" }, f(i.value))),
+  ]));
+}
+
+// --- line chart (shared x, one y axis, crosshair tooltip) --------------------------
+function lines(series, opts = {}) {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = (tag, attrs) => { const n = document.createElementNS(ns, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); return n; };
+  const xs = series[0].points.map((p) => p[0]);
+  if (!xs.length) return el("p", { class: "muted" }, "No monthly data.");
+  const W = 1200, H = 260, L = 46, R = 24, T = 10, B = 26;
+  const max = Math.max(1, ...series.flatMap((s) => s.points.map((p) => p[1])));
+  const nice = Math.pow(10, Math.floor(Math.log10(max)));
+  const top = Math.ceil(max / nice) * nice;
+  const x = (i) => L + (i / Math.max(1, xs.length - 1)) * (W - L - R);
+  const y = (v) => T + (1 - v / top) * (H - T - B);
+  const root = svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img", "aria-label": opts.label || "line chart" });
+  for (let k = 0; k <= 4; k++) {
+    const v = (top / 4) * k;
+    root.append(svg("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: "var(--grid)", "stroke-width": 1 }));
+    const t = svg("text", { x: L - 6, y: y(v) + 4, "text-anchor": "end" }); t.textContent = compact(v); root.append(t);
+  }
+  const step = Math.ceil(xs.length / 8);
+  xs.forEach((label, i) => {
+    // Every `step`-th month; the last one only when it won't collide with the previous tick.
+    if (i % step !== 0 && !(i === xs.length - 1 && i % step >= step / 2)) return;
+    const t = svg("text", { x: x(i), y: H - 6, "text-anchor": "middle" }); t.textContent = label; root.append(t);
+  });
+  // End labels only when they can't collide; the legend always names the series.
+  const ends = series.map((s) => y(s.points[s.points.length - 1][1]));
+  const labelEnds = ends.every((a, i) => ends.every((b, j) => i === j || Math.abs(a - b) >= 14));
+  series.forEach((s) => {
+    root.append(svg("polyline", { points: s.points.map((p, i) => `${x(i)},${y(p[1])}`).join(" "), fill: "none",
+      stroke: s.color, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+    const last = s.points[s.points.length - 1];
+    root.append(svg("circle", { cx: x(s.points.length - 1), cy: y(last[1]), r: 4, fill: s.color, stroke: "var(--surface-1)", "stroke-width": 2 }));
+    if (labelEnds) {
+      const t = svg("text", { x: x(s.points.length - 1) - 8, y: y(last[1]) - 8, "text-anchor": "end" });
+      t.textContent = s.name; t.style.fill = "var(--text-secondary)"; root.append(t);
+    }
+  });
+  const cross = svg("line", { y1: T, y2: H - B, stroke: "var(--text-muted)", "stroke-width": 1, visibility: "hidden" });
+  root.append(cross);
+  const hit = svg("rect", { x: L, y: T, width: W - L - R, height: H - T - B, fill: "transparent", tabindex: 0 });
+  const at = (i, evt) => {
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+    tip.replaceChildren(el("strong", {}, xs[i]), ...series.map((s) =>
+      el("div", {}, el("span", { class: "key", style: `background:${s.color}` }), el("b", {}, fmt(s.points[i][1])), " ", el("span", { class: "muted" }, s.name))));
+    tip.style.display = "block";
+    tip.style.left = Math.min(evt.clientX + 14, innerWidth - tip.offsetWidth - 8) + "px";
+    tip.style.top = evt.clientY - tip.offsetHeight - 10 + "px";
+  };
+  hit.addEventListener("pointermove", (evt) => {
+    const box = root.getBoundingClientRect();
+    const px = ((evt.clientX - box.left) / box.width) * W;
+    at(Math.max(0, Math.min(xs.length - 1, Math.round(((px - L) / (W - L - R)) * (xs.length - 1)))), evt);
+  });
+  hit.addEventListener("pointerleave", () => { cross.setAttribute("visibility", "hidden"); hideTip(); });
+  root.append(hit);
+  return el("div", {}, el("div", { class: "legend" }, series.map((s) =>
+    el("span", {}, el("span", { class: "key", style: `background:${s.color}` }), s.name))), root);
+}
+
+// --- tabs -----------------------------------------------------------------------------
+const TABS = [
+  ["overview", "Overview", overview], ["overtake", "Overtake", overtake], ["opportunities", "Opportunities", opportunities],
+  ["pages", "Our pages", pages], ["serps", "SERPs", serps], ["competitors", "Competitors", competitors],
+  ["links", "Links", links], ["local", "Local / Maps", localTab], ["keywords", "Keywords", keywords], ["costs", "Costs", costs],
+];
+const BUCKET_LABEL = Object.fromEntries(DATA.buckets);
+
+function overview() {
+  const o = DATA.opportunities, kws = DATA.keywords, s = DATA.serps;
+  const top10 = s.filter((x) => x.ours && x.ours <= 10).length;
+  const byBucket = DATA.buckets.map(([k, label]) => ({
+    label, value: o.filter((x) => x.bucket === k).reduce((a, x) => a + x.volume, 0),
+    tip: `${o.filter((x) => x.bucket === k).length} clusters · monthly searches` }));
+  const dom = DATA.ranking_domains.slice(0, 15).map((d) => ({ label: d.domain + (d.ours ? " (ours)" : ""), value: d.visibility,
+    tip: `${d.keywords} keywords in top 10 · ${d.top3} in top 3 · visibility = est. monthly clicks` }));
+  const css = getComputedStyle(document.documentElement);
+  return [
+    el("div", { class: "tiles" },
+      [["Relevant keywords", fmt(kws.length)], ["Monthly searches (sum)", compact(kws.reduce((a, k) => a + (k.volume || 0), 0))],
+       ["SERPs analysed", fmt(s.length)], ["hangendehapjes.nl in top 10", fmt(top10)],
+       ["Opportunity clusters", fmt(o.filter((x) => x.bucket !== "skip").length)], ["Spend (all runs)", "$" + DATA.meta.spend_total]]
+        .map(([l, v]) => el("div", { class: "tile" }, el("div", { class: "v" }, v), el("div", { class: "l" }, l)))),
+    el("div", { class: "grid2" },
+      el("div", { class: "card" }, el("h2", {}, "Monthly searches per bucket"), bars(byBucket, { format: compact }),
+        el("p", { class: "muted small" }, "Sum of search volume over keyword clusters. Details in Opportunities.")),
+      el("div", { class: "card" }, el("h2", {}, "Who ranks: estimated monthly clicks from the analysed SERPs"), bars(dom, { format: compact }))),
+    el("div", { class: "card" }, el("h2", {}, "Seasonality: monthly searches over the last months"),
+      lines([{ name: "all relevant", color: css.getPropertyValue("--series-1").trim(), points: DATA.season },
+             { name: "bruiloft", color: css.getPropertyValue("--series-2").trim(),
+               points: DATA.season.map(([m]) => [m, (Object.fromEntries(DATA.season_wedding))[m] || 0]) }], { label: "seasonality" })),
+  ];
+}
+
+function overtake() {
+  const q = DATA.analysis.queries;
+  if (!q.length) return el("p", { class: "muted" }, "No analysis yet: run the analyze step.");
+  let type = "all";
+  const posFmt = (p) => p > 10 ? "page 2+" : "#" + p;
+  const t = table([
+    { key: "query", label: "Query", render: (r) => el("span", { title: r.variants.join(" · ") }, r.query) },
+    { key: "volume", label: "Vol", num: true },
+    { key: "ours", label: "SERP", num: true, help: "our position in this one SERP snapshot (top 20)", render: (r) => r.ours ? "#" + r.ours : "–" },
+    { key: "gsc_pos", label: "GSC pos", num: true, help: "Search Console average position over the pulled window", render: (r) => r.gsc_pos ?? "–" },
+    { key: "gsc_impr", label: "GSC impr", num: true, render: (r) => r.gsc_impr ?? "–" },
+    { key: "reach_now", label: "Now", num: true, help: "reachable with strong content + first links (beats sites below rank 120)", render: (r) => posFmt(r.reach_now) },
+    { key: "reach_later", label: "Later", num: true, help: "with ~50-100 good referring domains (beats sites below rank 220)", render: (r) => posFmt(r.reach_later) },
+    { key: "clicks_later", label: "Clicks later", num: true, help: "volume × CTR at the 'later' position" },
+    { key: "weak_slots", label: "Weak", num: true, help: "top-10 results under rank 150 or social/marketplace" },
+    { key: "median_rank", label: "Med. rank", num: true },
+    { key: "content_type", label: "SERP" },
+    { key: "our_page", label: "Our page" },
+    { key: "top10", label: "Top 10 (domain · rank)", render: (r) => el("span", { class: "small" }, r.top10.map((e) =>
+        el("span", { class: "pill" + (ours(e.domain) ? " ours" : ""), title: e.url }, `${e.pos}. ${e.domain.replace(/^www\./, "")} · ${e.rank ?? "?"}`))) },
+    { key: "paa", label: "People also ask", render: (r) => el("span", { class: "small muted" }, r.paa.join(" · ")) },
+  ], q, { sort: "clicks_later" });
+  const chips = [["all", "All"], ["focus", "Focus: hapjes/live/bruidstaart"], ["now", "Top 5 now"], ["later", "Top 5 later"], ["article", "Article SERPs"], ["nopage", "No page of ours"]].map(([k, label]) =>
+    el("button", { class: "chip", "aria-pressed": String(k === type), onclick: (e) => {
+      type = k; chips.forEach((c) => c.setAttribute("aria-pressed", "false")); e.target.setAttribute("aria-pressed", "true");
+      t.setFilter((r) => k === "all" || (k === "focus" && r.focus) || (k === "now" && r.reach_now <= 5) || (k === "later" && r.reach_later <= 5)
+        || (k === "article" && r.content_type === "article") || (k === "nopage" && !r.our_page)); } }, label));
+  const dropped = Object.entries(DATA.analysis.dropped || {}).map(([k, v]) => `${v} ${k}`).join(", ");
+  return el("div", { class: "card" }, el("h2", {}, "What is overtakable"),
+    el("p", { class: "muted small" }, `Close variants merged (max volume, not sum). hangendehapjes.nl rank: ${DATA.analysis.ours_rank}. Excluded: ${dropped}. GSC window: ${DATA.meta.gsc_window}. `,
+      "Now = strong content + first ~10–20 relevant links; Later = ~50–100 good referring domains. Ceiling estimates from one SERP snapshot."),
+    el("div", { class: "controls" }, chips), t);
+}
+
+function opportunities() {
+  let active = "all";
+  const t = table([
+    { key: "score", label: "Score", num: true, help: "volume × intent weight × winnability", render: (r) => fmt(Math.round(r.score)) },
+    { key: "bucket", label: "Bucket", render: (r) => BUCKET_LABEL[r.bucket] },
+    { key: "top_keyword", label: "Top keyword" },
+    { key: "volume", label: "Volume", num: true },
+    { key: "keywords", label: "Kws", num: true },
+    { key: "intent", label: "Intent" },
+    { key: "winnability", label: "Win", num: true, help: "0–1, from who holds the top 10" },
+    { key: "our_position", label: "SERP", num: true },
+    { key: "gsc_pos", label: "GSC pos", num: true },
+    { key: "gsc_impr", label: "GSC impr", num: true },
+    { key: "page", label: "Page", render: (r) => r.page === null ? "–" : "/" + r.page },
+    { key: "top3", label: "Top 3", render: (r) => pills(r.top3, ours) },
+    { key: "reason", label: "Why" },
+    { key: "examples", label: "Keywords in cluster", render: (r) => el("span", { class: "small muted" }, r.examples.join(" · ")) },
+  ], DATA.opportunities, { sort: "score" });
+  const chips = [["all", "All"], ...DATA.buckets].map(([k, label]) => el("button", { class: "chip", "aria-pressed": String(k === active),
+    onclick: (e) => { active = k; chips.forEach((c) => c.setAttribute("aria-pressed", "false")); e.target.setAttribute("aria-pressed", "true");
+      t.setFilter((r) => k === "all" || r.bucket === k); } }, label));
+  return el("div", { class: "card" }, el("h2", {}, "Opportunities by keyword cluster"),
+    el("p", { class: "muted small" }, "A cluster = keywords sharing kind (service/answer) + product + occasion + place. Volume = the largest keyword in the cluster (variants share one Google volume). Focus products (hapjes, live, bruidstaart, catering, burrata) are weighted ×1.5."),
+    el("div", { class: "controls" }, chips), t);
+}
+
+function pages() {
+  const entries = Object.values(DATA.content);
+  if (!entries.length) return el("p", { class: "muted" }, "No content data: run the content step.");
+  return entries.map((g) => el("div", { class: "card" },
+    el("h2", {}, g.key ? "/" + g.key : "Homepage", " ", el("a", { href: g.url, target: "_blank", rel: "noopener", class: "small" }, g.url)),
+    g.noindex ? el("p", { class: "banner" }, "This page is noindex.") : null,
+    el("div", { class: "grid2" },
+      el("div", {}, el("h3", {}, "Depth: ours vs competitor median"),
+        el("table", {}, el("thead", {}, el("tr", {}, el("th", {}, ""), el("th", { class: "num" }, "ours"), el("th", { class: "num" }, `median of ${g.competitors.pages}`))),
+          el("tbody", {}, ["words", "questions", "headings", "prices", "images"].map((k) =>
+            el("tr", {}, el("td", {}, k), el("td", { class: "num" }, fmt(g.ours[k])), el("td", { class: "num" }, fmt(g.competitors[k]))))))),
+      el("div", {}, el("h3", {}, "Target keywords"),
+        el("table", {}, el("tbody", {}, g.targets.map((t) => el("tr", {}, el("td", {}, t.keyword), el("td", { class: "num" }, fmt(t.volume)),
+          el("td", { class: "num" }, t.ours ? "#" + t.ours : "–"), el("td", {}, pills(t.top3, ours)))))))),
+    el("h3", {}, `Missing questions (${g.missing_questions.length})`),
+    g.missing_questions.length ? el("ul", {}, g.missing_questions.map((m) => el("li", {}, m.question, " ",
+      el("span", { class: "muted small" }, `PAA in ${m.serps} SERPs · on ${m.competitor_pages} competitor sites`)))) : el("p", { class: "muted" }, "None found."),
+    g.near_misses.length ? [el("h3", {}, "Near misses (check by hand)"), el("ul", {}, g.near_misses.map((m) =>
+      el("li", {}, m.question, el("span", { class: "muted small" }, ` ≈ “${m.closest}” (${m.score})`))))] : null,
+    el("h3", {}, `Subtopics competitors cover and we don't (${g.missing_topics.length})`),
+    g.missing_topics.length ? el("ul", {}, g.missing_topics.map((t) => el("li", {}, el("b", {}, t.label), " ",
+      el("span", { class: "muted small" }, `${t.pages} sites · ${t.examples.slice(1, 3).join(" / ")}`)))) : el("p", { class: "muted" }, "None found."),
+    g.related_missing.length ? [el("h3", {}, "Related searches not addressed"), el("p", {}, pills(g.related_missing.map((r) => r.search)))] : null,
+    el("details", {}, el("summary", {}, `Competitor pages compared (${g.competitor_pages.length}) and our outline`),
+      el("table", {}, el("tbody", {}, g.competitor_pages.map((p) => el("tr", {}, el("td", {}, el("a", { href: p.url, target: "_blank", rel: "noopener" }, p.url)),
+        el("td", { class: "num" }, fmt(p.words) + " w"), el("td", { class: "num" }, p.questions + " q"), el("td", {}, pills(p.schema)))))),
+      el("h3", {}, "Our outline"), el("ul", {}, g.outline.map((h) => el("li", { style: `margin-left:${(h.level - 1) * 14}px` }, `H${h.level} ${h.text}`))))));
+}
+
+function serps() {
+  const list = el("div");
+  let q = "";
+  const render = () => {
+    const rows = DATA.serps.filter((s) => !q || s.keyword.toLowerCase().includes(q) || s.organic.some((o) => o.domain.includes(q)))
+      .sort((a, b) => b.volume - a.volume).slice(0, 150);
+    list.replaceChildren(...rows.map((s) => el("details", {},
+      el("summary", {}, el("b", {}, s.keyword), ` · ${fmt(s.volume)}/mo · ours: ${s.ours ? "#" + s.ours : "–"} `, pills(s.features)),
+      el("div", { class: "grid2" },
+        el("div", {}, el("h3", {}, "Organic"), el("ol", {}, s.organic.map((o) => el("li", {}, el("span", { class: "pill" + (ours(o.domain) ? " ours" : "") }, o.domain), " ",
+          el("a", { href: o.url, target: "_blank", rel: "noopener" }, o.title || o.url))))),
+        el("div", {},
+          s.paa.length ? [el("h3", {}, "People also ask"), el("ul", {}, s.paa.map((p) => el("li", {}, p)))] : null,
+          s.related.length ? [el("h3", {}, "Related searches"), el("p", {}, pills(s.related))] : null,
+          s.local_pack.length ? [el("h3", {}, "Local pack"), el("p", {}, pills(s.local_pack.map((l) => typeof l === "string" ? l : `${l.title}${l.rating ? " · " + l.rating + "★ (" + (l.reviews || 0) + ")" : ""}`)))] : null,
+          s.ai_refs.length ? [el("h3", {}, "AI overview cites"), el("p", {}, pills(s.ai_refs, ours))] : null)))));
+  };
+  render();
+  return el("div", { class: "card" }, el("h2", {}, "SERP snapshots"),
+    el("div", { class: "controls" }, el("input", { type: "search", placeholder: "Filter by keyword or domain…", oninput: (e) => { q = e.target.value.toLowerCase(); render(); } }),
+      el("span", { class: "muted small" }, "top 150 by volume shown")), list);
+}
+
+function competitors() {
+  const c = DATA.competitors;
+  const domSel = el("select", {}, c.domains.map((d) => el("option", { value: d }, d)));
+  const patWrap = el("div");
+  const showPatterns = () => patWrap.replaceChildren(table([
+    { key: "pattern", label: "URL pattern" }, { key: "keywords", label: "Keywords", num: true },
+    { key: "volume", label: "Volume", num: true }, { key: "etv", label: "Est. traffic", num: true },
+    { key: "examples", label: "Examples", render: (r) => el("span", { class: "small muted" }, r.examples.join(" · ")) },
+  ], c.patterns[domSel.value] || [], { sort: "etv", noSearch: true }));
+  domSel.addEventListener("change", showPatterns);
+  showPatterns();
+  return [
+    el("div", { class: "card" }, el("h2", {}, "Ranking domains"), table([
+      { key: "domain", label: "Domain", render: (r) => el("span", { class: "pill" + (r.ours ? " ours" : "") }, r.domain) },
+      { key: "visibility", label: "Visibility", num: true, help: "estimated monthly clicks over analysed SERPs" },
+      { key: "keywords", label: "Top-10 SERPs", num: true }, { key: "top3", label: "Top 3", num: true }, { key: "best", label: "Best", num: true },
+      { key: "examples", label: "Examples", render: (r) => el("span", { class: "small muted" }, r.examples.join(" · ")) },
+    ], DATA.ranking_domains, { sort: "visibility" })),
+    el("div", { class: "card" }, el("h2", {}, "Which page types earn their traffic"),
+      el("p", { class: "muted small" }, "Relevant ranked keywords grouped by URL shape: shows which page types (city pages, blog, product pages) earn their traffic."),
+      el("div", { class: "controls" }, domSel), patWrap),
+    el("div", { class: "card" }, el("h2", {}, "Keyword gaps: ≥2 competitors in the top 20, hangendehapjes.nl absent"), table([
+      { key: "keyword", label: "Keyword" }, { key: "volume", label: "Volume", num: true },
+      { key: "n_domains", label: "Competitors", num: true }, { key: "best_pos", label: "Best pos", num: true },
+      { key: "kind", label: "Kind" }, { key: "domains", label: "Who", render: (r) => el("span", { class: "small muted" }, r.domains.join(" · ")) },
+    ], c.gaps, { sort: "volume" })),
+    el("div", { class: "card" }, el("h2", {}, `hangendehapjes.nl ranks for ${c.ours.length} keywords (Labs)`), table([
+      { key: "keyword", label: "Keyword" }, { key: "volume", label: "Volume", num: true }, { key: "pos", label: "Pos", num: true },
+      { key: "gsc_pos", label: "GSC pos", num: true }, { key: "gsc_impr", label: "GSC impr", num: true }, { key: "url", label: "URL" },
+    ], c.ours, { sort: "volume", noSearch: true })),
+  ];
+}
+
+function links() {
+  const b = DATA.backlinks;
+  const summary = Object.entries(b.summary).map(([domain, s]) => ({ domain, ...s }));
+  let type = "all";
+  const types = ["all", ...new Set(b.targets.map((t) => t.type))];
+  const t = table([
+    { key: "domain", label: "Referring domain", render: (r) => el("a", { href: "https://" + r.domain, target: "_blank", rel: "noopener" }, r.domain) },
+    { key: "type", label: "Type" }, { key: "rank", label: "Rank", num: true, help: "DataForSEO rank 0–1000" },
+    { key: "n", label: "Links to", num: true }, { key: "links_to", label: "Competitors", render: (r) => pills(r.links_to) },
+  ], b.targets, { sort: "n" });
+  const sel = el("select", { onchange: (e) => { type = e.target.value; t.setFilter((r) => type === "all" || r.type === type); } },
+    types.map((x) => el("option", { value: x }, x)));
+  return [
+    el("div", { class: "card" }, el("h2", {}, "Backlink profiles"), bars(summary.map((s) => ({ label: s.domain, value: s.referring_domains || 0,
+      tip: `${fmt(s.backlinks)} backlinks · rank ${s.rank}` })), { format: fmt }),
+      el("p", { class: "muted small" }, "Referring domains (include subdomains).")),
+    el("div", { class: "card" }, el("h2", {}, "Link targets: link to ≥2 competitors, not to us"), el("div", { class: "controls" }, sel), t),
+    el("div", { class: "card" }, el("h2", {}, `Who links to us (${(b.ours || []).length} referring domains)`), table([
+      { key: "domain", label: "Domain", render: (r) => el("a", { href: "https://" + r.domain, target: "_blank", rel: "noopener" }, r.domain) },
+      { key: "type", label: "Type" }, { key: "rank", label: "Rank", num: true },
+    ], b.ours || [], { sort: "rank", noSearch: true })),
+  ];
+}
+
+function localTab() {
+  const L = DATA.local;
+  const qs = Object.keys(L.maps || {});
+  if (!qs.length) return el("p", { class: "muted" }, "No local data: run the local step.");
+  const maps = qs.map((q) => el("div", { class: "card" }, el("h2", {}, `Maps: ${q}`),
+    table([
+      { key: "pos", label: "#", num: true },
+      { key: "title", label: "Business", render: (r) => el("span", { class: "pill" + (r.ours ? " ours" : "") }, r.title) },
+      { key: "category", label: "Category" },
+      { key: "rating", label: "★", num: true }, { key: "reviews", label: "Reviews", num: true },
+      { key: "domain", label: "Website" }, { key: "address", label: "Address", render: (r) => el("span", { class: "small muted" }, r.address || "") },
+      { key: "categories", label: "Other categories", render: (r) => el("span", { class: "small muted" }, (r.categories || []).join(" · ")) },
+    ], L.maps[q], { sort: "pos", noSearch: true })));
+  const org = Object.entries(L.organic || {}).map(([q, s]) => el("details", {},
+    el("summary", {}, el("b", {}, q), ` (searched from Hilversum) · ours: ${s.ours ? "#" + s.ours : "–"}`),
+    s.local_pack.length ? el("p", {}, "Local pack: ", pills(s.local_pack.map((l) => `${l.title}${l.rating ? " · " + l.rating + "★ (" + (l.reviews || 0) + ")" : ""}`))) : null,
+    el("ol", {}, s.organic.map((o) => el("li", {}, el("span", { class: "pill" + (ours(o.domain) ? " ours" : "") }, o.domain), " ", o.title)))));
+  return [el("div", { class: "card" }, el("h2", {}, "Organic SERPs searched from Hilversum"), org), ...maps];
+}
+
+function keywords() {
+  let kind = "all";
+  const t = table([
+    { key: "keyword", label: "Keyword" }, { key: "volume", label: "Volume", num: true }, { key: "cpc", label: "CPC €", num: true },
+    { key: "intent", label: "Intent" }, { key: "kind", label: "Kind" }, { key: "product", label: "Product" },
+    { key: "occasion", label: "Occasion" }, { key: "place", label: "Place" },
+    { key: "gsc_pos", label: "GSC pos", num: true }, { key: "gsc_impr", label: "GSC impr", num: true },
+    { key: "seeds", label: "From seed", render: (r) => el("span", { class: "small muted" }, (r.seeds || []).slice(0, 3).join(" · ")) },
+  ], DATA.keywords, { sort: "volume" });
+  const sel = el("select", { onchange: (e) => { kind = e.target.value; t.setFilter((r) => kind === "all" || r.kind === kind); } },
+    ["all", "service", "answer", "diy", "brand", "other"].map((x) => el("option", { value: x }, x)));
+  return el("div", { class: "card" }, el("h2", {}, "Keyword universe (relevant; 'diy' = the intent filter, never targeted)"), el("div", { class: "controls" }, sel), t);
+}
+
+function costs() {
+  return el("div", { class: "card" }, el("h2", {}, `Paid calls (all runs): $${DATA.meta.spend_total}`), table([
+    { key: "timestamp", label: "When" }, { key: "endpoint", label: "Endpoint" }, { key: "payload", label: "Payload" },
+    { key: "cost_usd", label: "USD", num: true, value: (r) => Number(r.cost_usd) },
+  ], DATA.costs, { sort: "timestamp" }));
+}
+
+// --- boot ---------------------------------------------------------------------------
+document.getElementById("meta").textContent =
+  `${DATA.meta.market} · run ${DATA.meta.run} · generated ${DATA.meta.generated} · ${DATA.meta.paid_calls} paid calls, $${DATA.meta.spend_total} all runs`;
+const banners = document.getElementById("banners");
+if (DATA.meta.sandbox) banners.append(el("p", { class: "banner" }, "Sandbox run: the DataForSEO numbers below are fake dummy data."));
+if (DATA.meta.sample) banners.append(el("p", { class: "banner" }, "Sample run: tiny limits, not representative."));
+const nav = document.getElementById("tabs"), main = document.getElementById("main");
+const built = {};
+function open(id) {
+  for (const b of nav.children) b.setAttribute("aria-selected", String(b.dataset.id === id));
+  for (const s of main.children) s.hidden = s.dataset.id !== id;
+  if (!built[id]) {
+    const sec = main.querySelector(`[data-id="${id}"]`);
+    sec.append(...[TABS.find((t) => t[0] === id)[2]()].flat(2).filter(Boolean));
+    built[id] = true;
+  }
+  history.replaceState(null, "", "#" + id);
+}
+for (const [id, label] of TABS) {
+  nav.append(el("button", { role: "tab", "data-id": id, onclick: () => open(id) }, label));
+  main.append(el("section", { "data-id": id, hidden: true }));
+}
+open(TABS.some((t) => t[0] === location.hash.slice(1)) ? location.hash.slice(1) : "overview");
+</script>
+</body>
+</html>
