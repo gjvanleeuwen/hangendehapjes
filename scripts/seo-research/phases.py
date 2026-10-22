@@ -11,6 +11,7 @@ import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
+from urllib.parse import urlparse
 from urllib.parse import urlsplit
 
 import config
@@ -248,7 +249,8 @@ def _parse_serp(result: dict | None) -> dict | None:
     if not result:
         return None
     out = {"features": result.get("item_types") or [], "organic": [], "paa": [], "related": [],
-           "local_pack": [], "ai_refs": [], "ours": None, "ours_url": None, "ours_in_ai": False}
+           "local_pack": [], "ai_refs": [], "ours": None, "ours_url": None, "ours_in_ai": False,
+           "ours_ai_url": None, "ours_images": 0, "ours_images_url": None}
     for it in result.get("items") or []:
         kind = it.get("type")
         if kind == "organic":
@@ -268,8 +270,21 @@ def _parse_serp(result: dict | None) -> dict | None:
                                       "rating": rating.get("value"), "reviews": rating.get("votes_count"),
                                       "ours": "hangende" in (it.get("title") or "").lower()})
         elif kind == "ai_overview":
-            out["ai_refs"] += list(dict.fromkeys(
-                (r.get("domain") or "").lower() for r in it.get("references") or [] if r.get("domain")))
+            # Citations sit on the block and on its sub-items (references + inline links).
+            refs = list(it.get("references") or [])
+            for sub in it.get("items") or []:
+                refs += (sub.get("references") or []) + (sub.get("links") or [])
+            out["ai_refs"] = list(dict.fromkeys(out["ai_refs"] + [
+                (r.get("domain") or "").lower() for r in refs if r.get("domain")]))
+            ours_ref = next((r for r in refs if _ours((r.get("domain") or "").lower())), None)
+            if ours_ref and not out["ours_ai_url"]:
+                out["ours_ai_url"] = ours_ref.get("url")
+        elif kind == "images":
+            urls = [(i.get("url") or "") for i in it.get("items") or []]
+            mine = [u for u in urls if _ours(urlparse(u).netloc.lower())]
+            if mine:
+                out["ours_images"] += len(mine)
+                out["ours_images_url"] = out["ours_images_url"] or mine[0]
     out["ours_in_ai"] = any(_ours(d) for d in out["ai_refs"])
     return out
 

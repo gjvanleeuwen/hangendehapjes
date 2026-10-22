@@ -239,7 +239,7 @@ export const DISCOUNT_GROUP_LABELS: Record<DiscountGroup, string> = {
 export const DEFAULT_DISCOUNT_CURVES: Record<DiscountGroup, Tier> = {
 	hapjes: { 25: 10, 50: 10, 100: 5, 200: 3, 400: 3 },
 	tiramisuTaart: { 25: 13, 50: 7, 100: 0, 200: 0, 400: 0 },
-	millefeuille: { 25: 9, 50: 9, 100: 1, 200: 0, 400: 0 }
+	millefeuille: { 25: 9, 50: 5, 100: 1, 200: 0, 400: 0 }
 };
 
 // De prijzen die op de website staan, excl. btw, binnen de vrije straal. Alleen
@@ -251,7 +251,7 @@ export const WEBSITE_PRICES: Record<
 	tiramisu: { 50: 425, 100: 650, 200: 1150 },
 	burrata: { 50: 450, 100: 700, 200: 1200 },
 	'tiramisu-taart': { 30: 375, 50: 475, 100: 795 },
-	'millefeuille-taart': { 25: 395, 50: 495, 100: 845 }
+	'millefeuille-taart': { 25: 395, 50: 525, 100: 845 }
 };
 
 export function discountGroupFor(variant?: SpecialVariant): DiscountGroup {
@@ -352,7 +352,7 @@ export const DEFAULT_HOUR_CURVES: Record<HourCurveKey, Tier> = {
 	prepTiramisuTaart: { 25: 1.25, 50: 2, 100: 3.5, 200: 6.5, 400: 12.5 },
 	// NIET GEMETEN. Begonnen als kopie van de tiramisu-taart-prep en in okt 2026
 	// iets opgehoogd zodat de calculator binnen de vrije straal uitkomt op de
-	// prijzen uit de blog (25 -> ~395, 50 -> ~495, 100 -> ~845 excl. btw).
+	// prijzen uit de blog (25 -> ~395, 50 -> ~525, 100 -> ~845 excl. btw).
 	prepMillefeuille: { 25: 1.5, 50: 2.25, 100: 4.25, 200: 7.25, 400: 13.25 },
 	// 45 min bij 50 personen, 1u15 bij 100. Daarboven dezelfde helling doorgetrokken.
 	buildTaart: { 25: 0.75, 50: 0.75, 100: 1.25, 200: 2.25, 400: 4.25 },
@@ -924,12 +924,17 @@ export function minPortionsForSpecialVariant(variant: SpecialVariant): number {
 	return SPECIAL_MIN_PORTIONS[variant];
 }
 
-// Millefeuille kostprijs per portie (excl. btw):
-//   bladerdeeg EUR 9,60 + crème EUR 20,04 = EUR 29,64 over 40 porties -> 0,74 p.p.
-//   fruit: 2,4 kg @ EUR 18,90/kg = EUR 45,36 voor 50 porties -> 48 g p.p. -> 0,91 p.p.
+// Millefeuille kostprijs per portie (excl. btw), herrekend 2026-10-19:
+//   bladerdeeg: 1 rol (EUR 3,50) per ~8 porties -> 0,44 p.p.
+//   room-mix per batch (6-8 porties): 3 gelatine 0,38 + 175 g slagroom 1,00
+//     + 20 g (vanille)suiker 0,32 + 350 g banketbakkersroom 1,28 = EUR 2,98 -> ~0,43 p.p.
+//     (banketbakkersroom volledig recept: 500 ml melk, 15 g vanillesuiker, 5 ml vanille
+//     extract, 100 g suiker, 30 g maizena, 40 g dooier = EUR 2,57 voor ~700 g)
+//   -> basis 0,87 p.p.
+//   fruit: mix EUR 18/kg, max 50 g p.p. -> 0,90 p.p.
 //   (fruit varieert per seizoen -> losse input in de calculator)
-export const MILLEFEUILLE_BASE_COST_PER_PORTION = 0.74;
-export const MILLEFEUILLE_DEFAULT_FRUIT_COST_PER_PORTION = 0.91;
+export const MILLEFEUILLE_BASE_COST_PER_PORTION = 0.87;
+export const MILLEFEUILLE_DEFAULT_FRUIT_COST_PER_PORTION = 0.9;
 
 export function specialPrepHours(
 	variant: SpecialVariant,

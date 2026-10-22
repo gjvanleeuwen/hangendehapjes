@@ -12,7 +12,7 @@
     --grid: #e4e3df; --border: #dddcd7;
     --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #77766f;
     --series-1: #2a78d6; --series-2: #eb6834;
-    --accent: #2a78d6; --warn-bg: #fff4d6; --warn-ink: #6b4a00;
+    --accent: #2a78d6; --warn-bg: #fff4d6; --warn-ink: #6b4a00; --up: #1f7a3a; --down: #b3261e;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -21,10 +21,15 @@
       --grid: #30302d; --border: #3a3a37;
       --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #94938a;
       --series-1: #3987e5; --series-2: #d95926;
-      --accent: #5a9cec; --warn-bg: #3a2f10; --warn-ink: #f3d68a;
+      --accent: #5a9cec; --warn-bg: #3a2f10; --warn-ink: #f3d68a; --up: #6fcf8a; --down: #f28b82;
     }
   }
   * { box-sizing: border-box; }
+  .up { color: var(--up); font-weight: 600; } .down { color: var(--down); font-weight: 600; }
+  .rank { display: inline-block; min-width: 34px; padding: 1px 6px; border-radius: 6px; text-align: center;
+          font-weight: 650; font-variant-numeric: tabular-nums; background: var(--surface-2); }
+  .rank.top3 { background: var(--accent); color: var(--surface-1); }
+  .rank.top10 { outline: 1px solid var(--accent); }
   body { margin: 0; font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
          background: var(--surface-0); color: var(--text-primary); }
   header { padding: 20px 28px 0; }
@@ -130,7 +135,7 @@ const hideTip = () => (tip.style.display = "none");
 // --- sortable, filterable table ---------------------------------------------------
 function table(columns, rows, opts = {}) {
   const pageSize = opts.pageSize || 100;
-  let sortKey = opts.sort || null, dir = -1, query = "", shown = pageSize;
+  let sortKey = opts.sort || null, dir = opts.dir || -1, query = "", shown = pageSize;
   const extraFilter = { fn: () => true };
   const tbody = el("tbody");
   const count = el("span", { class: "muted small" });
@@ -248,11 +253,65 @@ function lines(series, opts = {}) {
 
 // --- tabs -----------------------------------------------------------------------------
 const TABS = [
-  ["overview", "Overview", overview], ["overtake", "Overtake", overtake], ["opportunities", "Opportunities", opportunities],
+  ["rankings", "Where we rank", rankingsTab], ["overview", "Overview", overview], ["overtake", "Overtake", overtake], ["opportunities", "Opportunities", opportunities],
   ["pages", "Our pages", pages], ["serps", "SERPs", serps], ["competitors", "Competitors", competitors],
   ["links", "Links", links], ["local", "Local / Maps", localTab], ["keywords", "Keywords", keywords], ["costs", "Costs", costs],
 ];
 const BUCKET_LABEL = Object.fromEntries(DATA.buckets);
+
+function rankingsTab() {
+  const R = DATA.rankings;
+  if (!R || !R.rows.length) return el("p", { class: "muted" }, "No SERP data: run the serp step.");
+  const nl = R.rows.filter((r) => r.source === "nl"), pos = nl.filter((r) => r.pos).map((r) => r.pos);
+  const moved = R.rows.filter((r) => typeof r.change === "number" || r.change === "entered" || r.change === "dropped");
+  const ups = moved.filter((r) => r.change === "entered" || r.change > 0).length, downs = moved.filter((r) => r.change === "dropped" || r.change < 0).length;
+  const rankCell = (p) => p ? el("span", { class: "rank" + (p <= 3 ? " top3" : p <= 10 ? " top10" : "") }, "#" + p) : el("span", { class: "muted" }, "–");
+  const changeCell = (r) => {
+    const c = r.change;
+    if (c === null || c === undefined) return "";
+    if (c === 0) return el("span", { class: "muted" }, "=");
+    if (c === "entered") return el("span", { class: "up" }, "new in top 20");
+    if (c === "dropped") return el("span", { class: "down" }, "out of top 20");
+    if (c === "new") return el("span", { class: "muted" }, "first check");
+    return el("span", { class: c > 0 ? "up" : "down", title: `was #${r.prev}` }, (c > 0 ? "▲" : "▼") + Math.abs(c));
+  };
+  let view = "ranking";
+  const t = table([
+    { key: "keyword", label: "Keyword" },
+    { key: "source", label: "Searched", render: (r) => R.sources[r.source] },
+    { key: "volume", label: "Vol/mo", num: true },
+    { key: "pos", label: "Position", num: true, help: "our position in one desktop Google snapshot (top 20 checked)", render: (r) => rankCell(r.pos) },
+    { key: "ai", label: "AI Overview", help: "Google's AI Overview cites one of our pages", render: (r) => r.ai ? el("span", { class: "rank top3" }, "cited") : "" },
+    { key: "images", label: "Images", num: true, help: "our images in Google's image block on the results page", render: (r) => r.images ? "🖼 " + r.images : "" },
+    { key: "change", label: R.previous ? `vs ${R.previous}` : "Change", num: true, value: (r) => typeof r.change === "number" ? r.change : r.change === "entered" ? 99 : r.change === "dropped" ? -99 : null, render: changeCell },
+    { key: "url", label: "Our page", render: (r) => r.url ? el("a", { href: DATA.meta.our_domain ? "https://" + DATA.meta.our_domain + r.url : r.url, target: "_blank", rel: "noopener" }, r.url) : "–" },
+    { key: "gsc_pos", label: "GSC pos", num: true, help: `Search Console average position, ${DATA.meta.gsc_window}` },
+    { key: "gsc_impr", label: "GSC impr", num: true },
+    { key: "gsc_clicks", label: "GSC clicks", num: true },
+    { key: "history", label: "History", render: (r) => el("span", { class: "small muted" }, r.history.map(([run, p]) => `${run.slice(5)}: ${p ? "#" + p : "–"}`).join(" · ")) },
+  ], R.rows, { sort: "pos", dir: 1, placeholder: "Filter keyword or page…" });
+  const views = [["ranking", "Visible on Google"], ["gsc", "Visible or GSC ≤ 20"], ["moved", "Moved since last run"], ["hilversum", "From Hilversum"], ["all", "All tracked"]];
+  const filters = {
+    ranking: (r) => r.pos || r.ai || r.images, gsc: (r) => r.pos || r.ai || r.images || (r.gsc_pos && r.gsc_pos <= 20), moved: (r) => moved.includes(r),
+    hilversum: (r) => r.source === "hilversum", all: () => true,
+  };
+  const chips = views.map(([k, label]) => el("button", { class: "chip", "aria-pressed": String(k === view), onclick: (e) => {
+    view = k; chips.forEach((c) => c.setAttribute("aria-pressed", "false")); e.target.setAttribute("aria-pressed", "true"); t.setFilter(filters[k]); } }, label));
+  t.setFilter(filters[view]);
+  return [
+    el("div", { class: "tiles" },
+      [["#1", pos.filter((p) => p === 1).length], ["Top 3", pos.filter((p) => p <= 3).length], ["Top 10", pos.filter((p) => p <= 10).length],
+       ["Top 20", pos.length], ["Cited in AI Overview", nl.filter((r) => r.ai).length], ["In image results", nl.filter((r) => r.images).length], ["Keywords tracked", nl.length],
+       ...(R.previous ? [[`Up / down vs ${R.previous}`, `${ups} / ${downs}`]] : [])]
+        .map(([l, v]) => el("div", { class: "tile" }, el("div", { class: "v" }, fmt(v)), el("div", { class: "l" }, l)))),
+    el("div", { class: "card" }, el("h2", {}, "Where hangendehapjes.nl ranks on Google"),
+      el("p", { class: "muted small" }, `One desktop google.nl snapshot per keyword on ${DATA.meta.run}, top 20 checked; Hilversum rows were searched from Hilversum. `,
+        "Position counts regular results only; AI Overview citations and image results are shown separately (GSC folds them into its average, so GSC can say ~#1 while Position is –). A single snapshot moves a few places day to day. ",
+        R.previous ? `Compared with ${R.previous}. ` : "First tracked run: the next run shows the change. ",
+        `History is kept in docs/_ANALYSIS/seo/rankings.csv (runs: ${R.runs.join(", ")}).`),
+      el("div", { class: "controls" }, chips), t),
+  ];
+}
 
 function overview() {
   const o = DATA.opportunities, kws = DATA.keywords, s = DATA.serps;
@@ -512,7 +571,7 @@ for (const [id, label] of TABS) {
   nav.append(el("button", { role: "tab", "data-id": id, onclick: () => open(id) }, label));
   main.append(el("section", { "data-id": id, hidden: true }));
 }
-open(TABS.some((t) => t[0] === location.hash.slice(1)) ? location.hash.slice(1) : "overview");
+open(TABS.some((t) => t[0] === location.hash.slice(1)) ? location.hash.slice(1) : "rankings");
 </script>
 </body>
 </html>

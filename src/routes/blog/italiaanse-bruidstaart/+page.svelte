@@ -358,7 +358,7 @@
 								</tr>
 								<tr class="border-b border-border/60">
 									<td class="py-2 pr-3 text-foreground">50 gasten</td>
-									<td class="py-2 text-right font-medium text-foreground">€495</td>
+									<td class="py-2 text-right font-medium text-foreground">€525</td>
 								</tr>
 								<tr>
 									<td class="py-2 pr-3 text-foreground">100 gasten</td>

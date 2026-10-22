@@ -67,7 +67,7 @@ const HILVERSUM_NL: LocationContent = {
 	title: 'Live Catering Hilversum | Entertainend eten | Hangende Hapjes',
 	description:
 		'Catering in Hilversum nodig? Wij maken verse tiramisu en burrata-bowls, voor iedere gast uniek. Vanaf 50 porties, geen reiskosten en vaste prijzen.',
-	ogImage: 'https://hangendehapjes.nl/images/owners.jpeg',
+	ogImage: 'https://hangendehapjes.nl/og-catering-hilversum.jpg',
 	kicker: 'Entertainend eten · lokale catering uit Hilversum',
 	h1: 'Live catering in Hilversum: heerlijke hapjes ter plekke gemaakt voor elke gast',
 	intro: [
@@ -196,7 +196,7 @@ const HILVERSUM_EN: LocationContent = {
 	title: 'Catering Hilversum | Live bites & desserts | Hangende Hapjes',
 	description:
 		'Need catering in Hilversum? We make fresh tiramisu and burrata bowls live, right among your guests. From 50 portions, low travel costs. Get your quote.',
-	ogImage: 'https://hangendehapjes.nl/images/owners.jpeg',
+	ogImage: 'https://hangendehapjes.nl/og-catering-hilversum.jpg',
 	kicker: 'Entertaining food · local catering from Hilversum',
 	h1: 'Catering in Hilversum, live bites on the spot',
 	intro: [
@@ -365,7 +365,7 @@ const BRUILOFT_NL: LocationContent = {
 	title: 'Catering bruiloft: live hapjes op locatie | Hangende Hapjes',
 	description:
 		'Catering voor je bruiloft: verse tiramisu en burrata-bowls, ter plekke gemaakt tussen jullie gasten door. Ook bruidstaarten. Vanaf 50 porties, vanaf €425.',
-	ogImage: 'https://hangendehapjes.nl/images/tiramisutaart_bruiloft_aansnijden.jpeg',
+	ogImage: 'https://hangendehapjes.nl/og-catering-bruiloft.jpg',
 	kicker: 'Bruiloft catering · live tussen jullie gasten door',
 	h1: 'Catering voor je bruiloft: hapjes die we live voor elke gast maken',
 	intro: [
@@ -439,7 +439,7 @@ const BRUILOFT_NL: LocationContent = {
 					['Tiramisu, live opgebouwd', '€425', '€650'],
 					['Burrata-bowls, live opgemaakt', '€450', '€700'],
 					['Klassieke bruidstaart', 'vanaf €11,50 p.p.', 'vanaf €11,50 p.p.'],
-					['Italiaanse millefoglie', 'vanaf €495', 'op aanvraag'],
+					['Italiaanse millefoglie', 'vanaf €525', 'op aanvraag'],
 					['Tiramisutaart', 'vanaf €475', 'op aanvraag']
 				],
 				note: 'Tiramisu en burrata samen op één bruiloft? Dan krijg je ongeveer €125 korting op de vanafprijzen samen. Meer dan 100 gasten: op aanvraag.'
@@ -498,7 +498,7 @@ const BRUILOFT_EN: LocationContent = {
 	title: 'Wedding catering: live bites on the spot | Hangende Hapjes',
 	description:
 		'Wedding catering your guests remember: fresh tiramisu and burrata bowls, made on the spot among your guests. Wedding cakes too. From 50 portions, from €425.',
-	ogImage: 'https://hangendehapjes.nl/images/tiramisutaart_bruiloft_aansnijden.jpeg',
+	ogImage: 'https://hangendehapjes.nl/og-catering-bruiloft.jpg',
 	kicker: 'Wedding catering · live among your guests',
 	h1: 'Wedding catering: bites we make live for every guest',
 	intro: [
@@ -572,7 +572,7 @@ const BRUILOFT_EN: LocationContent = {
 					['Tiramisu, built live', '€425', '€650'],
 					['Burrata bowls, made live', '€450', '€700'],
 					['Classic wedding cake', 'from €11.50 p.p.', 'from €11.50 p.p.'],
-					['Italian millefoglie', 'from €495', 'on request'],
+					['Italian millefoglie', 'from €525', 'on request'],
 					['Tiramisu cake', 'from €475', 'on request']
 				],
 				note: 'Tiramisu and burrata together at one wedding? You get about €125 off the combined starting prices. More than 100 guests: on request.'
@@ -636,7 +636,7 @@ const BEDRIJFSFEEST_NL: LocationContent = {
 	title: 'Live catering bedrijfsfeest en borrel | Hangende Hapjes',
 	description:
 		'Catering voor je bedrijfsfeest of zakelijke borrel: verse burrata-bowls en tiramisu, live gemaakt tussen je gasten door. Vaste prijs, factuur achteraf.',
-	ogImage: 'https://hangendehapjes.nl/images/hero.jpeg',
+	ogImage: 'https://hangendehapjes.nl/og-catering-bedrijfsfeest.jpg',
 	kicker: 'Zakelijk · bedrijfsfeest, borrel en events',
 	h1: 'Catering voor je bedrijfsfeest: live hapjes die mensen met elkaar laten praten',
 	intro: [
@@ -760,7 +760,7 @@ const BEDRIJFSFEEST_EN: LocationContent = {
 	title: 'Live catering for company parties | Hangende Hapjes',
 	description:
 		'Catering for your company party or business drinks: fresh burrata bowls and tiramisu, made live among your guests. Fixed price, invoice afterwards.',
-	ogImage: 'https://hangendehapjes.nl/images/hero.jpeg',
+	ogImage: 'https://hangendehapjes.nl/og-catering-bedrijfsfeest.jpg',
 	kicker: 'Business · company parties, drinks and events',
 	h1: 'Company party catering: live bites that get people talking',
 	intro: [

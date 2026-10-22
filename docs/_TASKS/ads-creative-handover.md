@@ -1,5 +1,7 @@
 # Handover: make the first Instagram ad with Gijs
 
+> **Update 22 Oct 2026:** the first test (tiramisu-nov26) ran and is paused. Results, lessons and the decision rule for judging the next ad are in `docs/_ANALYSIS/meta-ads-tiramisu-nov26-results.md`. Read that first; its limits (€100 per booking, €20 per enquiry, max ~€0,34 per click) replace the older ones below.
+
 You are picking up where the planning stopped. The numbers, the campaign settings and the limits are decided. What is not decided is the creative itself. Your job: read the context below, then work it out **with Gijs in conversation**, from the material that already exists in this repo. Do not write a finished ad and hand it over; ask, propose, let him choose, then write it down.
 
 ## Read first, in this order

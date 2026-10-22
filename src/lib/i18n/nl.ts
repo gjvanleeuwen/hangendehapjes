@@ -134,7 +134,7 @@ export const nl: Translations = {
 					kicker: 'Italiaans · vers fruit',
 					name: 'Italiaanse bruidstaart',
 					pitch: 'Millefoglie met dunne lagen bladerdeeg, luchtige room en vers rood fruit.',
-					priceFrom: 'Vanaf €495',
+					priceFrom: 'Vanaf €525',
 					priceNote: 'voor 50 personen',
 					href: '/blog/italiaanse-bruidstaart',
 					image: '/images/millefoglie_aansnijden.jpeg',

@@ -19,6 +19,11 @@ If uv can't write its cache in a sandbox, prefix `UV_CACHE_DIR=$TMPDIR/uv-cache`
 Output goes to `data/seo-research/<run>/` (gitignored via `/data`). Open `report.html` in a browser.
 Copy it to `reports/seo-research-<date>.html` to keep it next to the funnel reports.
 
+The first tab, **Where we rank**, shows our own position per tracked keyword (national desktop SERP +
+searched from Hilversum) next to the GSC average, with the change since the previous dated run. Every
+dated run appends its positions to `docs/_ANALYSIS/seo/rankings.csv` (tracked in git, so the trend
+survives); sandbox/sample runs are never recorded. Rebuilding `report` for the same run replaces its rows.
+
 ## Steps
 
 | Step          | What                                                                                                                                                         | Paid endpoints                                                                      | 2026-10-16 cost |

@@ -9,6 +9,7 @@ from datetime import date
 import client
 import config
 import our_site
+import rankings
 from phases import BUCKETS
 
 
@@ -45,6 +46,7 @@ def build(ctx) -> dict:
         "opportunities": load("opportunities") or [],
         "analysis": load("analysis") or {"queries": [], "ours_rank": None},
         "local": load("local") or {"maps": {}, "organic": {}},
+        "rankings": rankings.build(ctx.run_dir.name, serp, load("local") or {}),
         "keywords": [{k: v for k, v in r.items() if k != "monthly"} for r in keywords[:5000]],
         "season": [(m, season[m]) for m in months], "season_wedding": [(m, wedding[m]) for m in months],
         "serps": [{"keyword": kw, "volume": serp["volumes"].get(kw, 0), **s} for kw, s in serp["serps"].items()],
@@ -72,6 +74,7 @@ def markdown(d: dict) -> str:
     lines = [f"# Hangende Hapjes SEO research ({m['run']})", "",
              f"{m['market']} · generated {m['generated']} · spend ${m['spend_total']} over {m['paid_calls']} paid calls"
              + (" · **SANDBOX DATA (fake)**" if m["sandbox"] else "") + (" · sample run" if m["sample"] else ""), ""]
+    lines += rankings_md(d["rankings"])
     counts = Counter(o["bucket"] for o in opp)
     volume = Counter()
     for o in opp:
@@ -113,3 +116,32 @@ def markdown(d: dict) -> str:
         lines += ["", "## Link targets", "", "| domain | type | rank | links to |", "|---|---|---|---|"]
         lines += [f"| {t['domain']} | {t['type']} | {t['rank']} | {', '.join(t['links_to'])} |" for t in targets]
     return "\n".join(lines) + "\n"
+
+
+def rankings_md(rk: dict) -> list[str]:
+    rows = rk["rows"]
+    if not rows:
+        return []
+    fmt_pos = lambda p: f"#{p}" if p else "–"  # noqa: E731
+
+    def change(r: dict) -> str:
+        c = r.get("change")
+        if c in (None, 0):
+            return "=" if c == 0 else ""
+        if isinstance(c, str):
+            return c
+        return f"▲{c}" if c > 0 else f"▼{-c}"
+
+    s = rankings.summary(rows)
+    prev = f" vs {rk['previous']}" if rk["previous"] else " (first tracked run)"
+    out = ["## Where we rank", "",
+           f"Our position in one desktop Google snapshot per keyword (top 20){prev}. "
+           f"{s['top20']} of {s['tracked']} tracked keywords in the top 20, {s['top10']} in the top 10, "
+           f"{s['top3']} in the top 3, {s['top1']} at #1. Cited in {s['ai']} AI Overviews, in the image block on {s['images']}. "
+           "GSC = Search Console average position (it counts AI Overview citations and images too).", "",
+           "| keyword | where | vol | pos | AI | images | change | page | GSC pos | GSC impr |", "|---|---|---|---|---|---|---|---|---|---|"]
+    shown = [r for r in rows if r["pos"] or r["ai"] or r["images"] or r.get("prev") or (r["gsc_pos"] and r["gsc_pos"] <= 20)]
+    for r in sorted(shown, key=lambda r: (r["pos"] or 99, -(r["volume"] or 0))):
+        out.append(f"| {r['keyword']} | {rk['sources'][r['source']]} | {r['volume']} | {fmt_pos(r['pos'])} | {'cited' if r['ai'] else ''} | {r['images'] or ''} | {change(r)} | "
+                   f"{r['url'] or '–'} | {r['gsc_pos'] or '–'} | {r['gsc_impr'] or '–'} |")
+    return out + [""]

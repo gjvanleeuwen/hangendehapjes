@@ -132,7 +132,7 @@ export const en: Translations = {
 					kicker: 'Italian · fresh fruit',
 					name: 'Italian wedding cake',
 					pitch: 'Millefoglie with thin layers of puff pastry, light cream and fresh red fruit.',
-					priceFrom: 'From €495',
+					priceFrom: 'From €525',
 					priceNote: 'for 50 guests',
 					href: '/blog/italiaanse-bruidstaart',
 					image: '/images/millefoglie_aansnijden.jpeg',
